@@ -43,9 +43,9 @@
 }
 
 .home-header {
-  background: var(--nav-bg) !important;
-  backdrop-filter: blur(12px);
-  border-bottom: 1px solid var(--border-color) !important;
+  background: transparent !important;
+  backdrop-filter: none;
+  border-bottom: 1px solid transparent !important;
   position: sticky;
   top: 0;
   z-index: 100;

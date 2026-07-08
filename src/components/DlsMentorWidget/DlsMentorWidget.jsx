@@ -176,7 +176,7 @@ function DlsMentorWidget() {
               role: "error",
               text:
                 error.message ||
-                "Could not reach DLS Mentor. Make sure the AI service is running.",
+                "Could not reach BoolMentor. Make sure the AI service is running.",
             }),
         );
       } finally {
@@ -213,12 +213,12 @@ function DlsMentorWidget() {
         type="button"
         className="dls-mentor-launcher"
         onClick={() => setIsOpen(true)}
-        aria-label="Open DLS & COAL Mentor chat"
-        title="DLS & COAL Mentor"
+        aria-label="Open BoolMentor chat"
+        title="BoolMentor"
       >
         <MentorAvatar className="dls-mentor-launcher__icon" iconSize={22} />
         <span className="dls-mentor-launcher__text">
-          <span className="dls-mentor-launcher__title">DLS & COAL Mentor</span>
+          <span className="dls-mentor-launcher__title">BoolMentor</span>
           <span className="dls-mentor-launcher__hint">Digital Logic · Computer Organization</span>
         </span>
       </button>
@@ -228,11 +228,11 @@ function DlsMentorWidget() {
   const showWelcome = messages.length === 0;
 
   return (
-    <section className="dls-mentor-panel" aria-label="DLS & COAL Mentor chat">
+    <section className="dls-mentor-panel" aria-label="BoolMentor chat">
       <header className="dls-mentor-panel__header">
         <MentorAvatar className="dls-mentor-panel__avatar" iconSize={20} />
         <div className="dls-mentor-panel__title-wrap">
-          <h2 className="dls-mentor-panel__title">DLS & COAL Mentor</h2>
+          <h2 className="dls-mentor-panel__title">BoolMentor</h2>
           <p className="dls-mentor-panel__subtitle">
             Digital Logic (DLD) & Computer Organization & Assembly
           </p>
@@ -399,7 +399,7 @@ function DlsMentorWidget() {
         </form>
         <p className="dls-mentor-panel__brand">
           <MessageCircle size={11} style={{ verticalAlign: "middle", marginRight: 4 }} />
-          Digital Logic Studio · DLD & COAL · AI Assistant
+          BoolMentor · DLD & COAL · AI Assistant
         </p>
       </footer>
     </section>
