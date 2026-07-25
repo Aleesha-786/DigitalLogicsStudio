@@ -43,6 +43,26 @@ const authService = {
     );
     return data;
   },
+
+  updateNotificationPreferences: async (optedOut) => {
+    const { data } = await apiClient.patch("/auth/notifications", { optedOut });
+    return data;
+  },
+
+  changePassword: async ({ currentPassword, newPassword }) => {
+    const { data } = await apiClient.post("/auth/change-password", {
+      currentPassword,
+      newPassword,
+    });
+    return data;
+  },
+
+  deleteAccount: async ({ password }) => {
+    const { data } = await apiClient.delete("/auth/account", {
+      data: { password },
+    });
+    return data;
+  },
 };
 
 export default authService;

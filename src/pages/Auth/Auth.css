@@ -619,3 +619,133 @@
     font-size: 1.3rem;
   }
 }
+
+/* ── Settings page additions ─────────────────────────────────────────────── */
+/* Append this block to the end of src/pages/Auth/Auth.css */
+
+.settings-card-subtext {
+  color: var(--secondary-text, var(--text-color));
+  font-size: 0.9rem;
+  margin: -0.25rem 0 1rem;
+}
+
+.settings-form {
+  max-width: 420px;
+}
+
+.settings-success-text {
+  margin: 0;
+  font-size: 0.85rem;
+  color: #34d399;
+}
+
+/* Toggle switch (theme / notifications) */
+
+.settings-toggle {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  background: none;
+  border: none;
+  padding: 0;
+  cursor: pointer;
+  flex-shrink: 0;
+}
+
+.settings-toggle:disabled {
+  cursor: not-allowed;
+  opacity: 0.7;
+}
+
+.settings-toggle-track {
+  position: relative;
+  width: 44px;
+  height: 24px;
+  border-radius: 999px;
+  background: rgba(148, 163, 184, 0.35);
+  border: 1px solid var(--border-color);
+  transition: background 0.2s ease, border-color 0.2s ease;
+  flex-shrink: 0;
+}
+
+.settings-toggle.is-on .settings-toggle-track {
+  background: var(--accent-color);
+  border-color: var(--accent-color);
+}
+
+.settings-toggle-thumb {
+  position: absolute;
+  top: 2px;
+  left: 2px;
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  background: #ffffff;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.35);
+  transition: transform 0.2s ease;
+}
+
+.settings-toggle.is-on .settings-toggle-thumb {
+  transform: translateX(20px);
+}
+
+.settings-toggle-label {
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--text-color);
+  min-width: 42px;
+  text-align: left;
+}
+
+.settings-error-text {
+  margin: 0.4rem 0 0;
+  font-size: 0.8rem;
+  color: #f87171;
+}
+
+/* Danger zone */
+
+.settings-danger-card {
+  border-color: rgba(248, 113, 113, 0.35);
+}
+
+[data-theme="light"] .settings-danger-card {
+  border-color: rgba(220, 38, 38, 0.3);
+}
+
+.settings-danger-btn {
+  background: rgba(248, 113, 113, 0.12);
+  color: #f87171;
+  border: 1px solid rgba(248, 113, 113, 0.45);
+  border-radius: 8px;
+  padding: 0.65rem 1.1rem;
+  font-size: 0.9rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.2s ease, opacity 0.2s ease;
+}
+
+.settings-danger-btn:hover:not(:disabled) {
+  background: rgba(248, 113, 113, 0.2);
+}
+
+.settings-danger-btn:disabled {
+  cursor: not-allowed;
+  opacity: 0.6;
+}
+
+.settings-danger-actions {
+  display: flex;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+}
+
+@media (max-width: 640px) {
+  .settings-toggle {
+    align-self: flex-start;
+  }
+
+  .settings-danger-actions {
+    flex-direction: column;
+  }
+}
