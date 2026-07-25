@@ -3,7 +3,6 @@ import React, {
   useCallback,
   useContext,
   useEffect,
-  useMemo,
   useState,
 } from "react";
 import authService from "../services/authService";
@@ -96,20 +95,50 @@ export function AuthProvider({ children }) {
     [applyUserState],
   );
 
-  const value = useMemo(
-    () => ({
-      user,
-      loading,
-      isAuthenticated: !!user,
-      login,
-      register,
-      logout,
-      solvedProblems,
-      markProblemSolved,
-      hasSolvedProblem,
-    }),
-    [user, loading, login, register, logout, solvedProblems, markProblemSolved, hasSolvedProblem],
+  const updateNotificationPreferences = useCallback(
+    async (optedOut) => {
+      const data = await authService.updateNotificationPreferences(optedOut);
+      if (data?.user) {
+        applyUserState(data.user);
+      }
+      return data;
+    },
+    [applyUserState],
   );
+
+  // NEW — changes password for the current session. Doesn't touch local
+  // user state (nothing about the sanitized user object changes).
+  const changePassword = useCallback(async (currentPassword, newPassword) => {
+    return authService.changePassword({ currentPassword, newPassword });
+  }, []);
+
+  // NEW — deletes the account and clears local auth state on success,
+  // same as logout. Throws on failure (e.g. wrong password) so the caller
+  // can show an inline error.
+  const deleteAccount = useCallback(
+    async (password) => {
+      const data = await authService.deleteAccount({ password });
+      applyUserState(null);
+      return data;
+    },
+    [applyUserState],
+  );
+
+  const value = {
+    user,
+    loading,
+    isAuthenticated: !!user,
+    login,
+    register,
+    logout,
+    solvedProblems,
+    markProblemSolved,
+    hasSolvedProblem,
+    emailNotificationsOptedOut: !!user?.emailNotificationsOptedOut,
+    updateNotificationPreferences,
+    changePassword, 
+    deleteAccount,
+  };
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
 }
