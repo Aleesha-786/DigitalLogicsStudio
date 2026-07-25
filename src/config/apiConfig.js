@@ -55,3 +55,10 @@ export function resolveAiBaseUrl() {
   }
   return `${resolveApiBaseUrl()}/ai`;
 }
+
+const DEFAULT_CIRCUITMIND_API_URL = "https://circuit-mind-two.vercel.app";
+
+export function resolveCircuitMindBaseUrl() {
+  const configured = process.env.REACT_APP_CIRCUITMIND_API_URL?.trim();
+  return normalizeUrl(configured || DEFAULT_CIRCUITMIND_API_URL);
+}

@@ -2,6 +2,7 @@ import React, { useState, useCallback, useEffect, useMemo } from "react";
 import Boolforge from "../pages/Boolforge";
 import { useAuth } from "../context/AuthContext";
 import { validateCircuit } from "../utils/circuitProblemValidator";
+import { getCircuitHint } from "../services/circuitMindService";
 
 // ─── Styles ───────────────────────────────────────────────────────────────────
 const S = {
@@ -90,6 +91,31 @@ const S = {
     transition: "opacity 0.2s",
     whiteSpace: "nowrap",
   }),
+  hintBtn: (disabled) => ({
+    background: "rgba(251,191,36,0.1)",
+    border: "1px solid rgba(251,191,36,0.4)",
+    color: "#fbbf24",
+    borderRadius: 8,
+    padding: "0.45rem 1.1rem",
+    fontSize: "0.88rem",
+    fontWeight: 700,
+    cursor: disabled ? "not-allowed" : "pointer",
+    opacity: disabled ? 0.6 : 1,
+    transition: "opacity 0.2s",
+    whiteSpace: "nowrap",
+  }),
+  hintBar: {
+    background: "rgba(251,191,36,0.07)",
+    borderBottom: "1px solid rgba(251,191,36,0.25)",
+    padding: "0.75rem 1.5rem",
+    display: "flex",
+    alignItems: "flex-start",
+    gap: "0.75rem",
+    flexShrink: 0,
+    fontSize: "0.85rem",
+    color: "var(--text-color,#e8f0ff)",
+    lineHeight: 1.5,
+  },
   body: {
     display: "flex",
     flex: 1,
@@ -453,6 +479,9 @@ const CircuitModal = ({
   const [assignment, setAssignment] = useState({ inputMap: {}, outputMap: {} });
   const solvedNotifiedRef = React.useRef(false);
   const [validationPage, setValidationPage] = useState(1);
+  const [hint, setHint] = useState(null);
+  const [hintLoading, setHintLoading] = useState(false);
+  const [hintError, setHintError] = useState("");
 
   const {
     isAuthenticated = false,
@@ -469,6 +498,8 @@ const CircuitModal = ({
   useEffect(() => {
     solvedNotifiedRef.current = false;
     setValidationPage(1);
+    setHint(null);
+    setHintError("");
   }, [open, problemId]);
 
   // Never call hasSolvedProblem(null): Number(null) === 0 which is a valid
@@ -502,6 +533,23 @@ const CircuitModal = ({
     if (res.pass) {
       handleSolvedLocally();
       persistSolvedState();
+    }
+  };
+
+  const handleRequestHint = async () => {
+    if (!problem || hintLoading) return;
+    setHintLoading(true);
+    setHintError("");
+    try {
+      const data = await getCircuitHint({ problem, gates, wires, result });
+      setHint(data.hint);
+    } catch (error) {
+      setHint(null);
+      setHintError(
+        error.message || "Couldn't get a hint right now. Try again shortly.",
+      );
+    } finally {
+      setHintLoading(false);
     }
   };
 
@@ -665,6 +713,18 @@ const CircuitModal = ({
           </button>
         )}
 
+        {/* Get Hint — graded problems only, powered by CircuitMind */}
+        {!isExperimentMode && (
+          <button
+            style={S.hintBtn(hintLoading)}
+            disabled={hintLoading}
+            onClick={handleRequestHint}
+            title="Get an AI hint for your current circuit, without spoiling the answer"
+          >
+            {hintLoading ? "💡 Thinking…" : "💡 Get Hint"}
+          </button>
+        )}
+
         {/* Submit — graded problems only */}
         {!isExperimentMode && (
           <button
@@ -787,6 +847,39 @@ const CircuitModal = ({
               ))}
             </div>
           )}
+        </div>
+      )}
+
+      {/* ── AI hint bar — powered by CircuitMind ── */}
+      {!isExperimentMode && (hint || hintError) && (
+        <div style={S.hintBar}>
+          <span style={{ fontSize: "1.1rem", flexShrink: 0 }}>💡</span>
+          <span style={{ flex: 1 }}>
+            {hintError ? (
+              <span style={{ color: "var(--accent-danger,#ff3366)" }}>
+                {hintError}
+              </span>
+            ) : (
+              hint
+            )}
+          </span>
+          <button
+            onClick={() => {
+              setHint(null);
+              setHintError("");
+            }}
+            style={{
+              background: "none",
+              border: "none",
+              color: "var(--secondary-text,#8899aa)",
+              cursor: "pointer",
+              fontSize: "0.85rem",
+              flexShrink: 0,
+            }}
+            aria-label="Dismiss hint"
+          >
+            ✕
+          </button>
         </div>
       )}
 
