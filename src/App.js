@@ -21,7 +21,6 @@ import ProtectedRoute from "./components/auth/ProtectedRoute";
 const Home = lazy(() => import("./pages/Home/Home"));
 const Boolforge = lazy(() => import("./pages/Boolforge"));
 const ProblemsPage = lazy(() => import("./pages/Problems/ProblemsPage"));
-const CoalProblemsPage = lazy(() => import("./pages/Problems/CoalProblemsPage"));
 // ── COAL Practical Labs (now lazy-loaded, previously eager imports) ──
 const InstructionTraceLabPage = lazy(
   () => import("./pages/Coal/InstructionTraceLabPage"),
@@ -239,13 +238,21 @@ const AppContent = () => {
           />
           <Route path="/problems" element={<ProblemsPage />} />
           <Route path="/problems/:topicSlug" element={<ProblemsPage />} />
+
+          <Route
+            path="/resources/coal/problems"
+            element={<Navigate to="/problems?course=coal" replace />}
+          />
+          <Route
+            path="/resources/coal/problems/:topicSlug"
+            element={<Navigate to="/problems?course=coal" replace />}
+          />
+
           <Route path="/resources/coal/theory" element={<CoalTheoryPage />} />
           <Route
             path="/resources/coal/practical"
             element={<CoalPracticalPage />}
           />
-          <Route path="/resources/coal/problems" element={<CoalProblemsPage />} />
-          <Route path="/resources/coal/problems/:topicSlug" element={<CoalProblemsPage />} />
           <Route path="/resources/coal" element={<CoalHomePage />} />
           <Route path="/coal/:slug" element={<CoalTopicPage />} />
           <Route
