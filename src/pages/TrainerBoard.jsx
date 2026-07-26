@@ -16,6 +16,7 @@ const ICS = {
     sym: "⊼",
     bg: "#1a1a40",
     txt: "#9090ff",
+    desc: "Quad 2-in NAND - Contains four independent logic gates that produce a LOW output only when both of their inputs are HIGH.",
   },
   7402: {
     name: "Quad 2-in NOR",
@@ -23,6 +24,7 @@ const ICS = {
     sym: "⊽",
     bg: "#0d2b0d",
     txt: "#60dd60",
+    desc: "Quad 2-in NOR - Contains four independent logic gates that produce a HIGH output only when both of their inputs are LOW.",
   },
   7404: {
     name: "Hex Inverter",
@@ -30,6 +32,7 @@ const ICS = {
     sym: "¬",
     bg: "#2d0a0a",
     txt: "#ff8080",
+    desc: "Hex Inverter - Contains six independent logic gates that flip the input signal, turning a HIGH into a LOW and vice versa.",
   },
   7408: {
     name: "Quad 2-in AND",
@@ -37,6 +40,7 @@ const ICS = {
     sym: "∧",
     bg: "#1a1a00",
     txt: "#e0e060",
+    desc: "Quad 2-in AND - Contains four independent logic gates that produce a HIGH output only when both of their inputs are HIGH.",
   },
   7432: {
     name: "Quad 2-in OR",
@@ -44,6 +48,7 @@ const ICS = {
     sym: "∨",
     bg: "#001a1a",
     txt: "#60e0e0",
+    desc: "Quad 2-in OR - Contains four independent logic gates that produce a HIGH output if at least one of their inputs is HIGH.",
   },
   7486: {
     name: "Quad 2-in XOR",
@@ -51,6 +56,7 @@ const ICS = {
     sym: "⊕",
     bg: "#1a001a",
     txt: "#e060e0",
+    desc: "Quad 2-in XOR - Contains four independent logic gates that produce a HIGH output only when their two inputs are different from each other.",
   },
   7474: {
     name: "Dual D Flip-Flop",
@@ -58,6 +64,7 @@ const ICS = {
     sym: "D",
     bg: "#001428",
     txt: "#60b0ff",
+    desc: "Dual D Flip-Flop - Contains two storage cells that capture the state of the data input (D) exactly when a clock signal transitions.",
   },
   7476: {
     name: "Dual JK Flip-Flop",
@@ -65,6 +72,7 @@ const ICS = {
     sym: "JK",
     bg: "#0a1a10",
     txt: "#60ffaa",
+    desc: "Dual JK Flip-Flop - Contains two versatile memory elements capable of storing a bit, resetting, setting, or toggling its state on a clock pulse.",
   },
   7483: {
     name: "4-bit Adder",
@@ -72,6 +80,7 @@ const ICS = {
     sym: "+",
     bg: "#1a0a00",
     txt: "#ffb060",
+    desc: "4-bit Adder - Math unit that adds two 4-bit binary numbers together and provides the sum along with a carry-out bit.",
   },
   7485: {
     name: "4-bit Comparator",
@@ -79,6 +88,7 @@ const ICS = {
     sym: "=?",
     bg: "#0a0a1a",
     txt: "#a0a0ff",
+    desc: "4-bit Comparator - Logic circuit that compares two 4-bit binary numbers to tell you if they are equal, or which one is larger.",
   },
   74138: {
     name: "3-to-8 Decoder",
@@ -86,6 +96,7 @@ const ICS = {
     sym: "1:8",
     bg: "#1a1a0a",
     txt: "#ffff80",
+    desc: "3-to-8 Decoder - Takes a 3-bit binary input code and activates exactly one corresponding output out of eight available lines.",
   },
   74151: {
     name: "8-to-1 MUX",
@@ -93,6 +104,7 @@ const ICS = {
     sym: "MX",
     bg: "#14001a",
     txt: "#ff80ff",
+    desc: "8-to-1 MUX - Acts like a data selector switch, funneling one of eight data input channels into a single output based on a 3-bit binary address.",
   },
   7447: {
     name: "BCD→7Seg Driver",
@@ -100,6 +112,7 @@ const ICS = {
     sym: "7s",
     bg: "#001a0a",
     txt: "#80ffbb",
+    desc: "BCD→7Seg Driver - Translates a 4-bit binary-coded decimal number into the specific on/off patterns needed to display numbers 0-9 on a 7-segment display.",
   },
   74193: {
     name: "4-bit Up/Dn Ctr",
@@ -107,6 +120,7 @@ const ICS = {
     sym: "↑↓",
     bg: "#1a0505",
     txt: "#ffaaaa",
+    desc: "4-bit Up/Dn Ctr - A digital counter that counts sequentially from 0 to 15 (or 15 down to 0) with every incoming clock pulse.",
   },
   7495: {
     name: "4-bit Shift Reg",
@@ -114,6 +128,7 @@ const ICS = {
     sym: ">>",
     bg: "#001818",
     txt: "#80ffff",
+    desc: "4-bit Shift Reg - Moves bits of data sequentially through 4 internal storage slots, supporting both serial data shifting and parallel loading.",
   },
 };
 
@@ -271,9 +286,11 @@ const GAP_AFTER = new Set([4, 9, 14, 19, 24]);
 // ── Breadboard SVG ────────────────────────────────────────────────
 // FIX: bbRef is attached to the SVG container div directly here.
 // Wire coordinates are stored as SVG-local coords (not page coords).
-function Breadboard({ wireStart, wires, placedICs, onHoleClick }) {
+function Breadboard({ wireStart, wires, placedICs, onHoleClick, onICMouseDown }) {
   const W = 36 + COLS * (HOLE_PX + 2) + 5 * 6 + HOLE_PX + 16;
   const ROW_H = 14;
+  const IC_BODY_H = 24;
+  const IC_PIN_H = 7;
   const TOP_RAIL_Y = 6;
   const TOP_VCC_Y = TOP_RAIL_Y + 4;
   const TOP_GND_Y = TOP_RAIL_Y + 18;
@@ -300,6 +317,18 @@ function Breadboard({ wireStart, wires, placedICs, onHoleClick }) {
   const Hole = ({ id, cx, cy, type }) => {
     const isStart = wireStart && wireStart.id === id;
     const isWired = wiredSet.has(id);
+    const isCoveredByIC = placedICs.some((p) => {
+      const ic = ICS[p.ic];
+      if (!ic) return false;
+      const cols = Math.ceil(ic.pins / 2);
+      const icW = cols * 13 + 8;
+      return (
+        cx >= p.x &&
+        cx <= p.x + icW &&
+        cy >= p.y - IC_PIN_H &&
+        cy <= p.y + IC_BODY_H + IC_PIN_H
+      );
+    });
 
     // Outer ring color
     let outerFill = "#c8bfa0",
@@ -328,6 +357,7 @@ function Breadboard({ wireStart, wires, placedICs, onHoleClick }) {
       <g
         style={{ cursor: "crosshair" }}
         onMouseDown={(e) => {
+          if (isCoveredByIC) return;
           e.stopPropagation();
           onHoleClick(id, cx, cy);
         }}
@@ -594,12 +624,16 @@ function Breadboard({ wireStart, wires, placedICs, onHoleClick }) {
         if (!ic) return null;
         const cols = Math.ceil(ic.pins / 2);
         const icW = cols * 13 + 8;
-        const icH = 36;
+        const icH = IC_BODY_H;
         return (
           <g
             key={p.id}
             transform={`translate(${p.x},${p.y})`}
-            style={{ pointerEvents: "none" }}
+            style={{ cursor: "grab" }}
+            onMouseDown={(e) => {
+              e.stopPropagation();
+              onICMouseDown(p.id, p.ic, e.clientX, e.clientY);
+            }}
           >
             {/* Bottom pins (south side) */}
             {Array.from({ length: Math.ceil(ic.pins / 2) }, (_, i) => (
@@ -618,9 +652,9 @@ function Breadboard({ wireStart, wires, placedICs, onHoleClick }) {
               <rect
                 key={`tp${i}`}
                 x={4 + i * 13}
-                y={-7}
+                y={-IC_PIN_H}
                 width={3}
-                height={7}
+                height={IC_PIN_H}
                 rx={0.5}
                 fill="#b0b0b0"
               />
@@ -646,7 +680,7 @@ function Breadboard({ wireStart, wires, placedICs, onHoleClick }) {
             {/* Label */}
             <text
               x={icW / 2}
-              y={14}
+              y={12}
               textAnchor="middle"
               fontSize={9}
               fontWeight="bold"
@@ -657,7 +691,7 @@ function Breadboard({ wireStart, wires, placedICs, onHoleClick }) {
             </text>
             <text
               x={icW / 2}
-              y={26}
+              y={20}
               textAnchor="middle"
               fontSize={11}
               fill={ic.txt}
@@ -683,7 +717,8 @@ function WireOverlay({ wires, preview, width, height }) {
         top: 0,
         left: 0,
         pointerEvents: "none",
-        zIndex: 20,
+        zIndex: 999,
+        overflow: "visible",
       }}
       width={width}
       height={height}
@@ -740,7 +775,7 @@ function TrayIC({ icKey, onMouseDown }) {
   return (
     <div
       onMouseDown={(e) => onMouseDown(e, icKey)}
-      title={`${icKey} — ${ic.name} (${ic.pins}-pin)\nDrag onto breadboard`}
+      title={`${icKey} — ${ic.desc} (${ic.pins}-pin)\nDrag onto breadboard`}
       style={{
         background: `linear-gradient(160deg,${ic.bg},#080808)`,
         border: "1px solid #555",
@@ -840,12 +875,79 @@ function getBBDimensions() {
   return { W, H };
 }
 
+//helper function to get ics on pins
+
+function snapICPosition(dropX, dropY, pinCount, placedICs = [], excludeId = null) {
+  const ROW_H = 14;
+  const IC_BODY_H = 24;
+  const TOP_RAIL_Y = 6;
+
+
+  const BODY_Y = TOP_RAIL_Y + 36;
+  const TOP_ROWS_H = 5 * ROW_H;
+  const CENTER_Y = BODY_Y + TOP_ROWS_H + 2;
+  const CENTER_H = 18;
+  const BOT_START = CENTER_Y + CENTER_H;
+  const BOT_ROWS_H = 5 * ROW_H;
+  const BOT_RAIL_Y = BOT_START + BOT_ROWS_H + 6;
+  const BOT_GND_Y = BOT_RAIL_Y + 18;
+  const BOARD_H = BOT_GND_Y + 16;
+  const cols = Math.ceil(pinCount / 2);
+  const icH = IC_BODY_H;
+
+  const colX = (c) => {
+    const extra = [...GAP_AFTER].filter((g) => g < c).length * 6;
+    return 36 + c * (HOLE_PX + 2) + extra + HOLE_PX / 2;
+  };
+
+  const rectsOverlap = (a, b) =>
+    a.x < b.x + b.w && a.x + a.w > b.x && a.y < b.y + b.h && a.y + a.h > b.y;
+
+  const existingRects = [];
+  placedICs.forEach((p) => {
+    if (p.id === excludeId) return;
+    const otherCols = Math.ceil(ICS[p.ic].pins / 2);
+    existingRects.push({ x: p.x, y: p.y, w: otherCols * 13 + 8, h: icH });
+  });
+
+  const minY = BODY_Y - 10;
+  const maxY = BOARD_H - icH - 10;
+  const preferredY = Math.max(minY, Math.min(dropY - icH / 2, maxY));
+
+  const yCandidates = [preferredY];
+  for (let offset = ROW_H; offset <= 6 * ROW_H; offset += ROW_H) {
+    yCandidates.push(preferredY - offset, preferredY + offset);
+  }
+
+  const isFree = (x, y) => {
+    const rect = { x, y, w: cols * 13 + 8, h: icH };
+    return !existingRects.some((r) => rectsOverlap(rect, r));
+  };
+
+  let best = null;
+  for (let c = 0; c <= COLS - cols; c++) {
+    const x = colX(c) - 4;
+    for (const y of yCandidates) {
+      if (y < minY || y > maxY) continue;
+      if (!isFree(x, y)) continue;
+      const d = Math.abs(x - dropX) + Math.abs(y - dropY);
+      if (!best || d < best.dist) {
+        best = { x, y, dist: d };
+      }
+    }
+  }
+
+  if (!best) return null; // no free slot anywhere — placement rejected
+
+  return { x: best.x, y: best.y };
+}
 // ═══════════════════════════════════════════════════════════════════
 // ROOT
 // ═══════════════════════════════════════════════════════════════════
 export default function IT300() {
   const { theme, toggle: toggleTheme } = useTheme();
   const [switches, setSwitches] = useState(Array(8).fill(0));
+  const [draggingPlaced, setDraggingPlaced] = useState(null); // {id, ic}
   const [clkHz, setClkHz] = useState(1);
   const [clkOn, setClkOn] = useState(true);
   const [clk, setClk] = useState(0);
@@ -863,6 +965,7 @@ export default function IT300() {
   const bbWrapRef = useRef(null);
   const clkRef = useRef();
   const mouseRef = useRef({ x: 0, y: 0 });
+  const undoStackRef = useRef([]);
 
   const { W: bbW, H: bbH } = getBBDimensions();
 
@@ -879,6 +982,33 @@ export default function IT300() {
     "#80cbc4",
   ], []);
 
+  const recordUndo = useCallback(() => {
+    undoStackRef.current.push({
+      switches,
+      wires,
+      placedICs,
+      wireCol,
+      colIdx,
+    });
+    if (undoStackRef.current.length > 50) {
+      undoStackRef.current.shift();
+    }
+  }, [switches, wires, placedICs, wireCol, colIdx]);
+
+  const undoLast = useCallback(() => {
+    const prev = undoStackRef.current.pop();
+    if (!prev) return;
+    setSwitches(prev.switches);
+    setWires(prev.wires);
+    setPlacedICs(prev.placedICs);
+    setWireCol(prev.wireCol);
+    setColIdx(prev.colIdx);
+    setWireStart(null);
+    setPreview(null);
+    setDragging(null);
+    setDraggingPlaced(null);
+  }, []);
+
   // Clock
   useEffect(() => {
     clearInterval(clkRef.current);
@@ -890,6 +1020,22 @@ export default function IT300() {
     return () => clearInterval(clkRef.current);
   }, [clkHz, clkOn]);
 
+  useEffect(() => {
+    const onKeyDown = (e) => {
+      if (!(e.ctrlKey || e.metaKey) || e.shiftKey) return;
+      if (String(e.key).toLowerCase() !== "z") return;
+      const target = e.target;
+      const tagName = target?.tagName;
+      if (tagName === "INPUT" || tagName === "TEXTAREA" || target?.isContentEditable) {
+        return;
+      }
+      e.preventDefault();
+      undoLast();
+    };
+    window.addEventListener("keydown", onKeyDown);
+    return () => window.removeEventListener("keydown", onKeyDown);
+  }, [undoLast]);
+
   // Global mouse tracking
   useEffect(() => {
     const onMove = (e) => {
@@ -899,6 +1045,14 @@ export default function IT300() {
           d ? { ...d, ghostX: e.clientX - 40, ghostY: e.clientY - 25 } : null,
         );
 
+      if (draggingPlaced && bbWrapRef.current) {
+        const rect = bbWrapRef.current.getBoundingClientRect();
+        const x = e.clientX - rect.left - draggingPlaced.offsetX;
+        const y = e.clientY - rect.top - draggingPlaced.offsetY;
+        setPlacedICs((p) =>
+          p.map((ic) => (ic.id === draggingPlaced.id ? { ...ic, x, y } : ic))
+        );
+      }
       // FIX: preview uses SVG-local coords — convert mouse to SVG space
       if (wireStart && bbWrapRef.current) {
         const rect = bbWrapRef.current.getBoundingClientRect();
@@ -912,8 +1066,9 @@ export default function IT300() {
       }
     };
     const onUp = (e) => {
-      if (!dragging) return;
-      if (bbWrapRef.current) {
+      if (!dragging && !draggingPlaced) return;
+
+      if (dragging && bbWrapRef.current) {
         const rect = bbWrapRef.current.getBoundingClientRect();
         if (
           e.clientX >= rect.left &&
@@ -921,13 +1076,34 @@ export default function IT300() {
           e.clientY >= rect.top &&
           e.clientY <= rect.bottom
         ) {
-          const x = e.clientX - rect.left - 35;
-          const y = e.clientY - rect.top - 28;
-          setPlacedICs((p) => [
-            ...p,
-            { id: Date.now(), ic: dragging.icKey, x, y },
-          ]);
+          const dropX = e.clientX - rect.left - 35;
+          const dropY = e.clientY - rect.top - 28;
+          const pinCount = ICS[dragging.icKey].pins;
+          const snapped = snapICPosition(dropX, dropY, pinCount, placedICs);
+          if (snapped) {
+            setPlacedICs((p) => [
+              ...p,
+              { id: Date.now(), ic: dragging.icKey, x: snapped.x, y: snapped.y },
+            ]);
+          }
+          // if snapped is null, no free slot was found — IC is not placed
+          // if drop is outside the breadboard rect entirely, IC is simply discarded (not placed)
         }
+      }
+
+      if (draggingPlaced) {
+        const rect = bbWrapRef.current?.getBoundingClientRect();
+        if (rect) {
+          setPlacedICs((p) =>
+            p.map((ic) => {
+              if (ic.id !== draggingPlaced.id) return ic;
+              const pinCount = ICS[draggingPlaced.icKey].pins;
+              const snapped = snapICPosition(ic.x, ic.y, pinCount, p, ic.id);
+              return snapped ? { ...ic, x: snapped.x, y: snapped.y } : ic; // no free slot → stays where it was
+            })
+          );
+        }
+        setDraggingPlaced(null);
       }
       setDragging(null);
     };
@@ -937,7 +1113,7 @@ export default function IT300() {
       window.removeEventListener("mousemove", onMove);
       window.removeEventListener("mouseup", onUp);
     };
-  }, [dragging, wireStart, wireCol]);
+  }, [dragging, wireStart, wireCol, draggingPlaced, placedICs]);
 
   const dec = switches.reduce((a, b, i) => a + b * (1 << i), 0);
 
@@ -946,6 +1122,7 @@ export default function IT300() {
   const onHoleClick = useCallback(
     (id, svgX, svgY) => {
       if (mode === "delete") {
+        recordUndo();
         setWires((p) => p.filter((w) => w.from !== id && w.to !== id));
         return;
       }
@@ -955,6 +1132,7 @@ export default function IT300() {
         setWireStart({ id, ax: svgX, ay: svgY });
       } else {
         if (wireStart.id !== id) {
+          recordUndo();
           setWires((p) => [
             ...p,
             {
@@ -976,7 +1154,7 @@ export default function IT300() {
         setPreview(null);
       }
     },
-    [mode, wireStart, wireCol, colIdx, COLORS],
+    [mode, wireStart, wireCol, colIdx, COLORS, recordUndo],
   );
 
   const startTrayDrag = (e, icKey) => {
@@ -984,6 +1162,22 @@ export default function IT300() {
     setDragging({ icKey, ghostX: e.clientX - 40, ghostY: e.clientY - 25 });
   };
 
+  const handleICMouseDown = (id, icKey, clientX, clientY) => {
+    const ic = placedICs.find((p) => p.id === id);
+    if (!ic || !bbWrapRef.current) return;
+    recordUndo();
+    const rect = bbWrapRef.current.getBoundingClientRect();
+    const offsetX = clientX - rect.left - ic.x;
+    const offsetY = clientY - rect.top - ic.y;
+    setDraggingPlaced({ id, icKey, offsetX, offsetY });
+  };
+
+  const handleExternalPinDown = (id, e) => {
+    e.stopPropagation();
+    if (!bbWrapRef.current) return;
+    const rect = bbWrapRef.current.getBoundingClientRect();
+    onHoleClick(id, e.clientX - rect.left, e.clientY - rect.top);
+  };
   const F = "monospace";
   const Sec = ({ title, children, style: st }) => (
     <div
@@ -1276,8 +1470,10 @@ export default function IT300() {
                 </div>
               )}
               <div style={{ marginLeft: "auto", display: "flex", gap: 4 }}>
+
                 <button
                   onClick={() => {
+                    recordUndo();
                     setWires([]);
                     setWireStart(null);
                     setPreview(null);
@@ -1296,7 +1492,10 @@ export default function IT300() {
                   🗑 Wires
                 </button>
                 <button
-                  onClick={() => setPlacedICs([])}
+                  onClick={() => {
+                    recordUndo();
+                    setPlacedICs([]);
+                  }}
                   style={{
                     background: "#16081e",
                     color: "#b44fff",
@@ -1620,18 +1819,19 @@ export default function IT300() {
 
               {/* ── CENTER (BREADBOARD) ── */}
               <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
-                <Sec title="Solderless Breadboard — 2×30 columns × 10 rows + 4 power rails">
-                  <div className="breadboard-scroll-wrapper">
+                <Sec title="Solderless Breadboard — 2×30 columns × 10 rows + 4 power rails" style={{ overflow: "visible" }}>
+                  <div className="breadboard-scroll-wrapper" style={{ overflow: "visible" }}>
                     {/* FIX: bbWrapRef attached here — this is the coordinate origin for all wires */}
                     <div
                       ref={bbWrapRef}
-                      style={{ position: "relative", display: "inline-block", minWidth: `${bbW}px` }}
+                      style={{ position: "relative", display: "inline-block", minWidth: `${bbW}px`, overflow: "visible", zIndex: 1 }}
                     >
                       <Breadboard
                         wireStart={wireStart}
                         wires={wires}
                         placedICs={placedICs}
                         onHoleClick={onHoleClick}
+                        onICMouseDown={handleICMouseDown}
                       />
                       {/* FIX: WireOverlay uses SVG-local coords — rendered over the SVG */}
                       <WireOverlay
@@ -1658,13 +1858,14 @@ export default function IT300() {
                         key={i}
                         label={String.fromCharCode(65 + i)}
                         val={v}
-                        onToggle={() =>
+                        onToggle={() => {
+                          recordUndo();
                           setSwitches((p) => {
                             const n = [...p];
                             n[i] ^= 1;
                             return n;
-                          })
-                        }
+                          });
+                        }}
                       />
                     ))}
                   </div>
@@ -1677,7 +1878,13 @@ export default function IT300() {
                     }}
                   >
                     {switches.map((v, i) => (
-                      <LED key={i} on={!!v} c="G" />
+                      <div
+                        key={i}
+                        onMouseDown={(e) => handleExternalPinDown(`swled_${i}`, e)}
+                        style={{ cursor: "crosshair" }}
+                      >
+                        <LED on={!!v} c="G" />
+                      </div>
                     ))}
                   </div>
                   <div
@@ -1759,7 +1966,11 @@ export default function IT300() {
                     }}
                   >
                     {switches.map((v, i) => (
-                      <div key={i} style={{ textAlign: "center" }}>
+                      <div
+                        key={i}
+                        style={{ textAlign: "center", cursor: "crosshair" }}
+                        onMouseDown={(e) => handleExternalPinDown(`databus_${i}`, e)}
+                      >
                         <LED on={!!v} c="R" size={11} />
                         <div
                           style={{
@@ -1794,7 +2005,11 @@ export default function IT300() {
                     }}
                   >
                     {switches.map((v, i) => (
-                      <div key={i} style={{ textAlign: "center" }}>
+                      <div
+                        key={i}
+                        style={{ textAlign: "center", cursor: "crosshair" }}
+                        onMouseDown={(e) => handleExternalPinDown(`logicout_${i}`, e)}
+                      >
                         <LED on={!!v} c="G" size={11} />
                         <div
                           style={{
@@ -1837,7 +2052,11 @@ export default function IT300() {
                       0,
                       dec > 127 ? 1 : 0,
                     ].map((v, i) => (
-                      <div key={i} style={{ textAlign: "center" }}>
+                      <div
+                        key={i}
+                        style={{ textAlign: "center", cursor: "crosshair" }}
+                        onMouseDown={(e) => handleExternalPinDown(`flag_${i}`, e)}
+                      >
                         <LED on={!!v} c="Y" size={11} />
                         <div
                           style={{
@@ -1864,7 +2083,9 @@ export default function IT300() {
                         alignItems: "center",
                         gap: 4,
                         marginBottom: 5,
+                        cursor: "crosshair",
                       }}
+                      onMouseDown={(e) => handleExternalPinDown(`qbar_${i}`, e)}
                     >
                       <span
                         style={{
