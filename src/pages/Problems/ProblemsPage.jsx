@@ -33,8 +33,9 @@ import { Navbar } from "../Home/Navbar";
 import useLearningProgress from "../../hooks/useLearningProgress";
 import coreTopics from "../../data/coreTopics";
 import allProblemsCatalog, {
-  bannerCardsByCourse,
-  filterGroupsByCourse,
+  allBannerCards,
+  allFilterGroups,
+  courseFilterOptions,
   problemDifficultyOptions,
   problemSortOptions,
   problemStatusOptions,
@@ -47,7 +48,7 @@ import {
   trackTopicEngagement,
 } from "../../utils/analytics";
 
-const dldNavSections = [
+const unifiedNavSections = [
   {
     title: "Practice Arenas",
     items: [
@@ -55,14 +56,17 @@ const dldNavSections = [
         label: "Problems Library",
         icon: LibraryBig,
         panel: {
-          description: "All digital logic problems — combinational, sequential, arithmetic and more.",
+          description:
+            "All problems — DLD and COAL together. Combinational, sequential, number systems, assembly, cache and more.",
           links: [
             { label: "All Problems", action: "navigate", value: "/problems" },
             { label: "Easy problems", action: "filter", value: "Easy" },
             { label: "Medium problems", action: "filter", value: "Medium" },
             { label: "Hard problems", action: "filter", value: "Hard" },
-            { label: "Combinational", action: "topic", value: "Combinational Circuits" },
-            { label: "Sequential", action: "topic", value: "Sequential Circuits" },
+            { label: "Combinational (DLD)", action: "topic", value: "Combinational Circuits" },
+            { label: "Sequential (DLD)", action: "topic", value: "Sequential Circuits" },
+            { label: "Assembly (COAL)", action: "topic", value: "Assembly Programming" },
+            { label: "Cache & Memory (COAL)", action: "topic", value: "Cache & Memory" },
           ],
         },
       },
@@ -109,6 +113,21 @@ const dldNavSections = [
             { label: "Binary Visualizer", action: "navigate", value: "/number-systems/binary-representation" },
             { label: "BCD Notation", action: "navigate", value: "/number-systems/bcd-notation" },
             { label: "2's Complement", action: "navigate", value: "/arithmetic/complements" },
+          ],
+        },
+      },
+      {
+        label: "Assembly Lab",
+        icon: Cpu,
+        topicSlug: "assembly",
+        badge: "Interactive",
+        panel: {
+          description:
+            "Step-by-step assembly instruction execution and register visualization.",
+          links: [
+            { label: "Trace Simulator", action: "navigate", value: "/resources/coal/practical/instruction-trace-lab" },
+            { label: "Assembly Syntax", action: "navigate", value: "/coal/coal-syntax" },
+            { label: "Stack & Procedures", action: "navigate", value: "/coal/procedures-stack" },
           ],
         },
       },
@@ -227,47 +246,6 @@ const dldNavSections = [
         path: "/boolean/identities",
       },
       { label: "Boolean Laws", icon: BookOpen, path: "/boolean/laws" },
-    ],
-  },
-];
-
-// Sidebar sections for the COAL course tab (merged in from the former
-// standalone CoalProblemsPage.jsx).
-const coalNavSections = [
-  {
-    title: "Practice Arenas",
-    items: [
-      {
-        label: "Problems Library",
-        icon: LibraryBig,
-        panel: {
-          description:
-            "All COAL problems — signed numbers, instruction tracing, cache operations and more.",
-          links: [
-            { label: "All Problems", action: "navigate", value: "/problems?course=coal" },
-            { label: "Easy challenges", action: "filter", value: "Easy" },
-            { label: "Medium challenges", action: "filter", value: "Medium" },
-            { label: "Hard challenges", action: "filter", value: "Hard" },
-            { label: "Assembly Code", action: "topic", value: "Assembly Programming" },
-            { label: "Cache & Memory", action: "topic", value: "Cache & Memory" },
-          ],
-        },
-      },
-      {
-        label: "Assembly Lab",
-        icon: Cpu,
-        topicSlug: "assembly",
-        badge: "Interactive",
-        panel: {
-          description:
-            "Step-by-step assembly instruction execution and register visualization.",
-          links: [
-            { label: "Trace Simulator", action: "navigate", value: "/resources/coal/practical/instruction-trace-lab" },
-            { label: "Assembly Syntax", action: "navigate", value: "/coal/coal-syntax" },
-            { label: "Stack & Procedures", action: "navigate", value: "/coal/procedures-stack" },
-          ],
-        },
-      },
     ],
   },
   {
@@ -575,35 +553,42 @@ export default function ProblemsPage() {
   const { theme, toggle: toggleTheme } = useTheme();
   const topicLanding = topicSlug ? problemTopicLandingMap[topicSlug] : null;
 
-  // Which course tab is active. Defaults to "dld"; ?course=coal switches
-  // the whole page (catalog, filters, banner cards, sidebar, table skin,
-  // and modal component) over to COAL without a route change.
-  const course = searchParams.get("course") === "coal" ? "coal" : "dld";
-  const setCourse = React.useCallback(
-    (next) => {
-      setSearchParams(
-        (prev) => {
-          const params = new URLSearchParams(prev);
-          params.set("course", next);
-          return params;
-        },
-        { replace: true },
-      );
-    },
-    [setSearchParams],
+  // Course filter for the table only — "all" | "dld" | "coal". Everything
+  // else on the page (sidebar, banner carousel, right rail stats/progress,
+  // daily challenge) always reflects the combined DLD + COAL catalog.
+  // Pre-seeded from ?course=coal so the old /resources/coal/problems
+  // redirect still lands users on a COAL-filtered table.
+  const [courseFilter, setCourseFilter] = React.useState(
+    searchParams.get("course") === "coal" ? "coal" : "all",
   );
 
-  // Progress stays correct across both courses: problem ids are globally
-  // unique (DLD: 1-40 & 2001-2007, COAL: 3001-3015) and progressService
-  // keys completion state by raw problem.id, not by catalog — see
-  // allProblemsCatalog.js for the collision guard.
-  const problemsCatalog = React.useMemo(
-    () => allProblemsCatalog.filter((p) => p.course === course),
-    [course],
-  );
-  const problemBannerCards = bannerCardsByCourse[course];
-  const problemFilterGroups = filterGroupsByCourse[course];
-  const activeNavSections = course === "coal" ? coalNavSections : dldNavSections;
+  // Single combined catalog — always both courses. Progress stays correct
+  // regardless of filter: problem ids are globally unique (DLD: 1-40 &
+  // 2001-2007, COAL: 3001-3015) and progressService keys completion state
+  // by raw problem.id, not by catalog — see allProblemsCatalog.js for the
+  // collision guard.
+  const problemsCatalog = allProblemsCatalog;
+  const problemBannerCards = allBannerCards;
+  const problemFilterGroups = allFilterGroups;
+  const activeNavSections = unifiedNavSections;
+
+  // Keep the course filter chip reflected in the URL (shareable / bookmarkable),
+  // without turning it back into a page-wide mode switch.
+  React.useEffect(() => {
+    setSearchParams(
+      (prev) => {
+        const params = new URLSearchParams(prev);
+        if (courseFilter === "all") {
+          params.delete("course");
+        } else {
+          params.set("course", courseFilter);
+        }
+        return params;
+      },
+      { replace: true },
+    );
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [courseFilter]);
 
   const bannerRef = React.useRef(null);
   const tweenRef = React.useRef(null);
@@ -615,6 +600,7 @@ export default function ProblemsPage() {
     if (topicSlug === "k-map") return "K-Map Arena";
     if (topicSlug === "sequential-circuits") return "Sequential Arena";
     if (topicSlug === "number-systems") return "Number Arena";
+    if (topicSlug === "assembly") return "Assembly Lab";
     if (!topicSlug) return "Problems Library";
     return "";
   };
@@ -625,9 +611,13 @@ export default function ProblemsPage() {
     if (item.path) {
       navigate(item.path);
     } else if (item.topicSlug) {
-      navigate(`/problems/${item.topicSlug}${course === "coal" ? "?course=coal" : ""}`);
+      navigate(`/problems/${item.topicSlug}`);
+    } else if (item.actionGroup) {
+      navigate("/problems");
+      setActiveGroup(item.actionGroup);
+      setTopicFilter(item.actionGroup);
     } else {
-      navigate(`/problems${course === "coal" ? "?course=coal" : ""}`);
+      navigate("/problems");
       setActiveGroup("All Topics");
       setTopicFilter("All Topics");
     }
@@ -913,18 +903,23 @@ export default function ProblemsPage() {
         (statusFilter === "Attempted" && problemStatus === "attempted") ||
         (statusFilter === "Unsolved" && problemStatus === "not_started");
 
+      const matchesCourse =
+        courseFilter === "all" || problem.course === courseFilter;
+
       return (
         matchesSearch &&
         matchesDifficulty &&
         matchesGroup &&
         matchesTopic &&
-        matchesStatus
+        matchesStatus &&
+        matchesCourse
       );
     });
 
     return sortProblems(matches, sortBy, snapshot?.state?.problems || {});
   }, [
     activeGroup,
+    courseFilter,
     deferredSearch,
     difficulty,
     problemsCatalog,
@@ -994,9 +989,7 @@ export default function ProblemsPage() {
   );
 
   return (
-    <div
-      className={`problems-page theme-${theme} ${course === "coal" ? "coal-track" : ""}`}
-    >
+    <div className={`problems-page theme-${theme}`}>
       <div className="problems-backdrop problems-backdrop-left" />
       <div className="problems-backdrop problems-backdrop-right" />
 
@@ -1094,14 +1087,13 @@ export default function ProblemsPage() {
                                 onClick={() => {
                                   setOpenArenaPanel(null);
                                   setIsMobileSidebarOpen(false);
-                                  const coalSuffix = course === "coal" ? "?course=coal" : "";
                                   if (link.action === "navigate") {
                                     navigate(link.value);
                                   } else if (link.action === "filter") {
-                                    navigate(`/problems${coalSuffix}`);
+                                    navigate("/problems");
                                     setDifficulty(link.value);
                                   } else if (link.action === "topic") {
-                                    navigate(`/problems${coalSuffix}`);
+                                    navigate("/problems");
                                     setActiveGroup(link.value);
                                     setTopicFilter(link.value);
                                   }
@@ -1229,27 +1221,20 @@ export default function ProblemsPage() {
 
           <div
             className="problems-course-tabs"
-            role="tablist"
-            aria-label="Problem course"
+            role="group"
+            aria-label="Filter by course"
           >
-            <button
-              type="button"
-              role="tab"
-              aria-selected={course === "dld"}
-              className={`problems-course-tab ${course === "dld" ? "is-active" : ""}`}
-              onClick={() => setCourse("dld")}
-            >
-              Digital Logic Design
-            </button>
-            <button
-              type="button"
-              role="tab"
-              aria-selected={course === "coal"}
-              className={`problems-course-tab ${course === "coal" ? "is-active" : ""}`}
-              onClick={() => setCourse("coal")}
-            >
-              COAL
-            </button>
+            {courseFilterOptions.map((option) => (
+              <button
+                key={option.value}
+                type="button"
+                aria-pressed={courseFilter === option.value}
+                className={`problems-course-tab ${courseFilter === option.value ? "is-active" : ""}`}
+                onClick={() => setCourseFilter(option.value)}
+              >
+                {option.label}
+              </button>
+            ))}
           </div>
 
           <div className="problems-filter-chip-row">
