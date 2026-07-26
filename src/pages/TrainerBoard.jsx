@@ -964,6 +964,7 @@ export default function IT300() {
   const bbWrapRef = useRef(null);
   const clkRef = useRef();
   const mouseRef = useRef({ x: 0, y: 0 });
+  const undoStackRef = useRef([]);
 
   const { W: bbW, H: bbH } = getBBDimensions();
 
@@ -980,6 +981,33 @@ export default function IT300() {
     "#80cbc4",
   ], []);
 
+  const recordUndo = useCallback(() => {
+    undoStackRef.current.push({
+      switches,
+      wires,
+      placedICs,
+      wireCol,
+      colIdx,
+    });
+    if (undoStackRef.current.length > 50) {
+      undoStackRef.current.shift();
+    }
+  }, [switches, wires, placedICs, wireCol, colIdx]);
+
+  const undoLast = useCallback(() => {
+    const prev = undoStackRef.current.pop();
+    if (!prev) return;
+    setSwitches(prev.switches);
+    setWires(prev.wires);
+    setPlacedICs(prev.placedICs);
+    setWireCol(prev.wireCol);
+    setColIdx(prev.colIdx);
+    setWireStart(null);
+    setPreview(null);
+    setDragging(null);
+    setDraggingPlaced(null);
+  }, []);
+
   // Clock
   useEffect(() => {
     clearInterval(clkRef.current);
@@ -990,6 +1018,22 @@ export default function IT300() {
     clkRef.current = setInterval(() => setClk((c) => c ^ 1), 500 / clkHz);
     return () => clearInterval(clkRef.current);
   }, [clkHz, clkOn]);
+
+  useEffect(() => {
+    const onKeyDown = (e) => {
+      if (!(e.ctrlKey || e.metaKey) || e.shiftKey) return;
+      if (String(e.key).toLowerCase() !== "z") return;
+      const target = e.target;
+      const tagName = target?.tagName;
+      if (tagName === "INPUT" || tagName === "TEXTAREA" || target?.isContentEditable) {
+        return;
+      }
+      e.preventDefault();
+      undoLast();
+    };
+    window.addEventListener("keydown", onKeyDown);
+    return () => window.removeEventListener("keydown", onKeyDown);
+  }, [undoLast]);
 
   // Global mouse tracking
   useEffect(() => {
@@ -1062,13 +1106,13 @@ export default function IT300() {
       }
       setDragging(null);
     };
-      window.addEventListener("mousemove", onMove);
-      window.addEventListener("mouseup", onUp);
-      return () => {
-        window.removeEventListener("mousemove", onMove);
-        window.removeEventListener("mouseup", onUp);
-      };
-    }, [dragging, wireStart, wireCol, draggingPlaced,placedICs]);
+    window.addEventListener("mousemove", onMove);
+    window.addEventListener("mouseup", onUp);
+    return () => {
+      window.removeEventListener("mousemove", onMove);
+      window.removeEventListener("mouseup", onUp);
+    };
+  }, [dragging, wireStart, wireCol, draggingPlaced, placedICs]);
 
   const dec = switches.reduce((a, b, i) => a + b * (1 << i), 0);
 
@@ -1077,6 +1121,7 @@ export default function IT300() {
   const onHoleClick = useCallback(
     (id, svgX, svgY) => {
       if (mode === "delete") {
+        recordUndo();
         setWires((p) => p.filter((w) => w.from !== id && w.to !== id));
         return;
       }
@@ -1086,6 +1131,7 @@ export default function IT300() {
         setWireStart({ id, ax: svgX, ay: svgY });
       } else {
         if (wireStart.id !== id) {
+          recordUndo();
           setWires((p) => [
             ...p,
             {
@@ -1107,7 +1153,7 @@ export default function IT300() {
         setPreview(null);
       }
     },
-    [mode, wireStart, wireCol, colIdx, COLORS],
+    [mode, wireStart, wireCol, colIdx, COLORS, recordUndo],
   );
 
   const startTrayDrag = (e, icKey) => {
@@ -1118,6 +1164,7 @@ export default function IT300() {
   const handleICMouseDown = (id, icKey, clientX, clientY) => {
     const ic = placedICs.find((p) => p.id === id);
     if (!ic || !bbWrapRef.current) return;
+    recordUndo();
     const rect = bbWrapRef.current.getBoundingClientRect();
     const offsetX = clientX - rect.left - ic.x;
     const offsetY = clientY - rect.top - ic.y;
@@ -1415,8 +1462,10 @@ export default function IT300() {
                 </div>
               )}
               <div style={{ marginLeft: "auto", display: "flex", gap: 4 }}>
+                
                 <button
                   onClick={() => {
+                    recordUndo();
                     setWires([]);
                     setWireStart(null);
                     setPreview(null);
@@ -1435,7 +1484,10 @@ export default function IT300() {
                   🗑 Wires
                 </button>
                 <button
-                  onClick={() => setPlacedICs([])}
+                  onClick={() => {
+                    recordUndo();
+                    setPlacedICs([]);
+                  }}
                   style={{
                     background: "#16081e",
                     color: "#b44fff",
@@ -1798,13 +1850,14 @@ export default function IT300() {
                         key={i}
                         label={String.fromCharCode(65 + i)}
                         val={v}
-                        onToggle={() =>
+                        onToggle={() => {
+                          recordUndo();
                           setSwitches((p) => {
                             const n = [...p];
                             n[i] ^= 1;
                             return n;
-                          })
-                        }
+                          });
+                        }}
                       />
                     ))}
                   </div>
