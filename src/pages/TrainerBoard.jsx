@@ -289,6 +289,8 @@ const GAP_AFTER = new Set([4, 9, 14, 19, 24]);
 function Breadboard({ wireStart, wires, placedICs, onHoleClick, onICMouseDown }) {
   const W = 36 + COLS * (HOLE_PX + 2) + 5 * 6 + HOLE_PX + 16;
   const ROW_H = 14;
+  const IC_BODY_H = 24;
+  const IC_PIN_H = 7;
   const TOP_RAIL_Y = 6;
   const TOP_VCC_Y = TOP_RAIL_Y + 4;
   const TOP_GND_Y = TOP_RAIL_Y + 18;
@@ -315,6 +317,18 @@ function Breadboard({ wireStart, wires, placedICs, onHoleClick, onICMouseDown })
   const Hole = ({ id, cx, cy, type }) => {
     const isStart = wireStart && wireStart.id === id;
     const isWired = wiredSet.has(id);
+    const isCoveredByIC = placedICs.some((p) => {
+      const ic = ICS[p.ic];
+      if (!ic) return false;
+      const cols = Math.ceil(ic.pins / 2);
+      const icW = cols * 13 + 8;
+      return (
+        cx >= p.x &&
+        cx <= p.x + icW &&
+        cy >= p.y - IC_PIN_H &&
+        cy <= p.y + IC_BODY_H + IC_PIN_H
+      );
+    });
 
     // Outer ring color
     let outerFill = "#c8bfa0",
@@ -343,6 +357,7 @@ function Breadboard({ wireStart, wires, placedICs, onHoleClick, onICMouseDown })
       <g
         style={{ cursor: "crosshair" }}
         onMouseDown={(e) => {
+          if (isCoveredByIC) return;
           e.stopPropagation();
           onHoleClick(id, cx, cy);
         }}
@@ -609,7 +624,7 @@ function Breadboard({ wireStart, wires, placedICs, onHoleClick, onICMouseDown })
         if (!ic) return null;
         const cols = Math.ceil(ic.pins / 2);
         const icW = cols * 13 + 8;
-        const icH = 36;
+        const icH = IC_BODY_H;
         return (
           <g
             key={p.id}
@@ -637,9 +652,9 @@ function Breadboard({ wireStart, wires, placedICs, onHoleClick, onICMouseDown })
               <rect
                 key={`tp${i}`}
                 x={4 + i * 13}
-                y={-7}
+                y={-IC_PIN_H}
                 width={3}
-                height={7}
+                height={IC_PIN_H}
                 rx={0.5}
                 fill="#b0b0b0"
               />
@@ -665,7 +680,7 @@ function Breadboard({ wireStart, wires, placedICs, onHoleClick, onICMouseDown })
             {/* Label */}
             <text
               x={icW / 2}
-              y={14}
+              y={12}
               textAnchor="middle"
               fontSize={9}
               fontWeight="bold"
@@ -676,7 +691,7 @@ function Breadboard({ wireStart, wires, placedICs, onHoleClick, onICMouseDown })
             </text>
             <text
               x={icW / 2}
-              y={26}
+              y={20}
               textAnchor="middle"
               fontSize={11}
               fill={ic.txt}
@@ -863,9 +878,10 @@ function getBBDimensions() {
 
 function snapICPosition(dropX, dropY, pinCount, placedICs = [], excludeId = null) {
   const ROW_H = 14;
+  const IC_BODY_H = 24;
   const TOP_RAIL_Y = 6;
-  const TOP_VCC_Y = TOP_RAIL_Y + 4;
-  const TOP_GND_Y = TOP_RAIL_Y + 18;
+  
+  
   const BODY_Y = TOP_RAIL_Y + 36;
   const TOP_ROWS_H = 5 * ROW_H;
   const CENTER_Y = BODY_Y + TOP_ROWS_H + 2;
@@ -876,7 +892,7 @@ function snapICPosition(dropX, dropY, pinCount, placedICs = [], excludeId = null
   const BOT_GND_Y = BOT_RAIL_Y + 18;
   const BOARD_H = BOT_GND_Y + 16;
   const cols = Math.ceil(pinCount / 2);
-  const icH = 36;
+  const icH = IC_BODY_H;
 
   const colX = (c) => {
     const extra = [...GAP_AFTER].filter((g) => g < c).length * 6;
