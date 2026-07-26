@@ -286,7 +286,7 @@ const GAP_AFTER = new Set([4, 9, 14, 19, 24]);
 // ── Breadboard SVG ────────────────────────────────────────────────
 // FIX: bbRef is attached to the SVG container div directly here.
 // Wire coordinates are stored as SVG-local coords (not page coords).
-function Breadboard({ wireStart, wires, placedICs, onHoleClick }) {
+function Breadboard({ wireStart, wires, placedICs, onHoleClick, onICMouseDown }) {
   const W = 36 + COLS * (HOLE_PX + 2) + 5 * 6 + HOLE_PX + 16;
   const ROW_H = 14;
   const TOP_RAIL_Y = 6;
@@ -614,7 +614,11 @@ function Breadboard({ wireStart, wires, placedICs, onHoleClick }) {
           <g
             key={p.id}
             transform={`translate(${p.x},${p.y})`}
-            style={{ pointerEvents: "none" }}
+            style={{ cursor: "grab" }}
+            onMouseDown={(e) => {
+              e.stopPropagation();
+              onICMouseDown(p.id, p.ic, e.clientX, e.clientY);
+            }}
           >
             {/* Bottom pins (south side) */}
             {Array.from({ length: Math.ceil(ic.pins / 2) }, (_, i) => (
@@ -855,12 +859,78 @@ function getBBDimensions() {
   return { W, H };
 }
 
+//helper function to get ics on pins
+
+function snapICPosition(dropX, dropY, pinCount, placedICs = [], excludeId = null) {
+  const ROW_H = 14;
+  const TOP_RAIL_Y = 6;
+  const TOP_VCC_Y = TOP_RAIL_Y + 4;
+  const TOP_GND_Y = TOP_RAIL_Y + 18;
+  const BODY_Y = TOP_RAIL_Y + 36;
+  const TOP_ROWS_H = 5 * ROW_H;
+  const CENTER_Y = BODY_Y + TOP_ROWS_H + 2;
+  const CENTER_H = 18;
+  const BOT_START = CENTER_Y + CENTER_H;
+  const BOT_ROWS_H = 5 * ROW_H;
+  const BOT_RAIL_Y = BOT_START + BOT_ROWS_H + 6;
+  const BOT_GND_Y = BOT_RAIL_Y + 18;
+  const BOARD_H = BOT_GND_Y + 16;
+  const cols = Math.ceil(pinCount / 2);
+  const icH = 36;
+
+  const colX = (c) => {
+    const extra = [...GAP_AFTER].filter((g) => g < c).length * 6;
+    return 36 + c * (HOLE_PX + 2) + extra + HOLE_PX / 2;
+  };
+
+  const rectsOverlap = (a, b) =>
+    a.x < b.x + b.w && a.x + a.w > b.x && a.y < b.y + b.h && a.y + a.h > b.y;
+
+  const existingRects = [];
+  placedICs.forEach((p) => {
+    if (p.id === excludeId) return;
+    const otherCols = Math.ceil(ICS[p.ic].pins / 2);
+    existingRects.push({ x: p.x, y: p.y, w: otherCols * 13 + 8, h: icH });
+  });
+
+  const minY = BODY_Y - 10;
+  const maxY = BOARD_H - icH - 10;
+  const preferredY = Math.max(minY, Math.min(dropY - icH / 2, maxY));
+
+  const yCandidates = [preferredY];
+  for (let offset = ROW_H; offset <= 6 * ROW_H; offset += ROW_H) {
+    yCandidates.push(preferredY - offset, preferredY + offset);
+  }
+
+  const isFree = (x, y) => {
+    const rect = { x, y, w: cols * 13 + 8, h: icH };
+    return !existingRects.some((r) => rectsOverlap(rect, r));
+  };
+
+  let best = null;
+  for (let c = 0; c <= COLS - cols; c++) {
+    const x = colX(c) - 4;
+    for (const y of yCandidates) {
+      if (y < minY || y > maxY) continue;
+      if (!isFree(x, y)) continue;
+      const d = Math.abs(x - dropX) + Math.abs(y - dropY);
+      if (!best || d < best.dist) {
+        best = { x, y, dist: d };
+      }
+    }
+  }
+
+  if (!best) return null; // no free slot anywhere — placement rejected
+
+  return { x: best.x, y: best.y };
+}
 // ═══════════════════════════════════════════════════════════════════
 // ROOT
 // ═══════════════════════════════════════════════════════════════════
 export default function IT300() {
   const { theme, toggle: toggleTheme } = useTheme();
   const [switches, setSwitches] = useState(Array(8).fill(0));
+  const [draggingPlaced, setDraggingPlaced] = useState(null); // {id, ic}
   const [clkHz, setClkHz] = useState(1);
   const [clkOn, setClkOn] = useState(true);
   const [clk, setClk] = useState(0);
@@ -914,6 +984,14 @@ export default function IT300() {
           d ? { ...d, ghostX: e.clientX - 40, ghostY: e.clientY - 25 } : null,
         );
 
+      if (draggingPlaced && bbWrapRef.current) {
+        const rect = bbWrapRef.current.getBoundingClientRect();
+        const x = e.clientX - rect.left - draggingPlaced.offsetX;
+        const y = e.clientY - rect.top - draggingPlaced.offsetY;
+        setPlacedICs((p) =>
+          p.map((ic) => (ic.id === draggingPlaced.id ? { ...ic, x, y } : ic))
+        );
+      }
       // FIX: preview uses SVG-local coords — convert mouse to SVG space
       if (wireStart && bbWrapRef.current) {
         const rect = bbWrapRef.current.getBoundingClientRect();
@@ -927,8 +1005,9 @@ export default function IT300() {
       }
     };
     const onUp = (e) => {
-      if (!dragging) return;
-      if (bbWrapRef.current) {
+      if (!dragging && !draggingPlaced) return;
+
+      if (dragging && bbWrapRef.current) {
         const rect = bbWrapRef.current.getBoundingClientRect();
         if (
           e.clientX >= rect.left &&
@@ -936,23 +1015,44 @@ export default function IT300() {
           e.clientY >= rect.top &&
           e.clientY <= rect.bottom
         ) {
-          const x = e.clientX - rect.left - 35;
-          const y = e.clientY - rect.top - 28;
-          setPlacedICs((p) => [
-            ...p,
-            { id: Date.now(), ic: dragging.icKey, x, y },
-          ]);
+          const dropX = e.clientX - rect.left - 35;
+          const dropY = e.clientY - rect.top - 28;
+          const pinCount = ICS[dragging.icKey].pins;
+          const snapped = snapICPosition(dropX, dropY, pinCount, placedICs);
+          if (snapped) {
+            setPlacedICs((p) => [
+              ...p,
+              { id: Date.now(), ic: dragging.icKey, x: snapped.x, y: snapped.y },
+            ]);
+          }
+          // if snapped is null, no free slot was found — IC is not placed
+          // if drop is outside the breadboard rect entirely, IC is simply discarded (not placed)
         }
+      }
+
+      if (draggingPlaced) {
+        const rect = bbWrapRef.current?.getBoundingClientRect();
+        if (rect) {
+          setPlacedICs((p) =>
+            p.map((ic) => {
+              if (ic.id !== draggingPlaced.id) return ic;
+              const pinCount = ICS[draggingPlaced.icKey].pins;
+              const snapped = snapICPosition(ic.x, ic.y, pinCount, p, ic.id);
+              return snapped ? { ...ic, x: snapped.x, y: snapped.y } : ic; // no free slot → stays where it was
+            })
+          );
+        }
+        setDraggingPlaced(null);
       }
       setDragging(null);
     };
-    window.addEventListener("mousemove", onMove);
-    window.addEventListener("mouseup", onUp);
-    return () => {
-      window.removeEventListener("mousemove", onMove);
-      window.removeEventListener("mouseup", onUp);
-    };
-  }, [dragging, wireStart, wireCol]);
+      window.addEventListener("mousemove", onMove);
+      window.addEventListener("mouseup", onUp);
+      return () => {
+        window.removeEventListener("mousemove", onMove);
+        window.removeEventListener("mouseup", onUp);
+      };
+    }, [dragging, wireStart, wireCol, draggingPlaced]);
 
   const dec = switches.reduce((a, b, i) => a + b * (1 << i), 0);
 
@@ -999,6 +1099,14 @@ export default function IT300() {
     setDragging({ icKey, ghostX: e.clientX - 40, ghostY: e.clientY - 25 });
   };
 
+  const handleICMouseDown = (id, icKey, clientX, clientY) => {
+    const ic = placedICs.find((p) => p.id === id);
+    if (!ic || !bbWrapRef.current) return;
+    const rect = bbWrapRef.current.getBoundingClientRect();
+    const offsetX = clientX - rect.left - ic.x;
+    const offsetY = clientY - rect.top - ic.y;
+    setDraggingPlaced({ id, icKey, offsetX, offsetY });
+  };
   const F = "monospace";
   const Sec = ({ title, children, style: st }) => (
     <div
@@ -1647,6 +1755,7 @@ export default function IT300() {
                         wires={wires}
                         placedICs={placedICs}
                         onHoleClick={onHoleClick}
+                        onICMouseDown={handleICMouseDown}
                       />
                       {/* FIX: WireOverlay uses SVG-local coords — rendered over the SVG */}
                       <WireOverlay
