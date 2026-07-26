@@ -792,12 +792,11 @@ export default function ProblemsPage() {
 
   const xpPercentage = Math.min(100, Math.round((xp / nextLevelXp) * 100));
 
-  // Daily Challenge problem
   const dailyProblem = React.useMemo(() => {
     if (!problemsCatalog || !problemsCatalog.length) return null;
     const day = new Date().getDate();
     return problemsCatalog[day % problemsCatalog.length];
-  }, []);
+  }, [problemsCatalog]);
 
   const handleSolveDaily = () => {
     if (dailyProblem) {
@@ -928,6 +927,7 @@ export default function ProblemsPage() {
     activeGroup,
     deferredSearch,
     difficulty,
+    problemsCatalog,
     sortBy,
     snapshot?.state?.problems,
     statusFilter,
@@ -954,7 +954,7 @@ export default function ProblemsPage() {
       problemsCatalog.find((problem) => problem.id === selectedProblemId) ||
       filteredProblems[0] ||
       null,
-    [filteredProblems, selectedProblemId],
+    [filteredProblems, problemsCatalog, selectedProblemId],
   );
 
   const topTopicProgress = coreTopics

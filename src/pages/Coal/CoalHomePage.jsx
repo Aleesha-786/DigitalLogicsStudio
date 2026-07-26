@@ -6,7 +6,7 @@ import {
   BookOpen,
   Cpu,
   Wrench,
-  Trophy,
+  // Trophy,
 } from "lucide-react";
 import { Navbar } from "../Home/Navbar";
 import Footer from "../Home/Footer";
@@ -132,7 +132,7 @@ function CoalHomePage() {
               </div>
             </Link>
 
-            <Link
+            {/* <Link
               to="/problems?course=coal"
               className="learning-resources-card learning-resources-glow-card"
             >
@@ -155,7 +155,7 @@ function CoalHomePage() {
                   Solve <ArrowRight size={16} />
                 </span>
               </div>
-            </Link>
+            </Link> */}
           </div>
         </section>
       </main>

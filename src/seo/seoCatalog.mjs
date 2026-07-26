@@ -1,4 +1,4 @@
-import { coalCourseParts } from "../data/coalCourseOutline.js";
+import coalCourseParts from "../data/coalCourseOutline.js";
 
 export const SITE_NAME = "Boolforge";
 export const SITE_URL = (
