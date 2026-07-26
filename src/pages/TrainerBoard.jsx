@@ -1068,7 +1068,7 @@ export default function IT300() {
         window.removeEventListener("mousemove", onMove);
         window.removeEventListener("mouseup", onUp);
       };
-    }, [dragging, wireStart, wireCol, draggingPlaced]);
+    }, [dragging, wireStart, wireCol, draggingPlaced,placedICs]);
 
   const dec = switches.reduce((a, b, i) => a + b * (1 << i), 0);
 
