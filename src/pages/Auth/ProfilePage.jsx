@@ -2521,7 +2521,7 @@ export default function ProfilePage() {
           const COAL_PORTALS = [
             { icon: "📖", label: "COAL Theory",      desc: "All 7 parts — structured modules",  path: "/resources/coal/theory",         color: COLORS.purple },
             { icon: "🔬", label: "COAL Practical",   desc: "Lab sessions & hands-on drills",    path: "/resources/coal/practical",      color: COLORS.cyan   },
-            { icon: "✦", label: "COAL Problems",     desc: "Conceptual practice questions",     path: "/resources/coal/problems",       color: COLORS.blue   },
+            { icon: "✦", label: "COAL Problems",     desc: "Conceptual practice questions",     path: "/problems?course=coal",       color: COLORS.blue   },
             { icon: "🖥️", label: "Assembly Drills",  desc: "x86 assembly drill exercises",      path: "/resources/coal/practical/assembly-drills", color: COLORS.amber },
             { icon: "📍", label: "Addressing Modes", desc: "Interactive mode playground",       path: "/resources/coal/practical/addressing-mode-playground", color: COLORS.green },
             { icon: "⚙️", label: "Instruction Lab",  desc: "Step through instruction execution",path: "/resources/coal/practical/instruction-laboratory", color: COLORS.indigo },

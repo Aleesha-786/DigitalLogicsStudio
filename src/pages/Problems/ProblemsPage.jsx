@@ -1,5 +1,5 @@
 import React from "react";
-import { Link, useParams, useNavigate } from "react-router-dom";
+import { Link, useParams, useNavigate, useSearchParams } from "react-router-dom";
 import { gsap } from "gsap";
 import {
   BookOpen,
@@ -25,27 +25,30 @@ import {
   Info,
   Menu,
   X,
+  Award,
 } from "lucide-react";
 import { useTheme } from "../../context/ThemeContext";
 import { useAuth } from "../../context/AuthContext";
 import { Navbar } from "../Home/Navbar";
 import useLearningProgress from "../../hooks/useLearningProgress";
 import coreTopics from "../../data/coreTopics";
-import problemsCatalog, {
-  problemBannerCards,
+import allProblemsCatalog, {
+  allBannerCards,
+  allFilterGroups,
+  courseFilterOptions,
   problemDifficultyOptions,
-  problemFilterGroups,
   problemSortOptions,
   problemStatusOptions,
-} from "./problemCatalog";
+} from "./allProblemsCatalog";
 import ProblemModal from "./ProblemModal";
+import CoalProblemModal from "./CoalProblemModal";
 import "./ProblemsPage.css";
 import {
   trackPracticeEngagement,
   trackTopicEngagement,
 } from "../../utils/analytics";
 
-const leftNavSections = [
+const unifiedNavSections = [
   {
     title: "Practice Arenas",
     items: [
@@ -53,14 +56,17 @@ const leftNavSections = [
         label: "Problems Library",
         icon: LibraryBig,
         panel: {
-          description: "All digital logic problems — combinational, sequential, arithmetic and more.",
+          description:
+            "All problems — DLD and COAL together. Combinational, sequential, number systems, assembly, cache and more.",
           links: [
             { label: "All Problems", action: "navigate", value: "/problems" },
             { label: "Easy problems", action: "filter", value: "Easy" },
             { label: "Medium problems", action: "filter", value: "Medium" },
             { label: "Hard problems", action: "filter", value: "Hard" },
-            { label: "Combinational", action: "topic", value: "Combinational Circuits" },
-            { label: "Sequential", action: "topic", value: "Sequential Circuits" },
+            { label: "Combinational (DLD)", action: "topic", value: "Combinational Circuits" },
+            { label: "Sequential (DLD)", action: "topic", value: "Sequential Circuits" },
+            { label: "Assembly (COAL)", action: "topic", value: "Assembly Programming" },
+            { label: "Cache & Memory (COAL)", action: "topic", value: "Cache & Memory" },
           ],
         },
       },
@@ -107,6 +113,21 @@ const leftNavSections = [
             { label: "Binary Visualizer", action: "navigate", value: "/number-systems/binary-representation" },
             { label: "BCD Notation", action: "navigate", value: "/number-systems/bcd-notation" },
             { label: "2's Complement", action: "navigate", value: "/arithmetic/complements" },
+          ],
+        },
+      },
+      {
+        label: "Assembly Lab",
+        icon: Cpu,
+        topicSlug: "assembly",
+        badge: "Interactive",
+        panel: {
+          description:
+            "Step-by-step assembly instruction execution and register visualization.",
+          links: [
+            { label: "Trace Simulator", action: "navigate", value: "/resources/coal/practical/instruction-trace-lab" },
+            { label: "Assembly Syntax", action: "navigate", value: "/coal/coal-syntax" },
+            { label: "Stack & Procedures", action: "navigate", value: "/coal/procedures-stack" },
           ],
         },
       },
@@ -225,6 +246,17 @@ const leftNavSections = [
         path: "/boolean/identities",
       },
       { label: "Boolean Laws", icon: BookOpen, path: "/boolean/laws" },
+    ],
+  },
+  {
+    title: "COAL Syllabus Parts",
+    items: [
+      { label: "Part 1: Foundations", icon: Info, actionGroup: "Foundations" },
+      { label: "Part 2: Number Systems", icon: Binary, actionGroup: "Number Systems" },
+      { label: "Part 3: ISA & Registers", icon: Award, actionGroup: "ISA & Registers" },
+      { label: "Part 4: Assembly Coding", icon: Cpu, actionGroup: "Assembly Programming" },
+      { label: "Part 5: Cache & Memory", icon: Grid, actionGroup: "Cache & Memory" },
+      { label: "Part 6: I/O & Interrupts", icon: Activity, actionGroup: "I/O & Interrupts" },
     ],
   },
 ];
@@ -516,9 +548,47 @@ export default function ProblemsPage() {
   const [isMobileSidebarOpen, setIsMobileSidebarOpen] = React.useState(false);
   const { topicSlug } = useParams();
   const navigate = useNavigate();
+  const [searchParams, setSearchParams] = useSearchParams();
   const { user } = useAuth();
   const { theme, toggle: toggleTheme } = useTheme();
   const topicLanding = topicSlug ? problemTopicLandingMap[topicSlug] : null;
+
+  // Course filter for the table only — "all" | "dld" | "coal". Everything
+  // else on the page (sidebar, banner carousel, right rail stats/progress,
+  // daily challenge) always reflects the combined DLD + COAL catalog.
+  // Pre-seeded from ?course=coal so the old /resources/coal/problems
+  // redirect still lands users on a COAL-filtered table.
+  const [courseFilter, setCourseFilter] = React.useState(
+    searchParams.get("course") === "coal" ? "coal" : "all",
+  );
+
+  // Single combined catalog — always both courses. Progress stays correct
+  // regardless of filter: problem ids are globally unique (DLD: 1-40 &
+  // 2001-2007, COAL: 3001-3015) and progressService keys completion state
+  // by raw problem.id, not by catalog — see allProblemsCatalog.js for the
+  // collision guard.
+  const problemsCatalog = allProblemsCatalog;
+  const problemBannerCards = allBannerCards;
+  const problemFilterGroups = allFilterGroups;
+  const activeNavSections = unifiedNavSections;
+
+  // Keep the course filter chip reflected in the URL (shareable / bookmarkable),
+  // without turning it back into a page-wide mode switch.
+  React.useEffect(() => {
+    setSearchParams(
+      (prev) => {
+        const params = new URLSearchParams(prev);
+        if (courseFilter === "all") {
+          params.delete("course");
+        } else {
+          params.set("course", courseFilter);
+        }
+        return params;
+      },
+      { replace: true },
+    );
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [courseFilter]);
 
   const bannerRef = React.useRef(null);
   const tweenRef = React.useRef(null);
@@ -530,6 +600,7 @@ export default function ProblemsPage() {
     if (topicSlug === "k-map") return "K-Map Arena";
     if (topicSlug === "sequential-circuits") return "Sequential Arena";
     if (topicSlug === "number-systems") return "Number Arena";
+    if (topicSlug === "assembly") return "Assembly Lab";
     if (!topicSlug) return "Problems Library";
     return "";
   };
@@ -541,6 +612,10 @@ export default function ProblemsPage() {
       navigate(item.path);
     } else if (item.topicSlug) {
       navigate(`/problems/${item.topicSlug}`);
+    } else if (item.actionGroup) {
+      navigate("/problems");
+      setActiveGroup(item.actionGroup);
+      setTopicFilter(item.actionGroup);
     } else {
       navigate("/problems");
       setActiveGroup("All Topics");
@@ -707,12 +782,11 @@ export default function ProblemsPage() {
 
   const xpPercentage = Math.min(100, Math.round((xp / nextLevelXp) * 100));
 
-  // Daily Challenge problem
   const dailyProblem = React.useMemo(() => {
     if (!problemsCatalog || !problemsCatalog.length) return null;
     const day = new Date().getDate();
     return problemsCatalog[day % problemsCatalog.length];
-  }, []);
+  }, [problemsCatalog]);
 
   const handleSolveDaily = () => {
     if (dailyProblem) {
@@ -829,20 +903,26 @@ export default function ProblemsPage() {
         (statusFilter === "Attempted" && problemStatus === "attempted") ||
         (statusFilter === "Unsolved" && problemStatus === "not_started");
 
+      const matchesCourse =
+        courseFilter === "all" || problem.course === courseFilter;
+
       return (
         matchesSearch &&
         matchesDifficulty &&
         matchesGroup &&
         matchesTopic &&
-        matchesStatus
+        matchesStatus &&
+        matchesCourse
       );
     });
 
     return sortProblems(matches, sortBy, snapshot?.state?.problems || {});
   }, [
     activeGroup,
+    courseFilter,
     deferredSearch,
     difficulty,
+    problemsCatalog,
     sortBy,
     snapshot?.state?.problems,
     statusFilter,
@@ -869,7 +949,7 @@ export default function ProblemsPage() {
       problemsCatalog.find((problem) => problem.id === selectedProblemId) ||
       filteredProblems[0] ||
       null,
-    [filteredProblems, selectedProblemId],
+    [filteredProblems, problemsCatalog, selectedProblemId],
   );
 
   const topTopicProgress = coreTopics
@@ -954,7 +1034,7 @@ export default function ProblemsPage() {
             <div className="sidebar-nav-section">
               <h4 className="sidebar-section-title">Practice Arenas</h4>
               <div className="sidebar-section-items">
-                {leftNavSections[0].items.map((item) => {
+                {activeNavSections[0].items.map((item) => {
                   const Icon = item.icon;
                   const isActive = activeItemLabel === item.label;
                   const isPanelOpen = openArenaPanel === item.label;
@@ -1034,7 +1114,7 @@ export default function ProblemsPage() {
 
             {/* ── All other sections as accordion tabs ── */}
             <div className="sidebar-accordion">
-              {leftNavSections.slice(1).map((section) => (
+              {activeNavSections.slice(1).map((section) => (
                 <SidebarAccordion
                   key={section.title}
                   section={section}
@@ -1138,6 +1218,24 @@ export default function ProblemsPage() {
               </div>
             </div>
           )}
+
+          <div
+            className="problems-course-tabs"
+            role="group"
+            aria-label="Filter by course"
+          >
+            {courseFilterOptions.map((option) => (
+              <button
+                key={option.value}
+                type="button"
+                aria-pressed={courseFilter === option.value}
+                className={`problems-course-tab ${courseFilter === option.value ? "is-active" : ""}`}
+                onClick={() => setCourseFilter(option.value)}
+              >
+                {option.label}
+              </button>
+            ))}
+          </div>
 
           <div className="problems-filter-chip-row">
             {problemFilterGroups.map((group) => (
@@ -1627,13 +1725,19 @@ export default function ProblemsPage() {
         </aside>
       </main>
 
-      {activeProblem && (
+      {activeProblem && (activeProblem.course === "coal" ? (
+        <CoalProblemModal
+          problem={activeProblem}
+          onClose={() => setActiveProblem(null)}
+          onSolved={(problem) => handleSetProblemSolved(problem, true)}
+        />
+      ) : (
         <ProblemModal
           problem={activeProblem}
           onClose={() => setActiveProblem(null)}
           onSolved={(problem) => handleSetProblemSolved(problem, true)}
         />
-      )}
+      ))}
     </div>
   );
 }

@@ -12,7 +12,7 @@ const COAL_NAV_LINKS = [
   { to: "/resources/coal", label: "COAL Home", end: true },
   { to: "/resources/coal/theory", label: "Theory", matchTheory: true },
   { to: "/resources/coal/practical", label: "Practical" },
-  { to: "/resources/coal/problems", label: "Problems" },
+  { to: "/problems?course=coal", label: "Problems" },
 ];
 
 function isCoalTheoryRoute(pathname) {

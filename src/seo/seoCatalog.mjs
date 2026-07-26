@@ -1,4 +1,4 @@
-import { coalCourseParts } from "../data/coalCourseOutline.js";
+import coalCourseParts from "../data/coalCourseOutline.js";
 
 export const SITE_NAME = "Boolforge";
 export const SITE_URL = (
@@ -625,13 +625,16 @@ export const SEO_ROUTES = [
   }),
   buildRoute({
     path: "/problems",
-    title: "Digital Logic Problems and Practice Questions | Boolforge",
+    title: "Practice Problems — Digital Logic & COAL | Boolforge",
     description:
-      "Practice digital logic problems across Boolean algebra, K-maps, number systems, combinational circuits, sequential circuits, and memory systems.",
+      "Practice digital logic design and computer organization & assembly language (COAL) problems in one place — Boolean algebra, K-maps, number systems, sequential circuits, x86 assembly, cache & memory, and more.",
     keywords: [
       "digital logic problems",
+      "coal practice problems",
       "digital logic exam preparation",
       "boolean algebra problems",
+      "assembly programming practice",
+      "computer organization questions",
     ],
     type: "FAQPage",
     section: "Practice",
@@ -640,6 +643,7 @@ export const SEO_ROUTES = [
       { to: "/problems/boolean-algebra", label: "Boolean algebra problems" },
       { to: "/problems/k-map", label: "K-map problems" },
       { to: "/problems/number-systems", label: "Number system problems" },
+      { to: "/problems?course=coal", label: "COAL practice problems" },
     ],
     faq: [
       {
@@ -651,6 +655,11 @@ export const SEO_ROUTES = [
         question: "Are the Boolforge problems useful for university exam preparation?",
         answer:
           "Yes. The problem sets are organized around common digital logic topics and are designed to help with revision, conceptual understanding, and exam-style practice.",
+      },
+      {
+        question: "Can I practice COAL problems on the same page?",
+        answer:
+          "Yes. The Problems page has a course toggle — switch to the COAL tab to practice number representation, x86 assembly, ISA & registers, cache & memory, and I/O & interrupt questions without leaving the page.",
       },
     ],
   }),
@@ -846,7 +855,7 @@ export const SEO_ROUTES = [
       { to: "/resources/dld", label: "DLD resources" },
       { to: "/resources/coal", label: "COAL resources" },
       { to: "/problems", label: "DLD practice" },
-      { to: "/resources/coal/problems", label: "COAL practice" }
+      { to: "/problems?course=coal", label: "COAL practice" }
     ]
   }),
   buildRoute({
@@ -887,7 +896,7 @@ export const SEO_ROUTES = [
     relatedLinks: [
       { to: "/resources/coal/theory", label: "COAL course syllabus" },
       { to: "/resources/coal/practical", label: "Interactive assembly simulators" },
-      { to: "/resources/coal/problems", label: "COAL practice problems" }
+      { to: "/problems?course=coal", label: "COAL practice problems" }
     ]
   }),
   buildRoute({
@@ -907,7 +916,7 @@ export const SEO_ROUTES = [
     relatedLinks: [
       { to: "/resources/coal", label: "COAL track landing" },
       { to: "/resources/coal/practical", label: "Interactive labs" },
-      { to: "/resources/coal/problems", label: "COAL practice problems" }
+      { to: "/problems?course=coal", label: "COAL practice problems" }
     ]
   }),
   buildRoute({
@@ -1010,7 +1019,7 @@ export const SEO_ROUTES = [
     category: "SoftwareApplication",
     relatedLinks: [
       { to: "/resources/coal/practical", label: "All practical labs" },
-      { to: "/resources/coal/problems", label: "COAL exam questions" },
+      { to: "/problems?course=coal", label: "COAL exam questions" },
       { to: "/coal/coal-syntax", label: "Assembly syntax guide" }
     ]
   }),
@@ -1053,89 +1062,6 @@ export const SEO_ROUTES = [
     ]
   }),
   buildRoute({
-    path: "/resources/coal/problems",
-    title: "COAL Practice Problems & Assembly Exam Questions | Boolforge",
-    description:
-      "Practice exam-style assembly questions, number representation quizzes, and micro-operation tracing problems for COAL revision.",
-    keywords: [
-      "coal exam questions",
-      "assembly programming practice",
-      "computer organization questions",
-      "cache memory questions"
-    ],
-    type: "FAQPage",
-    section: "Practice",
-    category: "COAL",
-    relatedLinks: [
-      { to: "/resources/coal/problems/foundations", label: "Foundations practice" },
-      { to: "/resources/coal/problems/number-systems", label: "Number system practice" },
-      { to: "/resources/coal/problems/assembly-programming", label: "Assembly coding practice" }
-    ]
-  }),
-  buildRoute({
-    path: "/resources/coal/problems/foundations",
-    title: "COAL Foundations Practice Problems | Boolforge",
-    description: "Solve conceptual challenges on Von Neumann architecture, CPU buses, and computer organization fundamentals.",
-    keywords: ["computer organization problems", "von neumann questions"],
-    type: "FAQPage",
-    section: "Practice",
-    category: "COAL Foundations",
-  }),
-  buildRoute({
-    path: "/resources/coal/problems/number-systems",
-    title: "COAL Number Systems & Signed Arithmetic Problems | Boolforge",
-    description: "Practice conversion exercises, 2's complement bounds, and binary arithmetic overflow challenges.",
-    keywords: ["signed numbers practice", "binary overflow problems"],
-    type: "FAQPage",
-    section: "Practice",
-    category: "COAL Number Systems",
-  }),
-  buildRoute({
-    path: "/resources/coal/problems/isa-registers",
-    title: "COAL ISA and Registers Practice Problems | Boolforge",
-    description: "Solve challenges on x86 register sets, flags register status, and addressing mode calculations.",
-    keywords: ["x86 register problems", "effective address exercises"],
-    type: "FAQPage",
-    section: "Practice",
-    category: "COAL ISA & Registers",
-  }),
-  buildRoute({
-    path: "/resources/coal/problems/assembly-programming",
-    title: "COAL x86 Assembly Programming Practice Problems | Boolforge",
-    description: "Solve coding and debug exercises on loops, conditions, procedure stack frames, arrays, and string operations.",
-    keywords: ["x86 assembly coding exercises", "procedures stack frames problems"],
-    type: "FAQPage",
-    section: "Practice",
-    category: "COAL Assembly Coding",
-  }),
-  buildRoute({
-    path: "/resources/coal/problems/cache-memory",
-    title: "COAL Cache and Memory Hierarchy Problems | Boolforge",
-    description: "Practice problems on direct-mapped cache, associative caches, cache hit/miss ratio, and memory decoding.",
-    keywords: ["cache hit miss ratio problems", "direct mapped cache questions"],
-    type: "FAQPage",
-    section: "Practice",
-    category: "COAL Cache & Memory",
-  }),
-  buildRoute({
-    path: "/resources/coal/problems/io-interrupts",
-    title: "COAL I/O and Interrupt Handling Practice Problems | Boolforge",
-    description: "Solve conceptual questions on programmed I/O, interrupt-driven systems, IVT, and DMA transfers.",
-    keywords: ["dma transfer questions", "interrupt service routine problems"],
-    type: "FAQPage",
-    section: "Practice",
-    category: "COAL I/O & Interrupts",
-  }),
-  buildRoute({
-    path: "/resources/coal/problems/pipelining-risc",
-    title: "COAL Pipelining & RISC Architecture Problems | Boolforge",
-    description: "Analyze instruction pipelining, hazards (structural, data, control), CPI, and RISC vs CISC design tradeoffs.",
-    keywords: ["pipelining hazards problems", "risc vs cisc exercises"],
-    type: "FAQPage",
-    section: "Practice",
-    category: "COAL Pipelining & RISC",
-  }),
-  buildRoute({
     path: "/forgot-password",
     title: "Forgot Password | Recover Account | Boolforge",
     description: "Reset your Boolforge account password to recover your study progress and solved problems.",
@@ -1174,7 +1100,7 @@ export const SEO_ROUTES = [
         relatedLinks: [
           { to: "/resources/coal/theory", label: "COAL Syllabus & Modules" },
           { to: "/resources/coal/practical", label: "COAL Assembly Labs" },
-          { to: "/resources/coal/problems", label: "COAL Practice Problems" }
+          { to: "/problems?course=coal", label: "COAL Practice Problems" }
         ]
       });
     })

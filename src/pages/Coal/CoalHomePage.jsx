@@ -133,7 +133,7 @@ function CoalHomePage() {
             </Link>
 
             <Link
-              to="/resources/coal/problems"
+              to="/problems?course=coal"
               className="learning-resources-card learning-resources-glow-card"
             >
               <div className="learning-resources-card-top">
