@@ -717,7 +717,8 @@ function WireOverlay({ wires, preview, width, height }) {
         top: 0,
         left: 0,
         pointerEvents: "none",
-        zIndex: 20,
+        zIndex: 999,
+        overflow: "visible",
       }}
       width={width}
       height={height}
@@ -880,8 +881,8 @@ function snapICPosition(dropX, dropY, pinCount, placedICs = [], excludeId = null
   const ROW_H = 14;
   const IC_BODY_H = 24;
   const TOP_RAIL_Y = 6;
-  
-  
+
+
   const BODY_Y = TOP_RAIL_Y + 36;
   const TOP_ROWS_H = 5 * ROW_H;
   const CENTER_Y = BODY_Y + TOP_ROWS_H + 2;
@@ -1169,6 +1170,13 @@ export default function IT300() {
     const offsetX = clientX - rect.left - ic.x;
     const offsetY = clientY - rect.top - ic.y;
     setDraggingPlaced({ id, icKey, offsetX, offsetY });
+  };
+
+  const handleExternalPinDown = (id, e) => {
+    e.stopPropagation();
+    if (!bbWrapRef.current) return;
+    const rect = bbWrapRef.current.getBoundingClientRect();
+    onHoleClick(id, e.clientX - rect.left, e.clientY - rect.top);
   };
   const F = "monospace";
   const Sec = ({ title, children, style: st }) => (
@@ -1462,7 +1470,7 @@ export default function IT300() {
                 </div>
               )}
               <div style={{ marginLeft: "auto", display: "flex", gap: 4 }}>
-                
+
                 <button
                   onClick={() => {
                     recordUndo();
@@ -1811,12 +1819,12 @@ export default function IT300() {
 
               {/* ── CENTER (BREADBOARD) ── */}
               <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
-                <Sec title="Solderless Breadboard — 2×30 columns × 10 rows + 4 power rails">
-                  <div className="breadboard-scroll-wrapper">
+                <Sec title="Solderless Breadboard — 2×30 columns × 10 rows + 4 power rails" style={{ overflow: "visible" }}>
+                  <div className="breadboard-scroll-wrapper" style={{ overflow: "visible" }}>
                     {/* FIX: bbWrapRef attached here — this is the coordinate origin for all wires */}
                     <div
                       ref={bbWrapRef}
-                      style={{ position: "relative", display: "inline-block", minWidth: `${bbW}px` }}
+                      style={{ position: "relative", display: "inline-block", minWidth: `${bbW}px`, overflow: "visible", zIndex: 1 }}
                     >
                       <Breadboard
                         wireStart={wireStart}
@@ -1870,7 +1878,13 @@ export default function IT300() {
                     }}
                   >
                     {switches.map((v, i) => (
-                      <LED key={i} on={!!v} c="G" />
+                      <div
+                        key={i}
+                        onMouseDown={(e) => handleExternalPinDown(`swled_${i}`, e)}
+                        style={{ cursor: "crosshair" }}
+                      >
+                        <LED on={!!v} c="G" />
+                      </div>
                     ))}
                   </div>
                   <div
@@ -1952,7 +1966,11 @@ export default function IT300() {
                     }}
                   >
                     {switches.map((v, i) => (
-                      <div key={i} style={{ textAlign: "center" }}>
+                      <div
+                        key={i}
+                        style={{ textAlign: "center", cursor: "crosshair" }}
+                        onMouseDown={(e) => handleExternalPinDown(`databus_${i}`, e)}
+                      >
                         <LED on={!!v} c="R" size={11} />
                         <div
                           style={{
@@ -1987,7 +2005,11 @@ export default function IT300() {
                     }}
                   >
                     {switches.map((v, i) => (
-                      <div key={i} style={{ textAlign: "center" }}>
+                      <div
+                        key={i}
+                        style={{ textAlign: "center", cursor: "crosshair" }}
+                        onMouseDown={(e) => handleExternalPinDown(`logicout_${i}`, e)}
+                      >
                         <LED on={!!v} c="G" size={11} />
                         <div
                           style={{
@@ -2030,7 +2052,11 @@ export default function IT300() {
                       0,
                       dec > 127 ? 1 : 0,
                     ].map((v, i) => (
-                      <div key={i} style={{ textAlign: "center" }}>
+                      <div
+                        key={i}
+                        style={{ textAlign: "center", cursor: "crosshair" }}
+                        onMouseDown={(e) => handleExternalPinDown(`flag_${i}`, e)}
+                      >
                         <LED on={!!v} c="Y" size={11} />
                         <div
                           style={{
@@ -2057,7 +2083,9 @@ export default function IT300() {
                         alignItems: "center",
                         gap: 4,
                         marginBottom: 5,
+                        cursor: "crosshair",
                       }}
+                      onMouseDown={(e) => handleExternalPinDown(`qbar_${i}`, e)}
                     >
                       <span
                         style={{
