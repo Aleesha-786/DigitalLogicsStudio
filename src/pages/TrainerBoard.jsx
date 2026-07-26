@@ -16,6 +16,7 @@ const ICS = {
     sym: "⊼",
     bg: "#1a1a40",
     txt: "#9090ff",
+    desc: "Quad 2-in NAND - Contains four independent logic gates that produce a LOW output only when both of their inputs are HIGH.",
   },
   7402: {
     name: "Quad 2-in NOR",
@@ -23,6 +24,7 @@ const ICS = {
     sym: "⊽",
     bg: "#0d2b0d",
     txt: "#60dd60",
+    desc: "Quad 2-in NOR - Contains four independent logic gates that produce a HIGH output only when both of their inputs are LOW.",
   },
   7404: {
     name: "Hex Inverter",
@@ -30,6 +32,7 @@ const ICS = {
     sym: "¬",
     bg: "#2d0a0a",
     txt: "#ff8080",
+    desc: "Hex Inverter - Contains six independent logic gates that flip the input signal, turning a HIGH into a LOW and vice versa.",
   },
   7408: {
     name: "Quad 2-in AND",
@@ -37,6 +40,7 @@ const ICS = {
     sym: "∧",
     bg: "#1a1a00",
     txt: "#e0e060",
+    desc: "Quad 2-in AND - Contains four independent logic gates that produce a HIGH output only when both of their inputs are HIGH.",
   },
   7432: {
     name: "Quad 2-in OR",
@@ -44,6 +48,7 @@ const ICS = {
     sym: "∨",
     bg: "#001a1a",
     txt: "#60e0e0",
+    desc: "Quad 2-in OR - Contains four independent logic gates that produce a HIGH output if at least one of their inputs is HIGH.",
   },
   7486: {
     name: "Quad 2-in XOR",
@@ -51,6 +56,7 @@ const ICS = {
     sym: "⊕",
     bg: "#1a001a",
     txt: "#e060e0",
+    desc: "Quad 2-in XOR - Contains four independent logic gates that produce a HIGH output only when their two inputs are different from each other.",
   },
   7474: {
     name: "Dual D Flip-Flop",
@@ -58,6 +64,7 @@ const ICS = {
     sym: "D",
     bg: "#001428",
     txt: "#60b0ff",
+    desc: "Dual D Flip-Flop - Contains two storage cells that capture the state of the data input (D) exactly when a clock signal transitions.",
   },
   7476: {
     name: "Dual JK Flip-Flop",
@@ -65,6 +72,7 @@ const ICS = {
     sym: "JK",
     bg: "#0a1a10",
     txt: "#60ffaa",
+    desc: "Dual JK Flip-Flop - Contains two versatile memory elements capable of storing a bit, resetting, setting, or toggling its state on a clock pulse.",
   },
   7483: {
     name: "4-bit Adder",
@@ -72,6 +80,7 @@ const ICS = {
     sym: "+",
     bg: "#1a0a00",
     txt: "#ffb060",
+    desc: "4-bit Adder - Math unit that adds two 4-bit binary numbers together and provides the sum along with a carry-out bit.",
   },
   7485: {
     name: "4-bit Comparator",
@@ -79,6 +88,7 @@ const ICS = {
     sym: "=?",
     bg: "#0a0a1a",
     txt: "#a0a0ff",
+    desc: "4-bit Comparator - Logic circuit that compares two 4-bit binary numbers to tell you if they are equal, or which one is larger.",
   },
   74138: {
     name: "3-to-8 Decoder",
@@ -86,6 +96,7 @@ const ICS = {
     sym: "1:8",
     bg: "#1a1a0a",
     txt: "#ffff80",
+    desc: "3-to-8 Decoder - Takes a 3-bit binary input code and activates exactly one corresponding output out of eight available lines.",
   },
   74151: {
     name: "8-to-1 MUX",
@@ -93,6 +104,7 @@ const ICS = {
     sym: "MX",
     bg: "#14001a",
     txt: "#ff80ff",
+    desc: "8-to-1 MUX - Acts like a data selector switch, funneling one of eight data input channels into a single output based on a 3-bit binary address.",
   },
   7447: {
     name: "BCD→7Seg Driver",
@@ -100,6 +112,7 @@ const ICS = {
     sym: "7s",
     bg: "#001a0a",
     txt: "#80ffbb",
+    desc: "BCD→7Seg Driver - Translates a 4-bit binary-coded decimal number into the specific on/off patterns needed to display numbers 0-9 on a 7-segment display.",
   },
   74193: {
     name: "4-bit Up/Dn Ctr",
@@ -107,6 +120,7 @@ const ICS = {
     sym: "↑↓",
     bg: "#1a0505",
     txt: "#ffaaaa",
+    desc: "4-bit Up/Dn Ctr - A digital counter that counts sequentially from 0 to 15 (or 15 down to 0) with every incoming clock pulse.",
   },
   7495: {
     name: "4-bit Shift Reg",
@@ -114,6 +128,7 @@ const ICS = {
     sym: ">>",
     bg: "#001818",
     txt: "#80ffff",
+    desc: "4-bit Shift Reg - Moves bits of data sequentially through 4 internal storage slots, supporting both serial data shifting and parallel loading.",
   },
 };
 
@@ -740,7 +755,7 @@ function TrayIC({ icKey, onMouseDown }) {
   return (
     <div
       onMouseDown={(e) => onMouseDown(e, icKey)}
-      title={`${icKey} — ${ic.name} (${ic.pins}-pin)\nDrag onto breadboard`}
+      title={`${icKey} — ${ic.desc} (${ic.pins}-pin)\nDrag onto breadboard`}
       style={{
         background: `linear-gradient(160deg,${ic.bg},#080808)`,
         border: "1px solid #555",
