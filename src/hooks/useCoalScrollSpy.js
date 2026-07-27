@@ -9,27 +9,29 @@ function useCoalScrollSpy(partIds, options = {}) {
   const location = useLocation();
   const activeRef = useRef(null);
 
-  // Stabilize the array reference so it doesn't retrigger the effect if the
-  // caller passes a fresh array literal on every render (e.g. an inline
-  // .map()), same pattern as catalogRef in useLearningProgress.js.
+  // Stabilize the array reference
   const partIdsKey = (partIds || []).join(",");
   const stablePartIds = useMemo(
     () => partIds,
     // eslint-disable-next-line react-hooks/exhaustive-deps
-    [partIdsKey],
+    [partIdsKey]
   );
 
   useEffect(() => {
     const elements = stablePartIds
       .map((id) => document.getElementById(`coal-part-${id}`))
       .filter(Boolean);
-    if (!elements.length) return undefined;
+
+    if (elements.length === 0) {
+      return () => {}; 
+    }
 
     const observer = new IntersectionObserver(
       (entries) => {
         const visible = entries
           .filter((entry) => entry.isIntersecting)
           .sort((a, b) => b.intersectionRatio - a.intersectionRatio)[0];
+
         if (!visible) return;
 
         const id = visible.target.id.replace("coal-part-", "");
@@ -38,11 +40,14 @@ function useCoalScrollSpy(partIds, options = {}) {
 
         navigate(`${location.pathname}#coal-part-${id}`, { replace: true });
       },
-      { rootMargin, threshold: [0, 0.25, 0.5, 0.75, 1] },
+      { rootMargin, threshold: [0, 0.25, 0.5, 0.75, 1] }
     );
 
     elements.forEach((el) => observer.observe(el));
-    return () => observer.disconnect();
+
+    return () => {
+      observer.disconnect();
+    };
   }, [stablePartIds, navigate, location.pathname, rootMargin]);
 }
 
