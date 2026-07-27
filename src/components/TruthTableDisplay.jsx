@@ -1,19 +1,24 @@
 import React, { useState } from 'react';
 import { Maximize2, X } from 'lucide-react';
+import { evaluate } from 'mathjs';
 
 const evaluateLogic = (expression, variables, binaryStr) => {
     let expr = expression;
     const sortedVars = [...variables].map((v, i) => ({ v, i })).sort((a, b) => b.v.length - a.v.length);
+    
     sortedVars.forEach(({ v, i }) => {
         const bit = binaryStr[i];
         expr = expr.split(v + "'").join(`(!${bit})`);
         expr = expr.split(v).join(`${bit}`);
     });
-    expr = expr.replace(/·/g, '&&').replace(/\./g, '&&').replace(/\+/g, '||').replace(/⊕/g, '^');
-    expr = expr.replace(/(\d|\))(?=\(|\d|!)/g, '$1&&');
+
+    expr = expr.replace(/·/g, ' and ').replace(/\./g, ' and ').replace(/\+/g, ' or ').replace(/⊕/g, ' xor ');
+    expr = expr.replace(/&&/g, ' and ').replace(/\|\|/g, ' or ');
+    expr = expr.replace(/(\d|\))(?=\(|\d|!)/g, '$1 and ');
+
     try {
-        // eslint-disable-next-line no-eval
-        return eval(expr) ? 1 : 0;
+        // Safe evaluation using mathjs instead of eval()
+        return evaluate(expr) ? 1 : 0;
     } catch (e) {
         return '-'; 
     }
