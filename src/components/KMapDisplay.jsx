@@ -1,3 +1,4 @@
+import '../styles/KMapGenerator.css';
 export const KMapDisplay = ({
     grid,
     groups,

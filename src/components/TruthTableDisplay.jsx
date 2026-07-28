@@ -1,3 +1,4 @@
+import '../styles/KMapGenerator.css';
 import React, { useState } from 'react';
 import { Maximize2, X } from 'lucide-react';
 import { evaluate } from 'mathjs';
