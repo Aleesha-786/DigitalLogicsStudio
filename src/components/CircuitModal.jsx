@@ -559,6 +559,9 @@ const CircuitModal = ({
   const handleGenerateCircuit = async () => {
     if (!problem || isGenLoading) return;
     setIsGenLoading(true);
+    setResult(null);
+    setAssignment({ inputMap: {}, outputMap: {} });
+
     try {
       const res = await generateAiCircuit({
         problem_title: problem?.title || "",
@@ -568,19 +571,85 @@ const CircuitModal = ({
 
       const data = res?.data || res;
       if (data && data.gates && Array.isArray(data.gates) && data.gates.length > 0) {
-        const formattedGates = data.gates.map((g, idx) => ({
-          id: g.id ?? idx,
-          type: g.type || "AND",
-          x: g.x ?? (80 + idx * 160),
-          y: g.y ?? 100,
-          label: g.label || g.type,
-          inputs: g.inputs ?? (g.type === "INPUT" ? 0 : g.type === "NOT" ? 1 : 2),
-          hasOutput: true,
-          output: null,
-          inputValues: g.type === "INPUT" ? [false] : [],
-        }));
-        setGates(formattedGates);
-        setWires(data.wires || []);
+        const reqInputs = problem?.inputs || [];
+        const reqOutputs = problem?.outputs || [];
+
+        const rawGates = data.gates;
+        const rawWires = data.wires || [];
+
+        const inputNodes = rawGates.filter(
+          (g) => (g.type || "").toUpperCase() === "INPUT" || (g.label && g.label.toLowerCase().includes("input")),
+        );
+        const outputNodes = rawGates.filter(
+          (g) => (g.type || "").toUpperCase() === "OUTPUT" || (g.label && (g.label.toLowerCase().includes("output") || g.label.toLowerCase().includes("sum") || g.label.toLowerCase().includes("carry"))),
+        );
+        const logicNodes = rawGates.filter(
+          (g) => !inputNodes.includes(g) && !outputNodes.includes(g),
+        );
+
+        const finalInputs = [];
+        const targetInputCount = reqInputs.length > 0 ? reqInputs.length : Math.max(inputNodes.length, 1);
+        for (let i = 0; i < targetInputCount; i++) {
+          const label = reqInputs[i] || (inputNodes[i] ? inputNodes[i].label : `A${i + 1}`);
+          const origId = inputNodes[i] ? inputNodes[i].id : i;
+          finalInputs.push({
+            id: origId,
+            type: "INPUT",
+            x: inputNodes[i]?.x ?? 80,
+            y: inputNodes[i]?.y ?? (80 + i * 100),
+            label: label,
+            inputs: 0,
+            hasOutput: true,
+            output: null,
+            inputValues: [false],
+          });
+        }
+
+        const finalOutputs = [];
+        const targetOutputCount = reqOutputs.length > 0 ? reqOutputs.length : Math.max(outputNodes.length, 1);
+        for (let i = 0; i < targetOutputCount; i++) {
+          const label = reqOutputs[i] || (outputNodes[i] ? outputNodes[i].label : `Y${i + 1}`);
+          const origId = outputNodes[i] ? outputNodes[i].id : (100 + i);
+          finalOutputs.push({
+            id: origId,
+            type: "OUTPUT",
+            x: outputNodes[i]?.x ?? 750,
+            y: outputNodes[i]?.y ?? (80 + i * 100),
+            label: label,
+            inputs: 1,
+            hasOutput: false,
+            output: null,
+            inputValues: [],
+          });
+        }
+
+        const formattedLogic = logicNodes.map((g, idx) => {
+          const typeUpper = (g.type || "AND").toUpperCase();
+          let numInputs = g.inputs;
+          if (
+            numInputs === undefined ||
+            numInputs === null ||
+            (numInputs === 1 && !["NOT", "BUFFER"].includes(typeUpper))
+          ) {
+            numInputs = ["NOT", "BUFFER"].includes(typeUpper) ? 1 : 2;
+          }
+          return {
+            id: g.id ?? (200 + idx),
+            type: typeUpper,
+            x: g.x ?? (300 + idx * 160),
+            y: g.y ?? (100 + (idx % 2) * 80),
+            label: g.label || typeUpper,
+            inputs: numInputs,
+            hasOutput: true,
+            output: null,
+            inputValues: [],
+          };
+        });
+
+        const finalGates = [...finalInputs, ...formattedLogic, ...finalOutputs];
+        setGates(finalGates);
+        setWires(rawWires);
+        setResult(null);
       } else {
         alert("AI generated no gates for this problem. Try again shortly.");
       }
@@ -979,6 +1048,23 @@ const CircuitModal = ({
                   All {result.rows.length} rows pass
                 </span>
               )}
+              <button
+                onClick={() => setResult(null)}
+                style={{
+                  marginLeft: result.pass ? "0.6rem" : "auto",
+                  background: "none",
+                  border: "none",
+                  color: "var(--secondary-text,#8899aa)",
+                  cursor: "pointer",
+                  fontSize: "1rem",
+                  padding: "0 0.4rem",
+                  lineHeight: 1,
+                }}
+                title="Close result panel"
+                aria-label="Close result panel"
+              >
+                ✕
+              </button>
             </div>
 
             {result.error && <div style={S.errorBox}>⚠️ {result.error}</div>}
