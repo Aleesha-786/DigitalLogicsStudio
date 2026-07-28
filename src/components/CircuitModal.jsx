@@ -567,6 +567,9 @@ const CircuitModal = ({
         problem_title: problem?.title || "",
         problem_description: problem?.description || "",
         prompt: problem?.title ? `make a ${problem.title} circuit` : "",
+        inputs: problem?.inputs || [],
+        outputs: problem?.outputs || [],
+        truthTable: problem?.truthTable || [],
       });
 
       const data = res?.data || res;
