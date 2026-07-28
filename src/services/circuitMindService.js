@@ -26,7 +26,11 @@ circuitMindClient.interceptors.response.use(
 // Trims the gate/wire graph down to what the hint endpoint actually needs —
 // Boolforge's internal fields (x, y, inputValues, hasOutput...) aren't relevant context.
 function toHintGates(gates) {
-  return (gates || []).map((g) => ({ id: g.id, type: g.type, label: g.label }));
+  return (gates || []).map((g) => ({
+    id: g.id,
+    type: g.type,
+    label: g.label || g.name || g.type,
+  }));
 }
 
 function toHintWires(wires) {
