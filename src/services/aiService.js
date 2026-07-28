@@ -27,4 +27,7 @@ aiClient.interceptors.response.use(
 export const sendChatMessage = (message, context) =>
   aiClient.post("/chat", { message, context });
 
+export const requestCircuitHint = (payload) =>
+  aiClient.post("/hint", payload);
+
 export default aiClient;

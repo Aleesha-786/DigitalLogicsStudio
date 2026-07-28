@@ -56,7 +56,10 @@ export function resolveAiBaseUrl() {
   return `${resolveApiBaseUrl()}/ai`;
 }
 
-const DEFAULT_CIRCUITMIND_API_URL = "https://circuit-mind-two.vercel.app";
+const DEFAULT_CIRCUITMIND_API_URL =
+  process.env.NODE_ENV === "production"
+    ? "https://circuit-mind-two.vercel.app"
+    : "http://localhost:8000";
 
 export function resolveCircuitMindBaseUrl() {
   const configured = process.env.REACT_APP_CIRCUITMIND_API_URL?.trim();
