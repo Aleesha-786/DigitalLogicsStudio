@@ -5,7 +5,14 @@ function evalGate(
   depth = 0,
   visited = new Set(),
 ) {
-  if (depth > 100 || !gate || !gate.id || visited.has(gate.id)) return false;
+  if (
+    depth > 100 ||
+    !gate ||
+    gate.id === undefined ||
+    gate.id === null ||
+    visited.has(gate.id)
+  )
+    return false;
   if (gate.type === "INPUT") return (gate.inputValues && gate.inputValues[0]) || false;
 
   const newVisited = new Set(visited);
