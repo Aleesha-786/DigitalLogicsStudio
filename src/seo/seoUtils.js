@@ -12,11 +12,6 @@ import {
 const authPaths = new Set(["/login", "/signup", "/profile", "/settings", "/forgot-password"]);
 const sectionRootMatchers = [
   {
-    test: /^\/resources\/coal\/problems(\/|$)/,
-    path: "/resources/coal/problems",
-    label: "COAL Practice",
-  },
-  {
     test: /^\/resources\/coal(\/|$)/,
     path: "/resources/coal",
     label: "COAL",
