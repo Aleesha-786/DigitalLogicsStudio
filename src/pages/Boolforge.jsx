@@ -75,6 +75,8 @@ const Boolforge = ({
   onCircuitChange,
   portNames = null, // { inputs: string[], outputs: string[] } — from problem
   embedded = false, // true when used inside a modal/host page — skips Navbar + Footer
+  initialGates = null,
+  initialWires = null,
 }) => {
   const { theme, toggle: toggleTheme } = useTheme();
   const [navbarVisible, setNavbarVisible] = useState(true);
@@ -1601,6 +1603,18 @@ const Boolforge = ({
       }
     }
   }, [simplifiedExpression, variables]);
+
+  // ── Sync initialGates/initialWires when passed by parent (e.g. AI Circuit Generation) ──
+  useEffect(() => {
+    if (Array.isArray(initialGates) && initialGates.length > 0) {
+      setGates(initialGates);
+      setWires(Array.isArray(initialWires) ? initialWires : []);
+      const maxGateId = Math.max(...initialGates.map((g) => Number(g.id) || 0), 0) + 1;
+      const maxWireId = Math.max(...(initialWires || []).map((w) => Number(w.id) || 0), 0) + 1;
+      setGateIdCounter(maxGateId);
+      setWireIdCounter(maxWireId);
+    }
+  }, [initialGates, initialWires]);
 
   // ── Notify parent of circuit changes ──────────────────────────────────────
   useEffect(() => {

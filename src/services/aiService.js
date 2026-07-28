@@ -30,4 +30,7 @@ export const sendChatMessage = (message, context) =>
 export const requestCircuitHint = (payload) =>
   aiClient.post("/hint", payload);
 
+export const generateAiCircuit = (payload) =>
+  aiClient.post("/generate-circuit", payload);
+
 export default aiClient;

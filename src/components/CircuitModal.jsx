@@ -3,6 +3,7 @@ import Boolforge from "../pages/Boolforge";
 import { useAuth } from "../context/AuthContext";
 import { validateCircuit } from "../utils/circuitProblemValidator";
 import { getCircuitHint } from "../services/circuitMindService";
+import { generateAiCircuit } from "../services/aiService";
 
 // ─── Styles ───────────────────────────────────────────────────────────────────
 const S = {
@@ -553,6 +554,43 @@ const CircuitModal = ({
     }
   };
 
+  const [isGenLoading, setIsGenLoading] = useState(false);
+
+  const handleGenerateCircuit = async () => {
+    if (!problem || isGenLoading) return;
+    setIsGenLoading(true);
+    try {
+      const res = await generateAiCircuit({
+        problem_title: problem?.title || "",
+        problem_description: problem?.description || "",
+        prompt: problem?.title ? `make a ${problem.title} circuit` : "",
+      });
+
+      const data = res?.data || res;
+      if (data && data.gates && Array.isArray(data.gates) && data.gates.length > 0) {
+        const formattedGates = data.gates.map((g, idx) => ({
+          id: g.id ?? idx,
+          type: g.type || "AND",
+          x: g.x ?? (80 + idx * 160),
+          y: g.y ?? 100,
+          label: g.label || g.type,
+          inputs: g.inputs ?? (g.type === "INPUT" ? 0 : g.type === "NOT" ? 1 : 2),
+          hasOutput: true,
+          output: null,
+          inputValues: g.type === "INPUT" ? [false] : [],
+        }));
+        setGates(formattedGates);
+        setWires(data.wires || []);
+      } else {
+        alert("AI generated no gates for this problem. Try again shortly.");
+      }
+    } catch (error) {
+      alert(error.message || "Could not generate circuit. Make sure backend is running.");
+    } finally {
+      setIsGenLoading(false);
+    }
+  };
+
   const inputGates = gates.filter((g) => g.type === "INPUT");
   const outputGates = gates.filter((g) => g.type === "OUTPUT");
   const needInputs = problem?.inputs?.length ?? 0;
@@ -725,6 +763,29 @@ const CircuitModal = ({
           </button>
         )}
 
+        {/* AI Generate Circuit — powered by CircuitMind */}
+        {!isExperimentMode && (
+          <button
+            style={{
+              background: "linear-gradient(135deg, #7928ca 0%, #ff0080 100%)",
+              color: "#fff",
+              border: "none",
+              borderRadius: 6,
+              padding: "0.3rem 0.75rem",
+              cursor: isGenLoading ? "wait" : "pointer",
+              fontSize: "0.8rem",
+              fontWeight: 600,
+              whiteSpace: "nowrap",
+              opacity: isGenLoading ? 0.7 : 1,
+            }}
+            disabled={isGenLoading}
+            onClick={handleGenerateCircuit}
+            title="Auto-generate a solution circuit diagram on the canvas using AI"
+          >
+            {isGenLoading ? "⚡ Generating…" : "⚡ AI Generate"}
+          </button>
+        )}
+
         {/* Submit — graded problems only */}
         {!isExperimentMode && (
           <button
@@ -888,6 +949,8 @@ const CircuitModal = ({
         <div style={S.canvas} className="circuit-modal-canvas">
           <Boolforge
             embedded={true}
+            initialGates={gates}
+            initialWires={wires}
             onCircuitChange={handleCircuitChange}
             portNames={{ inputs: problem?.inputs || [], outputs: problem?.outputs || [] }}
             simplifiedExpression={isExperimentMode ? boolforgeExpression : null}
