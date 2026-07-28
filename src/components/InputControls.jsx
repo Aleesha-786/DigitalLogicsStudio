@@ -1,3 +1,4 @@
+import '../styles/KMapGenerator.css';
 import React from 'react';
 import {
     Cpu, 
@@ -21,11 +22,26 @@ export const InputControls = ({
     onReset,
 }) => {
     const handleVariableNameChange = (index, value) => {
-        const newVars = [...variables];
-        newVars[index] = value.toUpperCase().charAt(0) || variables[index];
-        onVariablesUpdate(newVars);
-    };
+    const newVars = [...variables];
+    newVars[index] = value.toUpperCase().charAt(0) || '';
+    onVariablesUpdate(newVars);
+};
 
+const maxTermValue = Math.pow(2, numVariables) - 1;
+
+const sanitizeTermInput = (value) => {
+    return value
+        .split(',')
+        .map((token) => {
+            const trimmed = token.trim();
+            if (trimmed === '') return trimmed;
+            const num = parseInt(trimmed, 10);
+            if (isNaN(num) || num < 0 || num > maxTermValue) return null;
+            return trimmed;
+        })
+        .filter((token) => token !== null)
+        .join(',');
+};
     const isSOP = optimizationType === "SOP";
     const termLabel = isSOP ? "Minterms" : "Maxterms";
     const examplePlaceholder = isSOP ? "e.g., 0,1,2,5,6,7" : "e.g., 3,4,8,11";
@@ -83,10 +99,10 @@ export const InputControls = ({
                         {termLabel}
                     </label>
                     <input
-                        type="text"
-                        className="kmap-input"
-                        value={inputValue}
-                        onChange={(e) => onInputValueChange(e.target.value)}
+                         type="text"
+                         className="kmap-input"
+                         value={inputValue}
+                          onChange={(e) => onInputValueChange(sanitizeTermInput(e.target.value))}
                         placeholder={examplePlaceholder}
                     />
                     <p className="kmap-helper-text">
@@ -102,9 +118,9 @@ export const InputControls = ({
                         type="text"
                         className="kmap-input"
                         value={dontCares}
-                        onChange={(e) => onDontCaresChange(e.target.value)}
-                        placeholder="e.g., 3,4,12"
-                    />
+                        onChange={(e) => onDontCaresChange(sanitizeTermInput(e.target.value))}
+                    placeholder="e.g., 3,4,12"
+                />
                 </div>
 
                 {/* Core Action Button Row */}

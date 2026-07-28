@@ -1,3 +1,4 @@
+import '../styles/KMapGenerator.css';
 import React from 'react';
 
 export const SimplifiedExpression = ({ expression, showGroupingGuide, onToggleGuide }) => {
