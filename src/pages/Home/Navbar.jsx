@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useRef, useState } from "react";
+import { memo, useEffect, useMemo, useRef, useState } from "react";
 import { Link, NavLink, useLocation, useNavigate } from "react-router-dom";
 import { useAuth } from "../../context/AuthContext";
 
@@ -67,7 +67,7 @@ function MoonIcon() {
   );
 }
 
-export function Navbar({ toggleTheme, theme, onHomeClick, onToggleNavbar, navbarVisible }) {
+function NavbarBase({ toggleTheme, theme, onHomeClick, onToggleNavbar, navbarVisible }) {
   const [menuOpen, setMenuOpen] = useState(false);
   const [profileMenuOpen, setProfileMenuOpen] = useState(false);
   const { user, loading, logout } = useAuth();
@@ -432,3 +432,9 @@ export function Navbar({ toggleTheme, theme, onHomeClick, onToggleNavbar, navbar
     </header>
   );
 }
+
+// Wrapped in memo: Navbar is rendered from pages like ProblemsPage/Boolforge
+// that re-render frequently (search typing, filters, gate drags, etc.) but
+// never change Navbar's own props — memo skips re-rendering it in that case.
+export const Navbar = memo(NavbarBase);
+

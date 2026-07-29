@@ -7,6 +7,8 @@
   --problems-row-hover: rgba(30, 41, 59, 0.72);
   --problems-text-strong: #f8fafc;
   --problems-text-soft: #dbe7f5;
+  --problems-chip-active-bg: #f8fafc;
+  --problems-chip-active-text: #060b16;
   --problems-tag-bg: rgba(59, 130, 246, 0.12);
   --problems-tag-border: rgba(96, 165, 250, 0.18);
   --problems-tag-text: #bfdbfe;
@@ -39,6 +41,8 @@
   --problems-row-hover: #eef2ff;
   --problems-text-strong: #0f172a;
   --problems-text-soft: #334155;
+  --problems-chip-active-bg: #0f172a;
+  --problems-chip-active-text: #f8fafc;
   --problems-tag-bg: rgba(37, 99, 235, 0.08);
   --problems-tag-border: rgba(37, 99, 235, 0.14);
   --problems-tag-text: #1d4ed8;
@@ -174,9 +178,9 @@
 }
 
 .problems-page.theme-light .problems-filter-chip.is-active {
-  background: #0f172a;
-  color: #f8fafc;
-  border-color: #0f172a;
+  background: var(--problems-chip-active-bg);
+  color: var(--problems-chip-active-text);
+  border-color: var(--problems-chip-active-bg);
 }
 
 /* ── Light theme: sidebar nav ───────────────────────────────────────────── */
@@ -755,11 +759,31 @@
   align-items: center;
   justify-content: center;
   font-size: 0.85rem;
+  transition:
+    background 0.15s ease,
+    color 0.15s ease,
+    border-color 0.15s ease;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.problems-filter-chip:hover:not(.is-active) {
+  border-color: var(--problems-border-strong);
+  background: var(--problems-surface);
+}
+
+.problems-filter-chip:focus {
+  outline: none;
+}
+
+.problems-filter-chip:focus-visible {
+  outline: 2px solid var(--accent-color, #818cf8);
+  outline-offset: 2px;
 }
 
 .problems-filter-chip.is-active {
-  background: var(--problems-text-strong);
-  color: var(--bg-color);
+  background: var(--problems-chip-active-bg, var(--problems-text-strong));
+  color: var(--problems-chip-active-text, #060b16);
+  border-color: var(--problems-chip-active-bg, var(--problems-text-strong));
 }
 
 .problems-toolbar {

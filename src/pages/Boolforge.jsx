@@ -8,6 +8,8 @@ import RelatedSeoLinks from "../components/seo/RelatedSeoLinks";
 import { Navbar } from "./Home/Navbar";
 import Footer from "./Home/Footer";
 import { useTheme } from "../context/ThemeContext";
+import { getCircuitHint } from "../services/circuitMindService";
+import { generateAiCircuit } from "../services/aiService";
 import "./../assets/css/Boolforge.css";
 
 // ─── Constants ────────────────────────────────────────────────────────────────
@@ -44,6 +46,17 @@ const IC_HEIGHTS = {
 
 function getICHeight(type) {
   return IC_HEIGHTS[type] ?? 100;
+}
+
+// Pad sparse wire inputs to the gate's full pin count — unconnected pins = false.
+function gateInputCount(gate) {
+  if (IC_TYPES.has(gate.type)) return IC_META[gate.type].inputs;
+  return gate.inputs ?? 1;
+}
+
+function resolveGateInputs(gate, inputs) {
+  const count = gateInputCount(gate);
+  return Array.from({ length: count }, (_, i) => inputs[i] ?? false);
 }
 
 function getInputY(gate, inputIndex) {
@@ -100,6 +113,17 @@ const Boolforge = ({
   const [panStart, setPanStart] = useState({ x: 0, y: 0 });
   const [renamingGate, setRenamingGate] = useState(null); // { id, currentLabel }
   const [renameValue, setRenameValue] = useState("");
+
+  // ── CircuitMind AI Assistant (Get Hint / AI Generate) ──────────────────────
+  // Lives here (the standalone Circuit page) rather than in CircuitModal, so
+  // it's available on /boolforge but not inside embedded problem-solving views.
+  const [aiPrompt, setAiPrompt] = useState("");
+  const [hint, setHint] = useState(null);
+  const [hintLoading, setHintLoading] = useState(false);
+  const [hintError, setHintError] = useState("");
+  const [isGenLoading, setIsGenLoading] = useState(false);
+  const [showAiPromptDialog, setShowAiPromptDialog] = useState(false);
+  const [aiPromptDialogValue, setAiPromptDialogValue] = useState("");
 
   // Multi-Selection and group dragging state/refs
   const [dragStartPositions, setDragStartPositions] = useState({});
@@ -209,27 +233,27 @@ const Boolforge = ({
 
   // ── Gate logic: compute a single gate's output from resolved inputs ──────────
   const computeGateOutput = (gate, inputs, outputIndex = 0) => {
-    const ci = inputs.filter((v) => v !== undefined);
+    const ri = resolveGateInputs(gate, inputs);
     switch (gate.type) {
       case "INPUT":
         return gate.inputValues[0] || false;
       case "AND":
-        return ci.length > 0 && ci.every(Boolean);
+        return ri.length > 0 && ri.every(Boolean);
       case "OR":
-        return ci.some(Boolean);
+        return ri.some(Boolean);
       case "NOT":
-        return inputs[0] !== undefined ? !inputs[0] : false;
+        return !ri[0];
       case "NAND":
-        return !(ci.length > 0 && ci.every(Boolean));
+        return !(ri.length > 0 && ri.every(Boolean));
       case "NOR":
-        return !ci.some(Boolean);
+        return !ri.some(Boolean);
       case "XOR":
-        return ci.length >= 2 && ci.reduce((acc, v) => acc !== v, false);
+        return ri.reduce((acc, v) => acc !== v, false);
       case "XNOR":
-        return ci.length >= 2 && !ci.reduce((acc, v) => acc !== v, false);
+        return !ri.reduce((acc, v) => acc !== v, false);
       case "BUFFER":
       case "OUTPUT":
-        return inputs[0] ?? false;
+        return ri[0];
 
       // ── Multiplexers ───────────────────────────────────────────────────────
       case "MUX2": {
@@ -1568,6 +1592,211 @@ const Boolforge = ({
     [generateTruthTable],
   );
 
+  // ── CircuitMind: serialize current board for AI requests ───────────────────
+  const buildCircuitPayload = useCallback(() => {
+    const circuitGates = gates.map((g) => ({
+      id: g.id,
+      type: g.type,
+      label: g.label || g.type,
+      inputs: g.inputs,
+      x: g.x,
+      y: g.y,
+      inputValues: g.type === "INPUT" ? g.inputValues : undefined,
+    }));
+    const circuitWires = wires.map((w) => ({
+      id: w.id,
+      fromId: w.fromId,
+      toId: w.toId,
+      toIndex: w.toIndex,
+      fromOutputIndex: w.fromOutputIndex ?? 0,
+    }));
+    return {
+      gates: circuitGates,
+      wires: circuitWires,
+      circuit_json: { gates: circuitGates, wires: circuitWires },
+      inputs: inputGates.map((g) => g.label),
+      outputs: outputGates.map((g) => g.label),
+      truthTable: truthTable.rows?.length ? truthTable : null,
+    };
+  }, [gates, wires, inputGates, outputGates, truthTable]);
+
+  const applyGeneratedCircuit = useCallback(
+    (data) => {
+      if (!data || !Array.isArray(data.gates) || data.gates.length === 0) {
+        return false;
+      }
+      const rawGates = data.gates;
+      const rawWires = data.wires || [];
+
+      const genInputNodes = rawGates.filter(
+        (g) =>
+          (g.type || "").toUpperCase() === "INPUT" ||
+          (g.label && g.label.toLowerCase().includes("input")),
+      );
+      const genOutputNodes = rawGates.filter(
+        (g) =>
+          (g.type || "").toUpperCase() === "OUTPUT" ||
+          (g.label &&
+            (g.label.toLowerCase().includes("output") ||
+              g.label.toLowerCase().includes("sum") ||
+              g.label.toLowerCase().includes("carry"))),
+      );
+      const genLogicNodes = rawGates.filter(
+        (g) => !genInputNodes.includes(g) && !genOutputNodes.includes(g),
+      );
+
+      const finalInputs = genInputNodes.map((g, i) => ({
+        id: g.id ?? i,
+        type: "INPUT",
+        x: g.x ?? 80,
+        y: g.y ?? 80 + i * 100,
+        label: g.label || `A${i + 1}`,
+        inputs: 0,
+        hasOutput: true,
+        output: null,
+        inputValues: [false],
+      }));
+
+      const finalOutputs = genOutputNodes.map((g, i) => ({
+        id: g.id ?? 100 + i,
+        type: "OUTPUT",
+        x: g.x ?? 750,
+        y: g.y ?? 80 + i * 100,
+        label: g.label || `Y${i + 1}`,
+        inputs: 1,
+        hasOutput: false,
+        output: null,
+        inputValues: [],
+      }));
+
+      const formattedLogic = genLogicNodes.map((g, idx) => {
+        const typeUpper = (g.type || "AND").toUpperCase();
+        let numInputs = g.inputs;
+        if (
+          numInputs === undefined ||
+          numInputs === null ||
+          (numInputs === 1 && !["NOT", "BUFFER"].includes(typeUpper))
+        ) {
+          numInputs = ["NOT", "BUFFER"].includes(typeUpper) ? 1 : 2;
+        }
+        return {
+          id: g.id ?? 200 + idx,
+          type: typeUpper,
+          x: g.x ?? 300 + idx * 160,
+          y: g.y ?? 100 + (idx % 2) * 80,
+          label: g.label || typeUpper,
+          inputs: numInputs,
+          hasOutput: true,
+          output: null,
+          inputValues: [],
+        };
+      });
+
+      const finalGates = [...finalInputs, ...formattedLogic, ...finalOutputs];
+      const maxGateId =
+        Math.max(...finalGates.map((g) => Number(g.id) || 0), 0) + 1;
+      const maxWireId =
+        Math.max(...rawWires.map((w) => Number(w.id) || 0), 0) + 1;
+
+      setGates(finalGates);
+      setWires(rawWires);
+      setGateIdCounter(maxGateId);
+      setWireIdCounter(maxWireId);
+      setInputCounter(finalInputs.length);
+      setOutputCounter(finalOutputs.length);
+      setTimeout(() => saveToHistory(), 0);
+      return true;
+    },
+    [saveToHistory],
+  );
+
+  // ── CircuitMind: Get Hint ───────────────────────────────────────────────────
+  // No formal "problem" object exists on the standalone Circuit page, so the
+  // optional description box + current INPUT/OUTPUT gate labels stand in for it.
+  const handleRequestHint = useCallback(async () => {
+    if (hintLoading) return;
+    setHintLoading(true);
+    setHintError("");
+    try {
+      const problemContext = {
+        title: aiPrompt || "Custom circuit",
+        description: aiPrompt || "",
+        inputs: inputGates.map((g) => g.label),
+        outputs: outputGates.map((g) => g.label),
+        truthTable: truthTable.rows?.length ? truthTable.rows : [],
+      };
+      const data = await getCircuitHint({
+        problem: problemContext,
+        gates,
+        wires,
+        result: null,
+      });
+      setHint(data.hint);
+    } catch (error) {
+      setHint(null);
+      setHintError(
+        error.message || "Couldn't get a hint right now. Try again shortly.",
+      );
+    } finally {
+      setHintLoading(false);
+    }
+  }, [hintLoading, aiPrompt, inputGates, outputGates, gates, wires, truthTable]);
+
+  // ── CircuitMind: AI Generate Circuit ────────────────────────────────────────
+  const runAiGenerate = useCallback(
+    async (description) => {
+      if (isGenLoading) return;
+      const trimmed = (description || "").trim();
+      if (!trimmed) return;
+
+      setIsGenLoading(true);
+      setShowAiPromptDialog(false);
+      try {
+        const hasCircuit = gates.length > 0;
+        const circuitPayload = hasCircuit ? buildCircuitPayload() : null;
+
+        const res = await generateAiCircuit({
+          problem_title: trimmed,
+          problem_description: trimmed,
+          prompt: hasCircuit
+            ? `Refine or complete this logic circuit: ${trimmed}`
+            : `make a ${trimmed} circuit`,
+          ...(circuitPayload || {}),
+        });
+
+        const data = res?.data || res;
+        if (!applyGeneratedCircuit(data)) {
+          alert("AI generated no gates. Try describing the circuit differently.");
+        }
+      } catch (error) {
+        alert(
+          error.message ||
+            "Could not generate circuit. Make sure backend is running.",
+        );
+      } finally {
+        setIsGenLoading(false);
+      }
+    },
+    [isGenLoading, gates.length, buildCircuitPayload, applyGeneratedCircuit],
+  );
+
+  const handleGenerateCircuit = useCallback(() => {
+    if (isGenLoading) return;
+    if (gates.length === 0) {
+      setAiPromptDialogValue(aiPrompt);
+      setShowAiPromptDialog(true);
+      return;
+    }
+    runAiGenerate(aiPrompt || "Improve this circuit");
+  }, [isGenLoading, gates.length, aiPrompt, runAiGenerate]);
+
+  const handleAiPromptDialogSubmit = useCallback(() => {
+    const trimmed = aiPromptDialogValue.trim();
+    if (!trimmed) return;
+    setAiPrompt(trimmed);
+    runAiGenerate(trimmed);
+  }, [aiPromptDialogValue, runAiGenerate]);
+
   // ── Auto-build from expression ─────────────────────────────────────────────
   const hasAutoBuilt = useRef(false);
   useEffect(() => {
@@ -1605,8 +1834,21 @@ const Boolforge = ({
   }, [simplifiedExpression, variables]);
 
   // ── Sync initialGates/initialWires when passed by parent (e.g. AI Circuit Generation) ──
+  // `lastSyncKeyRef` records the content of whatever we last sent up via
+  // onCircuitChange (or applied from initialGates/initialWires). The parent
+  // (CircuitModal) round-trips our own gates/wires straight back down as new
+  // initialGates/initialWires props on every render, which used to re-trigger
+  // this effect and cause a continuous render loop. Comparing content (not
+  // just reference) lets us recognize "this is just our own data coming back"
+  // and skip re-applying it, while still picking up genuinely new circuits
+  // (e.g. from AI generation elsewhere).
+  const lastSyncKeyRef = useRef(null);
+
   useEffect(() => {
     if (Array.isArray(initialGates) && initialGates.length > 0) {
+      const key = JSON.stringify({ g: initialGates, w: initialWires || [] });
+      if (lastSyncKeyRef.current === key) return;
+      lastSyncKeyRef.current = key;
       setGates(initialGates);
       setWires(Array.isArray(initialWires) ? initialWires : []);
       const maxGateId = Math.max(...initialGates.map((g) => Number(g.id) || 0), 0) + 1;
@@ -1618,7 +1860,10 @@ const Boolforge = ({
 
   // ── Notify parent of circuit changes ──────────────────────────────────────
   useEffect(() => {
-    if (typeof onCircuitChange === "function") onCircuitChange(gates, wires);
+    if (typeof onCircuitChange === "function") {
+      lastSyncKeyRef.current = JSON.stringify({ g: gates, w: wires });
+      onCircuitChange(gates, wires);
+    }
   }, [gates, wires, onCircuitChange]);
 
   // ── Render ─────────────────────────────────────────────────────────────────
@@ -2073,6 +2318,59 @@ const Boolforge = ({
 
         <TruthTableGenerator truthTable={truthTable} />
 
+        {!embedded && (
+          <div className="ai-assistant-section">
+            <h3 className="ai-assistant-title">🤖 CircuitMind Assistant</h3>
+            <textarea
+              className="ai-assistant-textarea"
+              value={aiPrompt}
+              onChange={(e) => setAiPrompt(e.target.value)}
+              placeholder="Describe the circuit (e.g. 'half adder', 'A AND B OR C')…"
+              rows={2}
+            />
+            <div className="controls ai-assistant-controls">
+              <button
+                className="btn ai-assistant-btn-hint"
+                onClick={handleRequestHint}
+                disabled={hintLoading}
+                title="Get an AI hint for your current circuit"
+              >
+                {hintLoading ? "💡 Thinking…" : "💡 Get Hint"}
+              </button>
+              <button
+                className="btn ai-assistant-btn-generate"
+                onClick={handleGenerateCircuit}
+                disabled={isGenLoading}
+                title={
+                  gates.length > 0
+                    ? "Send current circuit JSON to AI for refinement"
+                    : "Describe and auto-generate a circuit"
+                }
+              >
+                {isGenLoading ? "⚡ Generating…" : "⚡ AI Generate"}
+              </button>
+            </div>
+            {(hint || hintError) && (
+              <div
+                className={`ai-assistant-hint ${hintError ? "is-error" : ""}`}
+              >
+                {hintError || hint}
+                <button
+                  type="button"
+                  onClick={() => {
+                    setHint(null);
+                    setHintError("");
+                  }}
+                  aria-label="Dismiss hint"
+                  className="ai-assistant-hint-dismiss"
+                >
+                  ✕
+                </button>
+              </div>
+            )}
+          </div>
+        )}
+
         <div className="controls">
           <button className="btn" onClick={undo} disabled={historyIndex <= 0}>
             ↶ Undo
@@ -2268,6 +2566,56 @@ const Boolforge = ({
           </div>
         </div>
       )}
+
+      {/* ── AI Generate: empty-board prompt dialog ── */}
+      {showAiPromptDialog && (
+        <div
+          className="ai-prompt-dialog-overlay"
+          onClick={() => setShowAiPromptDialog(false)}
+        >
+          <div
+            className="ai-prompt-dialog"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <h3>⚡ Build a Circuit with AI</h3>
+            <p>
+              The canvas is empty. Describe the logic circuit you want to build
+              and CircuitMind will generate it for you.
+            </p>
+            <textarea
+              autoFocus
+              className="ai-assistant-textarea"
+              value={aiPromptDialogValue}
+              onChange={(e) => setAiPromptDialogValue(e.target.value)}
+              onKeyDown={(e) => {
+                if (e.key === "Enter" && (e.ctrlKey || e.metaKey)) {
+                  handleAiPromptDialogSubmit();
+                }
+                if (e.key === "Escape") setShowAiPromptDialog(false);
+              }}
+              placeholder="e.g. half adder, 2-input XOR, A AND (B OR C)…"
+              rows={3}
+            />
+            <div className="ai-prompt-dialog-actions">
+              <button
+                type="button"
+                className="btn"
+                onClick={() => setShowAiPromptDialog(false)}
+              >
+                Cancel
+              </button>
+              <button
+                type="button"
+                className="btn ai-assistant-btn-generate"
+                onClick={handleAiPromptDialogSubmit}
+                disabled={!aiPromptDialogValue.trim() || isGenLoading}
+              >
+                {isGenLoading ? "Generating…" : "Generate Circuit"}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
       <RelatedSeoLinks />
       </div>
   );
@@ -2324,5 +2672,6 @@ const Boolforge = ({
 };
 
 export default Boolforge;
+
 
 
