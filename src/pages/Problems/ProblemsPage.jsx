@@ -453,7 +453,12 @@ function CalendarWidget({ month, setMonth, monthMatrix }) {
   );
 }
 
-function SelectedProblemCard({ problem, status, onAttempt, onToggleSolved }) {
+const SelectedProblemCard = React.memo(function SelectedProblemCard({
+  problem,
+  status,
+  onAttempt,
+  onToggleSolved,
+}) {
   if (!problem) {
     return null;
   }
@@ -507,10 +512,14 @@ function SelectedProblemCard({ problem, status, onAttempt, onToggleSolved }) {
       </div>
     </section>
   );
-}
+});
 
 /* ── Static always-open section for non-arena sidebar groups ── */
-function SidebarAccordion({ section, activeItemLabel, onItemClick }) {
+const SidebarAccordion = React.memo(function SidebarAccordion({
+  section,
+  activeItemLabel,
+  onItemClick,
+}) {
   return (
     <div className="sidebar-nav-section">
       <h4 className="sidebar-section-title">{section.title}</h4>
@@ -542,7 +551,71 @@ function SidebarAccordion({ section, activeItemLabel, onItemClick }) {
       </div>
     </div>
   );
-}
+});
+
+/* ── Single problems-table row, memoized so unrelated page state changes
+   (search typing, sidebar toggles, navbar, banner autoscroll, etc.) don't
+   force every visible row to re-render — only rows whose own problem,
+   progress, or selection actually changed will re-render. ── */
+const ProblemTableRow = React.memo(function ProblemTableRow({
+  problem,
+  progress,
+  isSelected,
+  onOpen,
+}) {
+  const solved = progress.status === "solved";
+  const attempted = progress.status === "attempted";
+  const isLocked = Boolean(problem.premium);
+
+  return (
+    <tr
+      className={`${isSelected ? "is-selected" : ""} ${isLocked ? "is-locked" : ""}`}
+      onClick={() => onOpen(problem, solved, attempted, isLocked)}
+    >
+      <td>{problem.listId}</td>
+      <td>
+        <div className="problem-title-cell">
+          <span className="problem-title-text">{problem.title}</span>
+          <span className="problem-topic-text">{problem.topic}</span>
+        </div>
+      </td>
+      <td>{problem.acceptanceRate}%</td>
+      <td>
+        <span
+          className={`difficulty-pill ${difficultyTone[problem.difficulty]}`}
+        >
+          {problem.difficulty}
+        </span>
+      </td>
+      <td>
+        <span className={`access-pill ${isLocked ? "is-locked" : "is-open"}`}>
+          {isLocked ? (
+            <>
+              <Lock size={14} aria-hidden="true" />
+              Locked
+            </>
+          ) : (
+            "Open"
+          )}
+        </span>
+      </td>
+      <td>
+        <span
+          className={`status-chip ${solved ? "is-solved" : attempted ? "is-attempted" : ""}`}
+        >
+          {solved ? "Solved" : attempted ? "Attempted" : "Not started"}
+        </span>
+      </td>
+      <td>
+        <div className="problem-tag-list">
+          {problem.tags.slice(0, 3).map((tag) => (
+            <span key={tag}>{tag}</span>
+          ))}
+        </div>
+      </td>
+    </tr>
+  );
+});
 
 export default function ProblemsPage() {
   const [isMobileSidebarOpen, setIsMobileSidebarOpen] = React.useState(false);
@@ -988,6 +1061,28 @@ export default function ProblemsPage() {
     [setProblemSolved],
   );
 
+  // Stable reference so ProblemTableRow's React.memo actually prevents
+  // re-renders — an inline arrow function here would defeat the memoization
+  // by creating a new "onOpen" prop identity on every ProblemsPage render.
+  const handleOpenProblemRow = React.useCallback(
+    (problem, solved, attempted, isLocked) => {
+      if (isLocked) return;
+      setSelectedProblemId(problem.id);
+      setActiveProblem(problem);
+      trackPracticeEngagement("open_problem", {
+        problem_id: problem.id,
+        problem_title: problem.title,
+        problem_topic: problem.topic,
+      });
+      // Opening a problem for the first time marks it "attempted". It will
+      // later be upgraded to "solved" via onSolved from the modal.
+      if (!solved && !attempted) {
+        handleRecordAttempt(problem);
+      }
+    },
+    [handleRecordAttempt],
+  );
+
   return (
     <div className={`problems-page theme-${theme}`}>
       <div className="problems-backdrop problems-backdrop-left" />
@@ -1412,88 +1507,15 @@ export default function ProblemsPage() {
                   </tr>
                 </thead>
                 <tbody>
-                  {filteredProblems.map((problem) => {
-                    const progress = snapshot.state.problems[problem.id] || {};
-                    const solved = progress.status === "solved";
-                    const attempted = progress.status === "attempted";
-                    const isSelected = selectedProblemId === problem.id;
-
-                    const isLocked = Boolean(problem.premium);
-
-                    return (
-                      <tr
-                        key={problem.id}
-                        className={`${isSelected ? "is-selected" : ""} ${isLocked ? "is-locked" : ""}`}
-                        onClick={() => {
-                          if (isLocked) return;
-                          setSelectedProblemId(problem.id);
-                          setActiveProblem(problem);
-                          trackPracticeEngagement("open_problem", {
-                            problem_id: problem.id,
-                            problem_title: problem.title,
-                            problem_topic: problem.topic,
-                          });
-                          // Opening a problem for the first time marks it "attempted".
-                          // It will later be upgraded to "solved" via onSolved from the modal.
-                          if (!solved && !attempted) {
-                            handleRecordAttempt(problem);
-                          }
-                        }}
-                      >
-                        <td>{problem.listId}</td>
-                        <td>
-                          <div className="problem-title-cell">
-                            <span className="problem-title-text">
-                              {problem.title}
-                            </span>
-                            <span className="problem-topic-text">
-                              {problem.topic}
-                            </span>
-                          </div>
-                        </td>
-                        <td>{problem.acceptanceRate}%</td>
-                        <td>
-                          <span
-                            className={`difficulty-pill ${difficultyTone[problem.difficulty]}`}
-                          >
-                            {problem.difficulty}
-                          </span>
-                        </td>
-                        <td>
-                          <span
-                            className={`access-pill ${isLocked ? "is-locked" : "is-open"}`}
-                          >
-                            {isLocked ? (
-                              <>
-                                <Lock size={14} aria-hidden="true" />
-                                Locked
-                              </>
-                            ) : (
-                              "Open"
-                            )}
-                          </span>
-                        </td>
-                        <td>
-                          <span
-                            className={`status-chip ${solved ? "is-solved" : attempted ? "is-attempted" : ""}`}
-                          >
-                            {solved
-                              ? "Solved"
-                              : attempted
-                                ? "Attempted"
-                                : "Not started"}
-                          </span>
-                        </td>
-                        <td>
-                          <div className="problem-tag-list">
-                            {problem.tags.slice(0, 3).map((tag) => (
-                              <span key={tag}>{tag}</span>
-                            ))}
-                          </div>
-                        </td>
-                      </tr>
-                    );
-                  })}
+                  {filteredProblems.map((problem) => (
+                    <ProblemTableRow
+                      key={problem.id}
+                      problem={problem}
+                      progress={snapshot.state.problems[problem.id] || {}}
+                      isSelected={selectedProblemId === problem.id}
+                      onOpen={handleOpenProblemRow}
+                    />
+                  ))}
                 </tbody>
               </table>
 
@@ -1741,3 +1763,4 @@ export default function ProblemsPage() {
     </div>
   );
 }
+
