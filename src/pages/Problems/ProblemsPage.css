@@ -7,8 +7,6 @@
   --problems-row-hover: rgba(30, 41, 59, 0.72);
   --problems-text-strong: #f8fafc;
   --problems-text-soft: #dbe7f5;
-  --problems-chip-active-bg: #f8fafc;
-  --problems-chip-active-text: #060b16;
   --problems-tag-bg: rgba(59, 130, 246, 0.12);
   --problems-tag-border: rgba(96, 165, 250, 0.18);
   --problems-tag-text: #bfdbfe;
@@ -41,8 +39,6 @@
   --problems-row-hover: #eef2ff;
   --problems-text-strong: #0f172a;
   --problems-text-soft: #334155;
-  --problems-chip-active-bg: #0f172a;
-  --problems-chip-active-text: #f8fafc;
   --problems-tag-bg: rgba(37, 99, 235, 0.08);
   --problems-tag-border: rgba(37, 99, 235, 0.14);
   --problems-tag-text: #1d4ed8;
@@ -168,6 +164,12 @@
   background: #ffffff;
   border-color: #cbd5e1;
   color: #0f172a;
+  color-scheme: light;
+}
+
+.problems-page.theme-light .problems-toolbar-selects select option {
+  background: #ffffff;
+  color: #0f172a;
 }
 
 /* ── Light theme: filter chips ──────────────────────────────────────────── */
@@ -178,9 +180,9 @@
 }
 
 .problems-page.theme-light .problems-filter-chip.is-active {
-  background: var(--problems-chip-active-bg);
-  color: var(--problems-chip-active-text);
-  border-color: var(--problems-chip-active-bg);
+  background: #0f172a;
+  color: #f8fafc;
+  border-color: #0f172a;
 }
 
 /* ── Light theme: sidebar nav ───────────────────────────────────────────── */
@@ -759,31 +761,11 @@
   align-items: center;
   justify-content: center;
   font-size: 0.85rem;
-  transition:
-    background 0.15s ease,
-    color 0.15s ease,
-    border-color 0.15s ease;
-  -webkit-tap-highlight-color: transparent;
-}
-
-.problems-filter-chip:hover:not(.is-active) {
-  border-color: var(--problems-border-strong);
-  background: var(--problems-surface);
-}
-
-.problems-filter-chip:focus {
-  outline: none;
-}
-
-.problems-filter-chip:focus-visible {
-  outline: 2px solid var(--accent-color, #818cf8);
-  outline-offset: 2px;
 }
 
 .problems-filter-chip.is-active {
-  background: var(--problems-chip-active-bg, var(--problems-text-strong));
-  color: var(--problems-chip-active-text, #060b16);
-  border-color: var(--problems-chip-active-bg, var(--problems-text-strong));
+  background: var(--problems-text-strong);
+  color: var(--bg-color);
 }
 
 .problems-toolbar {
@@ -815,16 +797,12 @@
   box-shadow: 0 0 0 3px rgba(129, 140, 248, 0.15);
 }
 
-.problems-search input,
-.problems-toolbar-selects select {
+.problems-search input {
   background: transparent;
   border: none;
   color: var(--text-color);
   outline: none;
   font: inherit;
-}
-
-.problems-search input {
   width: 100%;
 }
 
@@ -834,12 +812,38 @@
   gap: 0.65rem;
 }
 
+/* Consolidated select styling. Previously this was split across two
+   separate `.problems-toolbar-selects select` rules with conflicting
+   background/border values and no `appearance` reset — browsers would
+   render the themed colors for the closed control but fall back to native
+   OS widget colors (usually a plain white dropdown/black text) as soon as
+   you clicked to open it or picked an option, making it look like the
+   filter's color changed on click. */
 .problems-toolbar-selects select {
   height: 40px;
   border-radius: 0.75rem;
-  padding: 0 0.85rem;
+  padding: 0 2rem 0 0.85rem;
   border: 1px solid var(--problems-border);
+  background-color: var(--problems-surface);
+  background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 20' fill='%238899aa'><path fill-rule='evenodd' d='M5.23 7.21a.75.75 0 011.06.02L10 11.168l3.71-3.938a.75.75 0 111.08 1.04l-4.25 4.5a.75.75 0 01-1.08 0l-4.25-4.5a.75.75 0 01.02-1.06z' clip-rule='evenodd'/></svg>");
+  background-repeat: no-repeat;
+  background-position: right 0.65rem center;
+  background-size: 16px;
+  color: var(--text-color);
+  outline: none;
+  font: inherit;
+  appearance: none;
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  /* Tells the browser to render its native bits (like the option popup and
+     the dropdown arrow) using dark widget colors instead of defaulting to
+     light, so the open dropdown list matches the closed control. */
+  color-scheme: dark;
+}
+
+.problems-toolbar-selects select option {
   background: var(--problems-surface);
+  color: var(--text-color);
 }
 
 .problems-table-card {
@@ -2902,3 +2906,4 @@
   background: rgba(139, 92, 246, 0.05) !important;
   color: #7c3aed !important;
 }
+
