@@ -48,17 +48,6 @@ function getICHeight(type) {
   return IC_HEIGHTS[type] ?? 100;
 }
 
-// Pad sparse wire inputs to the gate's full pin count — unconnected pins = false.
-function gateInputCount(gate) {
-  if (IC_TYPES.has(gate.type)) return IC_META[gate.type].inputs;
-  return gate.inputs ?? 1;
-}
-
-function resolveGateInputs(gate, inputs) {
-  const count = gateInputCount(gate);
-  return Array.from({ length: count }, (_, i) => inputs[i] ?? false);
-}
-
 function getInputY(gate, inputIndex) {
   if (IC_TYPES.has(gate.type)) {
     const n = IC_META[gate.type].inputs;
@@ -122,8 +111,8 @@ const Boolforge = ({
   const [hintLoading, setHintLoading] = useState(false);
   const [hintError, setHintError] = useState("");
   const [isGenLoading, setIsGenLoading] = useState(false);
-  const [showAiPromptDialog, setShowAiPromptDialog] = useState(false);
-  const [aiPromptDialogValue, setAiPromptDialogValue] = useState("");
+  const [showGenerateDialog, setShowGenerateDialog] = useState(false);
+  const [generateDialogText, setGenerateDialogText] = useState("");
 
   // Multi-Selection and group dragging state/refs
   const [dragStartPositions, setDragStartPositions] = useState({});
@@ -233,27 +222,39 @@ const Boolforge = ({
 
   // ── Gate logic: compute a single gate's output from resolved inputs ──────────
   const computeGateOutput = (gate, inputs, outputIndex = 0) => {
-    const ri = resolveGateInputs(gate, inputs);
+    const ci = inputs.filter((v) => v !== undefined);
     switch (gate.type) {
       case "INPUT":
         return gate.inputValues[0] || false;
-      case "AND":
-        return ri.length > 0 && ri.every(Boolean);
+      case "AND": {
+        const n = gate.inputs || 2;
+        let allHigh = true;
+        for (let i = 0; i < n; i++) {
+          if (!(inputs[i] ?? false)) { allHigh = false; break; }
+        }
+        return allHigh;
+      }
       case "OR":
-        return ri.some(Boolean);
+        return ci.some(Boolean);
       case "NOT":
-        return !ri[0];
-      case "NAND":
-        return !(ri.length > 0 && ri.every(Boolean));
+        return inputs[0] !== undefined ? !inputs[0] : false;
+      case "NAND": {
+        const n = gate.inputs || 2;
+        let allHigh = true;
+        for (let i = 0; i < n; i++) {
+          if (!(inputs[i] ?? false)) { allHigh = false; break; }
+        }
+        return !allHigh;
+      }
       case "NOR":
-        return !ri.some(Boolean);
+        return !ci.some(Boolean);
       case "XOR":
-        return ri.reduce((acc, v) => acc !== v, false);
+        return ci.length >= 2 && ci.reduce((acc, v) => acc !== v, false);
       case "XNOR":
-        return !ri.reduce((acc, v) => acc !== v, false);
+        return ci.length >= 2 && !ci.reduce((acc, v) => acc !== v, false);
       case "BUFFER":
       case "OUTPUT":
-        return ri[0];
+        return inputs[0] ?? false;
 
       // ── Multiplexers ───────────────────────────────────────────────────────
       case "MUX2": {
@@ -1592,37 +1593,53 @@ const Boolforge = ({
     [generateTruthTable],
   );
 
-  // ── CircuitMind: serialize current board for AI requests ───────────────────
-  const buildCircuitPayload = useCallback(() => {
-    const circuitGates = gates.map((g) => ({
-      id: g.id,
-      type: g.type,
-      label: g.label || g.type,
-      inputs: g.inputs,
-      x: g.x,
-      y: g.y,
-      inputValues: g.type === "INPUT" ? g.inputValues : undefined,
-    }));
-    const circuitWires = wires.map((w) => ({
-      id: w.id,
-      fromId: w.fromId,
-      toId: w.toId,
-      toIndex: w.toIndex,
-      fromOutputIndex: w.fromOutputIndex ?? 0,
-    }));
-    return {
-      gates: circuitGates,
-      wires: circuitWires,
-      circuit_json: { gates: circuitGates, wires: circuitWires },
-      inputs: inputGates.map((g) => g.label),
-      outputs: outputGates.map((g) => g.label),
-      truthTable: truthTable.rows?.length ? truthTable : null,
-    };
-  }, [gates, wires, inputGates, outputGates, truthTable]);
+  // ── CircuitMind: Get Hint ───────────────────────────────────────────────────
+  // No formal "problem" object exists on the standalone Circuit page, so the
+  // optional description box + current INPUT/OUTPUT gate labels stand in for it.
+  const handleRequestHint = useCallback(async () => {
+    if (hintLoading) return;
+    setHintLoading(true);
+    setHintError("");
+    try {
+      const problemContext = {
+        title: aiPrompt || "Custom circuit",
+        description: aiPrompt || "",
+        inputs: inputGates.map((g) => g.label),
+        outputs: outputGates.map((g) => g.label),
+        truthTable: [],
+      };
+      const data = await getCircuitHint({
+        problem: problemContext,
+        gates,
+        wires,
+        result: null,
+      });
+      setHint(data.hint);
+    } catch (error) {
+      setHint(null);
+      setHintError(
+        error.message || "Couldn't get a hint right now. Try again shortly.",
+      );
+    } finally {
+      setHintLoading(false);
+    }
+  }, [hintLoading, aiPrompt, inputGates, outputGates, gates, wires]);
+
+  // ── CircuitMind: AI Generate Circuit ────────────────────────────────────────
+  // A circuit only counts as "complete" (worth sending to the AI for
+  // review/correction) once it actually has something to evaluate: at least
+  // one gate, at least one wire connecting gates together, and at least one
+  // INPUT and one OUTPUT gate.
+  const isCircuitComplete =
+    gates.length > 0 &&
+    wires.length > 0 &&
+    inputGates.length > 0 &&
+    outputGates.length > 0;
 
   const applyGeneratedCircuit = useCallback(
     (data) => {
       if (!data || !Array.isArray(data.gates) || data.gates.length === 0) {
+        alert("AI generated no gates. Try describing the circuit differently.");
         return false;
       }
       const rawGates = data.gates;
@@ -1709,65 +1726,25 @@ const Boolforge = ({
     },
     [saveToHistory],
   );
-
-  // ── CircuitMind: Get Hint ───────────────────────────────────────────────────
-  // No formal "problem" object exists on the standalone Circuit page, so the
-  // optional description box + current INPUT/OUTPUT gate labels stand in for it.
-  const handleRequestHint = useCallback(async () => {
-    if (hintLoading) return;
-    setHintLoading(true);
-    setHintError("");
-    try {
-      const problemContext = {
-        title: aiPrompt || "Custom circuit",
-        description: aiPrompt || "",
-        inputs: inputGates.map((g) => g.label),
-        outputs: outputGates.map((g) => g.label),
-        truthTable: truthTable.rows?.length ? truthTable.rows : [],
-      };
-      const data = await getCircuitHint({
-        problem: problemContext,
-        gates,
-        wires,
-        result: null,
-      });
-      setHint(data.hint);
-    } catch (error) {
-      setHint(null);
-      setHintError(
-        error.message || "Couldn't get a hint right now. Try again shortly.",
-      );
-    } finally {
-      setHintLoading(false);
-    }
-  }, [hintLoading, aiPrompt, inputGates, outputGates, gates, wires, truthTable]);
-
-  // ── CircuitMind: AI Generate Circuit ────────────────────────────────────────
-  const runAiGenerate = useCallback(
-    async (description) => {
+const runAiGenerate = useCallback(
+    async (description, sendCurrentCircuit) => {
       if (isGenLoading) return;
-      const trimmed = (description || "").trim();
-      if (!trimmed) return;
-
       setIsGenLoading(true);
-      setShowAiPromptDialog(false);
       try {
-        const hasCircuit = gates.length > 0;
-        const circuitPayload = hasCircuit ? buildCircuitPayload() : null;
-
         const res = await generateAiCircuit({
-          problem_title: trimmed,
-          problem_description: trimmed,
-          prompt: hasCircuit
-            ? `Refine or complete this logic circuit: ${trimmed}`
-            : `make a ${trimmed} circuit`,
-          ...(circuitPayload || {}),
+          problem_title: description || "Custom circuit",
+          problem_description: description || "",
+          prompt: description
+            ? `make a ${description} circuit`
+            : "make a logic circuit",
+          inputs: inputGates.map((g) => g.label),
+          outputs: outputGates.map((g) => g.label),
+          truthTable: [],
+          
+          ...(sendCurrentCircuit ? { circuit: { gates, wires } } : {}),
         });
-
         const data = res?.data || res;
-        if (!applyGeneratedCircuit(data)) {
-          alert("AI generated no gates. Try describing the circuit differently.");
-        }
+        applyGeneratedCircuit(data);
       } catch (error) {
         alert(
           error.message ||
@@ -1777,25 +1754,25 @@ const Boolforge = ({
         setIsGenLoading(false);
       }
     },
-    [isGenLoading, gates.length, buildCircuitPayload, applyGeneratedCircuit],
+    [isGenLoading, inputGates, outputGates, gates, wires, applyGeneratedCircuit],
   );
-
-  const handleGenerateCircuit = useCallback(() => {
+const handleGenerateCircuit = useCallback(() => {
     if (isGenLoading) return;
-    if (gates.length === 0) {
-      setAiPromptDialogValue(aiPrompt);
-      setShowAiPromptDialog(true);
-      return;
+    if (isCircuitComplete) {
+      runAiGenerate(aiPrompt, true);
+    } else {
+      setGenerateDialogText(aiPrompt);
+      setShowGenerateDialog(true);
     }
-    runAiGenerate(aiPrompt || "Improve this circuit");
-  }, [isGenLoading, gates.length, aiPrompt, runAiGenerate]);
+  }, [isGenLoading, isCircuitComplete, aiPrompt, runAiGenerate]);
 
-  const handleAiPromptDialogSubmit = useCallback(() => {
-    const trimmed = aiPromptDialogValue.trim();
-    if (!trimmed) return;
-    setAiPrompt(trimmed);
-    runAiGenerate(trimmed);
-  }, [aiPromptDialogValue, runAiGenerate]);
+  const handleSubmitGenerateDialog = useCallback(() => {
+    const description = generateDialogText.trim();
+    if (!description) return;
+    setAiPrompt(description);
+    setShowGenerateDialog(false);
+    runAiGenerate(description, false);
+  }, [generateDialogText, runAiGenerate]);
 
   // ── Auto-build from expression ─────────────────────────────────────────────
   const hasAutoBuilt = useRef(false);
@@ -2277,6 +2254,124 @@ const Boolforge = ({
       <div className="truth-table-panel">
         <h2>Circuit Control</h2>
 
+        {/* ── CircuitMind AI Assistant — standalone Circuit page only ── */}
+        {!embedded && (
+          <div
+            className="ai-assistant-section"
+            style={{
+              marginBottom: "16px",
+              padding: "12px",
+              border: "1px solid var(--border-color, #2a3550)",
+              borderRadius: "8px",
+              background: "rgba(139,92,246,0.05)",
+            }}
+          >
+            <h3
+              style={{
+                margin: "0 0 8px",
+                fontSize: "0.85rem",
+                color: "var(--accent-secondary, #00d4ff)",
+              }}
+            >
+              🤖 CircuitMind Assistant
+            </h3>
+            <textarea
+              value={aiPrompt}
+              onChange={(e) => setAiPrompt(e.target.value)}
+              placeholder="Describe the circuit you want (e.g. 'half adder', 'A AND B OR C')…"
+              rows={2}
+              style={{
+                width: "100%",
+                resize: "vertical",
+                marginBottom: "8px",
+                background: "var(--bg-light, #1e2842)",
+                border: "1px solid var(--border-color, #2a3550)",
+                borderRadius: 6,
+                color: "var(--text-color, #e8f0ff)",
+                padding: "6px 8px",
+                fontSize: "0.8rem",
+                fontFamily: "inherit",
+                boxSizing: "border-box",
+              }}
+            />
+            {/* Same "controls" / "btn" classes as the Undo/Redo/Clear All row
+                below, plus explicit flex:1, so both buttons stretch exactly
+                like the other buttons in this panel. */}
+            <div className="controls">
+              <button
+                className="btn"
+                onClick={handleRequestHint}
+                disabled={hintLoading}
+                style={{
+                  flex: 1,
+                  background: "rgba(251,191,36,0.1)",
+                  border: "1px solid rgba(251,191,36,0.4)",
+                  color: "#fbbf24",
+                  cursor: hintLoading ? "wait" : "pointer",
+                }}
+                title="Get an AI hint for your current circuit"
+              >
+                {hintLoading ? "💡 Thinking…" : "💡 Get Hint"}
+              </button>
+              <button
+                className="btn"
+                onClick={handleGenerateCircuit}
+                disabled={isGenLoading}
+                style={{
+                  flex: 1,
+                  background: "linear-gradient(135deg, #7928ca 0%, #ff0080 100%)",
+                  border: "none",
+                  color: "#fff",
+                  cursor: isGenLoading ? "wait" : "pointer",
+                }}
+                title="Send the current circuit to AI for review/completion, or describe a new one if the canvas is empty"
+              >
+                {isGenLoading ? "⚡ Generating…" : "⚡ AI Generate"}
+              </button>
+            </div>
+            {(hint || hintError) && (
+              <div
+                style={{
+                  marginTop: "8px",
+                  padding: "8px",
+                  borderRadius: 6,
+                  fontSize: "0.78rem",
+                  lineHeight: 1.5,
+                  background: hintError
+                    ? "rgba(255,51,102,0.08)"
+                    : "rgba(251,191,36,0.07)",
+                  border: hintError
+                    ? "1px solid rgba(255,51,102,0.3)"
+                    : "1px solid rgba(251,191,36,0.25)",
+                  color: hintError
+                    ? "var(--accent-danger, #ff3366)"
+                    : "var(--text-color, #e8f0ff)",
+                }}
+              >
+                {hintError || hint}
+                <button
+                  onClick={() => {
+                    setHint(null);
+                    setHintError("");
+                  }}
+                  aria-label="Dismiss hint"
+                  style={{
+                    float: "right",
+                    background: "none",
+                    border: "none",
+                    color: "var(--secondary-text, #8899aa)",
+                    cursor: "pointer",
+                    fontSize: "0.85rem",
+                    lineHeight: 1,
+                  }}
+                >
+                  ✕
+                </button>
+              </div>
+            )}
+          </div>
+        )}
+
         {inputGates.length > 0 && (
           <div className="input-controls">
             <h3
@@ -2317,59 +2412,6 @@ const Boolforge = ({
         )}
 
         <TruthTableGenerator truthTable={truthTable} />
-
-        {!embedded && (
-          <div className="ai-assistant-section">
-            <h3 className="ai-assistant-title">🤖 CircuitMind Assistant</h3>
-            <textarea
-              className="ai-assistant-textarea"
-              value={aiPrompt}
-              onChange={(e) => setAiPrompt(e.target.value)}
-              placeholder="Describe the circuit (e.g. 'half adder', 'A AND B OR C')…"
-              rows={2}
-            />
-            <div className="controls ai-assistant-controls">
-              <button
-                className="btn ai-assistant-btn-hint"
-                onClick={handleRequestHint}
-                disabled={hintLoading}
-                title="Get an AI hint for your current circuit"
-              >
-                {hintLoading ? "💡 Thinking…" : "💡 Get Hint"}
-              </button>
-              <button
-                className="btn ai-assistant-btn-generate"
-                onClick={handleGenerateCircuit}
-                disabled={isGenLoading}
-                title={
-                  gates.length > 0
-                    ? "Send current circuit JSON to AI for refinement"
-                    : "Describe and auto-generate a circuit"
-                }
-              >
-                {isGenLoading ? "⚡ Generating…" : "⚡ AI Generate"}
-              </button>
-            </div>
-            {(hint || hintError) && (
-              <div
-                className={`ai-assistant-hint ${hintError ? "is-error" : ""}`}
-              >
-                {hintError || hint}
-                <button
-                  type="button"
-                  onClick={() => {
-                    setHint(null);
-                    setHintError("");
-                  }}
-                  aria-label="Dismiss hint"
-                  className="ai-assistant-hint-dismiss"
-                >
-                  ✕
-                </button>
-              </div>
-            )}
-          </div>
-        )}
 
         <div className="controls">
           <button className="btn" onClick={undo} disabled={historyIndex <= 0}>
@@ -2566,51 +2608,126 @@ const Boolforge = ({
           </div>
         </div>
       )}
-
-      {/* ── AI Generate: empty-board prompt dialog ── */}
-      {showAiPromptDialog && (
+      {/* ── AI Generate: "what do you want to build?" dialog ──
+          Shown when AI Generate is clicked but the canvas has no complete
+          circuit (no gates, no wires, or missing INPUT/OUTPUT gates) to
+          send for review — asks for a description instead. ── */}
+      {showGenerateDialog && (
         <div
-          className="ai-prompt-dialog-overlay"
-          onClick={() => setShowAiPromptDialog(false)}
+          style={{
+            position: "fixed",
+            inset: 0,
+            background: "rgba(0,0,0,0.6)",
+            backdropFilter: "blur(4px)",
+            zIndex: 5000,
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+          }}
+          onClick={() => setShowGenerateDialog(false)}
         >
           <div
-            className="ai-prompt-dialog"
+            style={{
+              background: "var(--bg-medium, #141b2d)",
+              border: "1px solid var(--border-color, #2a3550)",
+              borderRadius: "12px",
+              padding: "1.5rem",
+              minWidth: "320px",
+              maxWidth: "420px",
+              display: "flex",
+              flexDirection: "column",
+              gap: "1rem",
+              boxShadow: "0 16px 48px rgba(0,0,0,0.6)",
+            }}
             onClick={(e) => e.stopPropagation()}
           >
-            <h3>⚡ Build a Circuit with AI</h3>
-            <p>
-              The canvas is empty. Describe the logic circuit you want to build
-              and CircuitMind will generate it for you.
+            <h3
+              style={{
+                margin: 0,
+                color: "var(--text-color, #e8f0ff)",
+                fontSize: "1rem",
+              }}
+            >
+              ⚡ What circuit do you want to build?
+            </h3>
+            <p
+              style={{
+                margin: 0,
+                fontSize: "0.8rem",
+                color: "var(--secondary-text, #8899aa)",
+              }}
+            >
+              Your canvas is empty or doesn't have a complete circuit yet, so
+              there's nothing to send for review. Describe what you'd like
+              instead — e.g. "half adder", "4-to-1 multiplexer", "A AND B OR
+              C".
             </p>
             <textarea
               autoFocus
-              className="ai-assistant-textarea"
-              value={aiPromptDialogValue}
-              onChange={(e) => setAiPromptDialogValue(e.target.value)}
-              onKeyDown={(e) => {
-                if (e.key === "Enter" && (e.ctrlKey || e.metaKey)) {
-                  handleAiPromptDialogSubmit();
-                }
-                if (e.key === "Escape") setShowAiPromptDialog(false);
-              }}
-              placeholder="e.g. half adder, 2-input XOR, A AND (B OR C)…"
               rows={3}
+              value={generateDialogText}
+              onChange={(e) => setGenerateDialogText(e.target.value)}
+              onKeyDown={(e) => {
+                if (e.key === "Enter" && (e.metaKey || e.ctrlKey)) {
+                  handleSubmitGenerateDialog();
+                }
+                if (e.key === "Escape") setShowGenerateDialog(false);
+              }}
+              placeholder="Describe the circuit you want…"
+              style={{
+                background: "var(--bg-light, #1e2842)",
+                border: "1px solid var(--accent-secondary, #00d4ff)",
+                borderRadius: "6px",
+                padding: "0.5rem 0.75rem",
+                color: "var(--text-color, #e8f0ff)",
+                fontSize: "0.9rem",
+                fontFamily: "inherit",
+                outline: "none",
+                width: "100%",
+                resize: "vertical",
+                boxSizing: "border-box",
+              }}
             />
-            <div className="ai-prompt-dialog-actions">
+            <div
+              style={{
+                display: "flex",
+                gap: "0.5rem",
+                justifyContent: "flex-end",
+              }}
+            >
               <button
-                type="button"
-                className="btn"
-                onClick={() => setShowAiPromptDialog(false)}
+                onClick={() => setShowGenerateDialog(false)}
+                style={{
+                  background: "none",
+                  border: "1px solid var(--border-color, #2a3550)",
+                  color: "var(--secondary-text, #8899aa)",
+                  borderRadius: "6px",
+                  padding: "0.4rem 0.9rem",
+                  cursor: "pointer",
+                  fontSize: "0.85rem",
+                }}
               >
                 Cancel
               </button>
               <button
-                type="button"
-                className="btn ai-assistant-btn-generate"
-                onClick={handleAiPromptDialogSubmit}
-                disabled={!aiPromptDialogValue.trim() || isGenLoading}
+                onClick={handleSubmitGenerateDialog}
+                disabled={!generateDialogText.trim() || isGenLoading}
+                style={{
+                  background: "linear-gradient(135deg, #7928ca 0%, #ff0080 100%)",
+                  border: "none",
+                  color: "#fff",
+                  borderRadius: "6px",
+                  padding: "0.4rem 0.9rem",
+                  cursor:
+                    !generateDialogText.trim() || isGenLoading
+                      ? "not-allowed"
+                      : "pointer",
+                  fontSize: "0.85rem",
+                  fontWeight: 700,
+                  opacity: !generateDialogText.trim() || isGenLoading ? 0.6 : 1,
+                }}
               >
-                {isGenLoading ? "Generating…" : "Generate Circuit"}
+                {isGenLoading ? "Generating…" : "⚡ Generate"}
               </button>
             </div>
           </div>

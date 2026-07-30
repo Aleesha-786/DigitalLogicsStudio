@@ -1337,7 +1337,7 @@ export default function ProblemsPage() {
               <button
                 key={group}
                 type="button"
-                className={`problems-filter-chip ${topicFilter === group ? "is-active" : ""}`}
+                className={`problems-filter-chip ${activeGroup === group ? "is-active" : ""}`}
                 onClick={() => {
                   setActiveGroup(group);
                   setTopicFilter(group);
@@ -1442,11 +1442,7 @@ export default function ProblemsPage() {
 
               <select
                 value={topicFilter}
-                onChange={(event) => {
-                  const value = event.target.value;
-                  setTopicFilter(value);
-                  setActiveGroup(value);
-                }}
+                onChange={(event) => setTopicFilter(event.target.value)}
               >
                 {problemFilterGroups.map((option) => (
                   <option key={option} value={option}>
