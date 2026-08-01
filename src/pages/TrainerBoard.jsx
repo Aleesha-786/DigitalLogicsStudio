@@ -1536,6 +1536,7 @@ export default function IT300() {
   const [saveState, setSaveState] = useState({ status: "idle", message: "" }); // idle|saving|saved|error
   const [circuitName, setCircuitName] = useState("Untitled Circuit");
   const [datasheet, setDatasheet] = useState(null); // NEW: {icKey, x, y} | null
+  const [wireWarning, setWireWarning] = useState(""); // NEW: transient "pin already used" message
   // FIX: single ref attached to the wrapper div that contains the BB SVG
   const bbWrapRef = useRef(null);
   const clkRef = useRef();
@@ -1613,6 +1614,14 @@ export default function IT300() {
     window.addEventListener("keydown", onKeyDown);
     return () => window.removeEventListener("keydown", onKeyDown);
   }, [undoLast]);
+
+  // NEW: close datasheet popup on outside click, Escape, or scroll
+  // NEW: auto-clear the "pin already wired" warning after a moment
+  useEffect(() => {
+    if (!wireWarning) return;
+    const t = setTimeout(() => setWireWarning(""), 1800);
+    return () => clearTimeout(t);
+  }, [wireWarning]);
 
   // NEW: close datasheet popup on outside click, Escape, or scroll
   useEffect(() => {
@@ -1765,6 +1774,18 @@ export default function IT300() {
 
   // FIX: onHoleClick receives SVG-local coords (cx,cy from the SVG).
   // We store them as-is — no page-coord conversion needed.
+  // NEW: single-pin restriction — a hole that isn't a generic breadboard
+  // body strip hole (IC pins, rail terminals, external monitor terminals)
+  // may only carry ONE wire, matching how a real leg/terminal only fits
+  // one wire end. Regular `bb_${col}_${row}` body holes are exempt since
+  // several holes in the same 5-hole strip are already electrically the
+  // same node and real breadboards allow multiple wires per strip.
+  const isSingleWireHole = useCallback((id) => /^bb_\d+_[a-j]$/.test(id) === false, []);
+  const isHoleOccupied = useCallback(
+    (id) => isSingleWireHole(id) && wires.some((w) => w.from === id || w.to === id),
+    [wires, isSingleWireHole],
+  );
+
   const onHoleClick = useCallback(
     (id, svgX, svgY) => {
       if (mode === "delete") {
@@ -1775,9 +1796,19 @@ export default function IT300() {
       if (mode !== "wire") return;
 
       if (!wireStart) {
+        if (isHoleOccupied(id)) {
+          setWireWarning(`Pin already wired: ${id}`);
+          return;
+        }
         setWireStart({ id, ax: svgX, ay: svgY });
       } else {
         if (wireStart.id !== id) {
+          if (isHoleOccupied(id)) {
+            setWireWarning(`Pin already wired: ${id}`);
+            setWireStart(null);
+            setPreview(null);
+            return;
+          }
           recordUndo();
           const currentCol = wireColRef.current;
           setWires((p) => [
@@ -1803,7 +1834,7 @@ export default function IT300() {
         setPreview(null);
       }
     },
-    [mode, wireStart, COLORS, recordUndo],
+    [mode, wireStart, COLORS, recordUndo, isHoleOccupied],
   );
 
   const startTrayDrag = (e, icKey) => {
@@ -2175,6 +2206,23 @@ export default function IT300() {
                   >
                     ✕
                   </span>
+                </div>
+              )}
+
+                {/* NEW: "pin already wired" warning */}
+              {wireWarning && (
+                <div
+                  style={{
+                    fontSize: 8,
+                    color: "#ffcc00",
+                    fontFamily: F,
+                    background: "#2a1e00",
+                    border: "1px solid #ffcc00",
+                    borderRadius: 3,
+                    padding: "2px 7px",
+                  }}
+                >
+                  ⚠ {wireWarning}
                 </div>
               )}
               {/* NEW: short-circuit warning banner */}
