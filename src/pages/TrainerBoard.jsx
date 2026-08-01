@@ -1067,6 +1067,8 @@ function Breadboard({ wireStart, wires, placedICs, onHoleClick, onICMouseDown, o
             transform={`translate(${p.x},${p.y})`}
             style={{ cursor: "grab" }}
             onMouseDown={(e) => {
+              if (e.button !== 0) return; // right/middle click ko ignore karo — sirf left-click drag start kare
+              
               e.stopPropagation();
               onICMouseDown(p.id, p.ic, e.clientX, e.clientY);
             }}
@@ -1771,6 +1773,8 @@ export default function IT300() {
   );
 
   const startTrayDrag = (e, icKey) => {
+    if (e.button !== 0) return; // right-click yahan bhi ignore — sirf left-click drag ke liye
+   
     e.preventDefault();
     setDragging({ icKey, ghostX: e.clientX - 40, ghostY: e.clientY - 25 });
   };
