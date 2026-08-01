@@ -172,64 +172,94 @@ const G = {
 // flops: edge-triggered storage cells (D or JK).
 // msi:   custom evaluate() for the multi-pin MSI parts.
 const IC_LOGIC = {
-  7400: { vcc: 14, gnd: 7, gates: [
-    { in: [1, 2], out: 3, fn: G.nand }, { in: [4, 5], out: 6, fn: G.nand },
-    { in: [9, 10], out: 8, fn: G.nand }, { in: [12, 13], out: 11, fn: G.nand },
-  ]},
-  7402: { vcc: 14, gnd: 7, gates: [
-    { in: [2, 3], out: 1, fn: G.nor }, { in: [5, 6], out: 4, fn: G.nor },
-    { in: [8, 9], out: 10, fn: G.nor }, { in: [11, 12], out: 13, fn: G.nor },
-  ]},
-  7404: { vcc: 14, gnd: 7, gates: [
-    { in: [1], out: 2, fn: G.not }, { in: [3], out: 4, fn: G.not },
-    { in: [5], out: 6, fn: G.not }, { in: [9], out: 8, fn: G.not },
-    { in: [11], out: 10, fn: G.not }, { in: [13], out: 12, fn: G.not },
-  ]},
-  7408: { vcc: 14, gnd: 7, gates: [
-    { in: [1, 2], out: 3, fn: G.and }, { in: [4, 5], out: 6, fn: G.and },
-    { in: [9, 10], out: 8, fn: G.and }, { in: [12, 13], out: 11, fn: G.and },
-  ]},
-  7432: { vcc: 14, gnd: 7, gates: [
-    { in: [1, 2], out: 3, fn: G.or }, { in: [4, 5], out: 6, fn: G.or },
-    { in: [9, 10], out: 8, fn: G.or }, { in: [12, 13], out: 11, fn: G.or },
-  ]},
-  7486: { vcc: 14, gnd: 7, gates: [
-    { in: [1, 2], out: 3, fn: G.xor }, { in: [4, 5], out: 6, fn: G.xor },
-    { in: [9, 10], out: 8, fn: G.xor }, { in: [12, 13], out: 11, fn: G.xor },
-  ]},
-  7474: { vcc: 14, gnd: 7, flops: [
-    { kind: "d", d: 2, clk: 3, pr: 4, clr: 1, q: 5, qb: 6 },
-    { kind: "d", d: 12, clk: 11, pr: 10, clr: 13, q: 9, qb: 8 },
-  ]},
-  7476: { vcc: 5, gnd: 13, flops: [
-    { kind: "jk", j: 4, k: 16, clk: 1, pr: 2, clr: 3, q: 14, qb: 15 },
-    { kind: "jk", j: 9, k: 10, clk: 8, pr: 7, clr: 6, q: 11, qb: 12 },
-  ]},
+  7400: {
+    vcc: 14, gnd: 7, gates: [
+      { in: [1, 2], out: 3, fn: G.nand }, { in: [4, 5], out: 6, fn: G.nand },
+      { in: [9, 10], out: 8, fn: G.nand }, { in: [12, 13], out: 11, fn: G.nand },
+    ]
+  },
+  7402: {
+    vcc: 14, gnd: 7, gates: [
+      { in: [2, 3], out: 1, fn: G.nor }, { in: [5, 6], out: 4, fn: G.nor },
+      { in: [8, 9], out: 10, fn: G.nor }, { in: [11, 12], out: 13, fn: G.nor },
+    ]
+  },
+  7404: {
+    vcc: 14, gnd: 7, gates: [
+      { in: [1], out: 2, fn: G.not }, { in: [3], out: 4, fn: G.not },
+      { in: [5], out: 6, fn: G.not }, { in: [9], out: 8, fn: G.not },
+      { in: [11], out: 10, fn: G.not }, { in: [13], out: 12, fn: G.not },
+    ]
+  },
+  7408: {
+    vcc: 14, gnd: 7, gates: [
+      { in: [1, 2], out: 3, fn: G.and }, { in: [4, 5], out: 6, fn: G.and },
+      { in: [9, 10], out: 8, fn: G.and }, { in: [12, 13], out: 11, fn: G.and },
+    ]
+  },
+  7432: {
+    vcc: 14, gnd: 7, gates: [
+      { in: [1, 2], out: 3, fn: G.or }, { in: [4, 5], out: 6, fn: G.or },
+      { in: [9, 10], out: 8, fn: G.or }, { in: [12, 13], out: 11, fn: G.or },
+    ]
+  },
+  7486: {
+    vcc: 14, gnd: 7, gates: [
+      { in: [1, 2], out: 3, fn: G.xor }, { in: [4, 5], out: 6, fn: G.xor },
+      { in: [9, 10], out: 8, fn: G.xor }, { in: [12, 13], out: 11, fn: G.xor },
+    ]
+  },
+  7474: {
+    vcc: 14, gnd: 7, flops: [
+      { kind: "d", d: 2, clk: 3, pr: 4, clr: 1, q: 5, qb: 6 },
+      { kind: "d", d: 12, clk: 11, pr: 10, clr: 13, q: 9, qb: 8 },
+    ]
+  },
+  7476: {
+    vcc: 5, gnd: 13, flops: [
+      { kind: "jk", j: 4, k: 16, clk: 1, pr: 2, clr: 3, q: 14, qb: 15 },
+      { kind: "jk", j: 9, k: 10, clk: 8, pr: 7, clr: 6, q: 11, qb: 12 },
+    ]
+  },
   // 4-bit full adder. VCC=5 / GND=12 is the real (unusual) 7483 quirk.
-  7483: { vcc: 5, gnd: 12, msi: "adder",
-    a: [1, 2, 3, 4], b: [6, 7, 8, 9], cin: 10, cout: 11, s: [13, 14, 15, 16] },
+  7483: {
+    vcc: 5, gnd: 12, msi: "adder",
+    a: [1, 2, 3, 4], b: [6, 7, 8, 9], cin: 10, cout: 11, s: [13, 14, 15, 16]
+  },
   // 4-bit magnitude comparator. Real datasheet pinout.
-  7485: { vcc: 16, gnd: 8, msi: "comparator",
+  7485: {
+    vcc: 16, gnd: 8, msi: "comparator",
     a: [1, 2, 3, 4], b: [5, 6, 7, 9], gtIn: 10, ltIn: 11, eqIn: 12,
-    gtOut: 13, ltOut: 14, eqOut: 15 },
+    gtOut: 13, ltOut: 14, eqOut: 15
+  },
   // 3-to-8 decoder. Real datasheet pinout.
-  74138: { vcc: 16, gnd: 8, msi: "decoder",
-    a: [1, 2, 3], e2a: 4, e2b: 5, e1: 6, y: [15, 14, 13, 12, 11, 10, 9, 7] },
+  74138: {
+    vcc: 16, gnd: 8, msi: "decoder",
+    a: [1, 2, 3], e2a: 4, e2b: 5, e1: 6, y: [15, 14, 13, 12, 11, 10, 9, 7]
+  },
   // 8-to-1 mux. Real datasheet pinout.
-  74151: { vcc: 16, gnd: 8, msi: "mux",
-    d: [4, 3, 2, 1, 15, 14, 13, 12], s: [11, 10, 9], strobe: 7, y: 5, yb: 6 },
+  74151: {
+    vcc: 16, gnd: 8, msi: "mux",
+    d: [4, 3, 2, 1, 15, 14, 13, 12], s: [11, 10, 9], strobe: 7, y: 5, yb: 6
+  },
   // BCD -> 7-seg driver. Real datasheet pinout.
-  7447: { vcc: 16, gnd: 8, msi: "bcd7seg",
+  7447: {
+    vcc: 16, gnd: 8, msi: "bcd7seg",
     bcd: [7, 1, 2, 6], lt: 3, bi: 4, rbi: 5,
-    seg: { a: 13, b: 12, c: 11, d: 10, e: 9, f: 15, g: 14 } },
+    seg: { a: 13, b: 12, c: 11, d: 10, e: 9, f: 15, g: 14 }
+  },
   // 4-bit up/down counter. Simplified-but-consistent numbering.
-  74193: { vcc: 16, gnd: 8, msi: "counter",
+  74193: {
+    vcc: 16, gnd: 8, msi: "counter",
     d: [15, 1, 10, 9], up: 5, down: 4, load: 11, clear: 14,
-    q: [3, 2, 6, 7], carry: 12, borrow: 13 },
+    q: [3, 2, 6, 7], carry: 12, borrow: 13
+  },
   // 4-bit serial/parallel shift register. Simplified numbering (author
   // not fully confident of the real 7495 pin order — verify vs datasheet).
-  7495: { vcc: 14, gnd: 7, msi: "shiftreg",
-    d: [2, 3, 4, 5], serIn: 1, mode: 6, clk1: 9, clk2: 8, q: [10, 11, 12, 13] },
+  7495: {
+    vcc: 14, gnd: 7, msi: "shiftreg",
+    d: [2, 3, 4, 5], serIn: 1, mode: 6, clk1: 9, clk2: 8, q: [10, 11, 12, 13]
+  },
 };
 
 // ── Union-Find over node references ────────────────────────────────
@@ -331,99 +361,144 @@ function writeNode(ns, values, ref, val) {
   values.set(ns.find(ref), val & 1);
 }
 
+function allOutputPins(logic) {
+  const pins = [];
+  (logic.gates || []).forEach((g) => pins.push(g.out));
+  (logic.flops || []).forEach((f) => { pins.push(f.q); pins.push(f.qb); });
+  if (logic.msi === "adder") { pins.push(...logic.s, logic.cout); }
+  if (logic.msi === "comparator") { pins.push(logic.gtOut, logic.ltOut, logic.eqOut); }
+  if (logic.msi === "decoder") { pins.push(...logic.y); }
+  if (logic.msi === "mux") { pins.push(logic.y, logic.yb); }
+  if (logic.msi === "bcd7seg") { pins.push(...Object.values(logic.seg)); }
+  if (logic.msi === "counter") { pins.push(...logic.q, logic.carry, logic.borrow); }
+  if (logic.msi === "shiftreg") { pins.push(...logic.q); }
+  return pins;
+}
+
 // Runs the combinational settle: seeds power rails + live external
 // sources, then relaxes every placed IC's combinational outputs across a
 // few passes so multi-gate chains stabilize (plenty for a trainer-board
 // scale netlist — no need for a full topological sort).
 function evaluateCircuit(ns, placedICs, sources, icRegs) {
   const values = new Map();
+  const shorts = new Set(); // NEW: resolved node-keys with conflicting drivers
   writeNode(ns, values, "NET_VCC", 1);
   writeNode(ns, values, "NET_GND", 0);
   Object.entries(sources).forEach(([ref, val]) => writeNode(ns, values, ref, val ? 1 : 0));
 
+  // NEW: VCC wired directly to GND (no chip in between) — always a hard short.
+  if (ns.find("NET_VCC") === ns.find("NET_GND")) {
+    shorts.add(ns.find("NET_VCC"));
+  }
+
   const PASSES = 4;
   for (let pass = 0; pass < PASSES; pass++) {
+    // NEW: only trust conflicts on the final (settled) pass — earlier passes
+    // can show transient mismatches while values are still propagating.
+    const isFinalPass = pass === PASSES - 1;
+    const driverMap = isFinalPass ? new Map() : null; // node -> first value driven this pass
+
     placedICs.forEach((p) => {
       const logic = IC_LOGIC[p.ic];
       if (!logic) return;
       const pin = (n) => `${p.id}_p${n}`;
       const rd = (n) => readNode(ns, values, pin(n));
-      const wr = (n, v) => writeNode(ns, values, pin(n), v);
-
-      if (logic.gates) {
-        logic.gates.forEach((g) => wr(g.out, g.fn(...g.in.map(rd))));
-      }
-      if (logic.flops) {
-        // Combinational part only (Q/Qbar outputs + async preset/clear).
-        // Clocked D/J-K updates happen in the sequential effect below.
-        const reg = icRegs[p.id] || {};
-        logic.flops.forEach((f, i) => {
-          let q = reg.q ? reg.q[i] : 0;
-          if (rd(f.clr) === 0) q = 0; // active-low async clear
-          else if (rd(f.pr) === 0) q = 1; // active-low async preset
-          wr(f.q, q);
-          wr(f.qb, 1 - q);
-        });
-      }
-      if (logic.msi === "adder") {
-        const a = logic.a.map(rd), b = logic.b.map(rd), cin = rd(logic.cin);
-        let carry = cin;
-        const s = [];
-        for (let i = 0; i < 4; i++) {
-          const t = a[i] + b[i] + carry;
-          s.push(t & 1);
-          carry = t >> 1;
+      const wr = (n, v) => {
+        writeNode(ns, values, pin(n), v);
+        // NEW: record every driven output per node to catch output-vs-output conflicts
+        if (driverMap) {
+          const node = ns.find(pin(n));
+          const bit = v & 1;
+          const seen = driverMap.get(node);
+          if (seen !== undefined && seen !== bit) {
+            shorts.add(node);
+          } else {
+            driverMap.set(node, bit);
+          }
         }
-        logic.s.forEach((pinNum, i) => wr(pinNum, s[i]));
-        wr(logic.cout, carry);
-      }
-      if (logic.msi === "comparator") {
-        const a = logic.a.map(rd).reduce((acc, v, i) => acc | (v << i), 0);
-        const b = logic.b.map(rd).reduce((acc, v, i) => acc | (v << i), 0);
-        let gt = a > b, lt = a < b, eq = a === b;
-        if (eq) { gt = rd(logic.gtIn) === 1; lt = rd(logic.ltIn) === 1; eq = rd(logic.eqIn) === 1 && !gt && !lt; }
-        wr(logic.gtOut, gt ? 1 : 0);
-        wr(logic.ltOut, lt ? 1 : 0);
-        wr(logic.eqOut, eq ? 1 : 0);
-      }
-      if (logic.msi === "decoder") {
-        const sel = logic.a.map(rd).reduce((acc, v, i) => acc | (v << i), 0);
-        const enabled = rd(logic.e1) === 1 && rd(logic.e2a) === 0 && rd(logic.e2b) === 0;
-        logic.y.forEach((pinNum, i) => wr(pinNum, enabled && i === sel ? 0 : 1)); // active-low
-      }
-      if (logic.msi === "mux") {
-        const sel = logic.s.map(rd).reduce((acc, v, i) => acc | (v << i), 0);
-        const strobed = rd(logic.strobe) === 0; // active-low enable
-        const out = strobed ? rd(logic.d[sel]) : 0;
-        wr(logic.y, out);
-        wr(logic.yb, 1 - out);
-      }
-      if (logic.msi === "bcd7seg") {
-        const bcd = logic.bcd.map(rd).reduce((acc, v, i) => acc | (v << i), 0);
-        const blanked = rd(logic.bi) === 0 || (rd(logic.rbi) === 0 && bcd === 0);
-        const lampTest = rd(logic.lt) === 0;
-        // Standard 7-seg patterns for 0-9 (1 = segment ON), blank otherwise.
-        const PATTERNS = {0:"abcdef",1:"bc",2:"abdeg",3:"abcdg",4:"bcfg",5:"acdfg",6:"acdefg",7:"abc",8:"abcdefg",9:"abcdfg"};
-        const on = lampTest ? "abcdefg" : blanked ? "" : (PATTERNS[bcd] || "");
-        Object.entries(logic.seg).forEach(([seg, pinNum]) => wr(pinNum, on.includes(seg) ? 0 : 1)); // active-low outputs
-      }
-      if (logic.msi === "counter") {
-        const reg = icRegs[p.id] || { q: 0 };
-        const load = rd(logic.load) === 0;
-        const val = load
-          ? logic.d.map(rd).reduce((acc, v, i) => acc | (v << i), 0)
-          : rd(logic.clear) === 1 ? 0 : (reg.q ?? 0);
-        logic.q.forEach((pinNum, i) => wr(pinNum, (val >> i) & 1));
-        wr(logic.carry, val === 15 ? 0 : 1);
-        wr(logic.borrow, val === 0 ? 0 : 1);
-      }
-      if (logic.msi === "shiftreg") {
-        const reg = icRegs[p.id] || { q: [0, 0, 0, 0] };
-        logic.q.forEach((pinNum, i) => wr(pinNum, reg.q ? reg.q[i] : 0));
+      };
+      const powered = ns.find(pin(logic.vcc)) === ns.find("NET_VCC")
+        && ns.find(pin(logic.gnd)) === ns.find("NET_GND");
+      if (!powered) {
+        // Chip has no power/ground connection — force every output pin LOW
+        // and skip its logic entirely (matches real unpowered-TTL behavior).
+        allOutputPins(logic).forEach((n) => wr(n, 0));
+      } else {
+        if (logic.gates) {
+          logic.gates.forEach((g) => wr(g.out, g.fn(...g.in.map(rd))));
+        }
+        if (logic.flops) {
+          // Combinational part only (Q/Qbar outputs + async preset/clear).
+          // Clocked D/J-K updates happen in the sequential effect below.
+          const reg = icRegs[p.id] || {};
+          logic.flops.forEach((f, i) => {
+            let q = reg.q ? reg.q[i] : 0;
+            if (rd(f.clr) === 0) q = 0; // active-low async clear
+            else if (rd(f.pr) === 0) q = 1; // active-low async preset
+            wr(f.q, q);
+            wr(f.qb, 1 - q);
+          });
+        }
+        if (logic.msi === "adder") {
+          const a = logic.a.map(rd), b = logic.b.map(rd), cin = rd(logic.cin);
+          let carry = cin;
+          const s = [];
+          for (let i = 0; i < 4; i++) {
+            const t = a[i] + b[i] + carry;
+            s.push(t & 1);
+            carry = t >> 1;
+          }
+          logic.s.forEach((pinNum, i) => wr(pinNum, s[i]));
+          wr(logic.cout, carry);
+        }
+        if (logic.msi === "comparator") {
+          const a = logic.a.map(rd).reduce((acc, v, i) => acc | (v << i), 0);
+          const b = logic.b.map(rd).reduce((acc, v, i) => acc | (v << i), 0);
+          let gt = a > b, lt = a < b, eq = a === b;
+          if (eq) { gt = rd(logic.gtIn) === 1; lt = rd(logic.ltIn) === 1; eq = rd(logic.eqIn) === 1 && !gt && !lt; }
+          wr(logic.gtOut, gt ? 1 : 0);
+          wr(logic.ltOut, lt ? 1 : 0);
+          wr(logic.eqOut, eq ? 1 : 0);
+        }
+        if (logic.msi === "decoder") {
+          const sel = logic.a.map(rd).reduce((acc, v, i) => acc | (v << i), 0);
+          const enabled = rd(logic.e1) === 1 && rd(logic.e2a) === 0 && rd(logic.e2b) === 0;
+          logic.y.forEach((pinNum, i) => wr(pinNum, enabled && i === sel ? 0 : 1)); // active-low
+        }
+        if (logic.msi === "mux") {
+          const sel = logic.s.map(rd).reduce((acc, v, i) => acc | (v << i), 0);
+          const strobed = rd(logic.strobe) === 0; // active-low enable
+          const out = strobed ? rd(logic.d[sel]) : 0;
+          wr(logic.y, out);
+          wr(logic.yb, 1 - out);
+        }
+        if (logic.msi === "bcd7seg") {
+          const bcd = logic.bcd.map(rd).reduce((acc, v, i) => acc | (v << i), 0);
+          const blanked = rd(logic.bi) === 0 || (rd(logic.rbi) === 0 && bcd === 0);
+          const lampTest = rd(logic.lt) === 0;
+          // Standard 7-seg patterns for 0-9 (1 = segment ON), blank otherwise.
+          const PATTERNS = { 0: "abcdef", 1: "bc", 2: "abdeg", 3: "abcdg", 4: "bcfg", 5: "acdfg", 6: "acdefg", 7: "abc", 8: "abcdefg", 9: "abcdfg" };
+          const on = lampTest ? "abcdefg" : blanked ? "" : (PATTERNS[bcd] || "");
+          Object.entries(logic.seg).forEach(([seg, pinNum]) => wr(pinNum, on.includes(seg) ? 0 : 1)); // active-low outputs
+        }
+        if (logic.msi === "counter") {
+          const reg = icRegs[p.id] || { q: 0 };
+          const load = rd(logic.load) === 0;
+          const val = load
+            ? logic.d.map(rd).reduce((acc, v, i) => acc | (v << i), 0)
+            : rd(logic.clear) === 1 ? 0 : (reg.q ?? 0);
+          logic.q.forEach((pinNum, i) => wr(pinNum, (val >> i) & 1));
+          wr(logic.carry, val === 15 ? 0 : 1);
+          wr(logic.borrow, val === 0 ? 0 : 1);
+        }
+        if (logic.msi === "shiftreg") {
+          const reg = icRegs[p.id] || { q: [0, 0, 0, 0] };
+          logic.q.forEach((pinNum, i) => wr(pinNum, reg.q ? reg.q[i] : 0));
+        }
       }
     });
   }
-  return values;
+  return { values, shorts };
 }
 
 // Applies clocked (edge-triggered) state updates: flip-flops, the
@@ -650,7 +725,7 @@ function colXForBB(col) {
 // ── Breadboard SVG ────────────────────────────────────────────────
 // FIX: bbRef is attached to the SVG container div directly here.
 // Wire coordinates are stored as SVG-local coords (not page coords).
-function Breadboard({ wireStart, wires, placedICs, onHoleClick, onICMouseDown }) {
+function Breadboard({ wireStart, wires, placedICs, onHoleClick, onICMouseDown, onICContextMenu, mode, onICDelete, poweredIds }) {
   const W = 36 + COLS * (HOLE_PX + 2) + 5 * 6 + HOLE_PX + 16;
   const ROW_H = 14;
   const IC_BODY_H = 24;
@@ -982,25 +1057,42 @@ function Breadboard({ wireStart, wires, placedICs, onHoleClick, onICMouseDown })
       {/* Placed ICs as SVG foreignObject */}
       {placedICs.map((p) => {
         const ic = ICS[p.ic];
-        if (!ic) return null;
+        if (!ic || p.col === undefined) return null;
         const cols = Math.ceil(ic.pins / 2);
-        const icW = cols * 13 + 8;
+        // NEW: icW ab actual hole-grid span se match karta hai (GAP_AFTER ke
+        // extra gaps included) — pehle fixed cols*13+8 tha jo IC-width group
+        // boundaries cross karte hi drift kar jata tha.
+        const icW = colX(p.col + cols - 1) - colX(p.col) + 16;
         const icH = IC_BODY_H;
+        // NEW: column-index i (0-based, left to right) ka pixel offset —
+        // ye har pin ko uske real breadboard hole ke exactly upar center karta hai.
+        const pinX = (i) => colX(p.col + i) - p.x - 1.5; // 1.5 = half of 3px pin width
         return (
           <g
             key={p.id}
             transform={`translate(${p.x},${p.y})`}
             style={{ cursor: "grab" }}
             onMouseDown={(e) => {
+              if (e.button !== 0) return; // right/middle click ko ignore karo — sirf left-click drag start kare
+
               e.stopPropagation();
+              if (mode === "delete") {
+                onICDelete?.(p.id); // NEW: delete mode mein click = IC hata do
+                return;
+              }
               onICMouseDown(p.id, p.ic, e.clientX, e.clientY);
+            }}
+            onContextMenu={(e) => {
+              e.preventDefault();
+              e.stopPropagation();
+              onICContextMenu?.(p.ic, e.clientX, e.clientY);
             }}
           >
             {/* Bottom pins (south side) */}
             {Array.from({ length: Math.ceil(ic.pins / 2) }, (_, i) => (
               <rect
                 key={`bp${i}`}
-                x={4 + i * 13}
+                x={pinX(i)}
                 y={icH}
                 width={3}
                 height={7}
@@ -1012,7 +1104,7 @@ function Breadboard({ wireStart, wires, placedICs, onHoleClick, onICMouseDown })
             {Array.from({ length: Math.floor(ic.pins / 2) }, (_, i) => (
               <rect
                 key={`tp${i}`}
-                x={4 + i * 13}
+                x={pinX(i)}
                 y={-IC_PIN_H}
                 width={3}
                 height={IC_PIN_H}
@@ -1020,6 +1112,7 @@ function Breadboard({ wireStart, wires, placedICs, onHoleClick, onICMouseDown })
                 fill="#b0b0b0"
               />
             ))}
+
             {/* IC body */}
             <rect
               x={0}
@@ -1038,6 +1131,14 @@ function Breadboard({ wireStart, wires, placedICs, onHoleClick, onICMouseDown })
               stroke="#444"
               strokeWidth={0.5}
             />
+            {/* NEW: unpowered warning — VCC/GND rail se wired nahi hai */}
+            {poweredIds && !poweredIds.has(p.id) && (
+              <g>
+                <circle cx={icW - 5} cy={5} r={4} fill="#ff2222" stroke="#500" strokeWidth={0.6} />
+                <text x={icW - 5} y={7.5} textAnchor="middle" fontSize={6} fontWeight="bold" fill="#fff">!</text>
+                <title>{`${p.ic}: not powered — wire pin ${IC_LOGIC[p.ic]?.vcc} to +rail and pin ${IC_LOGIC[p.ic]?.gnd} to -rail`}</title>
+              </g>
+            )}
             {/* Label */}
             <text
               x={icW / 2}
@@ -1070,7 +1171,8 @@ function Breadboard({ wireStart, wires, placedICs, onHoleClick, onICMouseDown })
 
 // ── Wire overlay — FIX: uses SVG-local coords, rendered inside same SVG container ──
 // We render wires as an absolute SVG overlay positioned exactly over the breadboard SVG
-function WireOverlay({ wires, preview, width, height }) {
+function WireOverlay({ wires, preview, width, height, onWireClick }) {
+  const [hoveredWireId, setHoveredWireId] = useState(null);
   return (
     <svg
       style={{
@@ -1088,28 +1190,37 @@ function WireOverlay({ wires, preview, width, height }) {
         const mx = (w.ax + w.bx) / 2;
         const dy = Math.abs(w.bx - w.ax) * 0.25 + 10;
         const my = Math.min(w.ay, w.by) - dy;
+        const isHovered = hoveredWireId === w.id;
         return (
           <g key={w.id}>
-            {/* Wire shadow */}
+            {/* Wire shadow — no events here, purely visual */}
             <path
               d={`M${w.ax},${w.ay} Q${mx},${my} ${w.bx},${w.by}`}
               stroke="rgba(0,0,0,0.5)"
               strokeWidth={3.5}
               fill="none"
               strokeLinecap="round"
+              pointerEvents="none"
             />
-            {/* Wire */}
+            {/* Wire — this is the ONLY path that gets hover/click */}
             <path
               d={`M${w.ax},${w.ay} Q${mx},${my} ${w.bx},${w.by}`}
-              stroke={w.color}
-              strokeWidth={2.5}
+              stroke={isHovered ? "#ffffff" : w.color}
+              strokeWidth={isHovered ? 6 : 2.5}
               fill="none"
               strokeLinecap="round"
-              opacity={0.95}
+              opacity={isHovered ? 1 : 0.95}
+              style={{ cursor: "pointer", pointerEvents: "stroke" }}
+              onMouseEnter={() => setHoveredWireId(w.id)}
+              onMouseLeave={() => setHoveredWireId((id) => (id === w.id ? null : id))}
+              onClick={(e) => {
+                e.stopPropagation();
+                onWireClick?.(w.id);
+              }}
             />
             {/* End dots */}
-            <circle cx={w.ax} cy={w.ay} r={3} fill={w.color} />
-            <circle cx={w.bx} cy={w.by} r={3} fill={w.color} />
+            <circle cx={w.ax} cy={w.ay} r={3} fill={w.color} pointerEvents="none" />
+            <circle cx={w.bx} cy={w.by} r={3} fill={w.color} pointerEvents="none" />
           </g>
         );
       })}
@@ -1159,12 +1270,16 @@ function pinoutSummary(icKey) {
   return lines.join("  ");
 }
 
-function TrayIC({ icKey, onMouseDown }) {
+function TrayIC({ icKey, onMouseDown, onContextMenu }) {
   const ic = ICS[icKey];
   return (
     <div
       onMouseDown={(e) => onMouseDown(e, icKey)}
-      title={`${icKey} — ${ic.desc} (${ic.pins}-pin)\nPins: ${pinoutSummary(icKey) || "see datasheet"}\nDrag onto breadboard`}
+      onContextMenu={(e) => {
+        e.preventDefault();
+        onContextMenu?.(e.clientX, e.clientY, icKey);
+      }}
+      title={`${icKey} — ${ic.desc} (${ic.pins}-pin)\nPins: ${pinoutSummary(icKey) || "see datasheet"}\nDrag onto breadboard\nRight-click for datasheet`}
       style={{
         background: `linear-gradient(160deg,${ic.bg},#080808)`,
         border: "1px solid #555",
@@ -1248,6 +1363,89 @@ function TrayIC({ icKey, onMouseDown }) {
   );
 }
 
+// ── Datasheet Popup — built entirely from existing pinoutSummary() data ──
+function DatasheetPopup({ icKey, x, y, onClose }) {
+  const ic = ICS[icKey];
+  if (!ic) return null;
+  const pinLines = pinoutSummary(icKey).split("  ").filter(Boolean);
+
+  // Keep the popup on-screen (rough clamp against viewport edges).
+  const POPUP_W = 220;
+  const clampedX = Math.min(x + 10, window.innerWidth - POPUP_W - 10);
+  const clampedY = Math.min(y + 10, window.innerHeight - 320);
+
+  return (
+    <div
+      onMouseDown={(e) => e.stopPropagation()}
+      style={{
+        position: "fixed",
+        left: Math.max(10, clampedX),
+        top: Math.max(10, clampedY),
+        width: POPUP_W,
+        background: "linear-gradient(160deg,#0c1420,#050a10)",
+        border: `1px solid ${ic.txt}`,
+        borderRadius: 6,
+        boxShadow: "0 12px 30px rgba(0,0,0,.8)",
+        zIndex: 10000,
+        fontFamily: "monospace",
+        overflow: "hidden",
+      }}
+    >
+      <div
+        style={{
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "space-between",
+          background: `linear-gradient(90deg,${ic.bg},#080808)`,
+          padding: "6px 9px",
+          borderBottom: `1px solid ${ic.txt}55`,
+        }}
+      >
+        <div>
+          <div style={{ fontSize: 11, fontWeight: "bold", color: ic.txt, letterSpacing: 1 }}>
+            {icKey} <span style={{ opacity: 0.7 }}>{ic.sym}</span>
+          </div>
+          <div style={{ fontSize: 7, color: "#889", marginTop: 1 }}>{ic.name} · {ic.pins}-pin DIP</div>
+        </div>
+        <span
+          onClick={onClose}
+          style={{ cursor: "pointer", color: "#f66", fontSize: 12, fontWeight: "bold", padding: "0 3px" }}
+        >
+          ✕
+        </span>
+      </div>
+
+      <div style={{ padding: "7px 9px", fontSize: 8, color: "#cde", lineHeight: 1.5, borderBottom: "1px solid #1e3344" }}>
+        {ic.desc}
+      </div>
+
+      <div style={{ maxHeight: 200, overflowY: "auto", padding: "6px 9px" }}>
+        <div style={{ fontSize: 6.5, color: "#d4a843", letterSpacing: 1, marginBottom: 4 }}>
+          PINOUT
+        </div>
+        {pinLines.map((line, i) => {
+          const [pinNum, role] = line.split(":");
+          const isPower = role === "VCC" || role === "GND";
+          return (
+            <div
+              key={i}
+              style={{
+                display: "flex",
+                justifyContent: "space-between",
+                fontSize: 8,
+                padding: "1.5px 0",
+                color: isPower ? "#ff8844" : role === "—" ? "#445" : "#9fe",
+              }}
+            >
+              <span>PIN {pinNum}</span>
+              <span>{role}</span>
+            </div>
+          );
+        })}
+      </div>
+    </div>
+  );
+}
 // ── Breadboard dimensions (must match Breadboard component) ───────
 function getBBDimensions() {
   const ROW_H = 14,
@@ -1337,14 +1535,15 @@ export default function IT300() {
   const [icRegs, setIcRegs] = useState({});
   const [saveState, setSaveState] = useState({ status: "idle", message: "" }); // idle|saving|saved|error
   const [circuitName, setCircuitName] = useState("Untitled Circuit");
-
+  const [datasheet, setDatasheet] = useState(null); // NEW: {icKey, x, y} | null
+  const [wireWarning, setWireWarning] = useState(""); // NEW: transient "pin already used" message
   // FIX: single ref attached to the wrapper div that contains the BB SVG
   const bbWrapRef = useRef(null);
   const clkRef = useRef();
   const mouseRef = useRef({ x: 0, y: 0 });
   const undoStackRef = useRef([]);
-  const prevClkRef = useRef(new Map()); 
-  const colIdxRef = useRef(0); 
+  const prevClkRef = useRef(new Map());
+  const colIdxRef = useRef(0);
 
   const { W: bbW, H: bbH } = getBBDimensions();
 
@@ -1416,6 +1615,29 @@ export default function IT300() {
     return () => window.removeEventListener("keydown", onKeyDown);
   }, [undoLast]);
 
+  // NEW: close datasheet popup on outside click, Escape, or scroll
+  // NEW: auto-clear the "pin already wired" warning after a moment
+  useEffect(() => {
+    if (!wireWarning) return;
+    const t = setTimeout(() => setWireWarning(""), 1800);
+    return () => clearTimeout(t);
+  }, [wireWarning]);
+
+  // NEW: close datasheet popup on outside click, Escape, or scroll
+  useEffect(() => {
+    if (!datasheet) return;
+    const closeIt = () => setDatasheet(null);
+    const onEsc = (e) => { if (e.key === "Escape") closeIt(); };
+    window.addEventListener("mousedown", closeIt);
+    window.addEventListener("keydown", onEsc);
+    window.addEventListener("scroll", closeIt, true);
+    return () => {
+      window.removeEventListener("mousedown", closeIt);
+      window.removeEventListener("keydown", onEsc);
+      window.removeEventListener("scroll", closeIt, true);
+    };
+  }, [datasheet]);
+
   // Global mouse tracking
   useEffect(() => {
     const onMove = (e) => {
@@ -1426,12 +1648,15 @@ export default function IT300() {
         );
 
       if (draggingPlaced && bbWrapRef.current) {
-        const rect = bbWrapRef.current.getBoundingClientRect();
-        const x = e.clientX - rect.left - draggingPlaced.offsetX;
-        const y = e.clientY - rect.top - draggingPlaced.offsetY;
-        setPlacedICs((p) =>
-          p.map((ic) => (ic.id === draggingPlaced.id ? { ...ic, x, y } : ic))
-        );
+        const svg = bbWrapRef.current.querySelector('svg');
+        if (svg) {
+          const rect = svg.getBoundingClientRect();
+          const x = e.clientX - rect.left - draggingPlaced.offsetX;
+          const y = e.clientY - rect.top - draggingPlaced.offsetY;
+          setPlacedICs((p) =>
+            p.map((ic) => (ic.id === draggingPlaced.id ? { ...ic, x, y } : ic))
+          );
+        }
       }
       // FIX: preview uses SVG-local coords — convert mouse to SVG space
       if (wireStart && bbWrapRef.current) {
@@ -1494,6 +1719,21 @@ export default function IT300() {
   // ── Live netlist (rebuilt whenever wiring/placement changes) ──────
   const netlist = useMemo(() => buildNetlist(wires, placedICs), [wires, placedICs]);
 
+  // NEW: jo bhi placed IC ka VCC pin +rail se aur GND pin -rail se wired
+  // NAHI hai, uski id yahan se bahar rahegi — Breadboard isko red badge se dikhayega.
+  const poweredIds = useMemo(() => {
+    const s = new Set();
+    placedICs.forEach((p) => {
+      const logic = IC_LOGIC[p.ic];
+      if (!logic) return;
+      const pin = (n) => `${p.id}_p${n}`;
+      const ok = netlist.find(pin(logic.vcc)) === netlist.find("NET_VCC")
+        && netlist.find(pin(logic.gnd)) === netlist.find("NET_GND");
+      if (ok) s.add(p.id);
+    });
+    return s;
+  }, [netlist, placedICs]);
+
   // External source pins that actively drive a value into the netlist —
   // everything else on the board is a passive monitor point that only
   // shows a signal once it's actually wired to one of these.
@@ -1509,10 +1749,12 @@ export default function IT300() {
   // Combinational settle — recomputed every render off current inputs +
   // the latched sequential state. This is the actual "boolean algebra
   // across every node" engine the board was missing.
-  const nodeValues = useMemo(
+  const { values: nodeValues, shorts: shortNodes } = useMemo(
     () => evaluateCircuit(netlist, placedICs, sources, icRegs),
     [netlist, placedICs, sources, icRegs],
   );
+  // NEW: true the instant any node has two disagreeing drivers, or VCC-GND is shorted
+  const hasShortCircuit = shortNodes.size > 0;
 
   // Clocked (edge-triggered) state update — flip-flops, counter, shift
   // register all latch on a 0->1 transition of their own clock pin, which
@@ -1532,6 +1774,18 @@ export default function IT300() {
 
   // FIX: onHoleClick receives SVG-local coords (cx,cy from the SVG).
   // We store them as-is — no page-coord conversion needed.
+  // NEW: single-pin restriction — a hole that isn't a generic breadboard
+  // body strip hole (IC pins, rail terminals, external monitor terminals)
+  // may only carry ONE wire, matching how a real leg/terminal only fits
+  // one wire end. Regular `bb_${col}_${row}` body holes are exempt since
+  // several holes in the same 5-hole strip are already electrically the
+  // same node and real breadboards allow multiple wires per strip.
+  const isSingleWireHole = useCallback((id) => /^bb_\d+_[a-j]$/.test(id) === false, []);
+  const isHoleOccupied = useCallback(
+    (id) => isSingleWireHole(id) && wires.some((w) => w.from === id || w.to === id),
+    [wires, isSingleWireHole],
+  );
+
   const onHoleClick = useCallback(
     (id, svgX, svgY) => {
       if (mode === "delete") {
@@ -1542,9 +1796,19 @@ export default function IT300() {
       if (mode !== "wire") return;
 
       if (!wireStart) {
+        if (isHoleOccupied(id)) {
+          setWireWarning(`Pin already wired: ${id}`);
+          return;
+        }
         setWireStart({ id, ax: svgX, ay: svgY });
       } else {
         if (wireStart.id !== id) {
+          if (isHoleOccupied(id)) {
+            setWireWarning(`Pin already wired: ${id}`);
+            setWireStart(null);
+            setPreview(null);
+            return;
+          }
           recordUndo();
           const currentCol = wireColRef.current;
           setWires((p) => [
@@ -1570,13 +1834,21 @@ export default function IT300() {
         setPreview(null);
       }
     },
-    [mode, wireStart, COLORS, recordUndo],
+    [mode, wireStart, COLORS, recordUndo, isHoleOccupied],
   );
 
   const startTrayDrag = (e, icKey) => {
+    if (e.button !== 0) return; // right-click yahan bhi ignore — sirf left-click drag ke liye
+
     e.preventDefault();
     setDragging({ icKey, ghostX: e.clientX - 40, ghostY: e.clientY - 25 });
   };
+
+  // NEW: DELETE mode mein IC pe click karne se sirf wo IC hat jaye
+  const handleICDelete = useCallback((id) => {
+    recordUndo();
+    setPlacedICs((p) => p.filter((ic) => ic.id !== id));
+  }, [recordUndo]);
 
   const handleICMouseDown = (id, icKey, clientX, clientY) => {
     const ic = placedICs.find((p) => p.id === id);
@@ -1594,6 +1866,16 @@ export default function IT300() {
     const rect = bbWrapRef.current.getBoundingClientRect();
     onHoleClick(id, e.clientX - rect.left, e.clientY - rect.top);
   };
+
+  // NEW: right-click on a placed IC (breadboard) opens its datasheet popup
+  const handleICContextMenu = useCallback((icKey, clientX, clientY) => {
+    setDatasheet({ icKey, x: clientX, y: clientY });
+  }, []);
+
+  // NEW: right-click on a tray IC (not yet placed) opens its datasheet popup too
+  const handleTrayContextMenu = useCallback((clientX, clientY, icKey) => {
+    setDatasheet({ icKey, x: clientX, y: clientY });
+  }, []);
 
   // ── Save circuit ───────────────────────────────────────────────────
   // Not logged in -> send them to /login instead of silently failing or
@@ -1669,6 +1951,7 @@ export default function IT300() {
         @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@700;900&display=swap');
         @keyframes blink{0%,100%{opacity:1}50%{opacity:.35}}
         .clk-blink{animation:blink .5s infinite;}
+        .short-blink{animation:blink .3s infinite;}
       `}</style>
       <Navbar toggleTheme={toggleTheme} theme={theme} />
 
@@ -1923,6 +2206,41 @@ export default function IT300() {
                   >
                     ✕
                   </span>
+                </div>
+              )}
+
+                {/* NEW: "pin already wired" warning */}
+              {wireWarning && (
+                <div
+                  style={{
+                    fontSize: 8,
+                    color: "#ffcc00",
+                    fontFamily: F,
+                    background: "#2a1e00",
+                    border: "1px solid #ffcc00",
+                    borderRadius: 3,
+                    padding: "2px 7px",
+                  }}
+                >
+                  ⚠ {wireWarning}
+                </div>
+              )}
+              {/* NEW: short-circuit warning banner */}
+              {hasShortCircuit && (
+                <div
+                  className="short-blink"
+                  style={{
+                    fontSize: 9,
+                    color: "#ff2222",
+                    fontFamily: F,
+                    fontWeight: "bold",
+                    background: "#2a0000",
+                    border: "1px solid #ff2222",
+                    borderRadius: 3,
+                    padding: "3px 8px",
+                  }}
+                >
+                  ⚠ SHORT CIRCUIT DETECTED ({shortNodes.size})
                 </div>
               )}
               <div style={{ marginLeft: "auto", display: "flex", gap: 4 }}>
@@ -2349,6 +2667,11 @@ export default function IT300() {
                         placedICs={placedICs}
                         onHoleClick={onHoleClick}
                         onICMouseDown={handleICMouseDown}
+
+                        onICContextMenu={handleICContextMenu}
+                        mode={mode}
+                        onICDelete={handleICDelete}
+                        poweredIds={poweredIds}
                       />
                       {/* FIX: WireOverlay uses SVG-local coords — rendered over the SVG */}
                       <WireOverlay
@@ -2356,6 +2679,10 @@ export default function IT300() {
                         preview={preview}
                         width={bbW}
                         height={bbH}
+                        onWireClick={(wireId) => {
+                          recordUndo();
+                          setWires((p) => p.filter((w) => w.id !== wireId));
+                        }}
                       />
                     </div>
                   </div>
@@ -2442,7 +2769,7 @@ export default function IT300() {
                 <Sec title="IC Component Tray — drag onto breadboard">
                   <div style={{ display: "flex", flexWrap: "wrap", gap: 5 }}>
                     {Object.keys(ICS).map((k) => (
-                      <TrayIC key={k} icKey={k} onMouseDown={startTrayDrag} />
+                      <TrayIC key={k} icKey={k} onMouseDown={startTrayDrag} onContextMenu={handleTrayContextMenu} />
                     ))}
                   </div>
                   <div
@@ -2793,6 +3120,14 @@ export default function IT300() {
                 MODE:
                 <span style={{ color: "#88bbdd" }}> {mode.toUpperCase()}</span>
               </span>
+              {/* NEW: short-circuit status */}
+              <span style={{ color: "#334" }}>|</span>
+              <span className={hasShortCircuit ? "short-blink" : ""}>
+                SHORT:
+                <span style={{ color: hasShortCircuit ? "#ff2222" : "#2a5a2a" }}>
+                  {" "}{hasShortCircuit ? `⚠ ${shortNodes.size}` : "OK"}
+                </span>
+              </span>
               <span style={{ marginLeft: "auto", color: "#14243a" }}>
                 ∞ INFINIT TECHNOLOGIES · IT-300 DIGITAL LOGIC TRAINING SYSTEM
               </span>
@@ -2858,6 +3193,15 @@ export default function IT300() {
               </div>
             </div>
           </div>
+        )}
+        {/* NEW: datasheet popup, rendered above everything else */}
+        {datasheet && (
+          <DatasheetPopup
+            icKey={datasheet.icKey}
+            x={datasheet.x}
+            y={datasheet.y}
+            onClose={() => setDatasheet(null)}
+          />
         )}
       </div>
       <Footer />
