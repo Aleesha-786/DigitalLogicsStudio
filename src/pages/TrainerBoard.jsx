@@ -725,7 +725,7 @@ function colXForBB(col) {
 // ── Breadboard SVG ────────────────────────────────────────────────
 // FIX: bbRef is attached to the SVG container div directly here.
 // Wire coordinates are stored as SVG-local coords (not page coords).
-function Breadboard({ wireStart, wires, placedICs, onHoleClick, onICMouseDown, onICContextMenu }) {
+function Breadboard({ wireStart, wires, placedICs, onHoleClick, onICMouseDown, onICContextMenu, mode, onICDelete, poweredIds }) {
   const W = 36 + COLS * (HOLE_PX + 2) + 5 * 6 + HOLE_PX + 16;
   const ROW_H = 14;
   const IC_BODY_H = 24;
@@ -1057,10 +1057,16 @@ function Breadboard({ wireStart, wires, placedICs, onHoleClick, onICMouseDown, o
       {/* Placed ICs as SVG foreignObject */}
       {placedICs.map((p) => {
         const ic = ICS[p.ic];
-        if (!ic) return null;
+        if (!ic || p.col === undefined) return null;
         const cols = Math.ceil(ic.pins / 2);
-        const icW = cols * 13 + 8;
+        // NEW: icW ab actual hole-grid span se match karta hai (GAP_AFTER ke
+        // extra gaps included) — pehle fixed cols*13+8 tha jo IC-width group
+        // boundaries cross karte hi drift kar jata tha.
+        const icW = colX(p.col + cols - 1) - colX(p.col) + 16;
         const icH = IC_BODY_H;
+        // NEW: column-index i (0-based, left to right) ka pixel offset —
+        // ye har pin ko uske real breadboard hole ke exactly upar center karta hai.
+        const pinX = (i) => colX(p.col + i) - p.x - 1.5; // 1.5 = half of 3px pin width
         return (
           <g
             key={p.id}
@@ -1068,8 +1074,12 @@ function Breadboard({ wireStart, wires, placedICs, onHoleClick, onICMouseDown, o
             style={{ cursor: "grab" }}
             onMouseDown={(e) => {
               if (e.button !== 0) return; // right/middle click ko ignore karo — sirf left-click drag start kare
-              
+
               e.stopPropagation();
+              if (mode === "delete") {
+                onICDelete?.(p.id); // NEW: delete mode mein click = IC hata do
+                return;
+              }
               onICMouseDown(p.id, p.ic, e.clientX, e.clientY);
             }}
             onContextMenu={(e) => {
@@ -1082,7 +1092,7 @@ function Breadboard({ wireStart, wires, placedICs, onHoleClick, onICMouseDown, o
             {Array.from({ length: Math.ceil(ic.pins / 2) }, (_, i) => (
               <rect
                 key={`bp${i}`}
-                x={4 + i * 13}
+                x={pinX(i)}
                 y={icH}
                 width={3}
                 height={7}
@@ -1094,7 +1104,7 @@ function Breadboard({ wireStart, wires, placedICs, onHoleClick, onICMouseDown, o
             {Array.from({ length: Math.floor(ic.pins / 2) }, (_, i) => (
               <rect
                 key={`tp${i}`}
-                x={4 + i * 13}
+                x={pinX(i)}
                 y={-IC_PIN_H}
                 width={3}
                 height={IC_PIN_H}
@@ -1102,6 +1112,7 @@ function Breadboard({ wireStart, wires, placedICs, onHoleClick, onICMouseDown, o
                 fill="#b0b0b0"
               />
             ))}
+
             {/* IC body */}
             <rect
               x={0}
@@ -1120,6 +1131,14 @@ function Breadboard({ wireStart, wires, placedICs, onHoleClick, onICMouseDown, o
               stroke="#444"
               strokeWidth={0.5}
             />
+            {/* NEW: unpowered warning — VCC/GND rail se wired nahi hai */}
+            {poweredIds && !poweredIds.has(p.id) && (
+              <g>
+                <circle cx={icW - 5} cy={5} r={4} fill="#ff2222" stroke="#500" strokeWidth={0.6} />
+                <text x={icW - 5} y={7.5} textAnchor="middle" fontSize={6} fontWeight="bold" fill="#fff">!</text>
+                <title>{`${p.ic}: not powered — wire pin ${IC_LOGIC[p.ic]?.vcc} to +rail and pin ${IC_LOGIC[p.ic]?.gnd} to -rail`}</title>
+              </g>
+            )}
             {/* Label */}
             <text
               x={icW / 2}
@@ -1691,6 +1710,21 @@ export default function IT300() {
   // ── Live netlist (rebuilt whenever wiring/placement changes) ──────
   const netlist = useMemo(() => buildNetlist(wires, placedICs), [wires, placedICs]);
 
+  // NEW: jo bhi placed IC ka VCC pin +rail se aur GND pin -rail se wired
+  // NAHI hai, uski id yahan se bahar rahegi — Breadboard isko red badge se dikhayega.
+  const poweredIds = useMemo(() => {
+    const s = new Set();
+    placedICs.forEach((p) => {
+      const logic = IC_LOGIC[p.ic];
+      if (!logic) return;
+      const pin = (n) => `${p.id}_p${n}`;
+      const ok = netlist.find(pin(logic.vcc)) === netlist.find("NET_VCC")
+        && netlist.find(pin(logic.gnd)) === netlist.find("NET_GND");
+      if (ok) s.add(p.id);
+    });
+    return s;
+  }, [netlist, placedICs]);
+
   // External source pins that actively drive a value into the netlist —
   // everything else on the board is a passive monitor point that only
   // shows a signal once it's actually wired to one of these.
@@ -1774,10 +1808,16 @@ export default function IT300() {
 
   const startTrayDrag = (e, icKey) => {
     if (e.button !== 0) return; // right-click yahan bhi ignore — sirf left-click drag ke liye
-   
+
     e.preventDefault();
     setDragging({ icKey, ghostX: e.clientX - 40, ghostY: e.clientY - 25 });
   };
+
+  // NEW: DELETE mode mein IC pe click karne se sirf wo IC hat jaye
+  const handleICDelete = useCallback((id) => {
+    recordUndo();
+    setPlacedICs((p) => p.filter((ic) => ic.id !== id));
+  }, [recordUndo]);
 
   const handleICMouseDown = (id, icKey, clientX, clientY) => {
     const ic = placedICs.find((p) => p.id === id);
@@ -2581,6 +2621,9 @@ export default function IT300() {
                         onICMouseDown={handleICMouseDown}
 
                         onICContextMenu={handleICContextMenu}
+                        mode={mode}
+                        onICDelete={handleICDelete}
+                        poweredIds={poweredIds}
                       />
                       {/* FIX: WireOverlay uses SVG-local coords — rendered over the SVG */}
                       <WireOverlay
