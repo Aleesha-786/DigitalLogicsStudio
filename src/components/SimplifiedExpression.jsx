@@ -1,7 +1,8 @@
 import '../styles/KMapGenerator.css';
 import React from 'react';
+import { memo } from 'react';
 
-export const SimplifiedExpression = ({ expression, showGroupingGuide, onToggleGuide }) => {
+const SimplifiedExpressionBase = ({ expression, showGroupingGuide, onToggleGuide }) => {
     return (
         <div className="kmap-card">
             <h2 className="kmap-section-title">Simplified Expression</h2>
@@ -31,3 +32,5 @@ export const SimplifiedExpression = ({ expression, showGroupingGuide, onToggleGu
         </div>
     );
 };
+
+export const SimplifiedExpression = memo(SimplifiedExpressionBase);

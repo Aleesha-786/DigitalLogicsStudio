@@ -85,10 +85,11 @@
   font-weight: 700;
   letter-spacing: 0.14em;
   text-transform: uppercase;
-  color: var(--accent-secondary);
+  color: #00e0b8;
+  text-shadow: 0 0 12px rgba(0, 224, 184, 0.4);
   margin: 0 0 12px 0;
   padding-bottom: 8px;
-  border-bottom: 1px solid rgba(96,165,250,0.15);
+  border-bottom: 1px solid rgba(0, 224, 184, 0.25);
 }
 
 /* ── RIGHT CANVAS ─────────────────────────────────────────── */
@@ -2320,10 +2321,10 @@
 /* ═══════════════════════════════════════════════════════════
    LIGHT THEME OVERRIDES — Sidebar labels & Expression box
    ═══════════════════════════════════════════════════════════ */
-.theme-light .kmap-sidebar-label,
-[data-theme="light"] .kmap-sidebar-label {
-  color: #2563eb;
-  border-bottom-color: rgba(37, 99, 235, 0.15);
+.kmap-page.theme-light .kmap-sidebar-label {
+  color: #2563eb !important;
+  text-shadow: none !important;
+  border-bottom-color: rgba(37, 99, 235, 0.25) !important;
 }
 
 .theme-light .kmap-expression-box,
@@ -2341,4 +2342,214 @@
 [data-theme="light"] .kmap-expression {
   color: #059669;
   text-shadow: none;
+}
+/* ═══════════════════════════════════════════════════════════
+LIGHT THEME — Truth Table (K-Map-style bordered white cells)
+═══════════════════════════════════════════════════════════ */
+.kmap-page.theme-light .kmap-truth-table {
+  border: 1px solid rgba(37, 99, 235, 0.15);
+}
+.kmap-page.theme-light .kmap-truth-table th {
+  background: rgba(37, 99, 235, 0.08) !important;
+  color: #2563eb !important;
+  border: 1px solid rgba(37, 99, 235, 0.15) !important;
+}
+.kmap-page.theme-light .kmap-truth-table td {
+  background: #ffffff !important;
+  border: 1px solid rgba(148, 163, 184, 0.25) !important;
+  color: #0f172a !important;
+}
+.kmap-page.theme-light .kmap-truth-table tbody tr:nth-child(even) td {
+  background: #f8fafc !important;
+}
+.kmap-page.theme-light .kmap-truth-table tbody tr:hover td {
+  background: rgba(37, 99, 235, 0.06) !important;
+}
+.kmap-page.theme-light .kmap-truth-table .input-term-cell {
+  color: #475569 !important;
+}
+.kmap-page.theme-light .kmap-truth-table .output-1 {
+  color: #059669 !important;
+  font-weight: 800 !important;
+}
+.kmap-page.theme-light .kmap-truth-table .output-0 {
+  color: #64748b !important;
+}
+.kmap-page.theme-light .kmap-truth-table .output-x,
+.kmap-page.theme-light .kmap-truth-table .output-dontcare {
+  color: #d97706 !important;
+  font-weight: 800 !important;
+}
+/* ═══════════════════════════════════════════════════════════
+   LIGHT THEME — Whiteboard tutorial card
+   ═══════════════════════════════════════════════════════════ */
+.kmap-page.theme-light .whiteboard-container {
+  background: #ffffff !important;
+  border-color: rgba(37, 99, 235, 0.25) !important;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.06) !important;
+}
+.kmap-page.theme-light .whiteboard-title {
+  color: #059669 !important;
+  text-shadow: none !important;
+}
+.kmap-page.theme-light .whiteboard-description {
+  color: #475569 !important;
+}
+.kmap-page.theme-light .rule-item {
+  background: rgba(37, 99, 235, 0.05) !important;
+  border-color: rgba(37, 99, 235, 0.3) !important;
+}
+.kmap-page.theme-light .rule-item span:last-child {
+  color: #0f172a !important;
+}
+.kmap-page.theme-light .whiteboard-kmap {
+  background: rgba(37, 99, 235, 0.04) !important;
+}
+.kmap-page.theme-light .whiteboard-kmap-title {
+  color: #2563eb !important;
+}
+.kmap-page.theme-light .whiteboard-cell {
+  border-color: rgba(148, 163, 184, 0.3) !important;
+}
+.kmap-page.theme-light .whiteboard-cell.has-zero {
+  background: #ffffff !important;
+  color: #94a3b8 !important;
+}
+.kmap-page.theme-light .whiteboard-cell.has-one {
+  background: rgba(5, 150, 105, 0.12) !important;
+  color: #059669 !important;
+}
+.kmap-page.theme-light .whiteboard-corner,
+.kmap-page.theme-light .whiteboard-header,
+.kmap-page.theme-light .whiteboard-row-header {
+  color: #2563eb !important;
+}
+.kmap-page.theme-light .whiteboard-analysis {
+  background: rgba(37, 99, 235, 0.04) !important;
+  border-color: rgba(37, 99, 235, 0.25) !important;
+}
+.kmap-page.theme-light .whiteboard-section-title {
+  color: #2563eb !important;
+}
+.kmap-page.theme-light .variable-column {
+  background: rgba(148, 163, 184, 0.06) !important;
+}
+.kmap-page.theme-light .var-name {
+  color: #059669 !important;
+}
+.kmap-page.theme-light .var-value,
+.kmap-page.theme-light .var-result {
+  color: #475569 !important;
+}
+.kmap-page.theme-light .whiteboard-result,
+.kmap-page.theme-light .conclusion-final {
+  background: rgba(5, 150, 105, 0.06) !important;
+  border-color: rgba(5, 150, 105, 0.35) !important;
+  box-shadow: none !important;
+}
+.kmap-page.theme-light .term-expression,
+.kmap-page.theme-light .final-expression {
+  color: #059669 !important;
+  text-shadow: none !important;
+}
+.kmap-page.theme-light .term-explanation,
+.kmap-page.theme-light .final-label,
+.kmap-page.theme-light .operator-text {
+  color: #475569 !important;
+}
+.kmap-page.theme-light .term-item {
+  background: rgba(37, 99, 235, 0.05) !important;
+  border-color: rgba(37, 99, 235, 0.3) !important;
+}
+
+/* ═══════════════════════════════════════════════════════════
+   LIGHT THEME — Grouping Guide step cards
+   ═══════════════════════════════════════════════════════════ */
+.kmap-page.theme-light .kmap-explanation-step {
+  background: #ffffff !important;
+  border-color: rgba(148, 163, 184, 0.3) !important;
+}
+.kmap-page.theme-light .kmap-explanation-step.active {
+  background: rgba(5, 150, 105, 0.05) !important;
+  border-color: #059669 !important;
+  box-shadow: none !important;
+}
+.kmap-page.theme-light .kmap-step-title {
+  color: #059669 !important;
+}
+.kmap-page.theme-light .kmap-step-text {
+  color: #334155 !important;
+}
+.kmap-page.theme-light .kmap-step-visualization {
+  background: rgba(37, 99, 235, 0.06) !important;
+  color: #2563eb !important;
+}
+.kmap-page.theme-light .kmap-groups-legend {
+  background: #ffffff !important;
+  border-color: rgba(148, 163, 184, 0.3) !important;
+}
+.kmap-page.theme-light .kmap-group-legend-item {
+  background: rgba(37, 99, 235, 0.04) !important;
+}
+.kmap-page.theme-light .kmap-group-legend-item span {
+  color: #334155 !important;
+}
+/* ═══════════════════════════════════════════════════════════
+   LIGHT THEME — Sidebar inputs (Minterms, Don't Cares, Variable Names)
+   ═══════════════════════════════════════════════════════════ */
+.kmap-page.theme-light .kmap-input,
+.kmap-page.theme-light .kmap-select,
+.kmap-page.theme-light .kmap-var-input {
+  background: #ffffff !important;
+  border-color: rgba(37, 99, 235, 0.25) !important;
+  color: #0f172a !important;
+}
+.kmap-page.theme-light .kmap-input::placeholder {
+  color: #94a3b8 !important;
+}
+.kmap-page.theme-light .kmap-input:focus,
+.kmap-page.theme-light .kmap-select:focus {
+  border-color: #2563eb !important;
+  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.12) !important;
+  background: #ffffff !important;
+}
+
+/* ═══════════════════════════════════════════════════════════
+   LIGHT THEME — K-Map grid (corner, headers, cells)
+   ═══════════════════════════════════════════════════════════ */
+.kmap-page.theme-light .kmap-grid-container {
+  background: rgba(248, 250, 252, 0.9) !important;
+}
+.kmap-page.theme-light .kmap-corner {
+  background: linear-gradient(135deg, #f1f5f9 0%, #f8fafc 100%) !important;
+  border-color: rgba(37, 99, 235, 0.15) !important;
+  color: #0f172a !important;
+}
+.kmap-page.theme-light .kmap-corner::after {
+  color: #64748b !important;
+}
+.kmap-page.theme-light .kmap-header-cell,
+.kmap-page.theme-light .kmap-row-header {
+  background: linear-gradient(180deg, rgba(37, 99, 235, 0.08) 0%, rgba(37, 99, 235, 0.02) 100%) !important;
+  border-color: rgba(37, 99, 235, 0.15) !important;
+  color: #2563eb !important;
+}
+.kmap-page.theme-light .kmap-header-cell:hover,
+.kmap-page.theme-light .kmap-row-header:hover {
+  background: linear-gradient(180deg, rgba(37, 99, 235, 0.15) 0%, rgba(37, 99, 235, 0.05) 100%) !important;
+}
+.kmap-page.theme-light .kmap-cell-empty {
+  background: #ffffff !important;
+  color: #94a3b8 !important;
+  border-color: rgba(148, 163, 184, 0.25) !important;
+}
+.kmap-page.theme-light .kmap-cell-filled {
+  background: rgba(5, 150, 105, 0.12) !important;
+  color: #059669 !important;
+  border-color: rgba(5, 150, 105, 0.35) !important;
+}
+.kmap-page.theme-light .kmap-cell-dontcare {
+  background: rgba(217, 119, 6, 0.12) !important;
+  color: #d97706 !important;
+  border-color: rgba(217, 119, 6, 0.35) !important;
 }

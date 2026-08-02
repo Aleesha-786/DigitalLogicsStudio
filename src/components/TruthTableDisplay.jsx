@@ -1,5 +1,5 @@
 import '../styles/KMapGenerator.css';
-import React, { useState } from 'react';
+import React, { useState, memo } from "react";
 import { Maximize2, X } from 'lucide-react';
 import { evaluate } from 'mathjs';
 
@@ -25,7 +25,7 @@ const evaluateLogic = (expression, variables, binaryStr) => {
     }
 };
 
-export const TruthTableDisplay = ({ 
+const TruthTableDisplayBase = ({ 
     numVariables, variables, inputValue, dontCares, 
     optimizationType = 'SOP', intermediateTerms = [], expression = "" 
 }) => {
@@ -118,3 +118,5 @@ export const TruthTableDisplay = ({
         </>
     );
 };
+
+export const TruthTableDisplay = memo(TruthTableDisplayBase);
