@@ -66,8 +66,8 @@ function MoonIcon() {
     </svg>
   );
 }
-
 function NavbarBase({ toggleTheme, theme, onHomeClick, onToggleNavbar, navbarVisible }) {
+
   const [menuOpen, setMenuOpen] = useState(false);
   const [profileMenuOpen, setProfileMenuOpen] = useState(false);
   const { user, loading, logout } = useAuth();
@@ -433,8 +433,8 @@ function NavbarBase({ toggleTheme, theme, onHomeClick, onToggleNavbar, navbarVis
   );
 }
 
+
 // Wrapped in memo: Navbar is rendered from pages like ProblemsPage/Boolforge
 // that re-render frequently (search typing, filters, gate drags, etc.) but
 // never change Navbar's own props — memo skips re-rendering it in that case.
 export const Navbar = memo(NavbarBase);
-

@@ -28,13 +28,21 @@ const KMapGenerator = () => {
     const [showGroupingGuide, setShowGroupingGuide] = useState(false);
     const [showCircuitModal, setShowCircuitModal] = useState(false);
 
+    // "Committed" snapshot — only updates when Generate/Reset is clicked,
+    // so the results section doesn't recompute on every keystroke.
+    const [committedNumVariables, setCommittedNumVariables] = useState(numVariables);
+    const [committedVariables, setCommittedVariables] = useState(variables);
+    const [committedInputValue, setCommittedInputValue] = useState('');
+    const [committedDontCares, setCommittedDontCares] = useState('');
+    const [committedOptimizationType, setCommittedOptimizationType] = useState(optimizationType);
+
     const {
         grid,
         expression,
         groups,
         getColumnLabels,
         getRowLabels
-    } = useKMapLogic(numVariables, variables, inputValue, dontCares, optimizationType);
+    } = useKMapLogic(committedNumVariables, committedVariables, committedInputValue, committedDontCares, committedOptimizationType);
 
     const handleVariablesChange = (value) => {
         const num = parseInt(value);
@@ -92,9 +100,9 @@ const KMapGenerator = () => {
         return terms;
     };
 
-    const intermediateTerms = getIntermediateTerms(expression, optimizationType, variables);
+    const intermediateTerms = getIntermediateTerms(expression, committedOptimizationType, committedVariables);
 
-    return (
+         return (
         <div className={`kmap-page theme-${theme}`}>
         <div className="grid-background" />
         <Navbar toggleTheme={toggleTheme} theme={theme} />
@@ -123,6 +131,11 @@ const KMapGenerator = () => {
                             variable_count: numVariables,
                             optimization_type: optimizationType,
                         });
+                        setCommittedNumVariables(numVariables);
+                        setCommittedVariables(variables);
+                        setCommittedInputValue(inputValue);
+                        setCommittedDontCares(dontCares);
+                        setCommittedOptimizationType(optimizationType);
                         setShowSolution(true);
                         }}
                         onExample={handleExample}
