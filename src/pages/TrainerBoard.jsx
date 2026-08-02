@@ -1780,7 +1780,7 @@ export default function IT300() {
   // one wire end. Regular `bb_${col}_${row}` body holes are exempt since
   // several holes in the same 5-hole strip are already electrically the
   // same node and real breadboards allow multiple wires per strip.
-  const isSingleWireHole = useCallback((id) => /^bb_\d+_[a-j]$/.test(id) === false, []);
+  const isSingleWireHole = useCallback((id) => true, []);
   const isHoleOccupied = useCallback(
     (id) => isSingleWireHole(id) && wires.some((w) => w.from === id || w.to === id),
     [wires, isSingleWireHole],
@@ -2209,7 +2209,7 @@ export default function IT300() {
                 </div>
               )}
 
-                {/* NEW: "pin already wired" warning */}
+              {/* NEW: "pin already wired" warning */}
               {wireWarning && (
                 <div
                   style={{
