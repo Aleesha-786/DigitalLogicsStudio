@@ -1,4 +1,4 @@
-import '../styles/KMapGenerator.css';
+import '../../shared/styles/KMapGenerator.css';
 import React, { useState } from 'react';
 import { InputControls } from '../../shared/components/InputControls';
 import { KMapDisplay } from '../../shared/components/KMapDisplay';

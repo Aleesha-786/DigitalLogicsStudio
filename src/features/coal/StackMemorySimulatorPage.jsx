@@ -19,8 +19,8 @@ import {
   X
 } from 'lucide-react';
 import './StackMemorySimulatorPage.css';
-import "../Home/Home.css";
-import "../LearningResources/LearningResourcesPage.css";
+import "../home/Home.css";
+import "../learning-resources/LearningResourcesPage.css";
 import { useTheme } from "../../shared/context/ThemeContext";
 import usePointerGlow from "../../shared/hooks/usePointerGlow";
 import { coalCourseMeta } from "../../shared/data/coalCourseOutline"; 

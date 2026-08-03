@@ -14,8 +14,8 @@ import Footer from "../home/Footer";
 import { useTheme } from "../../shared/context/ThemeContext";
 import usePointerGlow from "../../shared/hooks/usePointerGlow";
 import { coalCourseMeta } from "../../shared/data/coalCourseOutline";
-import "../Home/Home.css";
-import "../LearningResources/LearningResourcesPage.css";
+import "../home/Home.css";
+import "../learning-resources/LearningResourcesPage.css";
 
 const COAL_ACCENT = coalCourseMeta.accent;
 

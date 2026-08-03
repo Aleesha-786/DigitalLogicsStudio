@@ -2,7 +2,7 @@ import React from "react";
 import { createRoot, hydrateRoot } from "react-dom/client";
 import { HelmetProvider } from "react-helmet-async";
 import "./index.css";
-import "./styles/light-theme-overrides.css";
+import "./shared/styles/light-theme-overrides.css";
 import App from "./app/App";
 import { ThemeProvider } from "./shared/context/ThemeContext";
 import { AuthProvider } from "./auth/context/AuthContext";

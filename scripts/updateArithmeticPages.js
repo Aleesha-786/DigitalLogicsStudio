@@ -153,7 +153,7 @@ for (const file of Object.keys(map)) {
   if (/\bControlGroup\b/.test(text) && !/import ControlGroup/.test(text)) {
     text = text.replace(
       /(import ControlPanel from "\.\.\/\.\.\/components\/ControlPanel";)/,
-      '$1\nimport ControlGroup from "../../components/ControlGroup";',
+      '$1\nimport ControlGroup from "../src/shared/components/ControlGroup";',
     );
     changed = true;
   }
@@ -165,7 +165,7 @@ for (const file of Object.keys(map)) {
 
     text = text.replace(
       new RegExp(`(import ${importTarget} from "\\.\\.\\/\\.\\.\\/components\\/${importTarget}";)`),
-      '$1\nimport AFHDLSection from "./components/AFHDLSection";\nimport { arithmeticDescriptions } from "./utils/arithmeticDescriptions";'
+      '$1\nimport AFHDLSection from "../src/features/arithmetic-hdl/components/AFHDLSection";\nimport { arithmeticDescriptions } from "../src/features/arithmetic-hdl/utils/arithmeticDescriptions";'
     );
     changed = true;
   }
@@ -174,7 +174,7 @@ for (const file of Object.keys(map)) {
   if (!/import AFHDLCopyButton/.test(text)) {
     text = text.replace(
       /(import AFHDLSection from "\.\/components\/AFHDLSection";)/,
-      `$1\nimport AFHDLCopyButton from "./components/AFHDLCopyButton";`
+      `$1\nimport AFHDLCopyButton from "../src/features/arithmetic-hdl/components/AFHDLCopyButton";`
     );
     changed = true;
   }

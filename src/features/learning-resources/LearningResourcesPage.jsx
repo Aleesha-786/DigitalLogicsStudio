@@ -14,7 +14,7 @@ import { useTheme } from "../../shared/context/ThemeContext";
 import usePointerGlow from "../../shared/hooks/usePointerGlow";
 import CoreTopicsSection from "../../shared/components/topics/CoreTopicsSection";
 import coreTopics from "../../shared/data/coreTopics";
-import "../Home/Home.css";
+import "../home/Home.css";
 import "./LearningResourcesPage.css";
 
 const trackConfig = {

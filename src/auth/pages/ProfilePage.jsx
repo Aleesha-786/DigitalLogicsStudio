@@ -24,7 +24,7 @@ import { useTheme } from "../../shared/context/ThemeContext";
 import { useAuth } from "../context/AuthContext";
 import progressService from "../../shared/services/progressService";
 import apiClient from "../../shared/services/apiClient";
-import "../Home/Home.css";
+import "../../features/home/Home.css";
 import "./Auth.css";
 import "./ProfileDashboard.css";
 
