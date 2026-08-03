@@ -3,10 +3,10 @@ import { createRoot, hydrateRoot } from "react-dom/client";
 import { HelmetProvider } from "react-helmet-async";
 import "./index.css";
 import "./styles/light-theme-overrides.css";
-import App from "./App";
-import { ThemeProvider } from "./context/ThemeContext";
-import { AuthProvider } from "./context/AuthContext";
-import reportWebVitals from "./reportWebVitals";
+import App from "./app/App";
+import { ThemeProvider } from "./shared/context/ThemeContext";
+import { AuthProvider } from "./auth/context/AuthContext";
+import reportWebVitals from "./app/reportWebVitals";
 
 const rootElement = document.getElementById("root");
 
