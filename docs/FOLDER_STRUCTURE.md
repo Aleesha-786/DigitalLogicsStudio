@@ -59,7 +59,6 @@ frontend/
 |   `-- index.jsx                    # React DOM entry point
 |
 |-- .env.example                     # Frontend environment variables template
-|-- jsconfig.json                    # Path aliases (@app, @auth, @features, @shared, @seo)
 |-- package.json                     # Dependencies, scripts, and build lifecycles
 |-- package-lock.json                # Locked dependency tree
 |-- react-snap-routes.json           # Whitelisted routes for build-time static prerendering
@@ -174,24 +173,3 @@ Universal primitives reused across multiple feature pods:
 * **`utils/`**: Shared algorithms including expression parsers, math helpers, analytics utilities, and search logic.
 
 ---
-
-## Path Alias Configuration (`jsconfig.json`)
-
-To enable absolute imports according to this architecture, the root `jsconfig.json` is configured as:
-
-```json
-{
-  "compilerOptions": {
-    "baseUrl": "src",
-    "paths": {
-      "@app/*": ["app/*"],
-      "@auth/*": ["auth/*"],
-      "@features/*": ["features/*"],
-      "@shared/*": ["shared/*"],
-      "@seo/*": ["seo/*"]
-    }
-  },
-  "include": ["src"]
-}
-
-```
