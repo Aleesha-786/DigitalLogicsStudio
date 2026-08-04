@@ -1,10 +1,10 @@
 import '../../shared/styles/KMapGenerator.css';
 import React, { useState } from 'react';
-import { InputControls } from 'features/kmap/components/InputControls';
-import { KMapDisplay } from 'features/kmap/components/KMapDisplay';
-import { SimplifiedExpression } from 'features/kmap/components/SimplifiedExpression';
-import { GroupingGuide } from 'features/kmap/components/GroupingGuide';
-import { TruthTableDisplay } from 'features/kmap/components/TruthTableDisplay';
+import { InputControls } from './components/InputControls';
+import { KMapDisplay } from './components/KMapDisplay';
+import { SimplifiedExpression } from './components/SimplifiedExpression';
+import { GroupingGuide } from './components/GroupingGuide';
+import { TruthTableDisplay } from './components/TruthTableDisplay';
 import { useKMapLogic } from '../../shared/hooks/useKMapLogic';
 import Boolforge from '../boolforge/Boolforge';
 import RelatedSeoLinks from '../../shared/seo/RelatedSeoLinks';

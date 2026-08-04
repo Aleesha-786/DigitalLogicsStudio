@@ -1,5 +1,5 @@
 export const cleanBin = (v) =>
-  (v || "").toString().trim().replace(/[^01]/g, "");
+  (v || ").toString().trim().replace(/[^01]/g, ");
 
 export const halfAdder = (a, b) => {
   const A = Number(cleanBin(a) || "0");

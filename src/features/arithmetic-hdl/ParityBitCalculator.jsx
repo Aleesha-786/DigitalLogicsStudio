@@ -15,7 +15,7 @@ export default function ParityBitCalculator() {
     const [showOddTable, setShowOddTable] = useState(false);
 
     const calculate7BitBinary = (decimal) => {
-        if (!decimal || isNaN(decimal) || decimal === '') return '';
+        if (!decimal || isNaN(decimal) || decimal === ') return ';
         const num = parseInt(decimal, 10);
         if (num < 0 || num > 127) return 'Out of range';
         return num.toString(2).padStart(7, '0');

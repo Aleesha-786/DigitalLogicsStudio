@@ -1,5 +1,5 @@
-import { coalCourseParts } from "./coalCourseOutline";
-import { getCoalTopicPath } from "../utils/coalCourseUtils";
+import { coalCourseParts } from '"../../shared/data/coalCourseOutline"';
+import { getCoalTopicPath } from '"../../shared/utils/coalCourseUtils"';
 
 const PART_ACCENTS = ["violet", "cyan", "amber", "blue", "emerald", "rose", "indigo"];
 const PART_ICONS = ["Cpu", "MonitorPlay", "BookOpen", "GitBranch", "Layers3", "HardDrive", "Zap"];

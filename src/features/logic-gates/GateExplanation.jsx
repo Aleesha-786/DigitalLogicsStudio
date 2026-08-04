@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import AdvancedLogicLayout from '../advanced-logic/AdvancedLogicLayout';
+import AdvancedLogicLayout from '../../shared/layouts/AdvancedLogicLayout';
 import ExplanationBlock from '../../shared/components/ExplanationBlock';
 import CircuitModal from '../../shared/components/CircuitModal';
 import { gateSymbols } from '../../shared/data/gates';
