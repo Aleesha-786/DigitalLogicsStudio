@@ -1,4 +1,4 @@
-import '../styles/KMapGenerator.css';
+import '../../../shared/styles/KMapGenerator.css';
 import { useState, useEffect, useRef } from 'react';
 import { useSpeechSynthesis } from '../../../shared/hooks/useSpeechSynthesis';
 import { WhiteboardAnimation } from './WhiteboardAnimation';

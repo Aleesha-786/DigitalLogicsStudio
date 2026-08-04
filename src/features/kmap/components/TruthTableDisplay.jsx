@@ -1,4 +1,4 @@
-import '../styles/KMapGenerator.css';
+import '../../../shared/styles/KMapGenerator.css';
 import React, { useState, memo } from "react";
 import { Maximize2, X } from 'lucide-react';
 import { evaluate } from 'mathjs';
