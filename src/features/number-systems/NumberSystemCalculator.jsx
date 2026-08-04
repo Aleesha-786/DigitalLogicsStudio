@@ -536,7 +536,7 @@ export default function NumberSystemCalculator() {
     );
   };
 
-  const renderSchoolRow = (value, label = ", tone = ") => {
+  const renderSchoolRow = (value, label = "", tone = "") => {
     const text = value.toString().toUpperCase();
 
     return (

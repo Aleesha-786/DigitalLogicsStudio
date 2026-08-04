@@ -478,7 +478,7 @@ function evaluateCircuit(ns, placedICs, sources, icRegs) {
           const lampTest = rd(logic.lt) === 0;
           // Standard 7-seg patterns for 0-9 (1 = segment ON), blank otherwise.
           const PATTERNS = { 0: "abcdef", 1: "bc", 2: "abdeg", 3: "abcdg", 4: "bcfg", 5: "acdfg", 6: "acdefg", 7: "abc", 8: "abcdefg", 9: "abcdfg" };
-          const on = lampTest ? "abcdefg" : blanked ? " : (PATTERNS[bcd] || ");
+          const on = lampTest ? "abcdefg" : blanked ? "" : (PATTERNS[bcd] || "");
           Object.entries(logic.seg).forEach(([seg, pinNum]) => wr(pinNum, on.includes(seg) ? 0 : 1)); // active-low outputs
         }
         if (logic.msi === "counter") {

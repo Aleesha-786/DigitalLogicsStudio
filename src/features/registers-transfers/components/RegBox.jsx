@@ -6,7 +6,7 @@ import React from "react";
  * variant: "primary" | "warning" | "success" | "info"
  */
 const RegBox = ({ data = {} }) => {
-  const { icon = "📦", title = ", description = ", variant = "primary" } = data;
+  const { icon = "📦", title = "", description = "", variant = "primary" } = data;
   return (
     <div className={`reg-box reg-box--${variant}`}>
       <div className="reg-box-icon">{icon}</div>

@@ -80,7 +80,7 @@ const StandardForms = () => {
       </ControlPanel>
 
       <ExplanationBlock title="SOP Analysis">
-        <p className="explanation-intro">Current SOP terms: {sopTerms.map(t => t.map(l => l.v + (l.n ? "'" : ')).join(')).join(' + ') || '—'}</p>
+        <p className="explanation-intro">Current SOP terms: {sopTerms.map(t => t.map(l => l.v + (l.n ? "'" : '')).join('')).join(' + ') || '—'}</p>
         <div className="info-card">
           <h4>SOP Properties:</h4>
           <ul>

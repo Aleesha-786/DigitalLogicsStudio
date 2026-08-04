@@ -38,7 +38,7 @@ export default function NumberConverter() {
     };
 
     const updateFromDecimal = (value) => {
-        if (value === ') { setDecimal('); setBinary('); setOctal('); setHexadecimal(''); return; }
+        if (value === '') { setDecimal(''); setBinary(''); setOctal(''); setHexadecimal(''); return; }
         if (!/^-?\d*\.?\d*$/.test(value)) return;
         const num = parseFloat(value);
         if (isNaN(num)) return;
@@ -64,7 +64,7 @@ export default function NumberConverter() {
     };
 
     const updateFromBinary = (value) => {
-        if (value === ') { setDecimal('); setBinary('); setOctal('); setHexadecimal(''); return; }
+        if (value === '') { setDecimal(''); setBinary(''); setOctal(''); setHexadecimal(''); return; }
         if (!/^-?[01]*\.?[01]*$/.test(value)) return;
         const [intPart, fracPart] = value.replace('-', '').split('.');
         const intNum = intPart ? parseInt(intPart, 2) : 0;
@@ -84,7 +84,7 @@ export default function NumberConverter() {
     };
 
     const updateFromOctal = (value) => {
-        if (value === ') { setDecimal('); setBinary('); setOctal('); setHexadecimal(''); return; }
+        if (value === '') { setDecimal(''); setBinary(''); setOctal(''); setHexadecimal(''); return; }
         if (!/^-?[0-7]*\.?[0-7]*$/.test(value)) return;
         const [intPart, fracPart] = value.replace('-', '').split('.');
         const intNum = intPart ? parseInt(intPart, 8) : 0;
@@ -104,7 +104,7 @@ export default function NumberConverter() {
     };
 
     const updateFromHexadecimal = (value) => {
-        if (value === ') { setDecimal('); setBinary('); setOctal('); setHexadecimal(''); return; }
+        if (value === '') { setDecimal(''); setBinary(''); setOctal(''); setHexadecimal(''); return; }
         if (!/^-?[0-9A-Fa-f]*\.?[0-9A-Fa-f]*$/.test(value)) return;
         const [intPart, fracPart] = value.replace('-', '').split('.');
         const intNum = intPart ? parseInt(intPart, 16) : 0;
@@ -254,7 +254,7 @@ export default function NumberConverter() {
         }
 
         const integerPart = integer === 0 ? '0' : remainders.slice().reverse().join('');
-        const result = `${sign}${integerPart}${fractionDigits.length ? `.${fractionDigits.join(')}` : '}`;
+        const result = `${sign}${integerPart}${fractionDigits.length ? `.${fractionDigits.join('')}` : ''}`;
         steps.push(`${source.value || '0'} (DEC) = ${result} (${targetName.toUpperCase()}).`);
 
         return { result, steps };
@@ -270,7 +270,7 @@ export default function NumberConverter() {
         const integerGroups = paddedInteger.match(new RegExp(`.{1,${groupSize}}`, 'g')) || ['0'];
         const fractionGroups = paddedFraction.match(new RegExp(`.{1,${groupSize}}`, 'g')) || [];
         const convertGroup = (group) => parseInt(group, 2).toString(target.base).toUpperCase();
-        const result = `${parts.negative ? '-' : '}${integerGroups.map(convertGroup).join(').replace(/^0+(?=\w)/, '') || '0'}${fractionGroups.length ? `.${fractionGroups.map(convertGroup).join(')}` : '}`;
+        const result = `${parts.negative ? '-' : ''}${integerGroups.map(convertGroup).join('').replace(/^0+(?=\w)/, '') || '0'}${fractionGroups.length ? `.${fractionGroups.map(convertGroup).join('')}` : ''}`;
         const steps = [
             `Start with ${parts.display} in ${source.name}.`,
             `${target.name} digits use groups of ${groupSize} binary bits.`,
