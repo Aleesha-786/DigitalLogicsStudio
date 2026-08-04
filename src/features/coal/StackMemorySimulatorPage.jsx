@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Navbar } from "../home/Navbar";
+import { Navbar } from "../../shared/components/Navbar";
 import {
   Layers,
   Cpu,

@@ -106,7 +106,7 @@ export default function NumberSystemCalculator() {
       carry = newCarry;
     }
 
-    const resultStr = resultDigits.reverse().join("").replace(/^0+/, "") || "0";
+    const resultStr = resultDigits.reverse().join(").replace(/^0+/, ") || "0";
     const decimalValue = toDecimal(num1Str, base) + toDecimal(num2Str, base);
 
     return { result: resultStr, steps: stepData, decimal: decimalValue };
@@ -155,7 +155,7 @@ export default function NumberSystemCalculator() {
       borrow = newBorrow;
     }
 
-    const resultStr = resultDigits.reverse().join("").replace(/^0+/, "") || "0";
+    const resultStr = resultDigits.reverse().join(").replace(/^0+/, ") || "0";
 
     return {
       result: resultStr,

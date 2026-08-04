@@ -2,10 +2,10 @@ import React, { useEffect } from "react";
 import { useLocation } from "react-router-dom";
 import CoalLayout from "./CoalLayout";
 import CoreTopicsSection from "../../shared/components/topics/CoreTopicsSection";
-import { buildCoalCoreTopics } from "../../shared/data/coalCoreTopics";
+import { buildCoalCoreTopics } from "./coalCoreTopics";
 import { coalCourseMeta, coalCourseParts } from "../../shared/data/coalCourseOutline";
 import { getAllCoalModules } from "../../shared/utils/coalCourseUtils";
-import { useCoalScrollSpy } from "../../shared/hooks/useCoalScrollSpy";
+import { useCoalScrollSpy } from "./useCoalScrollSpy";
 import "./CoalLayout.css";
 
 const coalTopics = buildCoalCoreTopics();

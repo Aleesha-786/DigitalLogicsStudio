@@ -1,11 +1,11 @@
 import React, { useState, useRef, useEffect, useCallback } from "react";
 import { gateSymbols, IC_META, IC_TYPES } from "../../shared/data/gates";
-import { TruthTableGenerator } from "../../shared/components/TruthTable";
-import { SaveAndLoad } from "../../shared/components/SaveAndLoad";
+import { TruthTableGenerator } from "./components/TruthTable";
+import { SaveAndLoad } from "./components/SaveAndLoad";
 import { parseExpressionToCircuit } from "../../shared/utils/expressionParser";
 import RelatedSeoLinks from "../../shared/seo/RelatedSeoLinks";
-import { Navbar } from "../home/Navbar";
-import Footer from "../home/Footer";
+import { Navbar } from "../../shared/components/Navbar";
+import Footer from "../../shared/components/Footer";
 import { useTheme } from "../../shared/context/ThemeContext";
 import { getCircuitHint } from "../../shared/services/circuitMindService";
 import { generateAiCircuit } from "../../shared/services/aiService";

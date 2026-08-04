@@ -1,7 +1,7 @@
 import React from "react";
 import { Link, Navigate } from "react-router-dom";
-import { Navbar } from "../../features/home/Navbar";
-import Footer from "../../features/home/Footer";
+import { Navbar } from "../../shared/components/Navbar";
+import Footer from "../../shared/components/Footer";
 import { useTheme } from "../../shared/context/ThemeContext";
 import { useAuth } from "../context/AuthContext";
 import authService from "../../shared/services/authService";

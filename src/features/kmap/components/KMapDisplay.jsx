@@ -1,4 +1,4 @@
-import '../styles/KMapGenerator.css';
+import '../../../shared/styles/KMapGenerator.css';
 import { memo } from 'react';
 
 const KMapDisplayBase = ({

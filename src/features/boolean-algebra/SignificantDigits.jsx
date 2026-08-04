@@ -12,7 +12,7 @@ const countSignificantDigits = (value) => {
   if (sciMatch) {
     const significand = sciMatch[1].replace(/[+-]/g, "");
     const digitsOnly = significand.replace(".", "");
-    const stripped = digitsOnly.replace(/^0+/, "").replace(/0+$/, "");
+    const stripped = digitsOnly.replace(/^0+/, ").replace(/0+$/, ");
     if (!stripped) return { count: 0, msd: null, lsd: null, cleaned: "" };
     return {
       count: stripped.length,

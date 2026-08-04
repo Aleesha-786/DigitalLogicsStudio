@@ -1,4 +1,4 @@
-import '../styles/KMapGenerator.css';
+import '../../../shared/styles/KMapGenerator.css';
 import React from 'react';
 import {
     Cpu, 

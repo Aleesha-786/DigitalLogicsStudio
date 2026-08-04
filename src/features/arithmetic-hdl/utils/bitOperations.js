@@ -1,5 +1,5 @@
 export const normalizeBits = (bin, width) => {
-  const cleaned = (bin || "").replace(/[^01]/g, "");
+  const cleaned = (bin || ").replace(/[^01]/g, ");
   if (!width || width < cleaned.length) return cleaned;
   return cleaned.padStart(width, "0");
 };

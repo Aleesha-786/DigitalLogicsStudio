@@ -8,8 +8,8 @@ import {
   Layers3,
   Sparkles,
 } from "lucide-react";
-import { Navbar } from "../home/Navbar";
-import Footer from "../home/Footer";
+import { Navbar } from "../../shared/components/Navbar";
+import Footer from "../../shared/components/Footer";
 import { useTheme } from "../../shared/context/ThemeContext";
 import usePointerGlow from "../../shared/hooks/usePointerGlow";
 import CoreTopicsSection from "../../shared/components/topics/CoreTopicsSection";

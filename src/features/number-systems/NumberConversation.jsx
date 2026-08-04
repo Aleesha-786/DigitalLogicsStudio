@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import NSLayout from './components/NSLayout';
-import { QuaternarySection } from '../../shared/components/QuaternarySection';
+import { QuaternarySection } from './components/QuaternarySection';
 
 export default function NumberConverter() {
     const [decimal, setDecimal] = useState('');
@@ -300,9 +300,9 @@ export default function NumberConverter() {
             digit,
             binary: padDigit(digit),
         }));
-        const integerBinary = integerGroups.map((group) => group.binary).join('').replace(/^0+(?=\d)/, '') || '0';
+        const integerBinary = integerGroups.map((group) => group.binary).join(').replace(/^0+(?=\d)/, ') || '0';
         const fractionBinary = fractionGroups.map((group) => group.binary).join('');
-        const result = `${parts.negative ? '-' : ''}${integerBinary}${fractionBinary ? `.${fractionBinary}` : ''}`;
+        const result = `${parts.negative ? '-' : '}${integerBinary}${fractionBinary ? `.${fractionBinary}` : '}`;
         const steps = [
             `Start with ${parts.display} in ${source.name}.`,
             `Direct trick: each ${source.name} digit maps to exactly ${groupSize} binary bits, so you do not need to convert through Decimal first.`,
