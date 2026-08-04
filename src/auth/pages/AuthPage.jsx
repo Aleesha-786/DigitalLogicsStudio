@@ -1,8 +1,8 @@
 import React from "react";
 import { Link, Navigate, useLocation, useNavigate } from "react-router-dom";
 import { Mail, Lock, User, Eye, EyeOff, AlertCircle, Loader2 } from "lucide-react";
-import { Navbar } from "../../features/home/Navbar";
-import Footer from "../../features/home/Footer";
+import { Navbar } from "../../shared/components/Navbar";
+import Footer from "../../shared/components/Footer";
 import { useTheme } from "../../shared/context/ThemeContext";
 import { useAuth } from "../context/AuthContext";
 import "./Auth.css";

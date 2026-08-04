@@ -1,5 +1,5 @@
 import React from "react";
-import PremiumLearningShell from "../../shared/components/topics/PremiumLearningShell";
+import PremiumLearningShell from "../components/topics/PremiumLearningShell";
 
 const advancedLogicPages = [
   {

@@ -1,8 +1,8 @@
 import React, { useState } from 'react';
 import { ChevronDown, Cpu, Binary, Calculator, BookOpen, Lightbulb, CheckCircle } from 'lucide-react';
 import { logic_and_computer_design_fundamental } from 'dld-books';
-import { Navbar } from '../home/Navbar';
-import Footer from '../home/Footer';
+import { Navbar } from '../../shared/components/Navbar';
+import Footer from '../../shared/components/Footer';
 import { useTheme } from '../../shared/context/ThemeContext';
 
 const Ch2ProblemSolver = () => {

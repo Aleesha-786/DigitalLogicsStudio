@@ -18,8 +18,8 @@ import {
   PolarAngleAxis,
   PolarRadiusAxis,
 } from "recharts";
-import { Navbar } from "../../features/home/Navbar";
-import Footer from "../../features/home/Footer";
+import { Navbar } from "../../shared/components/Navbar";
+import Footer from "../../shared/components/Footer";
 import { useTheme } from "../../shared/context/ThemeContext";
 import { useAuth } from "../context/AuthContext";
 import progressService from "../../shared/services/progressService";

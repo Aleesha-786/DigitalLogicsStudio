@@ -1,9 +1,9 @@
 import React from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { ArrowRight, BookOpen, Clock3, Search, Sparkles } from "lucide-react";
-import { Navbar } from "./Navbar";
+import { Navbar } from "../../shared/components/Navbar";
 import HeroSection from "./HeroSection";
-import Footer from "./Footer";
+import Footer from "../../shared/components/Footer";
 import FeaturedToolsSection from "./FeaturedToolsSection";
 import homeData from "./HomeData";
 import { useTheme } from "../../shared/context/ThemeContext";
