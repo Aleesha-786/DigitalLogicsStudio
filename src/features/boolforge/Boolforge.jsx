@@ -1,7 +1,7 @@
 import React, { useState, useRef, useEffect, useCallback } from "react";
 import { gateSymbols, IC_META, IC_TYPES } from "../../shared/data/gates";
-import { TruthTableGenerator } from "../../shared/components/TruthTable";
-import { SaveAndLoad } from "../../shared/components/SaveAndLoad";
+import { TruthTableGenerator } from "features/boolforge/components/TruthTable";
+import { SaveAndLoad } from "features/boolforge/components/SaveAndLoad";
 import { parseExpressionToCircuit } from "../../shared/utils/expressionParser";
 import RelatedSeoLinks from "../../shared/seo/RelatedSeoLinks";
 import { Navbar } from "../../shared/components/Navbar";

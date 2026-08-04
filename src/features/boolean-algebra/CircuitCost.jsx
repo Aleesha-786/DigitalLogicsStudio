@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import AdvancedLogicLayout from '../advanced-logic/AdvancedLogicLayout';
 import ExplanationBlock from '../../shared/components/ExplanationBlock';
-import InteractiveCalculator from '../../shared/components/InteractiveCalculator';
+import InteractiveCalculator from 'features/boolean-algebra/components/InteractiveCalculator';
 import CircuitModal from '../../shared/components/CircuitModal';
 
 const CircuitCost = () => {

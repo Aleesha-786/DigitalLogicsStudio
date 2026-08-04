@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import AdvancedLogicLayout from '../advanced-logic/AdvancedLogicLayout';
 import ExplanationBlock from '../../shared/components/ExplanationBlock';
-import InteractiveDemo from '../../shared/components/InteractiveDemo';
+import InteractiveDemo from 'features/logic-gates/components/InteractiveDemo';
 import CircuitModal from '../../shared/components/CircuitModal';
 
 const OddFunction = () => {

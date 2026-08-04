@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import NSLayout from "./components/NSLayout";
 import ControlPanel from "../../shared/components/ControlPanel";
 import ControlGroup from "../../shared/components/ControlGroup";
-import ResultCard from "../../shared/components/ResultCard";
+import ResultCard from "features/number-systems/components/ResultCard";
 import ExplanationBlock from "../../shared/components/ExplanationBlock";
 
 const parseSignedInput = (value) => {
