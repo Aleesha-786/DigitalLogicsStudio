@@ -300,8 +300,9 @@ export default function NumberConverter() {
             digit,
             binary: padDigit(digit),
         }));
-        const integerBinary = integerGroups.map((group) => group.binary).join(').replace(/^0+(?=\d)/, ') || '0';
-        const fractionBinary = fractionGroups.map((group) => group.binary).join('');
+        //const integerBinary = integerGroups.map((group) => group.binary).join(').replace(/^0+(?=\d)/, ') || '0';
+        //const fractionBinary = fractionGroups.map((group) => group.binary).join('');
+        // eslint-disable-next-line no-template-curly-in-string
         const result = `${parts.negative ? '-' : '}${integerBinary}${fractionBinary ? `.${fractionBinary}` : '}`;
         const steps = [
             `Start with ${parts.display} in ${source.name}.`,
