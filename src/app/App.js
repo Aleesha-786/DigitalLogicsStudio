@@ -75,7 +75,7 @@ const DldMemoryTopicPage = lazy(() => import("../features/theory/DldMemoryTopicR
 const ParityBitCalculator = lazy(() => import("../features/arithmetic-hdl/ParityBitCalculator"));
 const KMapGenerator = lazy(() => import("../features/kmap/KmapGenerator"));
 const GateExplanation = lazy(() => import("../features/logic-gates/GateExplanation"));
-const TimeDiagrams = lazy(() => import("../features/sequential-circuits/TimeDiagrams"));
+const TimeDiagrams = lazy(() => import("../features/TimeDiagrams/TimeDiagrams"));
 const BooleanAlgebraOverview = lazy(
   () => import("../features/boolean-algebra/BooleanAlgebraOverview"),
 );
