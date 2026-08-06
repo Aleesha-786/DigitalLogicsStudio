@@ -1,7 +1,7 @@
 import { useEffect } from "react";
 import { Link, useLocation } from "react-router-dom";
 import { ArrowRight, ArrowLeft, Cpu } from "lucide-react";
-import { Navbar } from "../../shared/components/Navbar";
+import Navbar from "../../shared/components/Navbar";
 import Footer from "../../shared/components/Footer";
 import { useTheme } from "../../shared/context/ThemeContext";
 import usePointerGlow from "../../shared/hooks/usePointerGlow";
