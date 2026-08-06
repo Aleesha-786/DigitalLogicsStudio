@@ -9,7 +9,7 @@ import Footer from "../../shared/components/Footer";
 import { useTheme } from "../../shared/context/ThemeContext";
 import { getCircuitHint } from "../../shared/services/circuitMindService";
 import { generateAiCircuit } from "../../shared/services/aiService";
-import "../../shared/assets/css/Boolforge.css";
+import "./Boolforge.css";
 
 // ─── Constants ────────────────────────────────────────────────────────────────
 const MAX_GATE_INPUTS = 8;
