@@ -4,7 +4,7 @@ import { useAuth } from "../../../auth/context/AuthContext";
 
 import { BrandLogo } from "./BrandLogo";
 import { ProfileDropdown } from "./ProfileDropdown";
-import { ThemeToggler } from "./ThemeToggler";
+import ThemeToggler from "./ThemeToggler";
 
 const DLD_NAV_LINKS = [
   { to: "/problems", label: "Problems" },
