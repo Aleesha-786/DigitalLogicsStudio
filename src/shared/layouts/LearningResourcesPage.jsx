@@ -8,7 +8,7 @@ import {
   Layers3,
   Sparkles,
 } from "lucide-react";
-import { Navbar } from "../components/Navbar";
+import { Navbar } from "../components/navbar/Navbar";
 import Footer from "../components/Footer";
 import { useTheme } from "../context/ThemeContext";
 import usePointerGlow from "../hooks/usePointerGlow";
