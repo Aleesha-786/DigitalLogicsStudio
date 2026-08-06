@@ -4,21 +4,29 @@ import Navbar from "../../shared/components/Navbar";
 import Footer from "../../shared/components/Footer";
 import { useTheme } from "../../shared/context/ThemeContext";
 import { useAuth } from "../../auth/context/AuthContext";
-import trainerBoardService from "../../shared/services/trainerBoardService";
+import trainerBoardService from "./trainerBoardService";
 
-import { ICS, IC_LOGIC } from "./utils/icCatalog";
-import { buildNetlist, readNode } from "./utils/netlist";
-import { evaluateCircuit, advanceSequential } from "./utils/simulationEngine";
-import { getBBDimensions, snapICPosition } from "./utils/breadboardLayout";
+import { 
+  ICS, 
+  IC_LOGIC,
+  buildNetlist, 
+  readNode,
+  evaluateCircuit, 
+  advanceSequential,
+  getBBDimensions, 
+  snapICPosition,
+} from "./utils";
 
-import { Seg7 } from "./components/Seg7";
-import { LED } from "./components/LED";
-import { ToggleSW } from "./components/ToggleSW";
-import { Breadboard } from "./components/Breadboard";
-import { WireOverlay } from "./components/WireOverlay";
-import { TrayIC } from "./components/TrayIC";
-import { DatasheetPopup } from "./components/DatasheetPopup";
-import Sec from "./components/Sec";
+import { 
+  Seg7,
+  LED,
+  ToggleSW,
+  TrayIC,
+  DatasheetPopup,
+  Sec,
+  Breadboard,
+  WireOverlay,
+} from "./components";
 
 /* ================================================================
    IT-300 Digital Logic Training System — Infinit Technologies
