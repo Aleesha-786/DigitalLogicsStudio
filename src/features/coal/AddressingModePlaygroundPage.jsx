@@ -8,7 +8,7 @@ import usePointerGlow from "../../shared/hooks/usePointerGlow";
 import { coalCourseMeta } from "../../shared/data/coalCourseOutline";
 import AddressingModePlayground from "./components/AddressingModePlayground";
 import "../home/Home.css";
-import "../learning-resources/LearningResourcesPage.css";
+import "../../shared/styles/LearningResourcesPage.css";
 
 const COAL_ACCENT = coalCourseMeta.accent;
 

@@ -20,7 +20,7 @@ import {
 } from 'lucide-react';
 import './StackMemorySimulatorPage.css';
 import "../home/Home.css";
-import "../learning-resources/LearningResourcesPage.css";
+import "../../shared/styles/LearningResourcesPage.css";
 import { useTheme } from "../../shared/context/ThemeContext";
 import usePointerGlow from "../../shared/hooks/usePointerGlow";
 import { coalCourseMeta } from "../../shared/data/coalCourseOutline"; 

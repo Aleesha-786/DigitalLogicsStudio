@@ -68,7 +68,7 @@ const RegSyncBinaryCounters = lazy(
 const ProblemSolver = lazy(() => import("../features/book/Ch1"));
 const Ch2ProblemSolver = lazy(() => import("../features/book/Ch2"));
 const LearningResourcesPage = lazy(
-  () => import("../features/learning-resources/LearningResourcesPage"),
+  () => import("../shared/layouts/LearningResourcesPage"),
 );
 const CoalHomePage = lazy(() => import("../features/coal/CoalHomePage"));
 const CoalTheoryPage = lazy(() => import("../features/coal/CoalTheoryPage"));

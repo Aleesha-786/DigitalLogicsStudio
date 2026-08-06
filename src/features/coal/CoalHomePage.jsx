@@ -15,7 +15,7 @@ import usePointerGlow from "../../shared/hooks/usePointerGlow";
 import { coalCourseParts, coalCourseMeta } from "../../shared/data/coalCourseOutline";
 import { getAllCoalModules } from "../../shared/utils/coalCourseUtils";
 import "../home/Home.css";
-import "../learning-resources/LearningResourcesPage.css";
+import "../../shared/styles/LearningResourcesPage.css";
 
 const COAL_ACCENT = coalCourseMeta.accent;
 
