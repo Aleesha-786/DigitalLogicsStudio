@@ -4,7 +4,7 @@ import { TruthTableGenerator } from "./components/TruthTable";
 import { SaveAndLoad } from "./components/SaveAndLoad";
 import { parseExpressionToCircuit } from "../../shared/utils/expressionParser";
 import RelatedSeoLinks from "../../shared/seo/RelatedSeoLinks";
-import { Navbar } from "../../shared/components/navbar/Navbar";
+import { Navbar } from "../../shared/components/Navbar";
 import Footer from "../../shared/components/Footer";
 import { useTheme } from "../../shared/context/ThemeContext";
 import { getCircuitHint } from "../../shared/services/circuitMindService";

@@ -8,7 +8,7 @@ import {
   Wrench,
   Trophy,
 } from "lucide-react";
-import { Navbar } from "../../shared/components/navbar/Navbar";
+import { Navbar } from "../../shared/components/Navbar";
 import Footer from "../../shared/components/Footer";
 import { useTheme } from "../../shared/context/ThemeContext";
 import usePointerGlow from "../../shared/hooks/usePointerGlow";
