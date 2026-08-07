@@ -562,15 +562,20 @@
   visibility: hidden !important;
 }
 
+/* Remove reserved left gutter (desktop permanent sidebar) so content can expand */
+.search-embedded-preview .afhdl-body {
+  padding-left: 0 !important;
+}
+
 /* Make the main content take the full width inside the preview frame */
 .search-embedded-preview .afhdl-main,
 .search-embedded-preview main,
 .search-embedded-preview .topic-content,
 .search-embedded-preview .page-main {
   width: 100% !important;
-  max-width: 100% !important;
+  max-width: none !important;
   margin: 0 !important;
-  padding: 0 !important;
+  padding: 1rem 1.25rem !important; /* keep internal spacing */
 }
 
 /* Tame hero/breadcrumb spacing inside the preview */
@@ -602,6 +607,15 @@
 .search-embedded-preview .afhdl-content,
 .search-embedded-preview .afhdl-article,
 .search-embedded-preview .content {
+  padding: 0 !important;
+}
+
+/* If the embedded page still uses an inner constrained container, center it visually */
+.search-embedded-preview .afhdl-main .container,
+.search-embedded-preview .afhdl-main .content-inner,
+.search-embedded-preview .afhdl-main .topic-wrapper {
+  max-width: 100% !important;
+  margin: 0 !important;
   padding: 0 !important;
 }
 
