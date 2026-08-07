@@ -1,2 +1,2 @@
-export { HeroSection } from './HeroSection';
-export { FeaturedToolsSection } from './FeaturedToolsSection';
+export { default as HeroSection } from './HeroSection';
+export { default as FeaturedToolsSection } from './FeaturedToolsSection';
