@@ -38,11 +38,7 @@
   background: var(--afhdl-surface-strong);
 }
 
-.premium-topic-shell.ba-layout,
-.premium-topic-shell.ns-layout,
-.premium-topic-shell.seq-layout,
-.premium-topic-shell.reg-layout,
-.premium-topic-shell.mem-layout {
+.premium-topic-shell {
   background: var(--afhdl-bg);
   color: var(--afhdl-text);
 }

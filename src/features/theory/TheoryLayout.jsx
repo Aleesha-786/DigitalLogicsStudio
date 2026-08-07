@@ -1,5 +1,5 @@
 import { useLocation } from "react-router-dom";
-import PremiumLearningShell from "../../shared/components/topics/PremiumLearningShell";
+import TopicLayout from "../../shared/components/topics/TopicLayout";
 import TheorySidebar from "./components/TheorySidebar";
 import "./TheoryLayout.css";
 
@@ -49,7 +49,7 @@ export default function TheoryLayout({ track, children, title, subtitle, intro, 
           serves mobile. */}
       <TheorySidebar track={track} />
 
-      <PremiumLearningShell
+      <TopicLayout
         title={title}
         subtitle={subtitle}
         intro={intro}
@@ -70,7 +70,7 @@ export default function TheoryLayout({ track, children, title, subtitle, intro, 
         tracking={{ topic, pathToSubtopicId: utils.PATH_TO_SUBTOPIC_ID }}
       >
         {children}
-      </PremiumLearningShell>
+      </TopicLayout>
     </>
   );
 }

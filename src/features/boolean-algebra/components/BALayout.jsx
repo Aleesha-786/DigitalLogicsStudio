@@ -1,29 +1,10 @@
 import React from "react";
-import PremiumLearningShell from "../../../shared/components/topics/PremiumLearningShell";
+import TopicLayout from "../../../shared/components/topics/TopicLayout";
 import "./BALayout.css";
-import { baPages } from "./baConfig";
-
-const PATH_TO_SUBTOPIC_ID = {
-  "/boolean/overview": "overview",
-  "/boolean/identities": "identities",
-  "/boolean/laws": "laws",
-  "/boolean/duality": "duality",
-  "/boolean/consensus": "consensus",
-  "/boolean/complement": "complement",
-  "/boolean/minterms": "minterms",
-  "/boolean/maxterms": "maxterms",
-  "/boolean/minterms-maxterms": "relation",
-  "/boolean/significant-digits": "significant-digits",
-};
-
-const BA_TOPIC = {
-  id: "boolean-algebra",
-  title: "BOOLEAN ALGEBRA",
-  links: Object.values(PATH_TO_SUBTOPIC_ID).map((id) => ({ id })),
-};
+import { baPages, BA_TOPIC, BA_PATH_TO_SUBTOPIC_ID } from "./baConfig";
 
 const BALayout = ({ title, subtitle, intro, highlights = [], children }) => (
-  <PremiumLearningShell
+  <TopicLayout
     title={title}
     subtitle={subtitle}
     intro={intro}
@@ -38,11 +19,11 @@ const BALayout = ({ title, subtitle, intro, highlights = [], children }) => (
     rootClassName="ba-layout"
     tracking={{
       topic: BA_TOPIC,
-      pathToSubtopicId: PATH_TO_SUBTOPIC_ID,
+      pathToSubtopicId: BA_PATH_TO_SUBTOPIC_ID,
     }}
   >
     {children}
-  </PremiumLearningShell>
+  </TopicLayout>
 );
 
 export default BALayout;
