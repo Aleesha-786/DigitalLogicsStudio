@@ -21,7 +21,7 @@
   flex-wrap: wrap;
   gap: 1rem;
   font-size: 0.85rem;
-  color: var(--muted, #94a3b8);
+  color: var(--afhdl-muted, #88a0bf);
 }
 
 .theory-topic-hero__meta span {
@@ -29,3 +29,4 @@
   align-items: center;
   gap: 0.35rem;
 }
+

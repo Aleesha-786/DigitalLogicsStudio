@@ -75,16 +75,6 @@ export default function createCourseUtils({
     );
   }
 
-  function buildPartSidebarPages() {
-    return courseParts.map((part) => ({
-      path: `${overviewPath}#part-${part.id}`,
-      label: `Part ${part.part}`,
-      description: part.title,
-      partId: part.id,
-      partNumber: part.part,
-    }));
-  }
-
   // subtopicId is `module.subtopicId` (falling back to `module.slug`),
   // NOT the full path — this must match whatever ID scheme a
   // migrated part's original standalone Layout used, so returning
@@ -135,7 +125,6 @@ export default function createCourseUtils({
     getModuleBySlug,
     getTopicPath,
     buildTopicPages,
-    buildPartSidebarPages,
     getPartForPath,
     isPartSidebarActive,
     isPartSidebarDone,
@@ -143,3 +132,4 @@ export default function createCourseUtils({
     overviewPath,
   };
 }
+

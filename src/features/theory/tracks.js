@@ -40,7 +40,7 @@ export const TRACKS = {
     rootClassName: "theory-layout theory-layout--dld",
     heroKicker: "Digital Logic Design",
     sidebarTitle: "DLD Theory",
-    sidebarCopy: "Every DLD chapter in one place — pick a part, then a topic, and track your progress as you go.",
+    sidebarCopy: "Every topic in this part, in order — track your progress as you go.",
     // DLD tracks progress per-part (matching each part's original
     // standalone layout), not under one shared topic id, so returning
     // users' already-saved progress isn't reset by unification.
@@ -75,7 +75,7 @@ export const TRACKS = {
     rootClassName: "theory-layout theory-layout--coal",
     heroKicker: "Computer Organization & Assembly",
     sidebarTitle: "COAL Theory",
-    sidebarCopy: "Every COAL chapter in one place — pick a part, then a topic, and track your progress as you go.",
+    sidebarCopy: "Every topic in this part, in order — track your progress as you go.",
     progressTopicId: "coal-theory",
     parentProgressTopicId: "coal-theory",
     // COAL's hero chapter-dots span the whole course — matches its
@@ -94,3 +94,4 @@ export const TRACKS = {
 export function getTrack(id) {
   return TRACKS[id] || TRACKS.dld;
 }
+

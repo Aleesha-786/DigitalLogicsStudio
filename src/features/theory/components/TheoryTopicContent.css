@@ -11,12 +11,20 @@
    ════════════════════════════════════════════════════════════════ */
 
 .theory-topic-content {
-  --t-accent: var(--accent, #5b8cff);
-  --t-accent-2: var(--accent-2, #818cf8);
-  --t-text: var(--text, #e5edf8);
-  --t-muted: var(--muted, #9fb0c8);
-  --t-border: var(--border-color, rgba(148, 163, 184, 0.16));
-  --t-card-bg: var(--card-bg, rgba(255, 255, 255, 0.03));
+  /* NOTE: previously fell back to var(--accent)/var(--text)/etc — those
+     generic names are only ever defined by SeqLayout.css, never by
+     .theory-layout/.coal-layout (which are built on the afhdl/premium-
+     topic-shell base). So this always silently used the hardcoded dark
+     fallback values below, even in light theme — that's why body text
+     stayed near-white on a light background. Pointing at --afhdl-*
+     (which AFHDLLayout.css properly themes for both light and dark)
+     fixes it; the hex fallbacks now only matter if that's ever missing. */
+  --t-accent: var(--afhdl-accent, #5b8cff);
+  --t-accent-2: var(--afhdl-accent, #5b8cff);
+  --t-text: var(--afhdl-text, #e5edf8);
+  --t-muted: var(--afhdl-muted, #9fb0c8);
+  --t-border: var(--afhdl-border, rgba(148, 163, 184, 0.16));
+  --t-card-bg: var(--afhdl-surface-soft, rgba(255, 255, 255, 0.03));
   color: var(--t-text);
   font-size: 0.98rem;
   line-height: 1.7;
@@ -439,3 +447,4 @@
   display: flex;
   gap: 0.6rem;
 }
+
