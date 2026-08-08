@@ -1,7 +1,7 @@
 import React from "react";
-import TopicLayout from "../../../shared/components/topics/TopicLayout";
+import TopicLayout from "../../shared/components/topics/TopicLayout";
 import "./BALayout.css";
-import { baPages, BA_TOPIC, BA_PATH_TO_SUBTOPIC_ID } from "./baConfig";
+import { baPages, BA_TOPIC, BA_PATH_TO_SUBTOPIC_ID } from "./components/baConfig";
 
 const BALayout = ({ title, subtitle, intro, highlights = [], children }) => (
   <TopicLayout
