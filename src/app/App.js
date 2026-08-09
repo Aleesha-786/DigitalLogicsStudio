@@ -41,143 +41,143 @@ const InstructionLaboratoryPage = lazy(
   () => import("../features/coal/InstructionLaboratoryPage"),
 );
 const RegCounters = lazy(
-  () => import("../features/registers-transfers/RegCounters"),
+  () => import("../features/dld-theory/registers-transfers/RegCounters"),
 );
 const RegSyncAsync = lazy(
-  () => import("../features/registers-transfers/RegSyncAsync"),
+  () => import("../features/dld-theory/registers-transfers/RegSyncAsync"),
 );
 const RegShiftRegisters = lazy(
-  () => import("../features/registers-transfers/RegShiftRegisters"),
+  () => import("../features/dld-theory/registers-transfers/RegShiftRegisters"),
 );
-const RegIntro = lazy(() => import("../features/registers-transfers/RegIntro"));
+const RegIntro = lazy(() => import("../features/dld-theory/registers-transfers/RegIntro"));
 const RegSerialShift = lazy(
-  () => import("../features/registers-transfers/RegSerialShift"),
+  () => import("../features/dld-theory/registers-transfers/RegSerialShift"),
 );
 const RegLoading = lazy(
-  () => import("../features/registers-transfers/RegLoading"),
+  () => import("../features/dld-theory/registers-transfers/RegLoading"),
 );
 const RegParallel = lazy(
-  () => import("../features/registers-transfers/RegParallel"),
+  () => import("../features/dld-theory/registers-transfers/RegParallel"),
 );
 const RegRippleCounters = lazy(
-  () => import("../features/registers-transfers/RegRippleCounters"),
+  () => import("../features/dld-theory/registers-transfers/RegRippleCounters"),
 );
 const RegSyncBinaryCounters = lazy(
-  () => import("../features/registers-transfers/RegSyncBinaryCounters"),
+  () => import("../features/dld-theory/registers-transfers/RegSyncBinaryCounters"),
 );
 const ProblemSolver = lazy(() => import("../features/book/Ch1"));
 const Ch2ProblemSolver = lazy(() => import("../features/book/Ch2"));
-const DldHomeRoute = lazy(() => import("../features/theory/DldHomeRoute"));
+const DldHomeRoute = lazy(() => import("../shared/layouts/DldHomeRoute"));
 const CoalHomeRoute = lazy(() => import("../features/coal/CoalHomeRoute"));
 const CoalPracticalPage = lazy(() => import("../features/coal/CoalPracticalPage"));
 const CoalTopicPageRoute = lazy(() => import("../features/coal/CoalTopicPageRoute"));
-const DldMemoryTopicPage = lazy(() => import("../features/theory/DldMemoryTopicRoute"));
-const ParityBitCalculator = lazy(() => import("../features/arithmetic-hdl/ParityBitCalculator"));
+const DldMemoryTopicPage = lazy(() => import("../shared/layouts/DldMemoryTopicRoute"));
+const ParityBitCalculator = lazy(() => import("../features/dld-theory/arithmetic-hdl/ParityBitCalculator"));
 const KMapGenerator = lazy(() => import("../features/kmap/KmapGenerator"));
-const GateExplanation = lazy(() => import("../features/logic-gates/GateExplanation"));
+const GateExplanation = lazy(() => import("../features/dld-theory/logic-gates/GateExplanation"));
 const TimeDiagrams = lazy(() => import("../features/TimeDiagrams/TimeDiagrams"));
 const BooleanAlgebraOverview = lazy(
-  () => import("../features/boolean-algebra/BooleanAlgebraOverview"),
+  () => import("../features/dld-theory/boolean-algebra/BooleanAlgebraOverview"),
 );
-const StandardForms = lazy(() => import("../features/boolean-algebra/StandardForms"));
-const CircuitCost = lazy(() => import("../features/boolean-algebra/CircuitCost"));
-const UniversalGates = lazy(() => import("../features/logic-gates/UniversalGates"));
-const OddFunction = lazy(() => import("../features/logic-gates/OddFunction"));
-const BooleanLaws = lazy(() => import("../features/boolean-algebra/BooleanLaws"));
+const StandardForms = lazy(() => import("../features/dld-theory/boolean-algebra/StandardForms"));
+const CircuitCost = lazy(() => import("../features/dld-theory/boolean-algebra/CircuitCost"));
+const UniversalGates = lazy(() => import("../features/dld-theory/logic-gates/UniversalGates"));
+const OddFunction = lazy(() => import("../features/dld-theory/logic-gates/OddFunction"));
+const BooleanLaws = lazy(() => import("../features/dld-theory/boolean-algebra/BooleanLaws"));
 const BooleanIdentities = lazy(
-  () => import("../features/boolean-algebra/BooleanIdentities"),
+  () => import("../features/dld-theory/boolean-algebra/BooleanIdentities"),
 );
-const MintermsPage = lazy(() => import("../features/boolean-algebra/MintermsPage"));
-const MaxtermsPage = lazy(() => import("../features/boolean-algebra/MaxtermsPage"));
+const MintermsPage = lazy(() => import("../features/dld-theory/boolean-algebra/MintermsPage"));
+const MaxtermsPage = lazy(() => import("../features/dld-theory/boolean-algebra/MaxtermsPage"));
 const ComplementPage = lazy(
-  () => import("../features/boolean-algebra/ComplementPage"),
+  () => import("../features/dld-theory/boolean-algebra/ComplementPage"),
 );
 const ConsensusTheorem = lazy(
-  () => import("../features/boolean-algebra/ConsensusTheorem"),
+  () => import("../features/dld-theory/boolean-algebra/ConsensusTheorem"),
 );
 const DualityPrinciple = lazy(
-  () => import("../features/boolean-algebra/DualityPrinciple"),
+  () => import("../features/dld-theory/boolean-algebra/DualityPrinciple"),
 );
 const MintermsMaxtermsRelation = lazy(
-  () => import("../features/boolean-algebra/MintermsMaxtermsRelation"),
+  () => import("../features/dld-theory/boolean-algebra/MintermsMaxtermsRelation"),
 );
 const SignificantDigits = lazy(
-  () => import("../features/boolean-algebra/SignificantDigits"),
+  () => import("../features/dld-theory/boolean-algebra/SignificantDigits"),
 );
 const BinaryAdders = lazy(
-  () => import("../features/arithmetic-hdl/BinaryAdders"),
+  () => import("../features/dld-theory/arithmetic-hdl/BinaryAdders"),
 );
 const BinarySubtractor = lazy(
-  () => import("../features/arithmetic-hdl/BinarySubtractor"),
+  () => import("../features/dld-theory/arithmetic-hdl/BinarySubtractor"),
 );
 const BinaryAddSubtractor = lazy(
-  () => import("../features/arithmetic-hdl/BinaryAddSubtractor"),
+  () => import("../features/dld-theory/arithmetic-hdl/BinaryAddSubtractor"),
 );
 const BinaryMultipliers = lazy(
-  () => import("../features/arithmetic-hdl/BinaryMultipliers"),
+  () => import("../features/dld-theory/arithmetic-hdl/BinaryMultipliers"),
 );
 const CodeConversion = lazy(
-  () => import("../features/arithmetic-hdl/CodeConversion"),
+  () => import("../features/dld-theory/arithmetic-hdl/CodeConversion"),
 );
 const MagnitudeComparator = lazy(
-  () => import("../features/arithmetic-hdl/MagnitudeComparator"),
+  () => import("../features/dld-theory/arithmetic-hdl/MagnitudeComparator"),
 );
 const ParityGenerators = lazy(
-  () => import("../features/arithmetic-hdl/ParityGenerators"),
+  () => import("../features/dld-theory/arithmetic-hdl/ParityGenerators"),
 );
 const DesignApplications = lazy(
-  () => import("../features/arithmetic-hdl/DesignApplications"),
+  () => import("../features/dld-theory/arithmetic-hdl/DesignApplications"),
 );
 const Complements = lazy(
-  () => import("../features/arithmetic-hdl/Complements"),
+  () => import("../features/dld-theory/arithmetic-hdl/Complements"),
 );
 const SignedUnsignedArithmetic = lazy(
-  () => import("../features/arithmetic-hdl/SignedUnsignedArithmetic"),
+  () => import("../features/dld-theory/arithmetic-hdl/SignedUnsignedArithmetic"),
 );
-const BitConverter = lazy(() => import("../features/number-systems/Bitconverter"));
-const BitExtension = lazy(() => import("../features/number-systems/BitExtension"));
+const BitConverter = lazy(() => import("../features/dld-theory/number-systems/Bitconverter"));
+const BitExtension = lazy(() => import("../features/dld-theory/number-systems/BitExtension"));
 const NumberConverter = lazy(
-  () => import("../features/number-systems/NumberConversation"),
+  () => import("../features/dld-theory/number-systems/NumberConversation"),
 );
 const NumberSystemCalculator = lazy(
-  () => import("../features/number-systems/NumberSystemCalculator"),
+  () => import("../features/dld-theory/number-systems/NumberSystemCalculator"),
 );
 const BinaryRepresentation = lazy(
-  () => import("../features/number-systems/BinaryRepresentation"),
+  () => import("../features/dld-theory/number-systems/BinaryRepresentation"),
 );
-const BCDNotation = lazy(() => import("../features/number-systems/BCDNotation"));
-const ASCIINotation = lazy(() => import("../features/number-systems/ASCIINotation"));
+const BCDNotation = lazy(() => import("../features/dld-theory/number-systems/BCDNotation"));
+const ASCIINotation = lazy(() => import("../features/dld-theory/number-systems/ASCIINotation"));
 const EncoderPage = lazy(
-  () => import("../features/combinational-circuits/encoder-decoder/encoder/EncoderPage"),
+  () => import("../features/dld-theory/combinational-circuits/encoder-decoder/encoder/EncoderPage"),
 );
 const DecoderPage = lazy(
-  () => import("../features/combinational-circuits/encoder-decoder/decoder/DecoderPage"),
+  () => import("../features/dld-theory/combinational-circuits/encoder-decoder/decoder/DecoderPage"),
 );
 const MuxPage = lazy(
-  () => import("../features/combinational-circuits/mux-demux/mux/MuxPage"),
+  () => import("../features/dld-theory/combinational-circuits/mux-demux/mux/MuxPage"),
 );
 const DemuxPage = lazy(
-  () => import("../features/combinational-circuits/mux-demux/demux/DemuxPage"),
+  () => import("../features/dld-theory/combinational-circuits/mux-demux/demux/DemuxPage"),
 );
-const SeqIntro = lazy(() => import("../features/sequential-circuits/SeqIntro"));
-const SeqLatches = lazy(() => import("../features/sequential-circuits/SeqLatches"));
+const SeqIntro = lazy(() => import("../features/dld-theory/sequential-circuits/SeqIntro"));
+const SeqLatches = lazy(() => import("../features/dld-theory/sequential-circuits/SeqLatches"));
 const SeqFlipFlops = lazy(
-  () => import("../features/sequential-circuits/SeqFlipFlops"),
+  () => import("../features/dld-theory/sequential-circuits/SeqFlipFlops"),
 );
 const SeqFlipFlopTypes = lazy(
-  () => import("../features/sequential-circuits/SeqFlipFlopTypes"),
+  () => import("../features/dld-theory/sequential-circuits/SeqFlipFlopTypes"),
 );
 const SeqAnalysis = lazy(
-  () => import("../features/sequential-circuits/SeqAnalysis"),
+  () => import("../features/dld-theory/sequential-circuits/SeqAnalysis"),
 );
 const SeqDesignProcedures = lazy(
-  () => import("../features/sequential-circuits/SeqDesignProcedures"),
+  () => import("../features/dld-theory/sequential-circuits/SeqDesignProcedures"),
 );
 const SeqStateDiagram = lazy(
-  () => import("../features/sequential-circuits/SeqStateDiagram"),
+  () => import("../features/dld-theory/sequential-circuits/SeqStateDiagram"),
 );
 const SeqStateReduction = lazy(
-  () => import("../features/sequential-circuits/SeqStateReduction"),
+  () => import("../features/dld-theory/sequential-circuits/SeqStateReduction"),
 );
 const DLDTrainerBoard = lazy(() => import("../features/trainer-board/TrainerBoard"));
 const LoginPage = lazy(() => import("../auth/pages/LoginPage"));

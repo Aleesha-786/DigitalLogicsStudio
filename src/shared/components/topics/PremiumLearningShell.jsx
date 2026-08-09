@@ -4,7 +4,7 @@ import { Home } from "lucide-react";
 import { useTheme } from "../../context/ThemeContext";
 import { useAuth } from "../../../auth/context/AuthContext";
 import progressService from "../../services/progressService";
-import "../../../features/arithmetic-hdl/AFHDLLayout.css";
+import "../../../features/dld-theory/arithmetic-hdl/AFHDLLayout.css";
 import "./PremiumLearningShell.css";
 import RelatedSeoLinks from "../../seo/RelatedSeoLinks";
 
