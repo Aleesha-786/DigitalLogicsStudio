@@ -1,5 +1,5 @@
-import TheoryTopicPage from "../theory/TheoryTopicPage";
-import { TRACKS } from "../theory/tracks";
+import TheoryTopicPage from "../../shared/layouts/TheoryTopicPage";
+import { TRACKS } from "../../shared/layouts/tracks";
 import { CoalDiagram } from "./components/CoalDiagrams";
 import AluFlagsSimulator from "./components/AluFlagsSimulator";
 import AssemblyStackSimulator from "./components/AssemblyStackSimulator";

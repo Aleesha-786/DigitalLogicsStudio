@@ -4,7 +4,7 @@ import {
   advancedLogicPages,
   ADVANCED_LOGIC_TOPIC,
   ADVANCED_LOGIC_PATH_TO_SUBTOPIC_ID,
-} from "../../features/logic-gates/advancedLogicConfig";
+} from "../../features/dld-theory/logic-gates/advancedLogicConfig";
 
 const AdvancedLogicLayout = ({
   title,
