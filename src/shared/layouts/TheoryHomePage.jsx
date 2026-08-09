@@ -1,7 +1,7 @@
 import { useEffect } from "react";
 import { Link, useLocation } from "react-router-dom";
 import { ArrowRight, ArrowLeft, Cpu } from "lucide-react";
-import Navbar from "../components/Navbar";
+import Navbar from "../components/navbar";
 import Footer from "../components/Footer";
 import { useTheme } from "../context/ThemeContext";
 import usePointerGlow from "../hooks/usePointerGlow";

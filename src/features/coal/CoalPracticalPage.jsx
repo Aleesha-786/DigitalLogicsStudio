@@ -9,7 +9,7 @@ import {
   Terminal,
   Wrench,
 } from "lucide-react";
-import Navbar from "../../shared/components/Navbar";
+import Navbar from "../../shared/components/navbar";
 import Footer from "../../shared/components/Footer";
 import { useTheme } from "../../shared/context/ThemeContext";
 import usePointerGlow from "../../shared/hooks/usePointerGlow";
