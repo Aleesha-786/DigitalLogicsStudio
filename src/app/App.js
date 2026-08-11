@@ -17,10 +17,14 @@ import DlsMentorWidget from "../shared/widgets/DlsMentorWidget/DlsMentorWidget";
 // UTILS / OTHER TOOLS:
 import ScrollToTop from "../shared/utils/ScrollToTop";
 import ProtectedRoute from "../auth/ProtectedRoute";
+import RoleProtectedRoute from "../auth/RoleProtectedRoute";
 
 const Home = lazy(() => import("../features/home/Home"));
 const Boolforge = lazy(() => import("../features/boolforge/Boolforge"));
 const ProblemsPage = lazy(() => import("../features/problems/pages/ProblemsPage"));
+const ProblemEditorPage = lazy(
+  () => import("../features/problems/pages/ProblemEditorPage"),
+);
 // ── COAL Practical Labs (now lazy-loaded, previously eager imports) ──
 const InstructionTraceLabPage = lazy(
   () => import("../features/coal/InstructionTraceLabPage"),
@@ -223,6 +227,23 @@ const AppContent = () => {
           />
           <Route path="/problems" element={<ProblemsPage />} />
           <Route path="/problems/:topicSlug" element={<ProblemsPage />} />
+
+          <Route
+            path="/problems/editor/new"
+            element={
+              <RoleProtectedRoute roles={["instructor", "admin"]}>
+                <ProblemEditorPage />
+              </RoleProtectedRoute>
+            }
+          />
+          <Route
+            path="/problems/editor/:problemId"
+            element={
+              <RoleProtectedRoute roles={["instructor", "admin"]}>
+                <ProblemEditorPage />
+              </RoleProtectedRoute>
+            }
+          />
 
           <Route
             path="/resources/coal/problems"
