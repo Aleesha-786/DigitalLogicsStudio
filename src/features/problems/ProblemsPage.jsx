@@ -2,620 +2,54 @@ import React from "react";
 import { Link, useParams, useNavigate, useSearchParams } from "react-router-dom";
 import { gsap } from "gsap";
 import {
-  BookOpen,
-  ChevronLeft,
-  ChevronRight,
   Compass,
   Flame,
-  FolderHeart,
-  GraduationCap,
-  LibraryBig,
-  Lock,
   Search,
   Sparkles,
   Trophy,
-  Cpu,
-  Grid,
-  Binary,
-  Layers,
-  Tv,
-  Activity,
-  Coins,
-  Calculator,
+  ChevronRight,
+  GraduationCap,
   Info,
   Menu,
   X,
-  Award,
+  Plus,
 } from "lucide-react";
 import { useTheme } from "../../shared/context/ThemeContext";
 import { useAuth } from "../../auth/context/AuthContext";
 import Navbar from "../../shared/components/navbar";
 import useLearningProgress from "../../shared/hooks/useLearningProgress";
 import coreTopics from "../../shared/data/coreTopics";
-import allProblemsCatalog, {
+import {
   allBannerCards,
   allFilterGroups,
   courseFilterOptions,
   problemDifficultyOptions,
   problemSortOptions,
   problemStatusOptions,
-} from "./allProblemsCatalog";
-import ProblemModal from "./ProblemModal";
-import CoalProblemModal from "./CoalProblemModal";
+} from "./data/allProblemsCatalog";
+import unifiedNavSections from "./data/unifiedNavSections";
+import problemTopicLandingMap from "./data/problemTopicLandingMap";
+import {
+  difficultyTone,
+  sortProblems,
+  buildTopicLookup,
+} from "./utils/problemsUtils";
+import { useProblemsCatalog } from "./hooks";
+import {
+  ProblemModal,
+  CoalProblemModal,
+  ProblemTableRow,
+  SelectedProblemCard,
+  SidebarAccordion,
+  CalendarWidget,
+} from "./components";
 import "./ProblemsPage.css";
 import {
   trackPracticeEngagement,
   trackTopicEngagement,
 } from "../../shared/utils/analytics";
 
-const unifiedNavSections = [
-  {
-    title: "Practice Arenas",
-    items: [
-      {
-        label: "Problems Library",
-        icon: LibraryBig,
-        panel: {
-          description:
-            "All problems — DLD and COAL together. Combinational, sequential, number systems, assembly, cache and more.",
-          links: [
-            { label: "All Problems", action: "navigate", value: "/problems" },
-            { label: "Easy problems", action: "filter", value: "Easy" },
-            { label: "Medium problems", action: "filter", value: "Medium" },
-            { label: "Hard problems", action: "filter", value: "Hard" },
-            { label: "Combinational (DLD)", action: "topic", value: "Combinational Circuits" },
-            { label: "Sequential (DLD)", action: "topic", value: "Sequential Circuits" },
-            { label: "Assembly (COAL)", action: "topic", value: "Assembly Programming" },
-            { label: "Cache & Memory (COAL)", action: "topic", value: "Cache & Memory" },
-          ],
-        },
-      },
-      {
-        label: "K-Map Arena",
-        icon: Layers,
-        topicSlug: "k-map",
-        badge: "Core",
-        panel: {
-          description: "Karnaugh map simplification — SOP, POS, don't-cares, 2 to 4 variables.",
-          links: [
-            { label: "K-Map Problems", action: "navigate", value: "/problems/k-map" },
-            { label: "K-Map Simplifier Tool", action: "navigate", value: "/kmapgenerator" },
-            { label: "Minterms Tutorial", action: "navigate", value: "/boolean/minterms" },
-            { label: "Maxterms Tutorial", action: "navigate", value: "/boolean/maxterms" },
-            { label: "Boolean Laws", action: "navigate", value: "/boolean/laws" },
-          ],
-        },
-      },
-      {
-        label: "Sequential Arena",
-        icon: Sparkles,
-        topicSlug: "sequential-circuits",
-        panel: {
-          description: "Latches, flip-flops, state diagrams and sequential circuit design.",
-          links: [
-            { label: "Sequential Problems", action: "navigate", value: "/problems/sequential-circuits" },
-            { label: "Latches", action: "navigate", value: "/sequential/latches" },
-            { label: "Flip-Flops", action: "navigate", value: "/sequential/flip-flops" },
-            { label: "State Diagrams", action: "navigate", value: "/sequential/state-diagram" },
-            { label: "Timing Diagrams", action: "navigate", value: "/timing-diagrams" },
-          ],
-        },
-      },
-      {
-        label: "Number Arena",
-        icon: Binary,
-        topicSlug: "number-systems",
-        panel: {
-          description: "Binary, hex, BCD, 2's complement, signed arithmetic and base conversions.",
-          links: [
-            { label: "Number Problems", action: "navigate", value: "/problems/number-systems" },
-            { label: "Base Converter", action: "navigate", value: "/number-systems/number-conversion" },
-            { label: "Binary Visualizer", action: "navigate", value: "/number-systems/binary-representation" },
-            { label: "BCD Notation", action: "navigate", value: "/number-systems/bcd-notation" },
-            { label: "2's Complement", action: "navigate", value: "/arithmetic/complements" },
-          ],
-        },
-      },
-      {
-        label: "Assembly Lab",
-        icon: Cpu,
-        topicSlug: "assembly",
-        badge: "Interactive",
-        panel: {
-          description:
-            "Step-by-step assembly instruction execution and register visualization.",
-          links: [
-            { label: "Trace Simulator", action: "navigate", value: "/resources/coal/practical/instruction-trace-lab" },
-            { label: "Assembly Syntax", action: "navigate", value: "/coal/coal-syntax" },
-            { label: "Stack & Procedures", action: "navigate", value: "/coal/procedures-stack" },
-          ],
-        },
-      },
-    ],
-  },
-  {
-    title: "Interactive Labs",
-    items: [
-      { label: "Circuit Forge", icon: Cpu, path: "/boolforge" },
-      { label: "K-Map Studio", icon: Grid, path: "/kmapgenerator" },
-      {
-        label: "DLD Trainer Board",
-        icon: Tv,
-        path: "/trainer-board",
-        badge: "Live",
-      },
-      { label: "Timing Diagrams", icon: Activity, path: "/timing-diagrams" },
-    ],
-  },
-  {
-    title: "Design Utilities",
-    items: [
-      { label: "Circuit Cost Calc", icon: Coins, path: "/circuit-cost" },
-      {
-        label: "Parity Calculator",
-        icon: Calculator,
-        path: "/paritybitcalculator",
-      },
-      {
-        label: "Universal Gates Lab",
-        icon: FolderHeart,
-        path: "/universal-gates",
-      },
-      { label: "Standard Forms", icon: GraduationCap, path: "/standard-forms" },
-    ],
-  },
-  {
-    title: "Arithmetic Circuits",
-    items: [
-      {
-        label: "Adders & Subtractors",
-        icon: Cpu,
-        path: "/arithmetic/binary-add-subtractor",
-      },
-      {
-        label: "Binary Multipliers",
-        icon: Cpu,
-        path: "/arithmetic/binary-multipliers",
-      },
-      {
-        label: "Magnitude Comparators",
-        icon: Cpu,
-        path: "/arithmetic/magnitude-comparator",
-      },
-      {
-        label: "Signed Numbers",
-        icon: Binary,
-        path: "/arithmetic/signed-unsigned",
-      },
-    ],
-  },
-  {
-    title: "Combinational Logic",
-    items: [
-      { label: "Encoder Studio", icon: Layers, path: "/encoder" },
-      { label: "Decoder Studio", icon: Layers, path: "/decoder" },
-      { label: "Multiplexers (MUX)", icon: Grid, path: "/mux" },
-      { label: "Demultiplexers (DEMUX)", icon: Grid, path: "/demux" },
-    ],
-  },
-  {
-    title: "Sequential & Storage",
-    items: [
-      {
-        label: "Latches & Flip-Flops",
-        icon: Sparkles,
-        path: "/sequential/flip-flops",
-      },
-      {
-        label: "Registers & Loading",
-        icon: Layers,
-        path: "/registers/shift-registers",
-      },
-      {
-        label: "Ripple Counters",
-        icon: Binary,
-        path: "/registers/ripple-counters",
-      },
-      { label: "State Analysis", icon: Compass, path: "/sequential/analysis" },
-    ],
-  },
-  {
-    title: "Memory Systems",
-    items: [
-      { label: "Memory Basics", icon: BookOpen, path: "/memory/basics" },
-      {
-        label: "Programmable PLA",
-        icon: Cpu,
-        path: "/memory/programmable-logic-array",
-      },
-      {
-        label: "Random Access Memory",
-        icon: Lock,
-        path: "/memory/random-access-memory",
-      },
-    ],
-  },
-  {
-    title: "Learning & Reference",
-    items: [
-      { label: "Chapter Solvers", icon: BookOpen, path: "/book" },
-      { label: "Logic Gate Guide", icon: Info, path: "/gates" },
-      {
-        label: "Boolean Identities",
-        icon: GraduationCap,
-        path: "/boolean/identities",
-      },
-      { label: "Boolean Laws", icon: BookOpen, path: "/boolean/laws" },
-    ],
-  },
-  {
-    title: "COAL Syllabus Parts",
-    items: [
-      { label: "Part 1: Foundations", icon: Info, actionGroup: "Foundations" },
-      { label: "Part 2: Number Systems", icon: Binary, actionGroup: "Number Systems" },
-      { label: "Part 3: ISA & Registers", icon: Award, actionGroup: "ISA & Registers" },
-      { label: "Part 4: Assembly Coding", icon: Cpu, actionGroup: "Assembly Programming" },
-      { label: "Part 5: Cache & Memory", icon: Grid, actionGroup: "Cache & Memory" },
-      { label: "Part 6: I/O & Interrupts", icon: Activity, actionGroup: "I/O & Interrupts" },
-    ],
-  },
-];
-
-const difficultyTone = {
-  Easy: "easy",
-  Medium: "medium",
-  Hard: "hard",
-};
-
-const weekdayLabels = ["S", "M", "T", "W", "T", "F", "S"];
-
-const topicLookup = Object.fromEntries(
-  coreTopics.map((topic) => [topic.id, topic]),
-);
-
-const problemTopicLandingMap = {
-  "boolean-algebra": {
-    group: "Boolean Algebra",
-    title: "Boolean Algebra Problems",
-    description:
-      "Practice identities, laws, consensus, SOP, POS, minterms, and maxterms with exam-oriented Boolean algebra questions.",
-    links: [
-      { to: "/boolean/overview", label: "Boolean algebra tutorial" },
-      { to: "/boolean/minterms-maxterms", label: "Minterms and maxterms" },
-      { to: "/standard-forms", label: "SOP and POS guide" },
-    ],
-  },
-  "k-map": {
-    group: "K-Map",
-    title: "K-Map Problems",
-    description:
-      "Train on Karnaugh map grouping, SOP/POS simplification, don't-care conditions, and expression minimization with guided K-map practice.",
-    links: [
-      { to: "/kmapgenerator", label: "K-Map simplifier tool" },
-      { to: "/boolean/minterms", label: "Minterms tutorial" },
-      { to: "/boolean/maxterms", label: "Maxterms tutorial" },
-      { to: "/boolean/laws", label: "Boolean laws reference" },
-    ],
-  },
-  "number-systems": {
-    group: "Number Systems",
-    title: "Number System Problems",
-    description:
-      "Practice number conversion, 2's complement, signed representation, BCD, hexadecimal, and binary arithmetic across common base systems.",
-    links: [
-      { to: "/number-systems/calculator", label: "Number system calculator" },
-      { to: "/number-systems/number-conversion", label: "Base conversion tutorial" },
-      { to: "/arithmetic/complements", label: "2's complement guide" },
-      { to: "/number-systems/bcd-notation", label: "BCD notation" },
-    ],
-  },
-  "sequential-circuits": {
-    group: "Sequential Circuits",
-    title: "Sequential Circuit Problems",
-    description:
-      "Revise latches, flip-flops, state tables, SR/D/JK/T behavior, and sequence design with focused sequential-circuit practice.",
-    links: [
-      { to: "/sequential/intro", label: "Sequential circuits introduction" },
-      { to: "/sequential/latches", label: "Latches tutorial" },
-      { to: "/sequential/flip-flops", label: "Flip-flops tutorial" },
-      { to: "/sequential/state-diagram", label: "State diagrams and tables" },
-      { to: "/timing-diagrams", label: "Timing diagrams" },
-    ],
-  },
-  "flip-flops": {
-    group: "Sequential Circuits",
-    title: "Flip-Flop Problems",
-    description:
-      "Review SR, JK, D, and T flip-flop truth tables, excitation behavior, and exam-style practice questions.",
-    links: [
-      { to: "/sequential/flip-flops", label: "Flip-flops tutorial" },
-      { to: "/sequential/flip-flop-types", label: "Flip-flop types" },
-      {
-        to: "/problems/sequential-circuits",
-        label: "Sequential circuit problems",
-      },
-    ],
-  },
-};
-
-const monthLabel = (date) =>
-  new Intl.DateTimeFormat("en-US", {
-    month: "long",
-    year: "numeric",
-  }).format(date);
-
-const sortProblems = (items, sortValue, progressMap) => {
-  const cloned = [...items];
-  const difficultyRank = {
-    Easy: 1,
-    Medium: 2,
-    Hard: 3,
-  };
-
-  switch (sortValue) {
-    case "Acceptance":
-      return cloned.sort(
-        (left, right) => right.acceptanceRate - left.acceptanceRate,
-      );
-    case "Difficulty":
-      return cloned.sort(
-        (left, right) =>
-          difficultyRank[left.difficulty] - difficultyRank[right.difficulty],
-      );
-    case "Title":
-      return cloned.sort((left, right) =>
-        left.title.localeCompare(right.title),
-      );
-    default:
-      return cloned.sort((left, right) => {
-        const leftStatus = progressMap[left.id]?.status || "not_started";
-        const rightStatus = progressMap[right.id]?.status || "not_started";
-        if (leftStatus === "solved" && rightStatus !== "solved") return 1;
-        if (rightStatus === "solved" && leftStatus !== "solved") return -1;
-        return left.numericId - right.numericId;
-      });
-  }
-};
-
-function CalendarWidget({ month, setMonth, monthMatrix }) {
-  const days = monthMatrix(month);
-  const firstWeekday = new Date(days[0]?.date || month).getDay();
-  const blanks = Array.from(
-    { length: firstWeekday },
-    (_, index) => `blank-${index}`,
-  );
-
-  return (
-    <section className="problems-widget">
-      <div className="problems-widget-head">
-        <div>
-          <span className="problems-widget-label">Activity</span>
-          <h3>{monthLabel(month)}</h3>
-        </div>
-        <div className="calendar-nav">
-          <button
-            type="button"
-            onClick={() =>
-              setMonth(
-                (prev) => new Date(prev.getFullYear(), prev.getMonth() - 1, 1),
-              )
-            }
-            aria-label="Previous month"
-          >
-            <ChevronLeft size={16} />
-          </button>
-          <button
-            type="button"
-            onClick={() =>
-              setMonth(
-                (prev) => new Date(prev.getFullYear(), prev.getMonth() + 1, 1),
-              )
-            }
-            aria-label="Next month"
-          >
-            <ChevronRight size={16} />
-          </button>
-        </div>
-      </div>
-
-      <div className="calendar-weekdays">
-        {weekdayLabels.map((label, index) => (
-          <span key={`${label}-${index}`}>{label}</span>
-        ))}
-      </div>
-
-      <div className="calendar-grid">
-        {blanks.map((blank) => (
-          <span key={blank} className="calendar-cell calendar-cell-blank" />
-        ))}
-
-        {days.map((day) => (
-          <div
-            key={day.date}
-            className={`calendar-cell intensity-${day.intensity}`}
-            title={`${day.date}: ${day.solved} solved, ${day.attempts} attempts, ${day.topicsCompleted} topics completed`}
-          >
-            {Number(day.date.slice(-2))}
-          </div>
-        ))}
-      </div>
-
-      <div className="calendar-legend">
-        <span>Less</span>
-        <div className="calendar-legend-scale">
-          {[0, 1, 2, 3, 4].map((tone) => (
-            <span key={tone} className={`calendar-cell intensity-${tone}`} />
-          ))}
-        </div>
-        <span>More</span>
-      </div>
-    </section>
-  );
-}
-
-const SelectedProblemCard = React.memo(function SelectedProblemCard({
-  problem,
-  status,
-  onAttempt,
-  onToggleSolved,
-}) {
-  if (!problem) {
-    return null;
-  }
-
-  return (
-    <section className="problems-widget selected-problem-widget">
-      <div className="problems-widget-head">
-        <div>
-          <span className="problems-widget-label">Selected Problem</span>
-          <h3>{problem.title}</h3>
-        </div>
-        <span
-          className={`difficulty-pill ${difficultyTone[problem.difficulty]}`}
-        >
-          {problem.difficulty}
-        </span>
-      </div>
-
-      <p className="selected-problem-description">{problem.description}</p>
-
-      <div className="selected-problem-tags">
-        {problem.tags.slice(0, 5).map((tag) => (
-          <span key={tag}>{tag}</span>
-        ))}
-      </div>
-
-      <div className="selected-problem-meta">
-        <span>Acceptance {problem.acceptanceRate}%</span>
-        <span>{status?.attempts || 0} attempts</span>
-        <span>{status?.status === "solved" ? "Solved" : "In progress"}</span>
-      </div>
-
-      {problem.hint ? (
-        <p className="selected-problem-hint">Hint: {problem.hint}</p>
-      ) : null}
-
-      <div className="selected-problem-actions">
-        <button type="button" onClick={() => onAttempt(problem)}>
-          Record attempt
-        </button>
-        <button
-          type="button"
-          className={status?.status === "solved" ? "is-solved" : ""}
-          onClick={() => onToggleSolved(problem, status?.status !== "solved")}
-        >
-          {status?.status === "solved" ? "Mark unsolved" : "Mark solved"}
-        </button>
-        <Link to="/boolforge" className="selected-problem-link">
-          Open Circuit Forge
-        </Link>
-      </div>
-    </section>
-  );
-});
-
-/* ── Static always-open section for non-arena sidebar groups ── */
-const SidebarAccordion = React.memo(function SidebarAccordion({
-  section,
-  activeItemLabel,
-  onItemClick,
-}) {
-  return (
-    <div className="sidebar-nav-section">
-      <h4 className="sidebar-section-title">{section.title}</h4>
-      <div className="sidebar-section-items">
-        {section.items.map((item) => {
-          const Icon = item.icon;
-          const isActive = activeItemLabel === item.label;
-          return (
-            <button
-              key={item.label}
-              type="button"
-              className={`problems-sidebar-link ${isActive ? "is-active" : ""}`}
-              onClick={() => onItemClick(item)}
-            >
-              <span className="problems-sidebar-link-main">
-                <Icon size={15} />
-                <span>{item.label}</span>
-              </span>
-              {item.badge ? (
-                <span
-                  className={`problems-sidebar-link-badge badge-${item.badge.toLowerCase()}`}
-                >
-                  {item.badge}
-                </span>
-              ) : null}
-            </button>
-          );
-        })}
-      </div>
-    </div>
-  );
-});
-
-/* ── Single problems-table row, memoized so unrelated page state changes
-   (search typing, sidebar toggles, navbar, banner autoscroll, etc.) don't
-   force every visible row to re-render — only rows whose own problem,
-   progress, or selection actually changed will re-render. ── */
-const ProblemTableRow = React.memo(function ProblemTableRow({
-  problem,
-  progress,
-  isSelected,
-  onOpen,
-}) {
-  const solved = progress.status === "solved";
-  const attempted = progress.status === "attempted";
-  const isLocked = Boolean(problem.premium);
-
-  return (
-    <tr
-      className={`${isSelected ? "is-selected" : ""} ${isLocked ? "is-locked" : ""}`}
-      onClick={() => onOpen(problem, solved, attempted, isLocked)}
-    >
-      <td>{problem.listId}</td>
-      <td>
-        <div className="problem-title-cell">
-          <span className="problem-title-text">{problem.title}</span>
-          <span className="problem-topic-text">{problem.topic}</span>
-        </div>
-      </td>
-      <td>{problem.acceptanceRate}%</td>
-      <td>
-        <span
-          className={`difficulty-pill ${difficultyTone[problem.difficulty]}`}
-        >
-          {problem.difficulty}
-        </span>
-      </td>
-      <td>
-        <span className={`access-pill ${isLocked ? "is-locked" : "is-open"}`}>
-          {isLocked ? (
-            <>
-              <Lock size={14} aria-hidden="true" />
-              Locked
-            </>
-          ) : (
-            "Open"
-          )}
-        </span>
-      </td>
-      <td>
-        <span
-          className={`status-chip ${solved ? "is-solved" : attempted ? "is-attempted" : ""}`}
-        >
-          {solved ? "Solved" : attempted ? "Attempted" : "Not started"}
-        </span>
-      </td>
-      <td>
-        <div className="problem-tag-list">
-          {problem.tags.slice(0, 3).map((tag) => (
-            <span key={tag}>{tag}</span>
-          ))}
-        </div>
-      </td>
-    </tr>
-  );
-});
+const topicLookup = buildTopicLookup(coreTopics);
 
 export default function ProblemsPage() {
   const [isMobileSidebarOpen, setIsMobileSidebarOpen] = React.useState(false);
@@ -634,15 +68,46 @@ export default function ProblemsPage() {
   const [courseFilter, setCourseFilter] = React.useState(
     searchParams.get("course") === "coal" ? "coal" : "all",
   );
+  const [activeGroup, setActiveGroup] = React.useState(
+    topicLanding?.group || "All Topics",
+  );
+  const [searchTerm, setSearchTerm] = React.useState("");
+  const {
+    problems: problemsCatalog,
+    loading: problemsLoading,
+    error: problemsError,
+  } = useProblemsCatalog();
+  const [difficulty, setDifficulty] = React.useState(
+    problemDifficultyOptions[0],
+  );
+  const [topicFilter, setTopicFilter] = React.useState(
+    topicLanding?.group || "All Topics",
+  );
+  const [statusFilter, setStatusFilter] = React.useState(
+    problemStatusOptions[0],
+  );
+  const [sortBy, setSortBy] = React.useState(problemSortOptions[0]);
+  const [selectedProblemId, setSelectedProblemId] = React.useState(null);
+  const [activeProblem, setActiveProblem] = React.useState(null);
+  const [openArenaPanel, setOpenArenaPanel] = React.useState(null);
+  const [month, setMonth] = React.useState(
+    () => new Date(new Date().getFullYear(), new Date().getMonth(), 1),
+  );
+  const deferredSearch = React.useDeferredValue(searchTerm);
+  const canManageProblems = user?.role === "instructor" || user?.role === "admin";
 
-  // Single combined catalog — always both courses. Progress stays correct
-  // regardless of filter: problem ids are globally unique (DLD: 1-40 &
-  // 2001-2007, COAL: 3001-3015) and progressService keys completion state
-  // by raw problem.id, not by catalog — see allProblemsCatalog.js for the
-  // collision guard.
-  const problemsCatalog = allProblemsCatalog;
   const problemBannerCards = allBannerCards;
-  const problemFilterGroups = allFilterGroups;
+  const problemFilterGroups = React.useMemo(() => {
+    const groups = [
+      "All Topics",
+      ...new Set(
+        problemsCatalog
+          .map((problem) => problem.filterGroup)
+          .filter(Boolean),
+      ),
+    ];
+    return groups.length > 1 ? groups : allFilterGroups;
+  }, [problemsCatalog]);
   const activeNavSections = unifiedNavSections;
 
   // Keep the course filter chip reflected in the URL (shareable / bookmarkable),
@@ -679,24 +144,27 @@ export default function ProblemsPage() {
   };
   const activeItemLabel = getActiveItem();
 
-  const handleSidebarClick = (item) => {
-    setIsMobileSidebarOpen(false); // Close sidebar on mobile drawer click
-    if (item.path) {
-      navigate(item.path);
-    } else if (item.topicSlug) {
-      navigate(`/problems/${item.topicSlug}`);
-    } else if (item.actionGroup) {
-      navigate("/problems");
-      setActiveGroup(item.actionGroup);
-      setTopicFilter(item.actionGroup);
-    } else {
-      navigate("/problems");
-      setActiveGroup("All Topics");
-      setTopicFilter("All Topics");
-    }
-  };
+  const handleSidebarClick = React.useCallback(
+    (item) => {
+      setIsMobileSidebarOpen(false); // Close sidebar on mobile drawer click
+      if (item.path) {
+        navigate(item.path);
+      } else if (item.topicSlug) {
+        navigate(`/problems/${item.topicSlug}`);
+      } else if (item.actionGroup) {
+        navigate("/problems");
+        setActiveGroup(item.actionGroup);
+        setTopicFilter(item.actionGroup);
+      } else {
+        navigate("/problems");
+        setActiveGroup("All Topics");
+        setTopicFilter("All Topics");
+      }
+    },
+    [navigate],
+  );
 
-  const handleBannerCardClick = (card) => {
+  const handleBannerCardClick = React.useCallback((card) => {
     trackPracticeEngagement("banner_card_click", {
       card_title: card.title,
       filter_group: card.filterGroup,
@@ -707,7 +175,7 @@ export default function ProblemsPage() {
       setActiveGroup(card.filterGroup);
       setTopicFilter(card.filterGroup);
     }
-  };
+  }, [navigate]);
 
   const startAutoscroll = React.useCallback((fromStart = true) => {
     const el = bannerRef.current;
@@ -792,30 +260,6 @@ export default function ProblemsPage() {
       tweenRef.current && tweenRef.current.vars.scrollLeft === 0;
     startAutoscroll(!isGoingToZero);
   };
-
-  const [activeGroup, setActiveGroup] = React.useState(
-    topicLanding?.group || "All Topics",
-  );
-  const [searchTerm, setSearchTerm] = React.useState("");
-  const [difficulty, setDifficulty] = React.useState(
-    problemDifficultyOptions[0],
-  );
-  const [topicFilter, setTopicFilter] = React.useState(
-    topicLanding?.group || problemFilterGroups[0],
-  );
-  const [statusFilter, setStatusFilter] = React.useState(
-    problemStatusOptions[0],
-  );
-  const [sortBy, setSortBy] = React.useState(problemSortOptions[0]);
-  const [selectedProblemId, setSelectedProblemId] = React.useState(
-    problemsCatalog[0]?.id,
-  );
-  const [activeProblem, setActiveProblem] = React.useState(null);
-  const [openArenaPanel, setOpenArenaPanel] = React.useState(null);
-  const [month, setMonth] = React.useState(
-    () => new Date(new Date().getFullYear(), new Date().getMonth(), 1),
-  );
-  const deferredSearch = React.useDeferredValue(searchTerm);
 
   React.useEffect(() => {
     const nextGroup = topicLanding?.group || "All Topics";
@@ -1083,6 +527,18 @@ export default function ProblemsPage() {
     [handleRecordAttempt],
   );
 
+  if (problemsLoading) {
+    return <div className="problems-page-status">Loading problems…</div>;
+  }
+
+  if (problemsError) {
+    return (
+      <div className="problems-page-status problems-page-error">
+        {problemsError}
+      </div>
+    );
+  }
+
   return (
     <div className={`problems-page theme-${theme}`}>
       <div className="problems-backdrop problems-backdrop-left" />
@@ -1314,22 +770,31 @@ export default function ProblemsPage() {
             </div>
           )}
 
-          <div
-            className="problems-course-tabs"
-            role="group"
-            aria-label="Filter by course"
-          >
-            {courseFilterOptions.map((option) => (
-              <button
-                key={option.value}
-                type="button"
-                aria-pressed={courseFilter === option.value}
-                className={`problems-course-tab ${courseFilter === option.value ? "is-active" : ""}`}
-                onClick={() => setCourseFilter(option.value)}
-              >
-                {option.label}
-              </button>
-            ))}
+          <div className="problems-toolbar-row">
+            <div
+              className="problems-course-tabs"
+              role="group"
+              aria-label="Filter by course"
+            >
+              {courseFilterOptions.map((option) => (
+                <button
+                  key={option.value}
+                  type="button"
+                  aria-pressed={courseFilter === option.value}
+                  className={`problems-course-tab ${courseFilter === option.value ? "is-active" : ""}`}
+                  onClick={() => setCourseFilter(option.value)}
+                >
+                  {option.label}
+                </button>
+              ))}
+            </div>
+
+            {canManageProblems && (
+              <Link to="/problems/editor/new" className="problems-add-btn">
+                <Plus size={16} aria-hidden="true" />
+                Add Problem
+              </Link>
+            )}
           </div>
 
           <div className="problems-filter-chip-row">
@@ -1504,6 +969,7 @@ export default function ProblemsPage() {
                     <th>Access</th>
                     <th>Status</th>
                     <th>Tags</th>
+                    {canManageProblems && <th>Actions</th>}
                   </tr>
                 </thead>
                 <tbody>
@@ -1514,6 +980,7 @@ export default function ProblemsPage() {
                       progress={snapshot.state.problems[problem.id] || {}}
                       isSelected={selectedProblemId === problem.id}
                       onOpen={handleOpenProblemRow}
+                      canManageProblems={canManageProblems}
                     />
                   ))}
                 </tbody>
@@ -1747,19 +1214,23 @@ export default function ProblemsPage() {
         </aside>
       </main>
 
-      {activeProblem && (activeProblem.course === "coal" ? (
+      {activeProblem && activeProblem.course === "coal" && (
         <CoalProblemModal
           problem={activeProblem}
           onClose={() => setActiveProblem(null)}
-          onSolved={(problem) => handleSetProblemSolved(problem, true)}
+          onSolved={() => handleSetProblemSolved(activeProblem, true)}
+          onAttempt={() => handleRecordAttempt(activeProblem)}
         />
-      ) : (
+      )}
+
+      {activeProblem && activeProblem.course !== "coal" && (
         <ProblemModal
           problem={activeProblem}
           onClose={() => setActiveProblem(null)}
-          onSolved={(problem) => handleSetProblemSolved(problem, true)}
+          onSolved={() => handleSetProblemSolved(activeProblem, true)}
         />
-      ))}
+      )}
+
     </div>
   );
 }
