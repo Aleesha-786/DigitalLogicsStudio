@@ -1,12 +1,12 @@
 import React from "react";
 import { useNavigate, useParams, Link } from "react-router-dom";
 import { ArrowLeft, Trash2 } from "lucide-react";
-import { useTheme } from "../../shared/context/ThemeContext";
-import Navbar from "../../shared/components/navbar";
-import { useProblemsCatalog } from "./hooks";
-import { Toast } from "./components";
-import "./ProblemsPage.css";
-import "./ProblemEditorPage.css";
+import { useTheme } from "../../../shared/context/ThemeContext";
+import Navbar from "../../../shared/components/navbar";
+import { useProblemsCatalog } from "../hooks";
+import { Toast } from "../components";
+import "../styles/ProblemsPage.css";
+import "../styles/ProblemEditorPage.css";
 
 const emptyForm = {
   id: "",

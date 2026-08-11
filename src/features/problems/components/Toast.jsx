@@ -1,5 +1,5 @@
 import React, { useEffect } from "react";
-import "./Toast.css";
+import "../styles/Toast.css";
 
 /**
  * Minimal, dependency-free toast. No toast library exists in this codebase

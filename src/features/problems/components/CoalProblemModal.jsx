@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import "../Problems.css";
+import "../styles/Problems.css";
 
 const difficultyColor = {
   Easy: "var(--accent-primary, #00ff88)",

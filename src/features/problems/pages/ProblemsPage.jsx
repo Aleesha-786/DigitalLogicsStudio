@@ -14,11 +14,11 @@ import {
   X,
   Plus,
 } from "lucide-react";
-import { useTheme } from "../../shared/context/ThemeContext";
-import { useAuth } from "../../auth/context/AuthContext";
-import Navbar from "../../shared/components/navbar";
-import useLearningProgress from "../../shared/hooks/useLearningProgress";
-import coreTopics from "../../shared/data/coreTopics";
+import { useTheme } from "../../../shared/context/ThemeContext";
+import { useAuth } from "../../../auth/context/AuthContext";
+import Navbar from "../../../shared/components/navbar";
+import useLearningProgress from "../../../shared/hooks/useLearningProgress";
+import coreTopics from "../../../shared/data/coreTopics";
 import {
   allBannerCards,
   allFilterGroups,
@@ -26,15 +26,15 @@ import {
   problemDifficultyOptions,
   problemSortOptions,
   problemStatusOptions,
-} from "./data/allProblemsCatalog";
-import unifiedNavSections from "./data/unifiedNavSections";
-import problemTopicLandingMap from "./data/problemTopicLandingMap";
+} from "../data/allProblemsCatalog";
+import unifiedNavSections from "../data/unifiedNavSections";
+import problemTopicLandingMap from "../data/problemTopicLandingMap";
 import {
   difficultyTone,
   sortProblems,
   buildTopicLookup,
-} from "./utils/problemsUtils";
-import { useProblemsCatalog } from "./hooks";
+} from "../utils/problemsUtils";
+import { useProblemsCatalog } from "../hooks";
 import {
   ProblemModal,
   CoalProblemModal,
@@ -42,12 +42,12 @@ import {
   SelectedProblemCard,
   SidebarAccordion,
   CalendarWidget,
-} from "./components";
-import "./ProblemsPage.css";
+} from "../components";
+import "../styles/ProblemsPage.css";
 import {
   trackPracticeEngagement,
   trackTopicEngagement,
-} from "../../shared/utils/analytics";
+} from "../../../shared/utils/analytics";
 
 const topicLookup = buildTopicLookup(coreTopics);
 

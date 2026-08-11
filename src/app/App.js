@@ -20,7 +20,7 @@ import ProtectedRoute from "../auth/ProtectedRoute";
 
 const Home = lazy(() => import("../features/home/Home"));
 const Boolforge = lazy(() => import("../features/boolforge/Boolforge"));
-const ProblemsPage = lazy(() => import("../features/problems/ProblemsPage"));
+const ProblemsPage = lazy(() => import("../features/problems/pages/ProblemsPage"));
 // ── COAL Practical Labs (now lazy-loaded, previously eager imports) ──
 const InstructionTraceLabPage = lazy(
   () => import("../features/coal/InstructionTraceLabPage"),

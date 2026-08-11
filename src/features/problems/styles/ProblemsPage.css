@@ -369,48 +369,6 @@
   align-items: start;
 }
 
-/* Independent scrolling: on desktop, the left nav and right rail each
-   scroll within their own column instead of the whole page scrolling as
-   one long block. Both stick just under the navbar and cap their height
-   to the viewport, so a long problems table in the center column never
-   drags the sidebars along with it. Scoped to the 3-column desktop
-   layout only — the mobile drawer sidebar already manages its own
-   fixed-position full-height scroll above. */
-@media (min-width: 921px) {
-  .problems-sidebar {
-    position: sticky;
-    top: 1.5rem;
-    max-height: calc(100vh - 3rem);
-    overflow-y: auto;
-    overscroll-behavior: contain;
-    scrollbar-width: thin;
-  }
-}
-
-@media (min-width: 1221px) {
-  .problems-right-rail {
-    position: sticky;
-    top: 1.5rem;
-    max-height: calc(100vh - 3rem);
-    overflow-y: auto;
-    overscroll-behavior: contain;
-    scrollbar-width: thin;
-  }
-
-  .problems-right-rail::-webkit-scrollbar {
-    width: 4px;
-  }
-
-  .problems-right-rail::-webkit-scrollbar-thumb {
-    background: var(--problems-border-strong);
-    border-radius: 999px;
-  }
-
-  .problems-right-rail::-webkit-scrollbar-track {
-    background: transparent;
-  }
-}
-
 /* Hidden by default — only shown on mobile via media query below */
 .mobile-sidebar-toggle {
   display: none;

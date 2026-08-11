@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import "../Problems.css";
+import "../styles/Problems.css";
 
 const emptyForm = {
   id: "",

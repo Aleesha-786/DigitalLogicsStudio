@@ -1,10 +1,10 @@
 import React from "react";
 import { fireEvent, render, screen, within } from "@testing-library/react";
 import { MemoryRouter } from "react-router-dom";
-import AuthContext from "../../auth/context/AuthContext";
-import { ThemeProvider } from "../../shared/context/ThemeContext";
+import AuthContext from "../../../auth/context/AuthContext";
+import { ThemeProvider } from "../../../shared/context/ThemeContext";
 import ProblemsPage from "./ProblemsPage";
-import { fetchProblems } from "./services/problemsApi";
+import { fetchProblems } from "../services/problemsApi";
 
 jest.mock("./services/problemsApi", () => ({
   fetchProblems: jest.fn(),
