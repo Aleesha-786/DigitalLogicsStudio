@@ -5,6 +5,16 @@ import {
   updateProblem as apiUpdateProblem,
   deleteProblem as apiDeleteProblem,
 } from "../services/problemsApi";
+import allProblemsCatalog from "../data/allProblemsCatalog";
+
+// ─── Backend switch ─────────────────────────────────────────────────────
+// While this is `false`, the hook skips the network call entirely and
+// serves the local `allProblemsCatalog` data instead. All backend
+// plumbing below (fetchProblems / createProblem / updateProblem /
+// deleteProblem + enrichment) is left completely intact — set this back
+// to `true` once the team approves the backend data and nothing else
+// needs to change.
+const USE_BACKEND_DATA = false;
 
 // ─── Derived-field recomputation ───────────────────────────────────────────
 // acceptanceRate, premium, slug, and numericId were never real content —
@@ -47,15 +57,27 @@ function enrichFetchedProblem(problem) {
  * Fetches the live problems catalog from the backend and keeps local state
  * in sync with create/update/delete actions — no full page reload needed.
  *
+ * When USE_BACKEND_DATA is false, it instead serves the static
+ * `allProblemsCatalog` data and mirrors create/update/delete in local
+ * state only, so pages consuming this hook don't need to change at all.
+ *
  * Returns the same overall shape ProblemsPage.jsx already expects from
  * `problemsCatalog` (an array), plus loading/error state and CRUD helpers.
  */
 export default function useProblemsCatalog() {
-  const [problems, setProblems] = useState([]);
-  const [loading, setLoading] = useState(true);
+  const [problems, setProblems] = useState(() =>
+    USE_BACKEND_DATA ? [] : allProblemsCatalog,
+  );
+  const [loading, setLoading] = useState(USE_BACKEND_DATA);
   const [error, setError] = useState(null);
 
   const load = useCallback(async () => {
+    if (!USE_BACKEND_DATA) {
+      setProblems(allProblemsCatalog);
+      setLoading(false);
+      setError(null);
+      return;
+    }
     setLoading(true);
     setError(null);
     try {
@@ -73,16 +95,36 @@ export default function useProblemsCatalog() {
   }, []);
 
   useEffect(() => {
-    load();
+    if (USE_BACKEND_DATA) {
+      load();
+    }
+    // In local-data mode `problems` is already seeded from
+    // allProblemsCatalog in the useState initializer above.
   }, [load]);
 
   const addProblem = useCallback(async (payload) => {
+    if (!USE_BACKEND_DATA) {
+      const localCreated = enrichFetchedProblem({
+        ...payload,
+        id: payload.id ?? Date.now(),
+      });
+      setProblems((prev) =>
+        [...prev, localCreated].sort((a, b) => a.id - b.id),
+      );
+      return localCreated;
+    }
     const created = await apiCreateProblem(payload);
     setProblems((prev) => [...prev, enrichFetchedProblem(created)].sort((a, b) => a.id - b.id));
     return created;
   }, []);
 
   const editProblem = useCallback(async (id, payload) => {
+    if (!USE_BACKEND_DATA) {
+      setProblems((prev) =>
+        prev.map((p) => (p.id === id ? { ...p, ...payload, id } : p)),
+      );
+      return { ...payload, id };
+    }
     const updated = await apiUpdateProblem(id, payload);
     setProblems((prev) =>
       prev.map((p) => (p.id === id ? enrichFetchedProblem(updated) : p)),
@@ -91,10 +133,13 @@ export default function useProblemsCatalog() {
   }, []);
 
   const removeProblem = useCallback(async (id) => {
+    if (!USE_BACKEND_DATA) {
+      setProblems((prev) => prev.filter((p) => p.id !== id));
+      return;
+    }
     await apiDeleteProblem(id);
     setProblems((prev) => prev.filter((p) => p.id !== id));
   }, []);
 
   return { problems, loading, error, refetch: load, addProblem, editProblem, removeProblem };
 }
-
