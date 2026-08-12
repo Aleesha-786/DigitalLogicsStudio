@@ -1,6 +1,6 @@
 import React, { useState } from "react";
-import CircuitModal from "../../shared/components/CircuitModal";
-import "./Problems.css";
+import CircuitModal from "../../../shared/components/CircuitModal";
+import "../styles/Problems.css";
 
 const difficultyColor = {
   Easy: "var(--accent-primary, #00ff88)",
@@ -476,3 +476,4 @@ const ProblemModal = ({ problem, onClose, onSolved }) => {
 };
 
 export default ProblemModal;
+
