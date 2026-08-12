@@ -527,18 +527,6 @@ export default function ProblemsPage() {
     [handleRecordAttempt],
   );
 
-  if (problemsLoading) {
-    return <div className="problems-page-status">Loading problems…</div>;
-  }
-
-  if (problemsError) {
-    return (
-      <div className="problems-page-status problems-page-error">
-        {problemsError}
-      </div>
-    );
-  }
-
   return (
     <div className={`problems-page theme-${theme}`}>
       <div className="problems-backdrop problems-backdrop-left" />
@@ -944,7 +932,11 @@ export default function ProblemsPage() {
             <div className="problems-table-summary">
               <div>
                 <span className="table-summary-label">Problem Library</span>
-                <strong>{filteredProblems.length} visible challenges</strong>
+                <strong>
+                  {problemsLoading
+                    ? "Loading…"
+                    : `${filteredProblems.length} visible challenges`}
+                </strong>
               </div>
               <div className="table-summary-stats">
                 <span>
@@ -959,41 +951,51 @@ export default function ProblemsPage() {
             </div>
 
             <div className="problems-table-wrap">
-              <table className="problems-table">
-                <thead>
-                  <tr>
-                    <th>ID</th>
-                    <th>Title</th>
-                    <th>Acceptance</th>
-                    <th>Difficulty</th>
-                    <th>Access</th>
-                    <th>Status</th>
-                    <th>Tags</th>
-                    {canManageProblems && <th>Actions</th>}
-                  </tr>
-                </thead>
-                <tbody>
-                  {filteredProblems.map((problem) => (
-                    <ProblemTableRow
-                      key={problem.id}
-                      problem={problem}
-                      progress={snapshot.state.problems[problem.id] || {}}
-                      isSelected={selectedProblemId === problem.id}
-                      onOpen={handleOpenProblemRow}
-                      canManageProblems={canManageProblems}
-                    />
-                  ))}
-                </tbody>
-              </table>
-
-              {!filteredProblems.length ? (
-                <div className="problems-empty-state">
-                  <h3>No problems match those filters yet</h3>
-                  <p>
-                    Try widening the topic, difficulty, or solved-state filters.
-                  </p>
+              {problemsLoading ? (
+                <div className="problems-table-loading">Loading problems…</div>
+              ) : problemsError ? (
+                <div className="problems-table-loading problems-table-error">
+                  {problemsError}
                 </div>
-              ) : null}
+              ) : (
+                <>
+                  <table className="problems-table">
+                    <thead>
+                      <tr>
+                        <th>ID</th>
+                        <th>Title</th>
+                        <th>Acceptance</th>
+                        <th>Difficulty</th>
+                        <th>Access</th>
+                        <th>Status</th>
+                        <th>Tags</th>
+                        {canManageProblems && <th>Actions</th>}
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {filteredProblems.map((problem) => (
+                        <ProblemTableRow
+                          key={problem.id}
+                          problem={problem}
+                          progress={snapshot.state.problems[problem.id] || {}}
+                          isSelected={selectedProblemId === problem.id}
+                          onOpen={handleOpenProblemRow}
+                          canManageProblems={canManageProblems}
+                        />
+                      ))}
+                    </tbody>
+                  </table>
+
+                  {!filteredProblems.length ? (
+                    <div className="problems-empty-state">
+                      <h3>No problems match those filters yet</h3>
+                      <p>
+                        Try widening the topic, difficulty, or solved-state filters.
+                      </p>
+                    </div>
+                  ) : null}
+                </>
+              )}
             </div>
           </section>
         </section>

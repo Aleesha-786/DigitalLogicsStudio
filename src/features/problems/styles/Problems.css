@@ -539,6 +539,117 @@
   color: var(--accent-secondary, #00d4ff);
 }
 
+/* ============================================================
+   Light theme support for the problem detail modal
+   ============================================================ */
+.problems-page.theme-light .prob-modal-overlay {
+  background: rgba(15, 23, 42, 0.45);
+}
+
+.problems-page.theme-light .prob-modal {
+  background: #ffffff;
+  border: 1px solid rgba(15, 23, 42, 0.1);
+  box-shadow: 0 24px 60px rgba(15, 23, 42, 0.18);
+}
+
+.problems-page.theme-light .prob-modal-header {
+  background: #ffffff;
+  border-bottom-color: rgba(15, 23, 42, 0.08);
+}
+
+.problems-page.theme-light .prob-modal-title {
+  color: #0f172a;
+}
+
+.problems-page.theme-light .prob-close-btn {
+  border-color: rgba(15, 23, 42, 0.14);
+  color: #475569;
+}
+.problems-page.theme-light .prob-close-btn:hover {
+  border-color: #ff3366;
+  color: #ff3366;
+}
+
+.problems-page.theme-light .prob-modal-left {
+  border-right-color: rgba(15, 23, 42, 0.08);
+}
+
+.problems-page.theme-light .prob-section p,
+.problems-page.theme-light .coal-problem-description p {
+  color: #334155;
+}
+
+.problems-page.theme-light .prob-truth-table th {
+  background: rgba(37, 99, 235, 0.08);
+  border-color: rgba(15, 23, 42, 0.1);
+}
+.problems-page.theme-light .prob-truth-table td {
+  color: #0f172a;
+  border-color: rgba(15, 23, 42, 0.1);
+}
+.problems-page.theme-light .prob-truth-table tr:nth-child(even) td {
+  background: rgba(15, 23, 42, 0.02);
+}
+
+.problems-page.theme-light .prob-hint {
+  background: rgba(37, 99, 235, 0.05);
+  border-color: rgba(37, 99, 235, 0.18);
+}
+.problems-page.theme-light .prob-hint-btn,
+.problems-page.theme-light .prob-reset-btn {
+  border-color: rgba(15, 23, 42, 0.14);
+  color: #475569;
+}
+
+.problems-page.theme-light .prob-forge-panel {
+  background: #f8fafc;
+  border-color: rgba(15, 23, 42, 0.08);
+}
+.problems-page.theme-light .prob-forge-panel h4 {
+  color: #0f172a;
+}
+.problems-page.theme-light .prob-forge-panel > p,
+.problems-page.theme-light .prob-io-label,
+.problems-page.theme-light .prob-submit-info,
+.problems-page.theme-light .prob-success p {
+  color: #475569;
+}
+.problems-page.theme-light .prob-divider {
+  border-top-color: rgba(15, 23, 42, 0.1);
+}
+
+/* ── COAL variant (purple skin) ── */
+.problems-page.theme-light .prob-modal.coal-theme-modal {
+  background: #faf8ff !important;
+  border: 1px solid rgba(139, 92, 246, 0.25) !important;
+  box-shadow: 0 20px 50px rgba(139, 92, 246, 0.12) !important;
+}
+.problems-page.theme-light .coal-solver-panel {
+  background: #f5f2ff !important;
+  border-color: rgba(139, 92, 246, 0.2) !important;
+}
+.problems-page.theme-light .mcq-option-btn {
+  background: #ffffff !important;
+  border-color: rgba(15, 23, 42, 0.1) !important;
+  color: #1e293b !important;
+}
+.problems-page.theme-light .mcq-option-btn:hover:not(:disabled) {
+  background: rgba(139, 92, 246, 0.06) !important;
+}
+.problems-page.theme-light .mcq-letter {
+  background: rgba(15, 23, 42, 0.06) !important;
+  border-color: rgba(15, 23, 42, 0.1) !important;
+  color: #64748b !important;
+}
+.problems-page.theme-light .fill-in-input {
+  background: #ffffff !important;
+  border-color: rgba(139, 92, 246, 0.3) !important;
+  color: #1e293b !important;
+}
+.problems-page.theme-light .fill-in-label {
+  color: #64748b !important;
+}
+
 /* ---- Responsive ---- */
 @media (max-width: 720px) {
   .prob-modal-body {

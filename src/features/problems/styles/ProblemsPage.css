@@ -332,6 +332,17 @@
   color: #475569;
 }
 
+.problems-table-loading {
+  padding: 2.6rem 1rem;
+  text-align: center;
+  color: var(--problems-text-soft);
+  font-size: 0.9rem;
+}
+
+.problems-table-error {
+  color: var(--accent-danger, #ff3366);
+}
+
 .problems-backdrop {
   position: fixed;
   inset: auto;
