@@ -1311,6 +1311,8 @@ const problemsData = [
     inputs: ["Binary Number"],
     outputs: ["Decimal Value"],
     isSynthetic: true,
+    type: "fill_in",
+    correctAnswer: "181",
   },
 
   // ─────────────────────────────────────────────────────────────────────────────
@@ -1340,6 +1342,9 @@ const problemsData = [
     inputs: ["4-bit Signed Number"],
     outputs: ["2's Complement"],
     isSynthetic: true,
+    type: "fill_in",
+    correctAnswer: "1010",
+
   },
 
   // ─────────────────────────────────────────────────────────────────────────────
@@ -1366,6 +1371,8 @@ const problemsData = [
     inputs: ["Hex Number"],
     outputs: ["Binary Number"],
     isSynthetic: true,
+    type: "fill_in",
+    correctAnswer: "00111111",
   },
 
   // ─────────────────────────────────────────────────────────────────────────────
@@ -1392,6 +1399,9 @@ const problemsData = [
     inputs: ["Decimal Number"],
     outputs: ["BCD Code"],
     isSynthetic: true,
+    type: "fill_in",
+    correctAnswer: "10010011",
+
   },
 
   // ─────────────────────────────────────────────────────────────────────────────
@@ -1420,6 +1430,8 @@ const problemsData = [
     inputs: ["Octal A", "Octal B"],
     outputs: ["Octal Sum"],
     isSynthetic: true,
+    type: "fill_in",
+    correctAnswer: "113",
   },
 
   // ─────────────────────────────────────────────────────────────────────────────
@@ -1448,6 +1460,14 @@ const problemsData = [
     inputs: ["4-bit A", "4-bit B"],
     outputs: ["Sum", "Overflow"],
     isSynthetic: true,
+    type: "mcq",
+    options: [
+      "0111 (+7) + 0001 (+1)",
+      "0100 (+4) + 0011 (+3)",
+      "1001 (-7) + 1110 (-2)",
+      "1010 (-6) + 1011 (-5)",
+    ],
+    correctAnswer: "0100 (+4) + 0011 (+3)",
   },
 
   // ─────────────────────────────────────────────────────────────────────────────
