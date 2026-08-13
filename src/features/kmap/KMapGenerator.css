@@ -382,6 +382,37 @@
   50%      { transform: translateY(-10px); }
 }
 
+.kmap-cell-dontcare {
+    background: rgba(251, 191, 36, 0.2) !important;
+    color: #fbbf24 !important;
+    border: 1px solid rgba(251, 191, 36, 0.5) !important;
+}
+
+.kmap-cell-dontcare.kmap-cell-grouped {
+    background: rgba(251, 191, 36, 0.4) !important;
+    border-color: rgba(251, 191, 36, 0.8) !important;
+}
+
+.kmap-cell-pos {
+    background: rgba(99, 102, 241, 0.25) !important;
+    border-color: rgba(99, 102, 241, 0.7) !important;
+}
+
+.kmap-table-full {
+    width: 100%;
+}
+
+.kmap-truth-table-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1rem;
+}
+
+.kmap-mb-0 {
+    margin: 0 !important;
+}
+
 /* ═══════════════════════════════════════════════════════════
    CARD & SECTION
    ═══════════════════════════════════════════════════════════ */

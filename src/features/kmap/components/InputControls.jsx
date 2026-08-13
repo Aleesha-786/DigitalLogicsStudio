@@ -1,17 +1,14 @@
 import '../KMapGenerator.css';
-import React from 'react';
-import {
-    Cpu, 
-    FileCode, 
-    RotateCcw, 
-} from 'lucide-react';
+import React, { memo } from 'react';
+import { Cpu, FileCode, RotateCcw } from 'lucide-react';
 
-export const InputControls = ({
+export const InputControls = memo(({
     numVariables,
     variables,
     inputValue,
     dontCares,
     optimizationType,
+    isPending = false,
     onVariablesChange,
     onVariablesUpdate,
     onInputValueChange,
@@ -22,26 +19,31 @@ export const InputControls = ({
     onReset,
 }) => {
     const handleVariableNameChange = (index, value) => {
-    const newVars = [...variables];
-    newVars[index] = value.toUpperCase().charAt(0) || '';
-    onVariablesUpdate(newVars);
-};
+        const newVars = [...variables];
+        newVars[index] = value.toUpperCase().charAt(0) || '';
+        onVariablesUpdate(newVars);
+    };
 
-const maxTermValue = Math.pow(2, numVariables) - 1;
+    const maxTermValue = Math.pow(2, numVariables) - 1;
 
-const sanitizeTermInput = (value) => {
-    return value
-        .split(',')
-        .map((token) => {
-            const trimmed = token.trim();
-            if (trimmed === '') return trimmed;
-            const num = parseInt(trimmed, 10);
-            if (isNaN(num) || num < 0 || num > maxTermValue) return null;
-            return trimmed;
-        })
-        .filter((token) => token !== null)
-        .join(',');
-};
+    const sanitizeTermInput = (value) => {
+        
+        let cleaned = value.replace(/,+/g, ',').replace(/^,/, '');
+
+        const hasTrailingComma = cleaned.endsWith(',');
+
+        const validTokens = cleaned
+            .split(',')
+            .map((token) => token.trim())
+            .filter((token) => {
+                if (token === '') return false;
+                const num = parseInt(token, 10);
+                return !isNaN(num) && num >= 0 && num <= maxTermValue;
+            });
+
+        return validTokens.join(',') + (hasTrailingComma && validTokens.length > 0 ? ',' : '');
+    };
+
     const isSOP = optimizationType === "SOP";
     const termLabel = isSOP ? "Minterms" : "Maxterms";
     const examplePlaceholder = isSOP ? "e.g., 0,1,2,5,6,7" : "e.g., 3,4,8,11";
@@ -99,14 +101,14 @@ const sanitizeTermInput = (value) => {
                         {termLabel}
                     </label>
                     <input
-                         type="text"
-                         className="kmap-input"
-                         value={inputValue}
-                          onChange={(e) => onInputValueChange(sanitizeTermInput(e.target.value))}
+                        type="text"
+                        className="kmap-input"
+                        value={inputValue}
+                        onChange={(e) => onInputValueChange(sanitizeTermInput(e.target.value))}
                         placeholder={examplePlaceholder}
                     />
                     <p className="kmap-helper-text">
-                        Decimal numbers 0–{Math.pow(2, numVariables) - 1}
+                        Decimal numbers 0–{maxTermValue}
                     </p>
                 </div>
 
@@ -119,38 +121,41 @@ const sanitizeTermInput = (value) => {
                         className="kmap-input"
                         value={dontCares}
                         onChange={(e) => onDontCaresChange(sanitizeTermInput(e.target.value))}
-                    placeholder="e.g., 3,4,12"
-                />
+                        placeholder="e.g., 3,4,12"
+                    />
                 </div>
 
                 {/* Core Action Button Row */}
                 <div className="kmap-btn-row">
                     <button
-                    className="kmap-btn kmap-btn-primary"
-                    onClick={onGenerate}
-                    title="Solve the KMap"
+                        className="kmap-btn kmap-btn-primary"
+                        onClick={onGenerate}
+                        disabled={isPending}
+                        title="Solve the KMap"
                     >
-                    <Cpu className="h-5 w-5" /> 
-                    GENERATE
+                        <Cpu className="h-5 w-5" /> 
+                        {isPending ? 'GENERATING...' : 'GENERATE'}
                     </button>
                     <button
-                    className="kmap-btn kmap-btn-secondary"
-                    onClick={onExample}
-                    title="Load a prefilled example"
+                        className="kmap-btn kmap-btn-secondary"
+                        onClick={onExample}
+                        disabled={isPending}
+                        title="Load a prefilled example"
                     >
-                    <FileCode className="h-5 w-5" /> 
-                    EXAMPLE
+                        <FileCode className="h-5 w-5" /> 
+                        EXAMPLE
                     </button>
                     <button
-                    className="kmap-btn kmap-btn-outline"
-                    onClick={onReset}
-                    title="Clear all inputs"
+                        className="kmap-btn kmap-btn-outline"
+                        onClick={onReset}
+                        disabled={isPending}
+                        title="Clear all inputs"
                     >
-                    <RotateCcw className="h-5 w-5" /> 
-                    RESET
+                        <RotateCcw className="h-5 w-5" /> 
+                        RESET
                     </button>
                 </div>
             </div>
         </div>
     );
-};
+});
