@@ -1,5 +1,5 @@
 import '../KMapGenerator.css';
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef, memo } from 'react';
 import { useSpeechSynthesis } from '../hooks';
 import { WhiteboardAnimation } from './WhiteboardAnimation';
 import {  
@@ -12,7 +12,12 @@ import {
   Presentation 
 } from 'lucide-react';
 
-export const GroupingGuide = ({ groups, variables, numVariables, grid, getColumnLabels, getRowLabels, optimizationType = 'SOP' }) => {
+// FIX: this component previously had no memo() wrapper at all, so it
+// re-rendered on every parent render regardless of whether its props
+// actually changed. Combined with the unstable getColumnLabels/getRowLabels
+// references from useKMapLogic (now fixed with useCallback), this was one
+// of the two causes of the full result-stack re-rendering on every keystroke.
+const GroupingGuideBase = ({ groups, variables, numVariables, grid, getColumnLabels, getRowLabels, optimizationType = 'SOP' }) => {
     const [currentStep, setCurrentStep] = useState(0);
     const [isPlaying, setIsPlaying] = useState(false);
     const [isPaused, setIsPaused] = useState(false); 
@@ -334,3 +339,5 @@ const analyzeGroupVariables = (group, variables, numVariables, optimizationType 
 
     return { eliminated, kept, term };
 };
+
+export const GroupingGuide = memo(GroupingGuideBase);

@@ -1,4 +1,4 @@
-import { useMemo } from 'react';
+import { useMemo, useCallback } from 'react';
 import { QuineMcCluskey } from '../utils/QuineMcCluskey';
 import { detectGroups } from '../utils/GroupDetector';
 
@@ -66,7 +66,7 @@ export const useKMapLogic = (numVariables, variables, inputValue, dontCares = ''
         if (inputArray.length === Math.pow(2, numVariables)) return isPOS ? 'F = 0' : 'F = 1';
 
         const qm = new QuineMcCluskey(numVariables, variables);
-        
+
         if (isPOS) {
             return qm.simplifyPOS(inputArray, dontCareArray);
         } else {
@@ -79,18 +79,28 @@ export const useKMapLogic = (numVariables, variables, inputValue, dontCares = ''
         return detectGroups(grid, numVariables, inputArray, optimizationType);
     }, [grid, numVariables, inputArray, optimizationType]);
 
-    const getColumnLabels = () => {
+    // FIX: these were plain inline functions before, so useKMapLogic() returned
+    // a brand-new function reference on every render (e.g. every time the
+    // parent re-rendered for an unrelated reason, like isPending flipping
+    // during a transition). Since getColumnLabels/getRowLabels are passed as
+    // props straight into memo()-wrapped children (KMapDisplay, GroupingGuide),
+    // a fresh reference every render defeated their memoization even though
+    // the *actual* labels never changed unless numVariables changed.
+    // useCallback here keeps the reference stable across renders that don't
+    // change numVariables, letting React.memo's shallow comparison skip
+    // re-rendering those children.
+    const getColumnLabels = useCallback(() => {
         if (numVariables === 2) return ['0', '1'];
         return ['00', '01', '11', '10'];
-    };
+    }, [numVariables]);
 
-    const getRowLabels = () => {
+    const getRowLabels = useCallback(() => {
         if (numVariables <= 2) return ['0', '1'];
         if (numVariables === 3) return ['0', '1'];
         return ['00', '01', '11', '10'];
-    };
+    }, [numVariables]);
 
-    const getMintermPosition = (minterm) => {
+    const getMintermPosition = useCallback((minterm) => {
         const grayCode4 = [0, 1, 3, 2];
 
         if (numVariables === 2) {
@@ -110,7 +120,7 @@ export const useKMapLogic = (numVariables, variables, inputValue, dontCares = ''
             const col = grayCode4.indexOf(colValue);
             return { row, col };
         }
-    };
+    }, [numVariables]);
 
     return {
         grid,
