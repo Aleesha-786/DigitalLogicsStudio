@@ -220,3 +220,5 @@ export const WhiteboardAnimation = ({
 
     return null;
 };
+
+export default WhiteboardAnimation;

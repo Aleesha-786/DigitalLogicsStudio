@@ -1,4 +1,4 @@
-import '../../../shared/styles/KMapGenerator.css';
+import '../KMapGenerator.css';
 import React from 'react';
 import { memo } from 'react';
 

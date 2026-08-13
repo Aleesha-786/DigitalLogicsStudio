@@ -1,11 +1,13 @@
-import '../../shared/styles/KMapGenerator.css';
+import './KMapGenerator.css';
 import React, { useState } from 'react';
-import { InputControls } from './components/InputControls';
-import { KMapDisplay } from './components/KMapDisplay';
-import { SimplifiedExpression } from './components/SimplifiedExpression';
-import { GroupingGuide } from './components/GroupingGuide';
-import { TruthTableDisplay } from './components/TruthTableDisplay';
-import { useKMapLogic } from '../../shared/hooks/useKMapLogic';
+import { 
+    InputControls, 
+    KMapDisplay, 
+    SimplifiedExpression, 
+    GroupingGuide, 
+    TruthTableDisplay 
+} from './components';
+import { useKMapLogic } from './hooks';
 import Boolforge from '../boolforge/Boolforge';
 import RelatedSeoLinks from '../../shared/seo/RelatedSeoLinks';
 import { trackToolInteraction } from '../../shared/utils/analytics';

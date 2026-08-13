@@ -84,3 +84,5 @@ export const useSpeechSynthesis = () => {
         voices
     };
 };
+
+export default useSpeechSynthesis;

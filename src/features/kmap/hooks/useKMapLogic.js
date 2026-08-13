@@ -124,3 +124,5 @@ export const useKMapLogic = (numVariables, variables, inputValue, dontCares = ''
         optimizationType
     };
 };
+
+export default useKMapLogic;
