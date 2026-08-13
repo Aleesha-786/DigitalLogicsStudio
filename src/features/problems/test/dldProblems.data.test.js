@@ -1,7 +1,6 @@
 // src/features/problems/data/__tests__/dldProblems.data.test.js
 //
-// One test per DLD problem (46 total: 39 in ProblemsData.js + 7 synthetic
-// in problemCatalog.js). Each test checks two things together, per the
+// One test per DLD problem. Each test checks two things together, per the
 // team's ask ("data shape + grading logic per problem"):
 //
 //   1. DATA SHAPE — every field the UI/components read (ProblemsPage,
@@ -26,6 +25,7 @@
 import problemsCatalog from "../data/problemCatalog";
 
 const VALID_DIFFICULTIES = ["Easy", "Medium", "Hard"];
+const VALID_TYPES = ["fill_in", "mcq"];
 
 // Mirrors ProblemModal.jsx's own reading of a truth-table cell:
 //   const val = row[g.label];
@@ -81,6 +81,24 @@ describe("DLD problems — data shape + grading readiness", () => {
       expect(problem.acceptanceRate).toBeLessThanOrEqual(94);
       expect(problem.topic).toEqual(expect.any(String));
       expect(problem.filterGroup).toEqual(expect.any(String));
+
+      if (problem.type) {
+        // ── Answer-graded problem (fill_in / mcq) ─────────────────────
+        // Graded via CoalProblemModal-style logic against `correctAnswer`,
+        // not the circuit builder — `truthTable` here is reference/display
+        // content only, so it's intentionally NOT checked against
+        // outputs/inputs the way circuit problems are below.
+        expect(VALID_TYPES).toContain(problem.type);
+        expect(problem.correctAnswer).toEqual(expect.any(String));
+        expect(problem.correctAnswer.length).toBeGreaterThan(0);
+
+        if (problem.type === "mcq") {
+          expect(Array.isArray(problem.options)).toBe(true);
+          expect(problem.options.length).toBeGreaterThanOrEqual(2);
+          expect(problem.options).toContain(problem.correctAnswer);
+        }
+        return;
+      }
 
       // ── Grading readiness (mirrors ProblemModal.handleSubmitCircuit) ──
       // Only check inputs that appear as an exact truth-table column —
