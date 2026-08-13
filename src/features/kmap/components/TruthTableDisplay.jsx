@@ -1,62 +1,138 @@
-import '../../../shared/styles/KMapGenerator.css';
-import React, { useState, memo } from "react";
+import '../KMapGenerator.css';
+import React, { useState, memo, useMemo, useEffect, useCallback } from "react";
 import { Maximize2, X } from 'lucide-react';
-import { evaluate } from 'mathjs';
+import { compile } from 'mathjs';
 
-const evaluateLogic = (expression, variables, binaryStr) => {
+// Pre-transform boolean expression syntax into standard mathjs notation
+const prepareExpression = (expression, variables) => {
+    if (!expression) return null;
     let expr = expression;
+
+    // Sort variable names by length descending to prevent replacing substrings prematurely
     const sortedVars = [...variables].map((v, i) => ({ v, i })).sort((a, b) => b.v.length - a.v.length);
-    
-    sortedVars.forEach(({ v, i }) => {
-        const bit = binaryStr[i];
-        expr = expr.split(v + "'").join(`(!${bit})`);
-        expr = expr.split(v).join(`${bit}`);
+
+    sortedVars.forEach(({ v }) => {
+        // Convert complement notation (e.g., A' -> not(A))
+        expr = expr.split(`${v}'`).join(` not(${v}) `);
     });
 
-    expr = expr.replace(/·/g, ' and ').replace(/\./g, ' and ').replace(/\+/g, ' or ').replace(/⊕/g, ' xor ');
-    expr = expr.replace(/&&/g, ' and ').replace(/\|\|/g, ' or ');
-    expr = expr.replace(/(\d|\))(?=\(|\d|!)/g, '$1 and ');
+    expr = expr
+        .replace(/·/g, ' and ')
+        .replace(/\./g, ' and ')
+        .replace(/\+/g, ' or ')
+        .replace(/⊕/g, ' xor ')
+        .replace(/&&/g, ' and ')
+        .replace(/\|\|/g, ' or ')
+        .replace(/!/g, ' not ')
+        .replace(/(\d|\)|[a-zA-Z])(?=\(|\d|not\b|[a-zA-Z])/g, '$1 and ');
 
     try {
-        // Safe evaluation using mathjs instead of eval()
-        return evaluate(expr) ? 1 : 0;
+        return compile(expr);
     } catch (e) {
-        return '-'; 
+        return null;
     }
 };
 
 const TruthTableDisplayBase = ({ 
-    numVariables, variables, inputValue, dontCares, 
-    optimizationType = 'SOP', intermediateTerms = [], expression = "" 
+    numVariables, 
+    variables, 
+    inputValue, 
+    dontCares, 
+    optimizationType = 'SOP', 
+    intermediateTerms = [], 
+    expression = "" 
 }) => {
     const [isModalOpen, setIsModalOpen] = useState(false);
-    
-    const cleanExpression = expression.includes('=') ? expression.split('=')[1].trim() : expression;
-    const inputSet = new Set(inputValue.split(',').map(m => m.trim()).filter(m => m !== '').map(m => parseInt(m)));
-    const dontCareSet = new Set(dontCares.split(',').map(m => m.trim()).filter(m => m !== '').map(m => parseInt(m)));
+
+    // Escape key modal close handler
+    useEffect(() => {
+        const handleKeyDown = (e) => {
+            if (e.key === 'Escape') setIsModalOpen(false);
+        };
+        if (isModalOpen) {
+            window.addEventListener('keydown', handleKeyDown);
+        }
+        return () => window.removeEventListener('keydown', handleKeyDown);
+    }, [isModalOpen]);
+
     const isPOS = optimizationType === 'POS';
 
+    // Memoize input minterm/maxterm sets
+    const inputSet = useMemo(() => {
+        return new Set(
+            inputValue
+                .split(',')
+                .map((m) => m.trim())
+                .filter((m) => m !== '')
+                .map((m) => parseInt(m, 10))
+                .filter((num) => !isNaN(num))
+        );
+    }, [inputValue]);
+
+    const dontCareSet = useMemo(() => {
+        return new Set(
+            dontCares
+                .split(',')
+                .map((m) => m.trim())
+                .filter((m) => m !== '')
+                .map((m) => parseInt(m, 10))
+                .filter((num) => !isNaN(num))
+        );
+    }, [dontCares]);
+
+    const cleanExpression = useMemo(() => {
+        const raw = expression.includes('=') ? expression.split('=')[1].trim() : expression;
+        return prepareExpression(raw, variables);
+    }, [expression, variables]);
+
+    const compiledIntermediateTerms = useMemo(() => {
+        return intermediateTerms.map((term) => ({
+            raw: term,
+            compiled: prepareExpression(term, variables)
+        }));
+    }, [intermediateTerms, variables]);
+
+    const evaluateCompiled = useCallback((compiledCode, scope) => {
+        if (!compiledCode) return '-';
+        try {
+            return compiledCode.evaluate(scope) ? 1 : 0;
+        } catch {
+            return '-';
+        }
+    }, []);
+
+    const totalRows = useMemo(() => Math.pow(2, numVariables), [numVariables]);
+
     const renderTable = (showIntermediate) => (
-        <table className="kmap-truth-table" style={{ width: '100%' }}>
+        <table className="kmap-truth-table kmap-table-full">
             <thead>
                 <tr>
-                    <th>Minterm</th>
-                    {variables.map((v, idx) => <th key={`var-${idx}`}>{v}</th>)}
-                    {showIntermediate && intermediateTerms.map((term, idx) => <th key={`term-head-${idx}`}>{term}</th>)}
+                    <th>{isPOS ? 'Maxterm' : 'Minterm'}</th>
+                    {variables.map((v, idx) => (
+                        <th key={`var-${idx}`}>{v}</th>
+                    ))}
+                    {showIntermediate &&
+                        compiledIntermediateTerms.map((item, idx) => (
+                            <th key={`term-head-${idx}`}>{item.raw}</th>
+                        ))}
                     <th>F</th>
                 </tr>
             </thead>
             <tbody>
-                {Array.from({ length: Math.pow(2, numVariables) }, (_, i) => {
+                {Array.from({ length: totalRows }, (_, i) => {
                     const binary = i.toString(2).padStart(numVariables, '0');
-                    let output;
                     
+                    // Construct scope object for evaluation (e.g., { A: 1, B: 0 })
+                    const scope = {};
+                    variables.forEach((v, idx) => {
+                        scope[v] = parseInt(binary[idx], 10);
+                    });
+
+                    let output;
                     if (dontCareSet.has(i)) {
-                        if (showIntermediate && cleanExpression) {
-                            output = evaluateLogic(cleanExpression, variables, binary);
-                        } else {
-                            output = 'X'; 
-                        }
+                        output = (showIntermediate && cleanExpression) 
+                            ? evaluateCompiled(cleanExpression, scope) 
+                            : 'X';
                     } else if (isPOS) {
                         output = inputSet.has(i) ? 0 : 1;
                     } else {
@@ -66,12 +142,15 @@ const TruthTableDisplayBase = ({
                     return (
                         <tr key={i}>
                             <td className="input-term-cell">{isPOS ? 'M' : 'm'}{i}</td>
-                            {binary.split('').map((bit, idx) => <td key={`bit-${idx}`}>{bit}</td>)}
-                            {showIntermediate && intermediateTerms.map((term, idx) => (
-                                <td key={`term-val-${idx}`} className="intermediate-cell">
-                                    {evaluateLogic(term, variables, binary)}
-                                </td>
+                            {binary.split('').map((bit, idx) => (
+                                <td key={`bit-${idx}`}>{bit}</td>
                             ))}
+                            {showIntermediate &&
+                                compiledIntermediateTerms.map((item, idx) => (
+                                    <td key={`term-val-${idx}`} className="intermediate-cell">
+                                        {evaluateCompiled(item.compiled, scope)}
+                                    </td>
+                                ))}
                             <td className={`output-cell ${output === 1 ? 'output-1' : output === 0 ? 'output-0' : 'output-x'}`}>
                                 {output}
                             </td>
@@ -85,13 +164,14 @@ const TruthTableDisplayBase = ({
     return (
         <>
             <div className="kmap-card">
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem' }}>
-                    <h2 className="kmap-section-title" style={{ margin: 0 }}>Truth Table</h2>
+                <div className="kmap-truth-table-header">
+                    <h2 className="kmap-section-title kmap-mb-0">Truth Table</h2>
                     {intermediateTerms.length > 0 && (
                         <button 
                             className="tt-expand-btn"
                             onClick={() => setIsModalOpen(true)}
                             title="Expand to see step-by-step Truth Table"
+                            aria-label="Expand Truth Table"
                         >
                             <Maximize2 className="h-5 w-5" />
                         </button>
@@ -101,9 +181,19 @@ const TruthTableDisplayBase = ({
             </div>
 
             {isModalOpen && (
-                <div className="circuit-modal-overlay tt-overlay-fixed" onClick={(e) => { if (e.target.classList.contains('circuit-modal-overlay')) setIsModalOpen(false); }}>
+                <div 
+                    className="circuit-modal-overlay tt-overlay-fixed" 
+                    onClick={(e) => { 
+                        if (e.target.classList.contains('circuit-modal-overlay')) setIsModalOpen(false); 
+                    }}
+                >
                     <div className="circuit-modal-container tt-modal-inner">
-                        <button className="circuit-modal-close" onClick={() => setIsModalOpen(false)} title="Close Truth Table">
+                        <button 
+                            className="circuit-modal-close" 
+                            onClick={() => setIsModalOpen(false)} 
+                            title="Close Truth Table"
+                            aria-label="Close Truth Table"
+                        >
                             <X className="h-4 w-4" />
                         </button>
                         <div className="tt-modal-header">
