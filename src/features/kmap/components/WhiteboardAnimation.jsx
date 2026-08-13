@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
+import { memo } from 'react';
 
-export const WhiteboardAnimation = ({
+export const WhiteboardAnimation = memo(({
     step,
     stepIndex,
     isActive,
@@ -219,6 +220,6 @@ export const WhiteboardAnimation = ({
     }
 
     return null;
-};
+});
 
 export default WhiteboardAnimation;

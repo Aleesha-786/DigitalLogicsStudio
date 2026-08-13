@@ -1,5 +1,10 @@
 import './KMapGenerator.css';
-import React, { useState, useTransition } from 'react';
+import React, { 
+    useState, 
+    useTransition, 
+    useCallback, 
+    useMemo 
+} from 'react';
 import { 
     InputControls, 
     KMapDisplay, 
@@ -23,20 +28,26 @@ const KMapGenerator = () => {
     const { theme, toggle: toggleTheme } = useTheme();
     const [isPending, startTransition] = useTransition();
 
-    const [numVariables, setNumVariables] = useState(3);
-    const [variables, setVariables] = useState(['A', 'B', 'C']);
-    const [inputValue, setInputValue] = useState('');
-    const [dontCares, setDontCares] = useState('');
-    const [optimizationType, setOptimizationType] = useState('SOP');
+    // Single source of truth for the configuration.
+    const [activeConfig, setActiveConfig] = useState({
+        numVariables: 3,
+        variables: ['A', 'B', 'C'],
+        inputValue: '',
+        dontCares: '',
+        optimizationType: 'SOP'
+    });
+
     const [showSolution, setShowSolution] = useState(false);
     const [showGroupingGuide, setShowGroupingGuide] = useState(false);
     const [showCircuitModal, setShowCircuitModal] = useState(false);
 
-    const [committedNumVariables, setCommittedNumVariables] = useState(numVariables);
-    const [committedVariables, setCommittedVariables] = useState(variables);
-    const [committedInputValue, setCommittedInputValue] = useState('');
-    const [committedDontCares, setCommittedDontCares] = useState('');
-    const [committedOptimizationType, setCommittedOptimizationType] = useState(optimizationType);
+    const {
+        numVariables,
+        variables,
+        inputValue,
+        dontCares,
+        optimizationType
+    } = activeConfig;
 
     const {
         grid,
@@ -45,74 +56,56 @@ const KMapGenerator = () => {
         getColumnLabels,
         getRowLabels
     } = useKMapLogic(
-        committedNumVariables, 
-        committedVariables, 
-        committedInputValue, 
-        committedDontCares, 
-        committedOptimizationType
+        numVariables, 
+        variables, 
+        inputValue, 
+        dontCares, 
+        optimizationType
     );
 
-    const handleVariablesChange = (value) => {
-        const num = parseInt(value, 10);
-        setNumVariables(num);
-        const defaultVars = ['A', 'B', 'C', 'D'];
-        setVariables(defaultVars.slice(0, num));
-        setShowSolution(false);
-    };
-
-    const handleExample = () => {
-        trackToolInteraction('kmap_generator', 'load_example', {
-            variable_count: numVariables,
-        });
-        if (numVariables === 3) {
-            setInputValue('0,1,2,5,6,7');
-            setDontCares('3,4');
-        } else if (numVariables === 4) {
-            setInputValue('0,1,2,5,6,7,8,9,10,14');
-            setDontCares('3,11,12,13,15');
-        } else {
-            setInputValue('0,2,3');
-            setDontCares('1');
-        }
-        setShowSolution(false);
-    };
-
-    const handleReset = () => {
-        trackToolInteraction('kmap_generator', 'reset', {
-            variable_count: numVariables,
+    const handleGenerate = useCallback((newConfig) => {
+        trackToolInteraction('kmap_generator', 'generate_solution', {
+            variable_count: newConfig.numVariables,
+            optimization_type: newConfig.optimizationType,
         });
         startTransition(() => {
-            setInputValue('');
-            setDontCares('');
-            setCommittedInputValue('');
-            setCommittedDontCares('');
+            setActiveConfig(newConfig);
+            setShowSolution(true);
+        });
+    }, []);
+
+    const handleExample = useCallback((newConfig) => {
+        trackToolInteraction('kmap_generator', 'load_example', {
+            variable_count: newConfig.numVariables,
+        });
+        startTransition(() => {
+            setActiveConfig(newConfig);
+            setShowSolution(false);
+        });
+    }, []);
+
+    const handleReset = useCallback(() => {
+        trackToolInteraction('kmap_generator', 'reset', {
+            variable_count: activeConfig.numVariables,
+        });
+        startTransition(() => {
+            setActiveConfig(prev => ({
+                ...prev,
+                inputValue: '',
+                dontCares: '',
+            }));
             setShowSolution(false);
             setShowGroupingGuide(false);
         });
-    };
+    }, [activeConfig.numVariables]);
 
-    const handleGenerate = () => {
-        trackToolInteraction('kmap_generator', 'generate_solution', {
-            variable_count: numVariables,
-            optimization_type: optimizationType,
-        });
-        startTransition(() => {
-            setCommittedNumVariables(numVariables);
-            setCommittedVariables(variables);
-            setCommittedInputValue(inputValue);
-            setCommittedDontCares(dontCares);
-            setCommittedOptimizationType(optimizationType);
-            setShowSolution(true);
-        });
-    };
-
-    const getIntermediateTerms = (expr, type, inputVars) => {
-        if (!expr || expr === '1' || expr === '0') return [];
+    const intermediateTerms = useMemo(() => {
+        if (!expression || expression === '1' || expression === '0') return [];
         
-        const cleanExpr = expr.includes('=') ? expr.split('=')[1].trim() : expr;
+        const cleanExpr = expression.includes('=') ? expression.split('=')[1].trim() : expression;
         
         let terms = [];
-        if (type === 'SOP') {
+        if (optimizationType === 'SOP') {
             terms = cleanExpr.split('+').map(t => t.trim()).filter(Boolean);
         } else {
             const matches = cleanExpr.match(/\([^)]+\)/g);
@@ -120,10 +113,8 @@ const KMapGenerator = () => {
                 terms = matches.map(m => m.replace(/[()]/g, '').trim());
             }
         }
-        return terms.filter(term => !inputVars.includes(term));
-    };
-
-    const intermediateTerms = getIntermediateTerms(expression, committedOptimizationType, committedVariables);
+        return terms.filter(term => !variables.includes(term));
+    }, [expression, optimizationType, variables]);
 
     return (
         <div className={`kmap-page theme-${theme}`}>
@@ -137,17 +128,8 @@ const KMapGenerator = () => {
                         <div className="kmap-sidebar-inner">
                             <p className="kmap-sidebar-label">⚙ Configuration</p>
                             <InputControls
-                                numVariables={numVariables}
-                                variables={variables}
-                                inputValue={inputValue}
-                                dontCares={dontCares}
-                                optimizationType={optimizationType}
+                                initialConfig={activeConfig}
                                 isPending={isPending}
-                                onVariablesChange={handleVariablesChange}
-                                onVariablesUpdate={setVariables}
-                                onInputValueChange={setInputValue}
-                                onDontCaresChange={setDontCares}
-                                onOptimizationTypeChange={setOptimizationType}
                                 onGenerate={handleGenerate}
                                 onExample={handleExample}
                                 onReset={handleReset} 
@@ -179,20 +161,20 @@ const KMapGenerator = () => {
                                 <KMapDisplay
                                     grid={grid}
                                     groups={groups}
-                                    numVariables={committedNumVariables}
-                                    variables={committedVariables}
+                                    numVariables={numVariables}
+                                    variables={variables}
                                     getColumnLabels={getColumnLabels}
                                     getRowLabels={getRowLabels}
                                     showGroupingGuide={showGroupingGuide}
-                                    optimizationType={committedOptimizationType}
+                                    optimizationType={optimizationType}
                                 />
                                 
                                 <TruthTableDisplay
-                                    numVariables={committedNumVariables}
-                                    variables={committedVariables}
-                                    inputValue={committedInputValue}
-                                    dontCares={committedDontCares}
-                                    optimizationType={committedOptimizationType}
+                                    numVariables={numVariables}
+                                    variables={variables}
+                                    inputValue={inputValue}
+                                    dontCares={dontCares}
+                                    optimizationType={optimizationType}
                                     intermediateTerms={intermediateTerms}
                                     expression={expression}
                                 />
@@ -212,12 +194,12 @@ const KMapGenerator = () => {
                                 {showGroupingGuide && (
                                     <GroupingGuide
                                         groups={groups}
-                                        variables={committedVariables}
-                                        numVariables={committedNumVariables}
+                                        variables={variables}
+                                        numVariables={numVariables}
                                         grid={grid}
                                         getColumnLabels={getColumnLabels}
                                         getRowLabels={getRowLabels}
-                                        optimizationType={committedOptimizationType}
+                                        optimizationType={optimizationType}
                                     />
                                 )}
 
@@ -253,7 +235,7 @@ const KMapGenerator = () => {
                             </button>
                             <Boolforge
                                 simplifiedExpression={expression}
-                                variables={committedVariables}
+                                variables={variables}
                                 embedded={true}
                             />
                         </div>

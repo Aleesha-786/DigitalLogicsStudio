@@ -1,7 +1,7 @@
 import '../KMapGenerator.css';
 import { memo } from 'react';
 
-const KMapDisplayBase = ({
+const KMapDisplayBase = memo(({
     grid,
     groups,
     numVariables,
@@ -129,6 +129,6 @@ const KMapDisplayBase = ({
             </div>
         </div>
     );
-};
+});
 
 export const KMapDisplay = memo(KMapDisplayBase);
