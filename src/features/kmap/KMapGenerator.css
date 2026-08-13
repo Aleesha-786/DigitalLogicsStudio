@@ -76,7 +76,8 @@
 }
 
 .kmap-sidebar-inner {
-  padding: 0 12px 24px 0;
+  width: 100%;
+  padding: 0 0 24px 0;
 }
 
 .kmap-sidebar-label {
@@ -543,6 +544,14 @@
   font-size: 1.1rem;
 }
 
+.kmap-btn-row {
+  display: flex;
+  flex-direction: row;
+  align-items: stretch;
+  gap: 10px;
+  width: 100%;
+}
+
 .kmap-btn-row .kmap-btn {
   display: flex;
   flex-direction: column;
@@ -553,7 +562,8 @@
   font-size: 0.72rem;
   letter-spacing: 0.5px;
   white-space: nowrap;
-  width: 100%;
+  flex: 1 1 auto;
+  width: auto;
   min-width: 0;
   box-sizing: border-box;
 }
@@ -2136,7 +2146,7 @@
 @media (max-width: 540px) {
   /* Button row and cell shrinkage */
   .kmap-btn-row {
-    grid-template-columns: 1fr;
+    flex-direction: column;
   }
   .kmap-control-row {
     flex-direction: column;
