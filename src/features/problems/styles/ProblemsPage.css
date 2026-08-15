@@ -148,6 +148,19 @@
     padding-right: 0.15rem;
     padding-bottom: 0.5rem;
   }
+
+  .problems-center .problems-banner-card {
+    min-height: 120px;
+    padding: 0.9rem;
+  }
+
+  .problems-center .problems-banner-card h2 {
+    font-size: 1.2rem;
+  }
+
+  .problems-center .inline-daily-challenge {
+    padding: 0.85rem 1rem;
+  }
 }
 
 .problems-page.theme-light {
