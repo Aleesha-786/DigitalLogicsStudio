@@ -24,6 +24,15 @@ export default function TheoryLayout({ track, children, title, subtitle, intro, 
   const { utils, courseParts } = track;
 
   const currentPart = utils.getPartForPath(pathname) || courseParts[0];
+  const currentPartIndex = courseParts.findIndex((p) => p.id === currentPart.id);
+  const nextPart =
+  currentPartIndex >= 0 && currentPartIndex < courseParts.length - 1
+    ? courseParts[currentPartIndex + 1]
+    : null;
+      const nextPartPath = nextPart?.modules?.[0]
+    ? utils.getTopicPath(nextPart.modules[0].slug)
+    : null;
+      const nextPartLabel = nextPart?.title || null;
 
   const currentPartPages = currentPart.modules.map((module) => ({
     path: utils.getTopicPath(module.slug),
@@ -64,6 +73,8 @@ export default function TheoryLayout({ track, children, title, subtitle, intro, 
       sidebarFooterLink={track.homePath}
       sidebarFooterLabel={`← ${track.id === "coal" ? "COAL" : "DLD"} home`}
       tracking={{ topic, pathToSubtopicId: utils.PATH_TO_SUBTOPIC_ID }}
+      nextPartPath={nextPartPath}
+      nextPartLabel={nextPartLabel}
     >
       {children}
     </TopicLayout>

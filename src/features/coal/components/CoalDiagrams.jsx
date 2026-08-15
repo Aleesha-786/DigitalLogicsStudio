@@ -1,4 +1,5 @@
 import React from "react";
+import "./CoalTopicCard.css";
 
 export function VonNeumannDiagram() {
   return (

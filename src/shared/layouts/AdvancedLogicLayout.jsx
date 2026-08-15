@@ -1,10 +1,19 @@
 import React from "react";
 import TopicLayout from "../components/topics/TopicLayout";
+import { dldCourseParts } from "../data/dldCourseOutline";
 import {
   advancedLogicPages,
   ADVANCED_LOGIC_TOPIC,
   ADVANCED_LOGIC_PATH_TO_SUBTOPIC_ID,
 } from "../../features/dld-theory/logic-gates/advancedLogicConfig";
+
+const currentPartIndex = dldCourseParts.findIndex((p) => p.id === "advanced-logic");
+const nextPart =
+  currentPartIndex >= 0 && currentPartIndex < dldCourseParts.length - 1
+    ? dldCourseParts[currentPartIndex + 1]
+    : null;
+const nextPartPath = nextPart?.modules?.[0]?.path || null;
+const nextPartLabel = nextPart?.title || null;
 
 const AdvancedLogicLayout = ({
   title,
@@ -28,6 +37,10 @@ const AdvancedLogicLayout = ({
       topic: ADVANCED_LOGIC_TOPIC,
       pathToSubtopicId: ADVANCED_LOGIC_PATH_TO_SUBTOPIC_ID,
     }}
+    nextPartPath={nextPartPath}
+    nextPartLabel={nextPartLabel}
+    sidebarFooterLink="/resources/dld"
+    sidebarFooterLabel="← DLD home"
   >
     {children}
   </TopicLayout>

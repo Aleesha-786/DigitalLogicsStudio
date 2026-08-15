@@ -1,11 +1,19 @@
 import React from "react";
 import TopicLayout from "../../../shared/components/topics/TopicLayout";
+import { dldCourseParts } from "../../../shared/data/dldCourseOutline";
 import {
   combinationalPages,
   COMBINATIONAL_TOPIC,
   COMBINATIONAL_PATH_TO_SUBTOPIC_ID,
 } from "./combinationalConfig";
 
+const currentPartIndex = dldCourseParts.findIndex((p) => p.id === "combinational-circuits");
+const nextPart =
+  currentPartIndex >= 0 && currentPartIndex < dldCourseParts.length - 1
+    ? dldCourseParts[currentPartIndex + 1]
+    : null;
+const nextPartPath = nextPart?.modules?.[0]?.path || null;
+const nextPartLabel = nextPart?.title || null;
 
 const CombinationalLayout = ({
   title,
@@ -29,6 +37,10 @@ const CombinationalLayout = ({
       topic: COMBINATIONAL_TOPIC,
       pathToSubtopicId: COMBINATIONAL_PATH_TO_SUBTOPIC_ID,
     }}
+    nextPartPath={nextPartPath}
+    nextPartLabel={nextPartLabel}
+    sidebarFooterLink="/resources/dld"
+    sidebarFooterLabel="← DLD home"
   >
     {children}
   </TopicLayout>
