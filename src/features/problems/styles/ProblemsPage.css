@@ -52,7 +52,6 @@
   }
 
   .problems-sidebar,
-  .problems-center,
   .problems-right-rail {
     min-height: 0;
     max-height: 100%;
@@ -63,23 +62,88 @@
     scrollbar-gutter: stable;
   }
 
-  .problems-center::-webkit-scrollbar,
+  /* Center: scroll the column so challenges stay reachable when
+     banners/filters take most of the viewport height. The table card
+     also keeps an internal scrollbar for the long problem list. */
+  .problems-center {
+    min-height: 0;
+    max-height: 100%;
+    overflow-x: hidden;
+    overflow-y: auto;
+    overscroll-behavior: contain;
+    display: flex;
+    flex-direction: column;
+    gap: 0.85rem;
+    padding-right: 0.15rem;
+    padding-bottom: 0.75rem;
+    scrollbar-width: thin;
+    scrollbar-gutter: stable;
+  }
+
+  .problems-center::-webkit-scrollbar {
+    width: 5px;
+  }
+
+  .problems-center::-webkit-scrollbar-thumb {
+    background: var(--problems-border-strong);
+    border-radius: 999px;
+  }
+
+  .problems-center::-webkit-scrollbar-track {
+    background: transparent;
+  }
+
+  .problems-center > :not(.problems-table-card) {
+    flex-shrink: 0;
+  }
+
+  .problems-center .problems-table-card {
+    flex: 1 0 auto;
+    min-height: min(52vh, 560px);
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+  }
+
+  .problems-center .problems-table-summary {
+    flex-shrink: 0;
+  }
+
+  .problems-center .problems-table-wrap {
+    flex: 1 1 auto;
+    min-height: 0;
+    overflow: auto;
+    overscroll-behavior: contain;
+    scrollbar-width: thin;
+  }
+
+  .problems-center .problems-table-wrap::-webkit-scrollbar {
+    width: 5px;
+    height: 5px;
+  }
+
+  .problems-center .problems-table-wrap::-webkit-scrollbar-thumb {
+    background: var(--problems-border-strong);
+    border-radius: 999px;
+  }
+
+  .problems-center .problems-table-wrap::-webkit-scrollbar-track {
+    background: transparent;
+  }
+
   .problems-right-rail::-webkit-scrollbar {
     width: 5px;
   }
 
-  .problems-center::-webkit-scrollbar-thumb,
   .problems-right-rail::-webkit-scrollbar-thumb {
     background: var(--problems-border-strong);
     border-radius: 999px;
   }
 
-  .problems-center::-webkit-scrollbar-track,
   .problems-right-rail::-webkit-scrollbar-track {
     background: transparent;
   }
 
-  .problems-center,
   .problems-right-rail {
     padding-right: 0.15rem;
     padding-bottom: 0.5rem;
@@ -95,7 +159,7 @@
   --problems-surface-strong: #f1f5f9;
   --problems-border: rgba(15, 23, 42, 0.08);
   --problems-border-strong: rgba(15, 23, 42, 0.14);
-  --problems-row-hover: #eef2ff;
+  --problems-row-hover: #f5f8ff;
   --problems-text-strong: #0f172a;
   --problems-text-soft: #334155;
   --problems-tag-bg: rgba(37, 99, 235, 0.08);
@@ -162,21 +226,25 @@
 }
 
 .problems-page.theme-light .problems-table tbody tr:nth-child(even) {
-  background: #f8fafc;
+  background: #fbfcfe;
 }
 
-.problems-page.theme-light .problems-table tbody tr:hover,
+.problems-page.theme-light .problems-table tbody tr:hover {
+  background: #f5f8ff !important;
+}
+
 .problems-page.theme-light .problems-table tbody tr.is-selected {
-  background: #eef2ff;
+  background: #eef5ff !important;
+  box-shadow: inset 3px 0 0 #93c5fd;
 }
 
 .problems-page.theme-light .problems-table tbody tr.is-locked {
-  background: #f1f5f9;
+  background: #f8fafc;
   opacity: 0.85;
 }
 
 .problems-page.theme-light .problems-table tbody tr.is-locked:hover {
-  background: #f1f5f9;
+  background: #f8fafc !important;
 }
 
 .problems-page.theme-light .problems-table tbody td:first-child {
@@ -319,9 +387,13 @@
     border-color: rgba(15, 23, 42, 0.1);
   }
 
-  .problems-page.theme-light .problems-table tbody tr:hover,
+  .problems-page.theme-light .problems-table tbody tr:hover {
+    background: #f5f8ff !important;
+    border-color: rgba(37, 99, 235, 0.2);
+  }
+
   .problems-page.theme-light .problems-table tbody tr.is-selected {
-    background: #eef2ff;
+    background: #eef5ff !important;
     border-color: rgba(37, 99, 235, 0.25);
   }
 }
@@ -3081,12 +3153,31 @@
   border-left: 3px solid #8b5cf6 !important;
 }
 
+.problems-page.coal-track.theme-light .problems-table tbody tr:hover {
+  background: #f5f3ff !important;
+}
+
+.problems-page.coal-track.theme-light .problems-table tbody tr.is-selected {
+  background: #efeaff !important;
+  box-shadow: inset 3px 0 0 #a78bfa;
+  border-left: none !important;
+}
+
+.problems-page.coal-track.theme-light .problems-table tbody tr:hover .problem-title-text,
+.problems-page.coal-track.theme-light .problems-table tbody tr.is-selected .problem-title-text {
+  color: #6d28d9 !important;
+}
+
 .problems-page.coal-track .problem-title-text {
   transition: color 0.15s ease;
 }
 
 .problems-page.coal-track .problems-table tbody tr:hover .problem-title-text {
   color: #c084fc !important;
+}
+
+.problems-page.coal-track.theme-light .problems-table tbody tr:hover .problem-title-text {
+  color: #6d28d9 !important;
 }
 
 /* Daily Challenge card override */
