@@ -1,0 +1,68 @@
+export const memoryPages = [
+  {
+    path: "/memory/basics",
+    label: "Memory Basics",
+    short: "Basics",
+    description: "Volatile vs non-volatile, bits, bytes, and address spaces.",
+    icon: "🧱",
+    color: "#38bdf8",
+  },
+  {
+    path: "/memory/read-only-memories",
+    label: "Read-Only Memories",
+    short: "ROM",
+    description: "Mask ROM, PROM, EPROM, EEPROM, and Flash memory types.",
+    icon: "🔒",
+    color: "#818cf8",
+  },
+  {
+    path: "/memory/programmable-logic-array",
+    label: "Programmable Logic Array",
+    short: "PLA",
+    description: "AND-OR programmable planes for combinational logic.",
+    icon: "⚙️",
+    color: "#fb923c",
+  },
+  {
+    path: "/memory/random-access-memory",
+    label: "Random Access Memory",
+    short: "RAM",
+    description: "Read/write volatile memory, signals, and access cycles.",
+    icon: "💾",
+    color: "#34d399",
+  },
+  {
+    path: "/memory/static-dynamic-ram",
+    label: "Static & Dynamic RAM",
+    short: "SRAM / DRAM",
+    description: "Flip-flop vs capacitor storage, refresh, and trade-offs.",
+    icon: "⚡",
+    color: "#f472b6",
+  },
+  {
+    path: "/memory/array-of-ram-ics",
+    label: "Array of RAM ICs",
+    short: "RAM Arrays",
+    description: "Word-length and address expansion using multiple chips.",
+    icon: "🔧",
+    color: "#a78bfa",
+  },
+  {
+    path: "/memory/memory-construction-ram",
+    label: "Memory Construction",
+    short: "Construction",
+    description: "Build any memory size from RAM ICs with decoders and buses.",
+    icon: "🏗️",
+    color: "#fbbf24",
+  },
+];
+
+export const MEMORY_PATH_TO_SUBTOPIC_ID = Object.fromEntries(
+  memoryPages.map((page) => [page.path, page.path.replace("/memory/", "")]),
+);
+
+export const MEMORY_TOPIC = {
+  id: "memory-systems",
+  title: "MEMORY SYSTEMS",
+  links: Object.values(MEMORY_PATH_TO_SUBTOPIC_ID).map((id) => ({ id })),
+};

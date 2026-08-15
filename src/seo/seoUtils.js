@@ -9,8 +9,28 @@ import {
   TWITTER_HANDLE,
 } from "./seoCatalog.mjs";
 
-const authPaths = new Set(["/login", "/signup", "/profile"]);
+const authPaths = new Set(["/login", "/signup", "/profile", "/settings", "/forgot-password"]);
 const sectionRootMatchers = [
+  {
+    test: /^\/resources\/coal(\/|$)/,
+    path: "/resources/coal",
+    label: "COAL",
+  },
+  {
+    test: /^\/coal\//,
+    path: "/resources/coal/theory",
+    label: "COAL Theory",
+  },
+  {
+    test: /^\/resources\/dld(\/|$)/,
+    path: "/resources/dld",
+    label: "DLD Resources",
+  },
+  {
+    test: /^\/resources(\/|$)/,
+    path: "/resources",
+    label: "Resources",
+  },
   { test: /^\/problems(\/|$)/, path: "/problems", label: "Practice" },
   { test: /^\/boolean\//, path: "/boolean/overview", label: "Boolean Algebra" },
   {

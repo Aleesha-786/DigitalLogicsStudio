@@ -1,0 +1,22 @@
+/* Instruction Laboratory Page — theme tokens
+   These scope to .il-page and flip when [data-theme="light"] is set,
+   the same way Home.css's tokens do. Use them instead of hardcoded hex
+   so this page follows the site-wide theme toggle. */
+
+.il-page {
+  --il-glass-rgb: 255, 255, 255;   /* base for translucent surfaces/borders */
+  --il-surface: #0f172a;            /* solid panel bg (comparison cards etc.) */
+  --il-surface-soft: #111827;       /* inputs / selects / pill-toggle bg */
+  --il-code-bg: #030712;            /* code block bg */
+  --il-border-solid: #1e293b;       /* solid hairline borders */
+  --il-text-body: #d1d5db;          /* body copy, slightly softer than heading text */
+}
+
+[data-theme="light"] .il-page {
+  --il-glass-rgb: 15, 23, 42;
+  --il-surface: #ffffff;
+  --il-surface-soft: #f8fafc;
+  --il-code-bg: #f1f5f9;
+  --il-border-solid: #cbd5e1;
+  --il-text-body: #334155;
+}

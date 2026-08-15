@@ -1,0 +1,59 @@
+/* ══════════════════════════════════════════════════════════════════════
+   PremiumLearningShell.css
+   Shared chrome for every topic/chapter page (memory, number-systems,
+   boolean-algebra, sequential-circuits, registers-transfers,
+   arithmetic-hdl, combinational-circuits, logic-gates, etc).
+
+   COLOR STANDARD
+   ───────────────
+   The Registers & Transfers page (`reg-layout`, RegStyles.css) is the
+   site's reference palette. Rather than overriding colors here, each
+   feature's own CSS file (MemorySystem.css, NSLayout.css, SeqLayout.css,
+   BALayout.css, AFHDLLayout.css) now declares that same palette natively,
+   under its own token names, in both themes. That keeps this file purely
+   structural and gives every topic page a single, local source of truth
+   for its colors instead of a separate override layer fighting CSS
+   specificity/load-order with the feature file.
+
+   To change the site-wide standard later: edit RegStyles.css's `:root`
+   and `[data-theme="light"]` blocks, then copy the same hex values into
+   the equivalent blocks in the other five files listed above.
+   ══════════════════════════════════════════════════════════════════════ */
+
+.premium-topic-shell .afhdl-main {
+  width: min(940px, 100%);
+  transition: background 0.18s ease;
+}
+
+.premium-topic-content {
+  gap: 1.25rem;
+}
+
+.premium-topic-stack {
+  display: grid;
+  gap: 1.25rem;
+}
+
+.premium-topic-embed {
+  width: min(100%, 100%);
+}
+
+.premium-related-links .premium-related-link-card {
+  text-decoration: none;
+  transition:
+    transform 0.18s ease,
+    border-color 0.18s ease,
+    background 0.18s ease;
+}
+
+.premium-related-links .premium-related-link-card:hover,
+.premium-related-links .premium-related-link-card:focus-visible {
+  transform: translateY(-2px);
+  border-color: var(--afhdl-border-strong);
+  background: var(--afhdl-surface-strong);
+}
+
+.premium-topic-shell {
+  background: var(--afhdl-bg);
+  color: var(--afhdl-text);
+}
