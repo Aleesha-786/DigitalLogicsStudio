@@ -9,6 +9,7 @@ const AFHDLLayout = ({ title, subtitle, intro, highlights = [], children }) => (
     intro={intro}
     highlights={highlights}
     pages={afhdlPages}
+    overviewPath={afhdlPages[0]?.path}
     topicLabel="Arithmetic & HDLs"
     sidebarTitle="Arithmetic Toolkit"
     sidebarCopy="Learn one operation at a time, then connect ideas to hardware design."
@@ -18,6 +19,8 @@ const AFHDLLayout = ({ title, subtitle, intro, highlights = [], children }) => (
       topic: AFHDL_TOPIC,
       pathToSubtopicId: AFHDL_PATH_TO_SUBTOPIC_ID,
     }}
+    sidebarFooterLink="/resources/dld"
+    sidebarFooterLabel="← DLD home"
   >
     {children}
   </TopicLayout>

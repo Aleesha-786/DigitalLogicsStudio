@@ -92,8 +92,10 @@ const PremiumLearningShell = ({
   progressVerb = "complete",
   tracking,
   rootClassName = "",
-  sidebarFooterLink = "/",
+   sidebarFooterLink = "/",
   sidebarFooterLabel = "← Back to All Topics",
+  nextPartPath = null,      // ← add
+  nextPartLabel = null,
 }) => {
   const location = useLocation();
   const { theme, toggle: toggleTheme } = useTheme();
@@ -113,11 +115,11 @@ const PremiumLearningShell = ({
     : currentIndex > 0
       ? chapterPages[currentIndex - 1]
       : null;
-  const next = isOverview
-    ? chapterPages[0] || null
-    : currentIndex >= 0 && currentIndex < chapterPages.length - 1
-      ? chapterPages[currentIndex + 1]
-      : null;
+ const next = isOverview
+  ? (chapterPages[0]?.path === currentPath ? chapterPages[1] : chapterPages[0]) || null
+  : currentIndex >= 0 && currentIndex < chapterPages.length - 1
+    ? chapterPages[currentIndex + 1]
+    : null;
 
   const pathToSubtopicId = tracking?.pathToSubtopicId || {};
   const subtopicAliases = tracking?.subtopicAliases || EMPTY_ALIASES;
@@ -210,6 +212,35 @@ const PremiumLearningShell = ({
   );
   const progressDash = progress * 0.879;
   const isRead = subtopicId ? completedSubtopics.includes(subtopicId) : false;
+
+  // Auto-mark as read once the user has scrolled through ~90% of the
+// page. Only fires once per page visit, and only if not already read
+// — scrolling back up/down again after that does nothing further.
+const autoMarkedRef = useRef(false);
+
+useEffect(() => {
+  autoMarkedRef.current = false;
+}, [currentPath]);
+
+useEffect(() => {
+  if (!trackedTopic || !subtopicId || !catalog) return;
+
+  const checkScrollProgress = () => {
+    if (autoMarkedRef.current || isRead) return;
+
+    const scrollableHeight = document.documentElement.scrollHeight - window.innerHeight;
+    if (scrollableHeight <= 0) return;
+
+    const scrollPercent = (window.scrollY / scrollableHeight) * 100;
+    if (scrollPercent >= 90) {
+      autoMarkedRef.current = true;
+      toggleCompletion();
+    }
+  };
+
+  window.addEventListener("scroll", checkScrollProgress, { passive: true });
+  return () => window.removeEventListener("scroll", checkScrollProgress);
+}, [trackedTopic, subtopicId, catalog, isRead, toggleCompletion]);
 
   const pageDone = (pageIndex, page) => {
     if (isSidebarItemDone) return isSidebarItemDone(page, completedSubtopics);
@@ -378,11 +409,17 @@ const PremiumLearningShell = ({
 
         <main className="afhdl-main">
           <nav className="afhdl-breadcrumb" aria-label="Breadcrumb">
-            <Link to="/" className="afhdl-bc-link">
-              Home
-            </Link>
+            <Link to={sidebarFooterLink} className="afhdl-bc-link">
+             Home
+             </Link>
             <span className="afhdl-bc-sep">›</span>
-            <span className="afhdl-bc-mid">{topicLabel}</span>
+           {overviewPath ? (
+           <Link to={overviewPath} className="afhdl-bc-link afhdl-bc-mid">
+            {topicLabel}
+          </Link>
+           ) : (
+           <span className="afhdl-bc-mid">{topicLabel}</span>
+           )}
             <span className="afhdl-bc-sep">›</span>
             <span className="afhdl-bc-current">{title}</span>
           </nav>
@@ -497,17 +534,29 @@ const PremiumLearningShell = ({
                     </svg>
                   </span>
                 </NavLink>
-              ) : (
-                <Link to="/" className="afhdl-footer-link afhdl-footer-link-next">
-                  <span>
-                    <span className="afhdl-footer-label">All done!</span>
-                    <span className="afhdl-footer-title">Return to Home</span>
-                  </span>
-                  <span className="afhdl-footer-arrow afhdl-footer-arrow-next">
-                    <Home size={16} aria-hidden="true" />
-                  </span>
-                </Link>
-              )}
+              ) : nextPartPath ? (
+  <Link to={nextPartPath} className="afhdl-footer-link afhdl-footer-link-next">
+    <span>
+      <span className="afhdl-footer-label">Part complete!</span>
+      <span className="afhdl-footer-title">Continue to {nextPartLabel}</span>
+    </span>
+    <span className="afhdl-footer-arrow afhdl-footer-arrow-next">
+      <svg width="16" height="16" viewBox="0 0 20 20" fill="none" aria-hidden="true">
+        <path d="M7 5l5 5-5 5" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+      </svg>
+    </span>
+  </Link>
+) : (
+  <Link to="/" className="afhdl-footer-link afhdl-footer-link-next">
+    <span>
+      <span className="afhdl-footer-label">All done!</span>
+      <span className="afhdl-footer-title">Return to Home</span>
+    </span>
+    <span className="afhdl-footer-arrow afhdl-footer-arrow-next">
+      <Home size={16} aria-hidden="true" />
+    </span>
+  </Link>
+)}
             </div>
           </footer>
         </main>

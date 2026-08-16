@@ -20,6 +20,8 @@ const TopicLayout = ({
   rootClassName = "topic-layout",
   sidebarFooterLink = "/",
   sidebarFooterLabel = "← Back to All Topics",
+  nextPartPath = null,
+  nextPartLabel = null,
   children,
 }) => (
   <PremiumLearningShell
@@ -41,6 +43,8 @@ const TopicLayout = ({
     sidebarFooterLink={sidebarFooterLink}
     sidebarFooterLabel={sidebarFooterLabel}
     tracking={tracking}
+    nextPartPath={nextPartPath}
+    nextPartLabel={nextPartLabel}
   >
     {children}
   </PremiumLearningShell>

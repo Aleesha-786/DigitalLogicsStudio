@@ -80,7 +80,7 @@ export const TRACKS = {
     parentProgressTopicId: "coal-theory",
     // COAL's hero chapter-dots span the whole course — matches its
     // existing (pre-unification) behavior.
-    pagesScope: "all",
+    pagesScope: "part",
     homeDescription:
       "A structured path from computer fundamentals to assembly and processor architecture — theory and hands-on practice in one place.",
     quickLinks: [
