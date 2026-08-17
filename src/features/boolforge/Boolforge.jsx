@@ -1964,13 +1964,17 @@ const Boolforge = ({
                   <path
                     className="wire-hit"
                     d={wirePathD(pts)}
+                    fill="none"
                     onContextMenu={(e) => {
                       e.preventDefault();
                       e.stopPropagation();
                       deleteWire(wire.id);
                     }}
                   />
-                  <path className="wire-path" d={wirePathD(pts)} />
+                  {isActive && (
+                    <path className="wire-glow" d={wirePathD(pts)} fill="none" />
+                  )}
+                  <path className="wire-path" d={wirePathD(pts)} fill="none" />
                 </g>
               );
             })}
@@ -1985,7 +1989,7 @@ const Boolforge = ({
                 connectCursor.x,
                 connectCursor.y,
               );
-              return <path className="wire-preview" d={wirePathD(pts)} />;
+              return <path className="wire-preview" d={wirePathD(pts)} fill="none" />;
             })()}
           </svg>
           {isSelecting && (
