@@ -603,10 +603,11 @@
 }
 
 /* home-main, home-hero, home-hero-content, home-card, home-footer —
-   canonical definitions live in Home.css and are intentionally kept there.
+   Footer layout/styles live in shared/components/Footer.css.
    App.css only owns global / cross-page styles. */
 
 .home-footer {
+  /* Background/border kept as a light fallback if Footer.css load order varies */
   border-top: 1px solid var(--border-color);
   background: var(--nav-bg);
 }
@@ -1276,7 +1277,7 @@ summary:hover {
   }
 }
 
-/* ── Footer: full collapse on phones ── */
+/* ── Footer: collapse columns on phones ── */
 @media (max-width: 480px) {
   .home-footer-inner {
     grid-template-columns: 1fr;
