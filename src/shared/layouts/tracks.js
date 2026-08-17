@@ -84,7 +84,7 @@ export const TRACKS = {
     homeDescription:
       "A structured path from computer fundamentals to assembly and processor architecture — theory and hands-on practice in one place.",
     quickLinks: [
-      { title: "Practical Labs", description: "Tracing exercises, assembly drills, and simulators — coming soon.", to: "/resources/coal/practical", icon: Wrench },
+      { title: "Practical Labs", description: "Hands-on tracing exercises, assembly drills, and interactive simulators.", to: "/resources/coal/practical", icon: Wrench },
       { title: "Problems Arena", description: "Tackle 15 COAL conceptual and code tracing challenges.", to: "/problems?course=coal", icon: Trophy },
     ],
     concepts: [],

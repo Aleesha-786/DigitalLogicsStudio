@@ -18,6 +18,8 @@ const MULTI_INPUT_GATES = new Set(["AND", "OR", "NAND", "NOR", "XOR", "XNOR"]);
 const SINGLE_INPUT_GATES = new Set(["NOT", "BUFFER", "OUTPUT"]);
 const GRID_SIZE = 20;
 const SNAP_TO_GRID = true;
+const GATE_WIDTH = 120;
+const GATE_HEIGHT = 100;
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 function defaultInputCount(type) {
@@ -50,27 +52,58 @@ function getICHeight(type) {
   return IC_HEIGHTS[type] ?? 100;
 }
 
+function getGateHeight(gate) {
+  return IC_TYPES.has(gate.type) ? getICHeight(gate.type) : GATE_HEIGHT;
+}
+
 function getInputY(gate, inputIndex) {
+  const h = getGateHeight(gate);
   if (IC_TYPES.has(gate.type)) {
     const n = IC_META[gate.type].inputs;
-    const h = getICHeight(gate.type);
     if (n === 1) return gate.y + h / 2;
-    return gate.y + (10 / 100) * h + (inputIndex / (n - 1)) * (0.8 * h);
+    return gate.y + 0.1 * h + (inputIndex / (n - 1)) * (0.8 * h);
   }
   const n = gate.inputs;
-  if (n === 1) return gate.y + 50;
-  if (n === 2) return gate.y + (inputIndex === 0 ? 35 : 65);
-  const gateTop = gate.y + 15;
-  const gateBottom = gate.y + 85;
-  return gateTop + (inputIndex / (n - 1)) * (gateBottom - gateTop);
+  if (n === 1) return gate.y + h / 2;
+  if (n === 2) return gate.y + (inputIndex === 0 ? 0.35 : 0.65) * h;
+  return gate.y + 0.15 * h + (inputIndex / (n - 1)) * 0.7 * h;
 }
 
 function getOutputY(gate, outputIndex) {
-  if (!IC_TYPES.has(gate.type)) return gate.y + 50;
+  const h = getGateHeight(gate);
+  if (!IC_TYPES.has(gate.type)) return gate.y + h / 2;
   const n = IC_META[gate.type].outputs;
-  const h = getICHeight(gate.type);
   if (n === 1) return gate.y + h / 2;
-  return gate.y + (10 / 100) * h + (outputIndex / (n - 1)) * (0.8 * h);
+  return gate.y + 0.1 * h + (outputIndex / (n - 1)) * (0.8 * h);
+}
+
+function getCurvePoints(fromX, fromY, toX, toY) {
+  const dx = toX - fromX;
+  const distance = Math.hypot(dx, toY - fromY) || 1;
+  const controlDistance = Math.max(40, Math.min(Math.abs(dx) / 2, distance / 3));
+  return {
+    fromX,
+    fromY,
+    toX,
+    toY,
+    cp1x: fromX + controlDistance,
+    cp1y: fromY,
+    cp2x: toX - controlDistance,
+    cp2y: toY,
+  };
+}
+
+function getWirePoints(fromGate, toGate, fromOutputIndex, toIndex) {
+  return getCurvePoints(
+    fromGate.x + GATE_WIDTH,
+    getOutputY(fromGate, fromOutputIndex ?? 0),
+    toGate.x,
+    getInputY(toGate, toIndex),
+  );
+}
+
+function wirePathD(pts) {
+  return `M ${pts.fromX} ${pts.fromY} C ${pts.cp1x} ${pts.cp1y}, ${pts.cp2x} ${pts.cp2y}, ${pts.toX} ${pts.toY}`;
 }
 
 // ─── Component ────────────────────────────────────────────────────────────────
@@ -106,6 +139,7 @@ const Boolforge = ({
   const [selectedGateIds, setSelectedGateIds] = useState([]);
   const [dragging, setDragging] = useState(false);
   const [connectingFrom, setConnectingFrom] = useState(null);
+  const [connectCursor, setConnectCursor] = useState(null);
   const [gateIdCounter, setGateIdCounter] = useState(0);
   const [wireIdCounter, setWireIdCounter] = useState(0);
   const [inputCounter, setInputCounter] = useState(0);
@@ -357,7 +391,17 @@ const Boolforge = ({
       let changed = false;
       for (const gate of gates) {
         if (gate.type === "INPUT") {
-          const v = gate.inputValues[0] || false;
+          const incoming = incomingWires.get(gate.id) || [];
+          let v = gate.inputValues[0] || false;
+          if (incoming.length > 0) {
+            const w = incoming[0];
+            const srcVal = prev.get(w.fromId);
+            if (IC_TYPES.has(gateMap.get(w.fromId)?.type) && Array.isArray(srcVal)) {
+              v = srcVal[w.fromOutputIndex ?? 0] ?? false;
+            } else {
+              v = srcVal ?? false;
+            }
+          }
           if (prev.get(gate.id) !== v) {
             next.set(gate.id, v);
             changed = true;
@@ -674,101 +718,115 @@ const Boolforge = ({
     }
   };
 
+  const clientToWorld = (clientX, clientY) => {
+    const rect = containerRef.current?.getBoundingClientRect();
+    if (!rect) return { x: 0, y: 0 };
+    return {
+      x: (clientX - rect.left - panOffset.x) / zoom,
+      y: (clientY - rect.top - panOffset.y) / zoom,
+    };
+  };
+
   // ── Wire connections ──────────────────────────────────────────────────────
   const startConnection = (gate, outputIndex = 0) => {
     if (!gate.hasOutput) return;
-    setConnectingFrom({ gate, outputIndex });
+    setConnectingFrom({ gateId: gate.id, outputIndex });
+    setConnectCursor({
+      x: gate.x + GATE_WIDTH,
+      y: getOutputY(gate, outputIndex),
+    });
+  };
+
+  const endWiring = () => {
+    setConnectingFrom(null);
+    setConnectCursor(null);
+  };
+
+  const mergeInputGates = (keepId, removeId) => {
+    setWires((prev) => {
+      const rest = prev.filter((w) => w.fromId !== removeId && w.toId !== removeId);
+      const occupied = new Set(rest.map((w) => `${w.toId}:${w.toIndex}`));
+      const redirected = prev
+        .filter((w) => w.fromId === removeId && w.toId !== removeId)
+        .filter((w) => !occupied.has(`${w.toId}:${w.toIndex}`))
+        .map((w) => ({ ...w, fromId: keepId }));
+      return [...rest, ...redirected];
+    });
+    setGates((prev) => prev.filter((g) => g.id !== removeId));
+    setSelectedGateIds((prev) => prev.filter((id) => id !== removeId));
+    setSelectedGate((prev) => (prev?.id === removeId ? null : prev));
+    endWiring();
+    saveToHistory();
   };
 
   const completeConnection = (toGate, toIndex) => {
-    if (!connectingFrom || connectingFrom.gate.id === toGate.id) {
-      setConnectingFrom(null);
+    const fromGateId = connectingFrom?.gateId ?? connectingFrom?.gate?.id;
+    if (!connectingFrom || fromGateId == null || fromGateId === toGate.id) {
+      endWiring();
       return;
     }
-    const fromGate = connectingFrom.gate;
+
+    const fromGate = gateMap.get(fromGateId);
+
+    // Clicking another INPUT joins both into one source (fan-out).
+    if (fromGate?.type === "INPUT" && toGate.type === "INPUT") {
+      mergeInputGates(fromGateId, toGate.id);
+      return;
+    }
+
     const fromOutputIndex = connectingFrom.outputIndex ?? 0;
     const filteredWires = wires.filter(
       (w) => !(w.toId === toGate.id && w.toIndex === toIndex),
     );
     const finalWires =
-      toGate.type === "OUTPUT"
+      toGate.type === "OUTPUT" || toGate.type === "INPUT"
         ? filteredWires.filter((w) => w.toId !== toGate.id)
         : filteredWires;
     const newWire = {
       id: wireIdCounter,
-      fromId: fromGate.id,
+      fromId: fromGateId,
       fromOutputIndex,
       toId: toGate.id,
       toIndex,
     };
     setWires([...finalWires, newWire]);
     setWireIdCounter((prev) => prev + 1);
-    setConnectingFrom(null);
+    endWiring();
     saveToHistory();
   };
 
-  // ── Wire hit‑test & delete (right‑click on canvas) ────────────────────────
-  const handleCanvasContextMenu = (e) => {
-    const canvas = canvasRef.current;
-    if (!canvas) return;
-    const rect = canvas.getBoundingClientRect();
-    const x = (e.clientX - rect.left - panOffset.x) / zoom;
-    const y = (e.clientY - rect.top - panOffset.y) / zoom;
-
-    for (const wire of wires) {
-      const fromGate = gateMap.get(wire.fromId);
-      const toGate = gateMap.get(wire.toId);
-      if (!fromGate || !toGate) continue;
-
-      const fromX = fromGate.x + 120;
-      const fromY = IC_TYPES.has(fromGate.type)
-        ? getOutputY(fromGate, wire.fromOutputIndex ?? 0)
-        : fromGate.y + 50;
-      const toX = toGate.x;
-      const toY = getInputY(toGate, wire.toIndex);
-
-      const dx = toX - fromX,
-        dy = toY - fromY;
-      const distance = Math.sqrt(dx * dx + dy * dy);
-      const controlDistance = Math.min(Math.abs(dx) / 2, distance / 3);
-      const cp1x = fromX + controlDistance,
-        cp1y = fromY;
-      const cp2x = toX - controlDistance,
-        cp2y = toY;
-
-      const SAMPLES = 60,
-        HIT_RADIUS = 8;
-      for (let i = 0; i <= SAMPLES; i++) {
-        const t = i / SAMPLES,
-          mt = 1 - t;
-        const bx =
-          mt ** 3 * fromX +
-          3 * mt ** 2 * t * cp1x +
-          3 * mt * t ** 2 * cp2x +
-          t ** 3 * toX;
-        const by =
-          mt ** 3 * fromY +
-          3 * mt ** 2 * t * cp1y +
-          3 * mt * t ** 2 * cp2y +
-          t ** 3 * toY;
-        if (Math.sqrt((bx - x) ** 2 + (by - y) ** 2) < HIT_RADIUS) {
-          e.preventDefault();
-          setWires((prev) => prev.filter((w) => w.id !== wire.id));
-          saveToHistory();
-          return;
-        }
-      }
+  const handleOutputPortClick = (gate, outputIndex = 0) => {
+    const fromGateId = connectingFrom?.gateId ?? connectingFrom?.gate?.id;
+    if (connectingFrom && fromGateId !== gate.id && gate.type === "INPUT") {
+      completeConnection(gate, 0);
+      return;
     }
+    startConnection(gate, outputIndex);
+  };
+
+  const deleteWire = (wireId) => {
+    setWires((prev) => prev.filter((w) => w.id !== wireId));
+    saveToHistory();
+  };
+
+  const handleCanvasContextMenu = (e) => {
     e.preventDefault();
+  };
+
+  const stopPortEvent = (e) => {
+    e.stopPropagation();
   };
 
   // ── Canvas events (pan, select, zoom) ──────────────────────────────────────
   const handleCanvasMouseDown = (e) => {
     if (e.target === canvasRef.current) {
       e.preventDefault();
-      const rect = containerRef.current.getBoundingClientRect();
-      const startX = (e.clientX - rect.left - panOffset.x) / zoom;
-      const startY = (e.clientY - rect.top - panOffset.y) / zoom;
+      if (connectingFrom) {
+        setConnectingFrom(null);
+        setConnectCursor(null);
+        return;
+      }
+      const { x: startX, y: startY } = clientToWorld(e.clientX, e.clientY);
       const isCtrl = e.ctrlKey || e.metaKey;
       const isMiddleClick = e.button === 1;
 
@@ -811,7 +869,7 @@ const Boolforge = ({
       const intersectingIds = gates
         .filter((g) => {
           const gH = IC_TYPES.has(g.type) ? getICHeight(g.type) : 100;
-          const gateBox = { x1: g.x, y1: g.y, x2: g.x + 120, y2: g.y + gH };
+          const gateBox = { x1: g.x, y1: g.y, x2: g.x + GATE_WIDTH, y2: g.y + gH };
           return (
             gateBox.x1 < box.x2 &&
             gateBox.x2 > box.x1 &&
@@ -1167,7 +1225,14 @@ const Boolforge = ({
       if (!gate || depth > 20 || visited.has(gate.id)) return "?";
       const newVisited = new Set(visited);
       newVisited.add(gate.id);
-      if (gate.type === "INPUT") return gate.label;
+      if (gate.type === "INPUT") {
+        const incoming = wires.find((w) => w.toId === gate.id);
+        if (incoming) {
+          const src = gatesArray.find((g) => g.id === incoming.fromId);
+          return deriveExpression(src, gatesArray, depth + 1, newVisited);
+        }
+        return gate.label;
+      }
 
       const incomingForGate = wires.filter((w) => w.toId === gate.id);
       const slotExprs = {};
@@ -1502,77 +1567,20 @@ const Boolforge = ({
     }
   }, [gates, wires, onCircuitChange]);
 
-  // Draw wires whenever relevant state changes
-  const drawWires = useCallback(() => {
-    const canvas = canvasRef.current;
-    if (!canvas) return;
-    const ctx = canvas.getContext("2d");
-    if (!ctx) return;
-    ctx.clearRect(0, 0, canvas.width, canvas.height);
-    ctx.save();
-    ctx.translate(panOffset.x, panOffset.y);
-    ctx.scale(zoom, zoom);
-
-    wires.forEach((wire) => {
-      const fromGate = gateMap.get(wire.fromId);
-      const toGate = gateMap.get(wire.toId);
-      if (!fromGate || !toGate) return;
-
-      const fromX = fromGate.x + 120;
-      const fromY = IC_TYPES.has(fromGate.type)
-        ? getOutputY(fromGate, wire.fromOutputIndex ?? 0)
-        : fromGate.y + 50;
-      const toX = toGate.x;
-      const toY = getInputY(toGate, wire.toIndex);
-
-      const outIdx = wire.fromOutputIndex ?? 0;
-      const isActive = evaluateGate(fromGate, outIdx);
-      ctx.strokeStyle = isActive ? "#00ff88" : "#334155";
-      ctx.lineWidth = 3 / zoom;
-      ctx.shadowBlur = isActive ? 12 / zoom : 0;
-      ctx.shadowColor = isActive ? "#00ff88" : "transparent";
-
-      ctx.beginPath();
-      ctx.moveTo(fromX, fromY);
-      const dx = toX - fromX,
-        dy = toY - fromY;
-      const distance = Math.sqrt(dx * dx + dy * dy);
-      const controlDistance = Math.min(Math.abs(dx) / 2, distance / 3);
-      ctx.bezierCurveTo(
-        fromX + controlDistance,
-        fromY,
-        toX - controlDistance,
-        toY,
-        toX,
-        toY,
-      );
-      ctx.stroke();
-      ctx.shadowBlur = 0;
-    });
-    ctx.restore();
-  }, [wires, gateMap, evaluateGate, zoom, panOffset]);
-
-  useEffect(() => {
-    drawWires();
-  }, [drawWires]);
-
-  // Resize canvas
+  // Keep the hit-target canvas the same size as the workspace (wires are SVG).
   useEffect(() => {
     const canvas = canvasRef.current;
     const container = containerRef.current;
     if (!canvas || !container) return;
-    let resizeTimeout;
     const resizeCanvas = () => {
-      clearTimeout(resizeTimeout);
-      resizeTimeout = setTimeout(() => {
-        const w = container.clientWidth,
-          h = container.clientHeight;
-        if (w > 0 && h > 0) {
-          canvas.width = w;
-          canvas.height = h;
-          drawWires();
-        }
-      }, 100);
+      const w = container.clientWidth;
+      const h = container.clientHeight;
+      if (w > 0 && h > 0) {
+        canvas.width = w;
+        canvas.height = h;
+        const ctx = canvas.getContext("2d");
+        if (ctx) ctx.clearRect(0, 0, w, h);
+      }
     };
     resizeCanvas();
     window.addEventListener("resize", resizeCanvas);
@@ -1583,10 +1591,9 @@ const Boolforge = ({
     }
     return () => {
       window.removeEventListener("resize", resizeCanvas);
-      clearTimeout(resizeTimeout);
       if (ro) ro.disconnect();
     };
-  }, [drawWires]);
+  }, []);
 
   // Keyboard: space for panning
   useEffect(() => {
@@ -1643,6 +1650,7 @@ const Boolforge = ({
         deleteGate();
       } else if (e.key === "Escape") {
         setConnectingFrom(null);
+        setConnectCursor(null);
         setSelectedGateIds([]);
       }
     };
@@ -1700,6 +1708,9 @@ const Boolforge = ({
     <div
       className="container circuit-maker"
       onMouseMove={(e) => {
+        if (connectingFrom) {
+          setConnectCursor(clientToWorld(e.clientX, e.clientY));
+        }
         if (isPanning || isSelecting) handleMouseMove(e);
         else onDrag(e);
       }}
@@ -1885,6 +1896,8 @@ const Boolforge = ({
           </p>
           <p>• Ctrl + Click to add/remove individual gates</p>
           <p>• Click output dot → input dot to wire</p>
+          <p>• To reuse one input on two gates, click its output again, then the second gate</p>
+          <p>• To join two INPUT blocks, click one output then the other INPUT</p>
           <p>• Right-click wire to delete it</p>
           <p>• Right-click gate to delete (deletes selection)</p>
           <p>• Double-click gate to rename it</p>
@@ -1904,7 +1917,7 @@ const Boolforge = ({
       </div>
 
       {/* Canvas */}
-      <div className="canvas-container" ref={containerRef}>
+      <div className={`canvas-container${connectingFrom ? " is-wiring" : ""}`} ref={containerRef}>
         <canvas
           ref={canvasRef}
           onContextMenu={handleCanvasContextMenu}
@@ -1931,8 +1944,50 @@ const Boolforge = ({
           className="gates-container"
           style={{
             transform: `translate(${panOffset.x}px, ${panOffset.y}px) scale(${zoom})`,
+            transformOrigin: "0 0",
           }}
         >
+          <svg className="wire-layer" aria-hidden="true">
+            {wires.map((wire) => {
+              const fromGate = gateMap.get(wire.fromId);
+              const toGate = gateMap.get(wire.toId);
+              if (!fromGate || !toGate) return null;
+              const pts = getWirePoints(
+                fromGate,
+                toGate,
+                wire.fromOutputIndex,
+                wire.toIndex,
+              );
+              const isActive = evaluateGate(fromGate, wire.fromOutputIndex ?? 0);
+              return (
+                <g key={wire.id} className={isActive ? "wire-on" : "wire-off"}>
+                  <path
+                    className="wire-hit"
+                    d={wirePathD(pts)}
+                    onContextMenu={(e) => {
+                      e.preventDefault();
+                      e.stopPropagation();
+                      deleteWire(wire.id);
+                    }}
+                  />
+                  <path className="wire-path" d={wirePathD(pts)} />
+                </g>
+              );
+            })}
+            {connectingFrom && connectCursor && (() => {
+              const fromGate = gateMap.get(
+                connectingFrom.gateId ?? connectingFrom.gate?.id,
+              );
+              if (!fromGate) return null;
+              const pts = getCurvePoints(
+                fromGate.x + GATE_WIDTH,
+                getOutputY(fromGate, connectingFrom.outputIndex ?? 0),
+                connectCursor.x,
+                connectCursor.y,
+              );
+              return <path className="wire-preview" d={wirePathD(pts)} />;
+            })()}
+          </svg>
           {isSelecting && (
             <div
               className="selection-rectangle"
@@ -1959,7 +2014,7 @@ const Boolforge = ({
             const isIC = IC_TYPES.has(gate.type);
             const icMeta = isIC ? IC_META[gate.type] : null;
             const icH = isIC ? getICHeight(gate.type) : 100;
-            const cfGateId = connectingFrom?.gate?.id ?? connectingFrom?.id;
+            const cfGateId = connectingFrom?.gateId ?? connectingFrom?.gate?.id;
 
             return (
               <div
@@ -1967,7 +2022,14 @@ const Boolforge = ({
                 data-gate-id={gate.id}
                 className={`gate ${gate.type === "OUTPUT" ? "output-gate" : ""} ${isIC ? "gate--ic" : ""} ${selectedGateIds.includes(gate.id) ? "selected" : ""} ${gate.type === "OUTPUT" && evaluateGate(gate) ? "active" : ""}`}
                 style={{ left: gate.x, top: gate.y, height: isIC ? icH : undefined }}
-                onMouseDown={(e) => startDrag(e, gate)}
+                onMouseDown={(e) => {
+                  if (connectingFrom && gate.type === "INPUT") {
+                    e.stopPropagation();
+                    completeConnection(gate, 0);
+                    return;
+                  }
+                  startDrag(e, gate);
+                }}
                 onTouchStart={(e) => {
                   if (e.touches.length === 1) {
                     e.stopPropagation();
@@ -2030,7 +2092,8 @@ const Boolforge = ({
                         className={`connection-point output-point ic-output-point ${isConnecting ? "active" : ""} ${evaluateGate(gate, outIdx) ? "ic-output-point--high" : ""}`}
                         style={{ top: `${topPct}%` }}
                         title={icMeta.outputLabels[outIdx]}
-                        onClick={() => startConnection(gate, outIdx)}
+                        onMouseDown={stopPortEvent}
+                        onClick={() => handleOutputPortClick(gate, outIdx)}
                       >
                         <span className="ic-pin-label">
                           {icMeta.outputLabels[outIdx]}
@@ -2043,7 +2106,18 @@ const Boolforge = ({
                 {!isIC && gate.hasOutput && (
                   <div
                     className={`connection-point output-point ${cfGateId === gate.id ? "active" : ""}`}
-                    onClick={() => startConnection(gate, 0)}
+                    onMouseDown={stopPortEvent}
+                    onClick={() => handleOutputPortClick(gate, 0)}
+                  />
+                )}
+
+                {gate.type === "INPUT" && (
+                  <div
+                    className={`connection-point input-point ${connectingFrom ? "active" : ""}`}
+                    style={{ top: "50%" }}
+                    title="Drop a wire here to join this input with another"
+                    onMouseDown={stopPortEvent}
+                    onClick={() => completeConnection(gate, 0)}
                   />
                 )}
 
@@ -2058,6 +2132,7 @@ const Boolforge = ({
                         className={`connection-point input-point ic-input-point ${connectingFrom ? "active" : ""}`}
                         style={{ top: `${topPct}%` }}
                         title={icMeta.inputLabels[idx]}
+                        onMouseDown={stopPortEvent}
                         onClick={() => completeConnection(gate, idx)}
                       >
                         <span className="ic-pin-label ic-pin-label--left">
@@ -2079,6 +2154,7 @@ const Boolforge = ({
                         key={idx}
                         className={`connection-point input-point ${connectingFrom ? "active" : ""}`}
                         style={{ top: `${topPct}%` }}
+                        onMouseDown={stopPortEvent}
                         onClick={() => completeConnection(gate, idx)}
                       />
                     );
@@ -2087,6 +2163,7 @@ const Boolforge = ({
                   <div
                     className={`connection-point input-point ${connectingFrom ? "active" : ""}`}
                     style={{ top: "50%" }}
+                    onMouseDown={stopPortEvent}
                     onClick={() => completeConnection(gate, 0)}
                   />
                 )}
@@ -2189,15 +2266,22 @@ const Boolforge = ({
             >
               Input Toggles
             </h3>
-            {inputGates.map((gate) => (
+            {inputGates.map((gate) => {
+              const driven = wires.some((w) => w.toId === gate.id);
+              return (
               <div key={gate.id} className="input-toggle">
-                <label>{gate.label}</label>
+                <label>{gate.label}{driven ? " (linked)" : ""}</label>
                 <div
                   className={`toggle-btn ${gate.inputValues[0] ? "on" : ""}`}
-                  onClick={() => toggleInput(gate)}
+                  onClick={() => {
+                    if (!driven) toggleInput(gate);
+                  }}
+                  style={driven ? { opacity: 0.4, cursor: "not-allowed" } : undefined}
+                  title={driven ? "This input is driven by a wire" : undefined}
                 />
               </div>
-            ))}
+              );
+            })}
           </div>
         )}
 

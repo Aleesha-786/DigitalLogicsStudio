@@ -19,7 +19,7 @@ import "../../shared/styles/LearningResourcesPage.css";
 
 const COAL_ACCENT = coalCourseMeta.accent;
 
-const PLANNED_PRACTICALS = [
+const PRACTICAL_LABS = [
   {
     key: "instruction-trace-lab",
     title: "Instruction trace lab",
@@ -112,14 +112,15 @@ function CoalPracticalPage() {
 
         <section className="learning-resources-section">
           <div className="learning-resources-section-header">
-            <h2>Planned modules</h2>
+            <h2>Labs & simulators</h2>
             <p>
-              Content will be added here as practical exercises are published.
+              Open a lab to trace instructions, practice assembly, and run the
+              simulators.
             </p>
           </div>
 
           <div className="learning-resources-concepts-grid">
-            {PLANNED_PRACTICALS.map((item) => {
+            {PRACTICAL_LABS.map((item) => {
               const Icon = item.icon;
               return (
                 <article
