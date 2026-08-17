@@ -391,7 +391,17 @@ const Boolforge = ({
       let changed = false;
       for (const gate of gates) {
         if (gate.type === "INPUT") {
-          const v = gate.inputValues[0] || false;
+          const incoming = incomingWires.get(gate.id) || [];
+          let v = gate.inputValues[0] || false;
+          if (incoming.length > 0) {
+            const w = incoming[0];
+            const srcVal = prev.get(w.fromId);
+            if (IC_TYPES.has(gateMap.get(w.fromId)?.type) && Array.isArray(srcVal)) {
+              v = srcVal[w.fromOutputIndex ?? 0] ?? false;
+            } else {
+              v = srcVal ?? false;
+            }
+          }
           if (prev.get(gate.id) !== v) {
             next.set(gate.id, v);
             changed = true;
@@ -727,19 +737,49 @@ const Boolforge = ({
     });
   };
 
+  const endWiring = () => {
+    setConnectingFrom(null);
+    setConnectCursor(null);
+  };
+
+  const mergeInputGates = (keepId, removeId) => {
+    setWires((prev) => {
+      const rest = prev.filter((w) => w.fromId !== removeId && w.toId !== removeId);
+      const occupied = new Set(rest.map((w) => `${w.toId}:${w.toIndex}`));
+      const redirected = prev
+        .filter((w) => w.fromId === removeId && w.toId !== removeId)
+        .filter((w) => !occupied.has(`${w.toId}:${w.toIndex}`))
+        .map((w) => ({ ...w, fromId: keepId }));
+      return [...rest, ...redirected];
+    });
+    setGates((prev) => prev.filter((g) => g.id !== removeId));
+    setSelectedGateIds((prev) => prev.filter((id) => id !== removeId));
+    setSelectedGate((prev) => (prev?.id === removeId ? null : prev));
+    endWiring();
+    saveToHistory();
+  };
+
   const completeConnection = (toGate, toIndex) => {
     const fromGateId = connectingFrom?.gateId ?? connectingFrom?.gate?.id;
-    if (!connectingFrom || fromGateId === toGate.id) {
-      setConnectingFrom(null);
-      setConnectCursor(null);
+    if (!connectingFrom || fromGateId == null || fromGateId === toGate.id) {
+      endWiring();
       return;
     }
+
+    const fromGate = gateMap.get(fromGateId);
+
+    // Clicking another INPUT joins both into one source (fan-out).
+    if (fromGate?.type === "INPUT" && toGate.type === "INPUT") {
+      mergeInputGates(fromGateId, toGate.id);
+      return;
+    }
+
     const fromOutputIndex = connectingFrom.outputIndex ?? 0;
     const filteredWires = wires.filter(
       (w) => !(w.toId === toGate.id && w.toIndex === toIndex),
     );
     const finalWires =
-      toGate.type === "OUTPUT"
+      toGate.type === "OUTPUT" || toGate.type === "INPUT"
         ? filteredWires.filter((w) => w.toId !== toGate.id)
         : filteredWires;
     const newWire = {
@@ -751,9 +791,17 @@ const Boolforge = ({
     };
     setWires([...finalWires, newWire]);
     setWireIdCounter((prev) => prev + 1);
-    setConnectingFrom(null);
-    setConnectCursor(null);
+    endWiring();
     saveToHistory();
+  };
+
+  const handleOutputPortClick = (gate, outputIndex = 0) => {
+    const fromGateId = connectingFrom?.gateId ?? connectingFrom?.gate?.id;
+    if (connectingFrom && fromGateId !== gate.id && gate.type === "INPUT") {
+      completeConnection(gate, 0);
+      return;
+    }
+    startConnection(gate, outputIndex);
   };
 
   const deleteWire = (wireId) => {
@@ -1177,7 +1225,14 @@ const Boolforge = ({
       if (!gate || depth > 20 || visited.has(gate.id)) return "?";
       const newVisited = new Set(visited);
       newVisited.add(gate.id);
-      if (gate.type === "INPUT") return gate.label;
+      if (gate.type === "INPUT") {
+        const incoming = wires.find((w) => w.toId === gate.id);
+        if (incoming) {
+          const src = gatesArray.find((g) => g.id === incoming.fromId);
+          return deriveExpression(src, gatesArray, depth + 1, newVisited);
+        }
+        return gate.label;
+      }
 
       const incomingForGate = wires.filter((w) => w.toId === gate.id);
       const slotExprs = {};
@@ -1841,6 +1896,8 @@ const Boolforge = ({
           </p>
           <p>• Ctrl + Click to add/remove individual gates</p>
           <p>• Click output dot → input dot to wire</p>
+          <p>• To reuse one input on two gates, click its output again, then the second gate</p>
+          <p>• To join two INPUT blocks, click one output then the other INPUT</p>
           <p>• Right-click wire to delete it</p>
           <p>• Right-click gate to delete (deletes selection)</p>
           <p>• Double-click gate to rename it</p>
@@ -1860,7 +1917,7 @@ const Boolforge = ({
       </div>
 
       {/* Canvas */}
-      <div className="canvas-container" ref={containerRef}>
+      <div className={`canvas-container${connectingFrom ? " is-wiring" : ""}`} ref={containerRef}>
         <canvas
           ref={canvasRef}
           onContextMenu={handleCanvasContextMenu}
@@ -1965,7 +2022,14 @@ const Boolforge = ({
                 data-gate-id={gate.id}
                 className={`gate ${gate.type === "OUTPUT" ? "output-gate" : ""} ${isIC ? "gate--ic" : ""} ${selectedGateIds.includes(gate.id) ? "selected" : ""} ${gate.type === "OUTPUT" && evaluateGate(gate) ? "active" : ""}`}
                 style={{ left: gate.x, top: gate.y, height: isIC ? icH : undefined }}
-                onMouseDown={(e) => startDrag(e, gate)}
+                onMouseDown={(e) => {
+                  if (connectingFrom && gate.type === "INPUT") {
+                    e.stopPropagation();
+                    completeConnection(gate, 0);
+                    return;
+                  }
+                  startDrag(e, gate);
+                }}
                 onTouchStart={(e) => {
                   if (e.touches.length === 1) {
                     e.stopPropagation();
@@ -2029,7 +2093,7 @@ const Boolforge = ({
                         style={{ top: `${topPct}%` }}
                         title={icMeta.outputLabels[outIdx]}
                         onMouseDown={stopPortEvent}
-                        onClick={() => startConnection(gate, outIdx)}
+                        onClick={() => handleOutputPortClick(gate, outIdx)}
                       >
                         <span className="ic-pin-label">
                           {icMeta.outputLabels[outIdx]}
@@ -2043,7 +2107,17 @@ const Boolforge = ({
                   <div
                     className={`connection-point output-point ${cfGateId === gate.id ? "active" : ""}`}
                     onMouseDown={stopPortEvent}
-                    onClick={() => startConnection(gate, 0)}
+                    onClick={() => handleOutputPortClick(gate, 0)}
+                  />
+                )}
+
+                {gate.type === "INPUT" && (
+                  <div
+                    className={`connection-point input-point ${connectingFrom ? "active" : ""}`}
+                    style={{ top: "50%" }}
+                    title="Drop a wire here to join this input with another"
+                    onMouseDown={stopPortEvent}
+                    onClick={() => completeConnection(gate, 0)}
                   />
                 )}
 
@@ -2192,15 +2266,22 @@ const Boolforge = ({
             >
               Input Toggles
             </h3>
-            {inputGates.map((gate) => (
+            {inputGates.map((gate) => {
+              const driven = wires.some((w) => w.toId === gate.id);
+              return (
               <div key={gate.id} className="input-toggle">
-                <label>{gate.label}</label>
+                <label>{gate.label}{driven ? " (linked)" : ""}</label>
                 <div
                   className={`toggle-btn ${gate.inputValues[0] ? "on" : ""}`}
-                  onClick={() => toggleInput(gate)}
+                  onClick={() => {
+                    if (!driven) toggleInput(gate);
+                  }}
+                  style={driven ? { opacity: 0.4, cursor: "not-allowed" } : undefined}
+                  title={driven ? "This input is driven by a wire" : undefined}
                 />
               </div>
-            ))}
+              );
+            })}
           </div>
         )}
 
