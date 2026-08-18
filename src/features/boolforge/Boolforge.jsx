@@ -106,6 +106,37 @@ function wirePathD(pts) {
   return `M ${pts.fromX} ${pts.fromY} C ${pts.cp1x} ${pts.cp1y}, ${pts.cp2x} ${pts.cp2y}, ${pts.toX} ${pts.toY}`;
 }
 
+function hitWireAt(x, y, wires, gateMap, radius = 12) {
+  const SAMPLES = 64;
+  for (const wire of wires) {
+    const fromGate = gateMap.get(wire.fromId);
+    const toGate = gateMap.get(wire.toId);
+    if (!fromGate || !toGate) continue;
+    const pts = getWirePoints(
+      fromGate,
+      toGate,
+      wire.fromOutputIndex,
+      wire.toIndex,
+    );
+    for (let i = 0; i <= SAMPLES; i++) {
+      const t = i / SAMPLES;
+      const mt = 1 - t;
+      const bx =
+        mt ** 3 * pts.fromX +
+        3 * mt ** 2 * t * pts.cp1x +
+        3 * mt * t ** 2 * pts.cp2x +
+        t ** 3 * pts.toX;
+      const by =
+        mt ** 3 * pts.fromY +
+        3 * mt ** 2 * t * pts.cp1y +
+        3 * mt * t ** 2 * pts.cp2y +
+        t ** 3 * pts.toY;
+      if (Math.hypot(bx - x, by - y) <= radius) return wire;
+    }
+  }
+  return null;
+}
+
 // ─── Component ────────────────────────────────────────────────────────────────
 const Boolforge = ({
   simplifiedExpression = null,
@@ -137,6 +168,7 @@ const Boolforge = ({
   const [wires, setWires] = useState([]);
   const [selectedGate, setSelectedGate] = useState(null);
   const [selectedGateIds, setSelectedGateIds] = useState([]);
+  const [selectedWireIds, setSelectedWireIds] = useState([]);
   const [dragging, setDragging] = useState(false);
   const [connectingFrom, setConnectingFrom] = useState(null);
   const [connectCursor, setConnectCursor] = useState(null);
@@ -520,12 +552,6 @@ const Boolforge = ({
         targets = selectedGateIds;
       }
       if (targets.length === 0) return;
-      if (
-        !window.confirm(
-          `Are you sure you want to delete the ${targets.length} selected component(s)?`,
-        )
-      )
-        return;
 
       setGates((prev) => prev.filter((g) => !targets.includes(g.id)));
       setWires((prev) =>
@@ -652,6 +678,7 @@ const Boolforge = ({
   const startDrag = (e, gate) => {
     if (e.button !== 0) return;
     e.stopPropagation();
+    setSelectedWireIds([]);
     setIsPanning(false);
 
     const isCtrl = e.ctrlKey || e.metaKey;
@@ -806,11 +833,15 @@ const Boolforge = ({
 
   const deleteWire = (wireId) => {
     setWires((prev) => prev.filter((w) => w.id !== wireId));
+    setSelectedWireIds((prev) => prev.filter((id) => id !== wireId));
     saveToHistory();
   };
 
   const handleCanvasContextMenu = (e) => {
     e.preventDefault();
+    const { x, y } = clientToWorld(e.clientX, e.clientY);
+    const hit = hitWireAt(x, y, wires, gateMap);
+    if (hit) deleteWire(hit.id);
   };
 
   const stopPortEvent = (e) => {
@@ -827,6 +858,16 @@ const Boolforge = ({
         return;
       }
       const { x: startX, y: startY } = clientToWorld(e.clientX, e.clientY);
+      if (e.button === 0) {
+        const hit = hitWireAt(startX, startY, wires, gateMap);
+        if (hit) {
+          setSelectedWireIds([hit.id]);
+          setSelectedGateIds([]);
+          setSelectedGate(null);
+          return;
+        }
+        setSelectedWireIds([]);
+      }
       const isCtrl = e.ctrlKey || e.metaKey;
       const isMiddleClick = e.button === 1;
 
@@ -1644,6 +1685,14 @@ const Boolforge = ({
         duplicateSelectedGates();
       } else if (
         (e.key === "Delete" || e.key === "Backspace") &&
+        selectedWireIds.length > 0
+      ) {
+        e.preventDefault();
+        setWires((prev) => prev.filter((w) => !selectedWireIds.includes(w.id)));
+        setSelectedWireIds([]);
+        saveToHistory();
+      } else if (
+        (e.key === "Delete" || e.key === "Backspace") &&
         selectedGateIds.length > 0
       ) {
         e.preventDefault();
@@ -1652,6 +1701,7 @@ const Boolforge = ({
         setConnectingFrom(null);
         setConnectCursor(null);
         setSelectedGateIds([]);
+        setSelectedWireIds([]);
       }
     };
     window.addEventListener("keydown", handler);
@@ -1661,10 +1711,12 @@ const Boolforge = ({
     redo,
     gates,
     selectedGateIds,
+    selectedWireIds,
     deleteGate,
     copySelectedGates,
     pasteGates,
     duplicateSelectedGates,
+    saveToHistory,
   ]);
 
   // Mouse wheel zoom
@@ -1898,7 +1950,7 @@ const Boolforge = ({
           <p>• Click output dot → input dot to wire</p>
           <p>• To reuse one input on two gates, click its output again, then the second gate</p>
           <p>• To join two INPUT blocks, click one output then the other INPUT</p>
-          <p>• Right-click wire to delete it</p>
+          <p>• Right-click a wire to delete it, or click it and press Delete</p>
           <p>• Right-click gate to delete (deletes selection)</p>
           <p>• Double-click gate to rename it</p>
           <p>• Scroll to zoom in/out</p>
@@ -1960,11 +2012,21 @@ const Boolforge = ({
               );
               const isActive = evaluateGate(fromGate, wire.fromOutputIndex ?? 0);
               return (
-                <g key={wire.id} className={isActive ? "wire-on" : "wire-off"}>
+                <g
+                  key={wire.id}
+                  className={`${isActive ? "wire-on" : "wire-off"}${selectedWireIds.includes(wire.id) ? " wire-selected" : ""}`}
+                >
                   <path
                     className="wire-hit"
                     d={wirePathD(pts)}
                     fill="none"
+                    onMouseDown={(e) => {
+                      e.stopPropagation();
+                      e.preventDefault();
+                      setSelectedWireIds([wire.id]);
+                      setSelectedGateIds([]);
+                      setSelectedGate(null);
+                    }}
                     onContextMenu={(e) => {
                       e.preventDefault();
                       e.stopPropagation();
