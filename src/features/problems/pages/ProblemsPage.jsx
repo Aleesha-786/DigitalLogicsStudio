@@ -51,6 +51,230 @@ import {
 
 const topicLookup = buildTopicLookup(coreTopics);
 
+const EMPTY_PROGRESS = {};
+
+const LevelProgressWidget = React.memo(({ level, rankName, xpPercentage, xp, nextLevelXp }) => {
+  return (
+    <div className="problems-widget level-progress-widget">
+      <div className="level-header">
+        <span className="level-badge">LVL {level}</span>
+        <div className="rank-name">{rankName}</div>
+      </div>
+      <div className="xp-bar-container">
+        <div
+          className="xp-bar-progress"
+          style={{ width: `${xpPercentage}%` }}
+        ></div>
+      </div>
+      <div className="xp-details">
+        <span>{xp} XP</span>
+        <span>
+          {nextLevelXp - xp > 0
+            ? `${nextLevelXp - xp} XP to next lvl`
+            : "Max Lvl"}
+        </span>
+      </div>
+    </div>
+  );
+});
+
+const WeeklyPracticeGoalWidget = React.memo(({ solvedThisWeek }) => {
+  return (
+    <div className="problems-widget weekly-goal-widget">
+      <div className="weekly-goal-header">
+        <Flame size={15} className="goal-fire-icon" />
+        <h4>Weekly Goal</h4>
+      </div>
+      <div className="weekly-goal-body">
+        <div className="goal-text">Solve 5 problems this week</div>
+        <div className="goal-progress-wrap">
+          <div className="goal-progress-bar">
+            <div
+              className="goal-progress-fill"
+              style={{
+                width: `${Math.min(100, (solvedThisWeek / 5) * 100)}%`,
+              }}
+            ></div>
+          </div>
+          <span className="goal-ratio">{solvedThisWeek}/5</span>
+        </div>
+      </div>
+    </div>
+  );
+});
+
+const DailyChallengeWidget = React.memo(({ dailyProblem, difficultyTone, handleSolveDaily }) => {
+  if (!dailyProblem) return null;
+  return (
+    <div className="problems-widget daily-challenge-widget">
+      <div className="daily-head">
+        <Sparkles size={16} className="daily-glow-icon" />
+        <span className="daily-label">Daily Challenge</span>
+      </div>
+      <div className="daily-body">
+        <h4>{dailyProblem.title}</h4>
+        <div className="daily-meta">
+          <span
+            className={`difficulty-pill ${difficultyTone[dailyProblem.difficulty]}`}
+          >
+            {dailyProblem.difficulty}
+          </span>
+          <span className="xp-bonus">+100 XP</span>
+        </div>
+      </div>
+      <button
+        type="button"
+        className="solve-daily-btn"
+        onClick={handleSolveDaily}
+      >
+        Solve Challenge
+      </button>
+    </div>
+  );
+});
+
+const CheatSheetFormulaWidget = React.memo(({ cheatSheetFormula }) => {
+  return (
+    <div className="problems-widget cheat-sheet-widget">
+      <div className="cheat-sheet-header">
+        <GraduationCap size={15} />
+        <h4>Quick Formula</h4>
+      </div>
+      <div className="cheat-sheet-body">
+        <div className="cheat-formula-name">{cheatSheetFormula.name}</div>
+        <div className="cheat-formula-display">
+          <code>{cheatSheetFormula.formula}</code>
+        </div>
+        <p className="cheat-formula-desc">
+          {cheatSheetFormula.description}
+        </p>
+      </div>
+    </div>
+  );
+});
+
+const LearnerSnapshotWidget = React.memo(({ userName, solvedProblems, attemptedProblems, completedTopics, longestStreak }) => {
+  return (
+    <div className="problems-widget stats-widget">
+      <div className="problems-widget-head">
+        <div>
+          <span className="problems-widget-label">Learner Snapshot</span>
+          <h3>
+            {userName ? `${userName}'s progress` : "Guest progress"}
+          </h3>
+        </div>
+      </div>
+
+      <div className="stats-grid">
+        <div>
+          <strong>{solvedProblems}</strong>
+          <span>Solved</span>
+        </div>
+        <div>
+          <strong>{attemptedProblems}</strong>
+          <span>Attempted</span>
+        </div>
+        <div>
+          <strong>{completedTopics}</strong>
+          <span>Topics complete</span>
+        </div>
+        <div>
+          <strong>{longestStreak}</strong>
+          <span>Best streak</span>
+        </div>
+      </div>
+    </div>
+  );
+});
+
+const TopicProgressWidget = React.memo(({ topTopicProgress }) => {
+  return (
+    <section className="problems-widget">
+      <div className="problems-widget-head">
+        <div>
+          <span className="problems-widget-label">Topic Progress</span>
+          <h3>Top learning paths</h3>
+        </div>
+      </div>
+
+      <div className="topic-progress-mini-list">
+        {topTopicProgress.map(({ topic, progress }) => (
+          <div key={topic.id} className="topic-progress-mini-item">
+            <div className="topic-progress-mini-copy">
+              <strong>{topic.title}</strong>
+              <span>
+                {progress?.completedCount || 0}/
+                {progress?.totalSubtopics || topic.links.length} modules
+              </span>
+            </div>
+            <div className="topic-progress-mini-bar">
+              <span
+                style={{
+                  width: `${progress?.completionPercentage || 0}%`,
+                }}
+              />
+            </div>
+          </div>
+        ))}
+      </div>
+    </section>
+  );
+});
+
+const RecentActivityWidget = React.memo(({ recentEvents }) => {
+  return (
+    <section className="problems-widget">
+      <div className="problems-widget-head">
+        <div>
+          <span className="problems-widget-label">Recent Activity</span>
+          <h3>Latest actions</h3>
+        </div>
+      </div>
+
+      <div className="recent-activity-list">
+         {(recentEvents || []).length ? (
+          recentEvents.slice(0, 5).map((event) => {
+            const topic = event.topicId
+              ? topicLookup[event.topicId]
+              : null;
+            return (
+              <div key={event.id} className="recent-activity-item">
+                <strong>
+                  {event.type === "problem_solved" && "Solved problem"}
+                  {event.type === "problem_attempted" &&
+                    "Attempted problem"}
+                  {event.type === "topic_opened" && "Opened topic"}
+                  {event.type === "topic_completed" && "Completed topic"}
+                </strong>
+                <span>
+                  {event.title || topic?.title || "Learning activity"}
+                </span>
+              </div>
+            );
+          })
+        ) : (
+          <p className="recent-activity-empty">
+            Start solving or opening modules to populate your activity
+            stream.
+          </p>
+        )}
+      </div>
+    </section>
+  );
+});
+
+const FactOfTheDayWidget = React.memo(({ dailyFact }) => {
+  return (
+    <div className="problems-widget fact-widget">
+      <div className="fact-head">
+        <Info size={15} />
+        <h4>Fact of the Day</h4>
+      </div>
+      <p className="fact-content">{dailyFact}</p>
+    </div>
+  );
+});
+
 export default function ProblemsPage() {
   const [isMobileSidebarOpen, setIsMobileSidebarOpen] = React.useState(false);
   const { topicSlug } = useParams();
@@ -305,7 +529,7 @@ export default function ProblemsPage() {
     return problemsCatalog[day % problemsCatalog.length];
   }, [problemsCatalog]);
 
-  const handleSolveDaily = () => {
+  const handleSolveDaily = React.useCallback(() => {
     if (dailyProblem) {
       setSelectedProblemId(dailyProblem.id);
       setActiveProblem(dailyProblem);
@@ -314,7 +538,7 @@ export default function ProblemsPage() {
         problem_title: dailyProblem.title,
       });
     }
-  };
+  }, [dailyProblem]);
 
   // DLD Fact of the Day
   const dailyFact = React.useMemo(() => {
@@ -469,17 +693,19 @@ export default function ProblemsPage() {
     [filteredProblems, problemsCatalog, selectedProblemId],
   );
 
-  const topTopicProgress = coreTopics
-    .map((topic) => ({
-      topic,
-      progress: snapshot?.state?.topics?.[topic.id],
-    }))
-    .sort(
-      (left, right) =>
-        (right.progress?.completionPercentage || 0) -
-        (left.progress?.completionPercentage || 0),
-    )
-    .slice(0, 4);
+  const topTopicProgress = React.useMemo(() => {
+    return coreTopics
+      .map((topic) => ({
+        topic,
+        progress: snapshot?.state?.topics?.[topic.id],
+      }))
+      .sort(
+        (left, right) =>
+          (right.progress?.completionPercentage || 0) -
+          (left.progress?.completionPercentage || 0),
+      )
+      .slice(0, 4);
+  }, [snapshot?.state?.topics]);
 
   const handleRecordAttempt = React.useCallback(
     (problem) => {
@@ -977,7 +1203,7 @@ export default function ProblemsPage() {
                         <ProblemTableRow
                           key={problem.id}
                           problem={problem}
-                          progress={snapshot.state.problems[problem.id] || {}}
+                          progress={snapshot?.state?.problems?.[problem.id] || EMPTY_PROGRESS}
                           isSelected={selectedProblemId === problem.id}
                           onOpen={handleOpenProblemRow}
                           canManageProblems={canManageProblems}
@@ -1001,124 +1227,35 @@ export default function ProblemsPage() {
         </section>
 
         <aside className="problems-right-rail">
-          {/* Level Progress Widget */}
-          <div className="problems-widget level-progress-widget">
-            <div className="level-header">
-              <span className="level-badge">LVL {level}</span>
-              <div className="rank-name">{rankName}</div>
-            </div>
-            <div className="xp-bar-container">
-              <div
-                className="xp-bar-progress"
-                style={{ width: `${xpPercentage}%` }}
-              ></div>
-            </div>
-            <div className="xp-details">
-              <span>{xp} XP</span>
-              <span>
-                {nextLevelXp - xp > 0
-                  ? `${nextLevelXp - xp} XP to next lvl`
-                  : "Max Lvl"}
-              </span>
-            </div>
-          </div>
+          <LevelProgressWidget
+            level={level}
+            rankName={rankName}
+            xpPercentage={xpPercentage}
+            xp={xp}
+            nextLevelXp={nextLevelXp}
+          />
 
-          {/* Weekly Practice Goal Widget */}
-          <div className="problems-widget weekly-goal-widget">
-            <div className="weekly-goal-header">
-              <Flame size={15} className="goal-fire-icon" />
-              <h4>Weekly Goal</h4>
-            </div>
-            <div className="weekly-goal-body">
-              <div className="goal-text">Solve 5 problems this week</div>
-              <div className="goal-progress-wrap">
-                <div className="goal-progress-bar">
-                  <div
-                    className="goal-progress-fill"
-                    style={{
-                      width: `${Math.min(100, (solvedThisWeek / 5) * 100)}%`,
-                    }}
-                  ></div>
-                </div>
-                <span className="goal-ratio">{solvedThisWeek}/5</span>
-              </div>
-            </div>
-          </div>
+          <WeeklyPracticeGoalWidget
+            solvedThisWeek={solvedThisWeek}
+          />
 
-          {/* Daily Challenge Widget */}
-          {dailyProblem && (
-            <div className="problems-widget daily-challenge-widget">
-              <div className="daily-head">
-                <Sparkles size={16} className="daily-glow-icon" />
-                <span className="daily-label">Daily Challenge</span>
-              </div>
-              <div className="daily-body">
-                <h4>{dailyProblem.title}</h4>
-                <div className="daily-meta">
-                  <span
-                    className={`difficulty-pill ${difficultyTone[dailyProblem.difficulty]}`}
-                  >
-                    {dailyProblem.difficulty}
-                  </span>
-                  <span className="xp-bonus">+100 XP</span>
-                </div>
-              </div>
-              <button
-                type="button"
-                className="solve-daily-btn"
-                onClick={handleSolveDaily}
-              >
-                Solve Challenge
-              </button>
-            </div>
-          )}
+          <DailyChallengeWidget
+            dailyProblem={dailyProblem}
+            difficultyTone={difficultyTone}
+            handleSolveDaily={handleSolveDaily}
+          />
 
-          {/* Cheat-Sheet Formula Widget */}
-          <div className="problems-widget cheat-sheet-widget">
-            <div className="cheat-sheet-header">
-              <GraduationCap size={15} />
-              <h4>Quick Formula</h4>
-            </div>
-            <div className="cheat-sheet-body">
-              <div className="cheat-formula-name">{cheatSheetFormula.name}</div>
-              <div className="cheat-formula-display">
-                <code>{cheatSheetFormula.formula}</code>
-              </div>
-              <p className="cheat-formula-desc">
-                {cheatSheetFormula.description}
-              </p>
-            </div>
-          </div>
+          <CheatSheetFormulaWidget
+            cheatSheetFormula={cheatSheetFormula}
+          />
 
-          <div className="problems-widget stats-widget">
-            <div className="problems-widget-head">
-              <div>
-                <span className="problems-widget-label">Learner Snapshot</span>
-                <h3>
-                  {user?.name ? `${user.name}'s progress` : "Guest progress"}
-                </h3>
-              </div>
-            </div>
-
-            <div className="stats-grid">
-              <div>
-                <strong>{snapshot?.summary?.solvedProblems ?? 0}</strong>
-                <span>Solved</span>
-              </div>
-              <div>
-                <strong>{snapshot?.summary?.attemptedProblems ?? 0}</strong>
-                <span>Attempted</span>
-              </div>
-              <div>
-                <strong>{snapshot?.summary?.completedTopics ?? 0}</strong>
-                <span>Topics complete</span>
-              </div>
-              <div>
-                <strong>{snapshot?.summary?.streaks?.longest ?? 0}</strong>
-                <span>Best streak</span>
-              </div>
-            </div>
-          </div>
+          <LearnerSnapshotWidget
+            userName={user?.name}
+            solvedProblems={snapshot?.summary?.solvedProblems ?? 0}
+            attemptedProblems={snapshot?.summary?.attemptedProblems ?? 0}
+            completedTopics={snapshot?.summary?.completedTopics ?? 0}
+            longestStreak={snapshot?.summary?.streaks?.longest ?? 0}
+          />
 
           <CalendarWidget
             month={month}
@@ -1137,82 +1274,17 @@ export default function ProblemsPage() {
             onToggleSolved={handleSetProblemSolved}
           />
 
-          <section className="problems-widget">
-            <div className="problems-widget-head">
-              <div>
-                <span className="problems-widget-label">Topic Progress</span>
-                <h3>Top learning paths</h3>
-              </div>
-            </div>
+          <TopicProgressWidget
+            topTopicProgress={topTopicProgress}
+          />
 
-            <div className="topic-progress-mini-list">
-              {topTopicProgress.map(({ topic, progress }) => (
-                <div key={topic.id} className="topic-progress-mini-item">
-                  <div className="topic-progress-mini-copy">
-                    <strong>{topic.title}</strong>
-                    <span>
-                      {progress?.completedCount || 0}/
-                      {progress?.totalSubtopics || topic.links.length} modules
-                    </span>
-                  </div>
-                  <div className="topic-progress-mini-bar">
-                    <span
-                      style={{
-                        width: `${progress?.completionPercentage || 0}%`,
-                      }}
-                    />
-                  </div>
-                </div>
-              ))}
-            </div>
-          </section>
+          <RecentActivityWidget
+            recentEvents={snapshot?.recentEvents}
+          />
 
-          <section className="problems-widget">
-            <div className="problems-widget-head">
-              <div>
-                <span className="problems-widget-label">Recent Activity</span>
-                <h3>Latest actions</h3>
-              </div>
-            </div>
-
-            <div className="recent-activity-list">
-               {(snapshot?.recentEvents || []).length ? (
-                snapshot.recentEvents.slice(0, 5).map((event) => {
-                  const topic = event.topicId
-                    ? topicLookup[event.topicId]
-                    : null;
-                  return (
-                    <div key={event.id} className="recent-activity-item">
-                      <strong>
-                        {event.type === "problem_solved" && "Solved problem"}
-                        {event.type === "problem_attempted" &&
-                          "Attempted problem"}
-                        {event.type === "topic_opened" && "Opened topic"}
-                        {event.type === "topic_completed" && "Completed topic"}
-                      </strong>
-                      <span>
-                        {event.title || topic?.title || "Learning activity"}
-                      </span>
-                    </div>
-                  );
-                })
-              ) : (
-                <p className="recent-activity-empty">
-                  Start solving or opening modules to populate your activity
-                  stream.
-                </p>
-              )}
-            </div>
-          </section>
-
-          {/* DLD Fact of the Day */}
-          <div className="problems-widget fact-widget">
-            <div className="fact-head">
-              <Info size={15} />
-              <h4>Fact of the Day</h4>
-            </div>
-            <p className="fact-content">{dailyFact}</p>
-          </div>
+          <FactOfTheDayWidget
+            dailyFact={dailyFact}
+          />
         </aside>
       </main>
 

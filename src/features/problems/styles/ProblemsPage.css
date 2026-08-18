@@ -1148,6 +1148,23 @@
   vertical-align: middle;
 }
 
+/* Default / Dark Theme Data Cells */
+.problems-table td {
+  background: var(--bg-surface, transparent);
+  color: var(--text-primary);
+}
+
+/* Explicit Light Theme Overrides */
+[data-theme="light"] .problems-table td {
+  background: #ffffff;             /* Crisp white cell background */
+  color: #1a202c;                  /* High-contrast dark text */
+  border-bottom: 1px solid #e2e8f0; /* Crisp light gray divider */
+}
+
+[data-theme="light"] .problems-table tr:hover td {
+  background: #f7fafc;             /* Subtle clean hover state */
+}
+
 .problems-table thead th {
   border-top: none;
   color: #94a3b8;
