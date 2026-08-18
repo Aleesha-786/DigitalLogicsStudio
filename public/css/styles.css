@@ -465,7 +465,7 @@ canvas {
   color: var(--accent-primary);
 }
 
-table {
+.truth-table-panel table {
   width: 100%;
   border-collapse: collapse;
   font-family: "JetBrains Mono", monospace;
@@ -473,7 +473,7 @@ table {
   margin-top: 16px;
 }
 
-th {
+.truth-table-panel th {
   background: var(--bg-light);
   color: var(--accent-primary);
   padding: 12px 8px;
@@ -483,7 +483,7 @@ th {
   letter-spacing: 1px;
 }
 
-td {
+.truth-table-panel td {
   background: rgba(30, 40, 66, 0.5);
   color: var(--text-primary);
   padding: 10px 8px;
@@ -492,7 +492,7 @@ td {
   transition: all 0.2s;
 }
 
-td:hover {
+.truth-table-panel td:hover {
   background: rgba(0, 255, 136, 0.1);
 }
 
