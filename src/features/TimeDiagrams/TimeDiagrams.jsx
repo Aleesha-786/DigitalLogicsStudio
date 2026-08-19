@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useMemo } from 'react';
+import React, { useState, useMemo } from 'react';
 import ToolLayout from '../../shared/components/ToolLayout';
 import ExplanationBlock from '../../shared/components/ExplanationBlock';
 import CircuitModal from '../../shared/components/CircuitModal';
@@ -6,111 +6,104 @@ import Navbar from '../../shared/components/navbar';
 import Footer from '../../shared/components/Footer';
 import { useTheme } from '../../shared/context/ThemeContext';
 
+import TimingControls from './TimingControls';
+import TimingCanvas from './TimingCanvas';
+import './TimeDiagrams.css';
+
+const GATE_TYPES = {
+  BUFFER: { name: 'Buffer (Pass-through)', fn: (a) => a },
+  NOT: { name: 'NOT Gate', fn: (a) => (a === 1 ? 0 : 1) },
+  AND: { name: 'AND Gate (Input A & B)', fn: (a, b) => a & b },
+  OR: { name: 'OR Gate (Input A | B)', fn: (a, b) => a | b },
+  XOR: { name: 'XOR Gate (Input A ^ B)', fn: (a, b) => a ^ b },
+};
+
 const TimeDiagrams = () => {
   const { theme, toggle: toggleTheme } = useTheme();
   const [delay, setDelay] = useState(2);
-  const signal = useMemo(() => [0, 1, 1, 0, 1, 0, 0, 1], []);
-  const [output, setOutput] = useState([]);
-  const [open, setOpen] = useState(false);
+  const [gateType, setGateType] = useState('NOT');
+  const [signalA, setSignalA] = useState([0, 1, 1, 0, 1, 0, 0, 1]);
+  const [signalB, setSignalB] = useState([0, 0, 1, 1, 0, 1, 0, 0]);
+  const [openModal, setOpenModal] = useState(false);
 
-  useEffect(() => {
-    const out = signal.map((_, i) => signal[Math.max(0, i - delay)] ?? 0);
-    setOutput(out);
-  }, [signal, delay]);
+  // Compute output with propagation delay and logic gate evaluation
+  const output = useMemo(() => {
+    const gateFn = GATE_TYPES[gateType].fn;
+    return signalA.map((_, i) => {
+      const srcIdx = Math.max(0, i - delay);
+      const aVal = signalA[srcIdx] ?? 0;
+      const bVal = signalB[srcIdx] ?? 0;
+      return gateFn(aVal, bVal);
+    });
+  }, [signalA, signalB, delay, gateType]);
+
+  const handleToggleBitA = (index) => {
+    setSignalA((prev) => {
+      const next = [...prev];
+      next[index] = next[index] === 1 ? 0 : 1;
+      return next;
+    });
+  };
+
+  const handleToggleBitB = (index) => {
+    setSignalB((prev) => {
+      const next = [...prev];
+      next[index] = next[index] === 1 ? 0 : 1;
+      return next;
+    });
+  };
 
   return (
     <div className={`boolforge-page theme-${theme}`}>
       <div className="grid-background" />
       <Navbar toggleTheme={toggleTheme} theme={theme} />
+
       <main className="boolforge-main">
-    <ToolLayout title="Timing Diagrams & Gate Delay" subtitle="Visualizing propagation effects">
-      <div className="kmap-card" style={{ marginBottom: '1rem' }}>
-        <button
-          className="kmap-btn kmap-btn-primary kmap-btn-full"
-          onClick={() => setOpen(true)}
-        >
-          🔌 Experiment with Circuit
-        </button>
-      </div>
+        <ToolLayout title="Timing Diagrams & Gate Delay" subtitle="Visualizing propagation effects">
+          <ExplanationBlock title="Propagation Delay & Circuit Timing">
+            <div className="card-header-action">
+              <p className="explanation-intro">
+                Real logic gates require physical time to transition logic states. Adjust delay, toggle input bits, or choose logic functions to analyze timing shifts and hazards.
+              </p>
+              
+              <button
+                className="experiment-circuit-btn"
+                onClick={() => setOpenModal(true)}
+              >
+                <span className="btn-icon">🔌</span>
+                <span className="btn-text">Experiment in Circuit Builder</span>
+              </button>
+            </div>
 
-      <ExplanationBlock title="Propagation Delay">
-        <p className="explanation-intro">
-          Real gates take time to respond. The output reflects the input after a delay.
-        </p>
-        <div className="timing-controls">
-          <label className="control-label">Gate delay (ticks)</label>
-          <input
-            type="range"
-            min="0"
-            max="5"
-            value={delay}
-            onChange={(e) => setDelay(parseInt(e.target.value))}
+            <TimingControls
+              delay={delay}
+              setDelay={setDelay}
+              gateType={gateType}
+              setGateType={setGateType}
+              gateTypes={GATE_TYPES}
+              signalA={signalA}
+              signalB={signalB}
+              onToggleBitA={handleToggleBitA}
+              onToggleBitB={handleToggleBitB}
+            />
+
+            <TimingCanvas
+              signalA={signalA}
+              signalB={signalB}
+              output={output}
+              gateType={gateType}
+            />
+          </ExplanationBlock>
+
+          <CircuitModal
+            open={openModal}
+            onClose={() => setOpenModal(false)}
+            expression={"F = A.B' + C"}
+            variables={['A', 'B', 'C']}
           />
-          <span className="highlight">{delay}</span>
-        </div>
-        <div className="timing-diagram">
-          <div className="wave-row">
-            <span className="wave-label">Input</span>
-            <div className="wave">
-              {signal.map((bit, idx) => (
-                <div key={idx} className={bit ? 'wave-high' : 'wave-low'} />
-              ))}
-            </div>
-          </div>
-          <div className="wave-row">
-            <span className="wave-label">Output</span>
-            <div className="wave">
-              {output.map((bit, idx) => (
-                <div key={idx} className={bit ? 'wave-high' : 'wave-low'} />
-              ))}
-            </div>
-          </div>
-        </div>
-      </ExplanationBlock>
-
-      <CircuitModal
-        open={open}
-        onClose={() => setOpen(false)}
-        expression={"F = A.B' + C"}
-        variables={['A', 'B', 'C']}
-      />
-
-      <style>{`
-        .timing-controls {
-          display: flex;
-          align-items: center;
-          gap: 12px;
-          margin-bottom: 12px;
-        }
-        .timing-diagram {
-          display: grid;
-          gap: 10px;
-        }
-        .wave-row {
-          display: grid;
-          grid-template-columns: 80px 1fr;
-          align-items: center;
-          gap: 8px;
-        }
-        .wave {
-          display: grid;
-          grid-template-columns: repeat(8, 1fr);
-          gap: 4px;
-        }
-        .wave-high, .wave-low {
-          height: 24px;
-          border-radius: 6px;
-          border: 1px solid rgba(148,163,184,0.3);
-        }
-        .wave-high {
-          background: rgba(34,197,94,0.4);
-        }
-        .wave-low {
-          background: rgba(239,68,68,0.3);
-        }
-      `}</style>
-    </ToolLayout>
+        </ToolLayout>
       </main>
+
       <Footer />
     </div>
   );
