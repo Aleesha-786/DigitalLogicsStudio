@@ -25,11 +25,6 @@
   --glass: rgba(11, 19, 36, 0.62);
 }
 
-html,
-body,
-#root {
-  height: 100%;
-}
 
 .seq-layout {
   min-height: 100vh;
