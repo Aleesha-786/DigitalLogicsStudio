@@ -1,12 +1,11 @@
 import React from 'react';
 
-const WaveformRow = ({ label, bits }) => {
+const WaveformRow = ({ label, bits = [] }) => {
   const stepWidth = 50;
   const height = 40;
   const highY = 8;
   const lowY = 32;
 
-  // Build SVG Path for digital square wave
   let pathD = '';
   bits.forEach((bit, i) => {
     const xStart = i * stepWidth;
@@ -18,9 +17,9 @@ const WaveformRow = ({ label, bits }) => {
     } else {
       const prevY = bits[i - 1] === 1 ? highY : lowY;
       if (prevY !== yVal) {
-        pathD += ` L ${xStart} ${yVal}`; // Vertical edge
+        pathD += ` L ${xStart} ${yVal}`;
       }
-      pathD += ` L ${xEnd} ${yVal}`; // Horizontal line
+      pathD += ` L ${xEnd} ${yVal}`;
     }
   });
 
@@ -29,11 +28,10 @@ const WaveformRow = ({ label, bits }) => {
       <span className="wave-label">{label}</span>
       <div className="svg-container">
         <svg
-          viewBox={`0 0 ${bits.length * stepWidth} ${height}`}
+          viewBox={`0 0 ${(bits.length || 8) * stepWidth} ${height}`}
           className="waveform-svg"
           preserveAspectRatio="none"
         >
-          {/* Tick Grid Lines */}
           {bits.map((_, i) => (
             <line
               key={i}
@@ -44,7 +42,6 @@ const WaveformRow = ({ label, bits }) => {
               className="grid-tick-line"
             />
           ))}
-          {/* Signal Waveform Line */}
           <path d={pathD} className="waveform-path" />
         </svg>
       </div>
@@ -52,16 +49,24 @@ const WaveformRow = ({ label, bits }) => {
   );
 };
 
-const TimingCanvas = ({ signal, output }) => {
+const TimingCanvas = ({
+  signalA = [],
+  signalB = [],
+  output = [],
+  gateType,
+}) => {
+  const isMultiInput = gateType === 'AND' || gateType === 'OR' || gateType === 'XOR';
+
   return (
     <div className="timing-diagram-card">
-      <WaveformRow label="Input (X)" bits={signal} />
+      <WaveformRow label="Input A" bits={signalA} />
+      {isMultiInput && <WaveformRow label="Input B" bits={signalB} />}
       <WaveformRow label="Output (Y)" bits={output} />
-      
+
       <div className="time-ticks-axis">
         <span className="wave-label">Ticks</span>
         <div className="ticks-labels">
-          {signal.map((_, i) => (
+          {(signalA.length ? signalA : Array(8).fill(0)).map((_, i) => (
             <span key={i} className="tick-marker">t{i}</span>
           ))}
         </div>

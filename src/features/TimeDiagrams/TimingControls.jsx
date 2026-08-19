@@ -1,37 +1,85 @@
 import React from 'react';
 
-const TimingControls = ({ delay, setDelay, signal, onToggleBit }) => {
+const TimingControls = ({
+  delay,
+  setDelay,
+  gateType,
+  setGateType,
+  gateTypes,
+  signalA = [],
+  signalB = [],
+  onToggleBitA,
+  onToggleBitB,
+}) => {
+  const requiresSecondInput = gateType === 'AND' || gateType === 'OR' || gateType === 'XOR';
+
   return (
     <div className="timing-controls-container">
-      <div className="timing-control-group">
-        <label className="control-label">Propagation Delay (ticks)</label>
-        <div className="slider-wrapper">
-          <input
-            type="range"
-            min="0"
-            max="5"
-            value={delay}
-            onChange={(e) => setDelay(parseInt(e.target.value, 10))}
-            className="delay-slider"
-          />
-          <span className="delay-badge">{delay} {delay === 1 ? 'tick' : 'ticks'}</span>
+      <div className="control-row">
+        <div className="timing-control-group">
+          <label className="control-label">Logic Gate Function</label>
+          <select
+            value={gateType}
+            onChange={(e) => setGateType(e.target.value)}
+            className="gate-select"
+          >
+            {Object.keys(gateTypes).map((key) => (
+              <option key={key} value={key}>
+                {gateTypes[key].name}
+              </option>
+            ))}
+          </select>
+        </div>
+
+        <div className="timing-control-group">
+          <label className="control-label">
+            Propagation Delay (t<sub>pd</sub>)
+          </label>
+          <div className="slider-wrapper">
+            <input
+              type="range"
+              min="0"
+              max="4"
+              value={delay}
+              onChange={(e) => setDelay(parseInt(e.target.value, 10))}
+              className="delay-slider"
+            />
+            <span className="delay-badge">{delay} {delay === 1 ? 'tick' : 'ticks'}</span>
+          </div>
         </div>
       </div>
 
       <div className="signal-editor">
-        <span className="control-label">Click to Toggle Input Signal Bits:</span>
+        <span className="control-label">Toggle Input A Bits:</span>
         <div className="bit-buttons">
-          {signal.map((bit, idx) => (
+          {signalA.map((bit, idx) => (
             <button
               key={idx}
               className={`bit-toggle-btn ${bit ? 'bit-high' : 'bit-low'}`}
-              onClick={() => onToggleBit(idx)}
+              onClick={() => onToggleBitA(idx)}
             >
-              T{idx}: {bit}
+              t{idx}: {bit}
             </button>
           ))}
         </div>
       </div>
+
+      {requiresSecondInput && (
+        <div className="signal-editor">
+          <span className="control-label">Toggle Input B Bits:</span>
+          <div className="bit-buttons">
+            {signalB.map((bit, idx) => (
+              <button
+                key={idx}
+                className={`bit-toggle-btn ${bit ? 'bit-high' : 'bit-low'}`}
+                onClick={() => onToggleBitB(idx)}
+              >
+                t{idx}: {bit}
+              </button>
+            ))}
+          </div>
+        </div>
+      )}
     </div>
   );
 };
