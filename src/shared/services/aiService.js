@@ -16,9 +16,9 @@ aiClient.interceptors.response.use(
     if (error.response?.data?.error) {
       error.message = error.response.data.error;
     } else if (error.response?.status === 401) {
-      error.message = "Please log in to use DLS Mentor.";
+      error.message = "Please log in to use BoolMentor.";
     } else if (!error.response) {
-      error.message = "Cannot reach DLS Mentor. Make sure the backend server is running.";
+      error.message = "Cannot reach BoolMentor. Make sure the backend server is running.";
     }
     return Promise.reject(error);
   },

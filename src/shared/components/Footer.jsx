@@ -1,6 +1,6 @@
 import { Link } from "react-router-dom";
+import "./Footer.css";
 
-// SVG icon reused from the navbar toggle pattern
 function LayoutBottomIcon() {
   return (
     <svg
@@ -47,6 +47,8 @@ const FOOTER_COLS = [
     links: [
       { label: "Book Ch1 Problems", to: "/book" },
       { label: "Book Ch2 Problems", to: "/book/ch2" },
+      { label: "DLD Resources", to: "/resources/dld" },
+      { label: "COAL Resources", to: "/resources/coal" },
     ],
   },
 ];
@@ -56,6 +58,7 @@ export default function Footer({ onToggleFooter }) {
     <footer className="home-footer">
       {onToggleFooter && (
         <button
+          type="button"
           onClick={onToggleFooter}
           className="home-footer-toggle-btn"
           aria-label="Hide footer"
@@ -64,9 +67,12 @@ export default function Footer({ onToggleFooter }) {
           <LayoutBottomIcon />
         </button>
       )}
+
       <div className="home-footer-inner">
         <div className="home-footer-brand">
-          <span className="home-footer-logo">Boolforge</span>
+          <Link to="/" className="home-footer-logo">
+            Boolforge
+          </Link>
           <p className="home-footer-desc">
             A free, interactive learning platform for digital logic, boolean
             algebra, and circuit design.
@@ -74,7 +80,11 @@ export default function Footer({ onToggleFooter }) {
         </div>
 
         {FOOTER_COLS.map(({ heading, links }) => (
-          <div key={heading} className="home-footer-col">
+          <nav
+            key={heading}
+            className="home-footer-col"
+            aria-label={heading}
+          >
             <h4 className="home-footer-col-heading">{heading}</h4>
             <ul className="home-footer-col-list">
               {links.map(({ label, to }) => (
@@ -85,7 +95,7 @@ export default function Footer({ onToggleFooter }) {
                 </li>
               ))}
             </ul>
-          </div>
+          </nav>
         ))}
       </div>
 

@@ -59,10 +59,95 @@
   width: 100%;
   height: 100%;
   pointer-events: none;
+  transform-origin: 0 0;
 }
 
 .gates-container > * {
   pointer-events: auto;
+}
+
+.gates-container > .wire-layer {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  overflow: visible;
+  pointer-events: none;
+}
+
+.wire-layer .wire-path {
+  fill: none;
+  stroke-width: 3;
+  stroke-linecap: round;
+  pointer-events: none;
+}
+
+.wire-layer .wire-hit {
+  fill: none;
+  stroke: transparent;
+  stroke-width: 14;
+  stroke-linecap: round;
+  pointer-events: stroke;
+  cursor: pointer;
+}
+
+.canvas-container.is-wiring .wire-hit {
+  pointer-events: none;
+}
+
+.wire-layer .wire-glow {
+  fill: none;
+  stroke: rgba(0, 255, 136, 0.35);
+  stroke-width: 8;
+  stroke-linecap: round;
+  pointer-events: none;
+}
+
+.wire-layer .wire-on .wire-path {
+  stroke: var(--accent-primary, #00ff88);
+}
+
+.wire-layer .wire-off .wire-path {
+  stroke: #334155;
+}
+
+.wire-layer .wire-off .wire-glow {
+  stroke: transparent;
+}
+
+.wire-layer .wire-preview {
+  fill: none;
+  stroke: var(--accent-secondary, #00d4ff);
+  stroke-width: 2.5;
+  stroke-dasharray: 8 6;
+  stroke-linecap: round;
+  pointer-events: none;
+}
+
+.canvas-container > canvas {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  max-width: none;
+  display: block;
+  pointer-events: auto;
+}
+
+.circuit-maker .gate:not(.gate--ic) {
+  width: 120px;
+  height: 100px;
+  box-sizing: border-box;
+}
+
+.circuit-maker .gate {
+  z-index: 2;
+}
+
+/* Keep ports aligned with wires — avoid hover translate offset */
+.circuit-maker .gate:hover {
+  transform: none;
 }
 
 .zoom-controls {

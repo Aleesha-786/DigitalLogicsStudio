@@ -121,8 +121,8 @@ function CoalHomePage() {
                   <div className="learning-resources-card-copy">
                     <h3>Practical</h3>
                     <p>
-                      Labs, tracing exercises, assembly drills, and simulators —
-                      coming soon.
+                      Hands-on tracing exercises, assembly drills, and
+                      interactive simulators.
                     </p>
                   </div>
                 </div>
