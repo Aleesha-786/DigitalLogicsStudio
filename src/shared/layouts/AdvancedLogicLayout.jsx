@@ -28,6 +28,7 @@ const AdvancedLogicLayout = ({
     intro={intro}
     highlights={highlights}
     pages={advancedLogicPages}
+    overviewPath={advancedLogicPages[0]?.path}
     topicLabel="Advanced Logic"
     sidebarTitle="Advanced Logic"
     sidebarCopy="Study optimization, universal construction, parity, and deeper reasoning inside the same premium shell."

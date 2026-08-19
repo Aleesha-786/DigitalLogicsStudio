@@ -477,3 +477,37 @@
 [data-theme='light'] .hint {
   color: var(--text-muted);
 }
+/* ── Theory content — tables, cards, code blocks, quiz ─────────────────── */
+[data-theme='light'] .theory-topic-content {
+  --t-text: #0f172a;
+  --t-muted: #475569;
+  --t-border: rgba(148, 163, 184, 0.25);
+  --t-card-bg: rgba(37, 99, 235, 0.04);
+}
+
+[data-theme='light'] .theory-table th,
+[data-theme='light'] .theory-table td {
+  border-bottom-color: var(--t-border);
+}
+
+[data-theme='light'] .theory-table tbody tr:hover {
+  background: rgba(37, 99, 235, 0.06);
+}
+
+[data-theme='light'] .theory-code-block {
+  background: #f1f5f9;
+}
+
+[data-theme='light'] .theory-chip {
+  background: #f8fafc;
+}
+
+/* ── Global fallback: plain <td> from public/styles.css defaults to a
+   dark navy background with no light-theme handling. Scoped elements
+   (e.g. .seq-table-cell) already override this correctly — this only
+   catches bare, unstyled table cells site-wide (Circuit Forge's truth
+   table, and any Sequential Circuits table without a specific class). ─ */
+[data-theme='light'] td {
+  background: #ffffff;
+  color: #0f172a;
+}

@@ -1377,6 +1377,9 @@ body,
   }
 }
 
+ .seq-grid-2 > * {
+  min-width: 0;
+}
 /* Feature card styling */
 .seq-feature-card {
   display: flex;
@@ -2800,4 +2803,160 @@ body,
   border-radius: 6px;
   letter-spacing: 0.03em;
 }
+/* ═══════════════════════════════════════════════════════
+   LIGHT THEME — Flip-Flop page additions
+═══════════════════════════════════════════════════════ */
+:root[data-theme="light"] .seq-analogy-item {
+  background: #ffffff;
+  border-color: rgba(37, 99, 235, 0.15);
+}
+:root[data-theme="light"] .seq-analogy-desc {
+  color: #475569;
+}
 
+:root[data-theme="light"] .seq-ms-walkthrough {
+  background: #ffffff;
+  border-color: rgba(37, 99, 235, 0.2);
+}
+:root[data-theme="light"] .seq-ms-desc {
+  color: #334155;
+}
+:root[data-theme="light"] .seq-ms-note {
+  color: #475569;
+  background: rgba(37, 99, 235, 0.05);
+  border-left-color: #2563eb;
+}
+:root[data-theme="light"] .seq-ms-controls {
+  border-top-color: rgba(37, 99, 235, 0.12);
+}
+:root[data-theme="light"] .seq-step-btn {
+  background: #f1f5f9;
+  border-color: rgba(37, 99, 235, 0.15);
+  color: #475569;
+}
+:root[data-theme="light"] .seq-step-btn:hover:not(:disabled) {
+  background: rgba(37, 99, 235, 0.1);
+  color: #0f172a;
+}
+:root[data-theme="light"] .seq-dot {
+  background: rgba(37, 99, 235, 0.15);
+}
+:root[data-theme="light"] .seq-dot-active {
+  background: #2563eb;
+}
+
+:root[data-theme="light"] .seq-sim-full {
+  background: #ffffff;
+  border-color: rgba(37, 99, 235, 0.2);
+}
+:root[data-theme="light"] .seq-sim-header {
+  border-bottom-color: rgba(37, 99, 235, 0.12);
+}
+:root[data-theme="light"] .seq-sim-title {
+  color: #0f172a;
+}
+:root[data-theme="light"] .seq-sim-reset {
+  color: #475569;
+  border-color: rgba(37, 99, 235, 0.15);
+}
+:root[data-theme="light"] .seq-sim-controls {
+  border-right-color: rgba(37, 99, 235, 0.12);
+}
+:root[data-theme="light"] .seq-sim-sig-label,
+:root[data-theme="light"] .seq-out-lbl,
+:root[data-theme="light"] .seq-wave-title,
+:root[data-theme="light"] .seq-wave-label {
+  color: #64748b;
+}
+:root[data-theme="light"] .seq-bit-low {
+  background: #f1f5f9;
+  border-color: #cbd5e1;
+  color: #64748b;
+}
+:root[data-theme="light"] .seq-clk-edge-btn {
+  background: rgba(37, 99, 235, 0.1);
+  border-color: rgba(37, 99, 235, 0.35);
+  color: #2563eb;
+}
+:root[data-theme="light"] .seq-clk-edge-btn:hover {
+  background: rgba(37, 99, 235, 0.18);
+}
+:root[data-theme="light"] .seq-out-box {
+  background: #f8fafc;
+  border-color: rgba(37, 99, 235, 0.12);
+}
+:root[data-theme="light"] .seq-val-low {
+  color: #64748b;
+}
+:root[data-theme="light"] .seq-sim-log {
+  border-top-color: rgba(37, 99, 235, 0.12);
+}
+
+:root[data-theme="light"] .seq-sim-mini {
+  background: #ffffff;
+  border-color: rgba(37, 99, 235, 0.15);
+}
+:root[data-theme="light"] .seq-sim-label,
+:root[data-theme="light"] .seq-out-label,
+:root[data-theme="light"] .seq-sim-state {
+  color: #64748b;
+}
+:root[data-theme="light"] .seq-sim-toggle.off {
+  background: #f1f5f9;
+  border-color: #cbd5e1;
+  color: #64748b;
+}
+:root[data-theme="light"] .seq-out-val {
+  color: #0f172a;
+}
+:root[data-theme="light"] .seq-sim-state {
+  border-top-color: rgba(37, 99, 235, 0.12);
+}
+:root[data-theme="light"] .seq-sim-log-mini {
+  border-top-color: rgba(37, 99, 235, 0.12);
+}
+
+:root[data-theme="light"] .seq-ff-type-btn {
+  background: #f8fafc;
+  border-color: rgba(37, 99, 235, 0.15);
+  color: #64748b;
+}
+:root[data-theme="light"] .seq-ff-type-btn:hover {
+  background: rgba(37, 99, 235, 0.08);
+}
+:root[data-theme="light"] .seq-ff-summary {
+  background: #f8fafc;
+  color: #475569;
+}
+
+:root[data-theme="light"] .seq-counter-demo {
+  background: #ffffff;
+  border-color: rgba(37, 99, 235, 0.2);
+}
+:root[data-theme="light"] .seq-counter-title,
+:root[data-theme="light"] .seq-counter-ff-label {
+  color: #64748b;
+}
+:root[data-theme="light"] .seq-q-low {
+  background: #f1f5f9;
+  border-color: #cbd5e1;
+  color: #64748b;
+}
+:root[data-theme="light"] .seq-counter-decimal {
+  color: #0f172a;
+}
+:root[data-theme="light"] .seq-count-step {
+  background: #f1f5f9;
+  border-color: rgba(37, 99, 235, 0.15);
+  color: #64748b;
+}
+
+:root[data-theme="light"] .seq-meta-item {
+  background: #f8fafc;
+  border-color: rgba(37, 99, 235, 0.12);
+}
+
+:root[data-theme="light"] .seq-equation {
+  background: rgba(37, 99, 235, 0.08);
+  color: #2563eb;
+}
