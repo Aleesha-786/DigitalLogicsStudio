@@ -1,0 +1,169 @@
+.timing-controls-container {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  margin-bottom: 20px;
+  padding: 16px;
+  background: var(--bg-surface, #1e293b);
+  border: 1px solid var(--border-color, rgba(148, 163, 184, 0.2));
+  border-radius: 8px;
+}
+
+.timing-control-group {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+
+.control-label {
+  font-weight: 600;
+  font-size: 0.9rem;
+  color: var(--text-primary, #f8fafc);
+}
+
+.slider-wrapper {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.delay-slider {
+  cursor: pointer;
+  accent-color: var(--accent-primary, #3b82f6);
+}
+
+.delay-badge {
+  padding: 2px 10px;
+  border-radius: 12px;
+  background: var(--accent-primary, #3b82f6);
+  color: #ffffff;
+  font-weight: bold;
+  font-size: 0.85rem;
+}
+
+.signal-editor {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.bit-buttons {
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+
+.bit-toggle-btn {
+  padding: 4px 10px;
+  font-family: monospace;
+  font-weight: bold;
+  border-radius: 4px;
+  border: 1px solid var(--border-color, rgba(148, 163, 184, 0.3));
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.bit-high {
+  background: rgba(34, 197, 94, 0.2);
+  color: #22c55e;
+  border-color: #22c55e;
+}
+
+.bit-low {
+  background: rgba(239, 68, 68, 0.2);
+  color: #ef4444;
+  border-color: #ef4444;
+}
+
+/* ── Timing Diagram Waveform Display ── */
+.timing-diagram-card {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  padding: 16px;
+  background: var(--bg-card, #0f172a);
+  border-radius: 8px;
+  border: 1px solid var(--border-color, rgba(148, 163, 184, 0.2));
+}
+
+.wave-row {
+  display: grid;
+  grid-template-columns: 90px 1fr;
+  align-items: center;
+  gap: 12px;
+}
+
+.wave-label {
+  font-weight: 600;
+  font-size: 0.85rem;
+  color: var(--text-secondary, #94a3b8);
+}
+
+.svg-container {
+  width: 100%;
+  height: 48px;
+  background: var(--bg-surface-alt, rgba(30, 41, 59, 0.5));
+  border-radius: 6px;
+  padding: 4px;
+}
+
+.waveform-svg {
+  width: 100%;
+  height: 100%;
+  overflow: visible;
+}
+
+.grid-tick-line {
+  stroke: var(--border-color, rgba(148, 163, 184, 0.15));
+  stroke-width: 1;
+  stroke-dasharray: 2 2;
+}
+
+.waveform-path {
+  fill: none;
+  stroke: var(--accent-primary, #3b82f6);
+  stroke-width: 2.5;
+  stroke-linejoin: round;
+  stroke-linecap: round;
+}
+
+.time-ticks-axis {
+  display: grid;
+  grid-template-columns: 90px 1fr;
+  align-items: center;
+  gap: 12px;
+}
+
+.ticks-labels {
+  display: grid;
+  grid-template-columns: repeat(8, 1fr);
+  text-align: center;
+  font-family: monospace;
+  font-size: 0.75rem;
+  color: var(--text-muted, #64748b);
+}
+
+/* ── Light Mode Custom Overrides ── */
+.theme-light .timing-controls-container,
+[data-theme="light"] .timing-controls-container {
+  background: #ffffff;
+  border-color: #cbd5e1;
+}
+
+.theme-light .timing-diagram-card,
+[data-theme="light"] .timing-diagram-card {
+  background: #f8fafc;
+  border-color: #cbd5e1;
+}
+
+.theme-light .svg-container,
+[data-theme="light"] .svg-container {
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
+}
+
+.theme-light .waveform-path,
+[data-theme="light"] .waveform-path {
+  stroke: #2563eb;
+}
