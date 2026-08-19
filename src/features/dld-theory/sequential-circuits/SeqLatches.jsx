@@ -42,7 +42,60 @@ const TIMING_CSS = `
   font-weight: 700;
   margin: 0 0 0.5rem;
 }
+  .seq-timing-section {
+  margin: 1.5rem 0 2rem;
+  border-radius: 10px;
+  background: rgba(15,23,42,0.6);
+  border: 1px solid rgba(99,102,241,0.2);
+  padding: 1.1rem 1.2rem 1rem;
+}
+.seq-timing-header {
+  font-size: 0.85rem;
+  font-weight: 700;
+  color: #a5b4fc;
+  margin: 0 0 0.4rem;
+  letter-spacing: 0.03em;
+}
+.seq-timing-desc {
+  font-size: 0.8rem;
+  color: #94a3b8;
+  margin: 0 0 0.9rem;
+  line-height: 1.55;
+}
+.seq-timing-wrap { overflow-x: auto; }
+.seq-timing-scroll { min-width: 0; }
+.seq-timing-legend {
+  font-size: 0.72rem;
+  color: #64748b;
+  margin: 0.6rem 0 0;
+  letter-spacing: 0.02em;
+}
+.seq-timing-title {
+  font-size: 0.78rem;
+  color: #818cf8;
+  font-weight: 700;
+  margin: 0 0 0.5rem;
+}
+
+/* ── Light theme ── */
+:root[data-theme="light"] .seq-timing-section {
+  background: #ffffff;
+  border-color: rgba(37, 99, 235, 0.18);
+}
+:root[data-theme="light"] .seq-timing-header {
+  color: #4f46e5;
+}
+:root[data-theme="light"] .seq-timing-desc {
+  color: #475569;
+}
+:root[data-theme="light"] .seq-timing-legend {
+  color: #64748b;
+}
+:root[data-theme="light"] .seq-timing-title {
+  color: #4f46e5;
+}
 `;
+
 const TimingStyles = () => {
   useEffect(() => {
     if (!document.getElementById("seq-timing-styles")) {

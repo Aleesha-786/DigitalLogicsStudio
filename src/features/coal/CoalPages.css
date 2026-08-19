@@ -1069,6 +1069,10 @@
   color: var(--secondary-text);
 }
 
+[data-theme='light'] .coal-breadcrumb a {
+  color: #6d28d9;
+}
+
 [data-theme='light'] .coal-coming-soon {
   color: var(--text-muted);
 }

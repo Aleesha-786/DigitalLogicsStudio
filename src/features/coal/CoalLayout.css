@@ -136,3 +136,7 @@
 .coal-site-shell .learning-resources-main {
   padding-top: 5.25rem;
 }
+
+[data-theme="light"] .coal-layout .afhdl-pill-dot {
+  background: #4f46e5;
+}

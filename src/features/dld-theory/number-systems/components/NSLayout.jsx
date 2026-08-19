@@ -27,6 +27,7 @@ const NSLayout = ({ title, subtitle, intro, highlights = [], children }) => (
       highlights.length ? highlights : NS_DEFAULT_HIGHLIGHTS[title] || []
     }
     pages={nsPages}
+    overviewPath={nsPages[0]?.path}
     topicLabel="Number Systems"
     sidebarTitle="Number Systems"
     sidebarCopy="Move across binary, decimal, octal, and hexadecimal with one consistent premium conversion workspace."
