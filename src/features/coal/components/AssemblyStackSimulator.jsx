@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import "./AssemblyStackSimulator.css";
+import "../styles/AssemblyStackSimulator.css";
 
 const REGISTER_NAMES = ["AX", "BX", "CX"];
 const OPERATIONS = ["MOV", "PUSH", "POP"];

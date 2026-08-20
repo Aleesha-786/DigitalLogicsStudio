@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import Navbar from "../../shared/components/navbar";
+import Navbar from "../../../shared/components/navbar";
 import {
   Layers,
   Cpu,
@@ -18,12 +18,12 @@ import {
   BookOpen,
   X
 } from 'lucide-react';
-import './StackMemorySimulatorPage.css';
-import "../home/Home.css";
-import "../../shared/styles/LearningResourcesPage.css";
-import { useTheme } from "../../shared/context/ThemeContext";
-import usePointerGlow from "../../shared/hooks/usePointerGlow";
-import { coalCourseMeta } from "../../shared/data/coalCourseOutline"; 
+import '../styles/StackMemorySimulatorPage.css';
+import "../../home/Home.css";
+import "../../../shared/styles/LearningResourcesPage.css";
+import { useTheme } from "../../../shared/context/ThemeContext";
+import usePointerGlow from "../../../shared/hooks/usePointerGlow";
+import { coalCourseMeta } from "../../../shared/data/coalCourseOutline"; 
 // Custom inline Tooltip Component
 const InfoTooltip = ({ text }) => (
   <div className="smp-tooltip">

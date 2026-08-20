@@ -1,6 +1,6 @@
 import TheoryTopicPage from "../../shared/layouts/TheoryTopicPage";
 import { TRACKS } from "../../shared/layouts/tracks";
-import { CoalDiagram } from "./components/CoalDiagrams";
+import { CoalDiagram } from "./data/CoalDiagrams";
 import AluFlagsSimulator from "./components/AluFlagsSimulator";
 import AssemblyStackSimulator from "./components/AssemblyStackSimulator";
 

@@ -1,8 +1,8 @@
 import React, { useState } from "react";
-import Navbar from "../../shared/components/navbar";
-import Footer from "../../shared/components/Footer";
-import { useTheme } from "../../shared/context/ThemeContext";
-import "./InstructionLaboratoryPage.css";
+import Navbar from "../../../shared/components/navbar";
+import Footer from "../../../shared/components/Footer";
+import { useTheme } from "../../../shared/context/ThemeContext";
+import "../styles/InstructionLaboratoryPage.css";
 
 const INSTRUCTION_DATABASE = [
     {

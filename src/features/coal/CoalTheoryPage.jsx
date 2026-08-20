@@ -6,7 +6,7 @@ import { buildCoalCoreTopics } from "./coalCoreTopics";
 import { coalCourseMeta, coalCourseParts } from "../../shared/data/coalCourseOutline";
 import { getAllCoalModules } from "../../shared/utils/coalCourseUtils";
 import { useCoalScrollSpy } from "./useCoalScrollSpy";
-import "./CoalLayout.css";
+import "./styles/CoalLayout.css";
 
 const coalTopics = buildCoalCoreTopics();
 const coalPartIds = coalCourseParts.map((part) => part.id);
