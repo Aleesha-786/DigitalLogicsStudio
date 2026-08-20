@@ -15,8 +15,10 @@
  *   7. Real-World Applications
  *   8. Quiz
  */
+import { useTheme } from "../../../../../shared/context/ThemeContext";
 import React, { useState } from "react";
 import CombinationalLayout from "../../CombinationalLayout";
+import { COLORS } from "../shared/theme.js";
 
 // ── Shared components ──────────────────────────────────────────────────────────
 import Section from "../shared/components/Section.jsx";
@@ -39,10 +41,13 @@ import {
 } from "./decoderData.js";
 
 // ─── Real-world application card ───────────────────────────────────────────────
-const AppCard = ({ icon, color, title, items }) => (
+const AppCard = ({ icon, color, title, items }) => {
+  const { theme } = useTheme();
+  const cardBg = theme === "light" ? "#ffffff" : "rgba(12,18,35,0.7)";
+  return (
   <div
     style={{
-      background: "rgba(12,18,35,0.7)",
+      background: cardBg,
       border: `1px solid ${color}25`,
       borderRadius: "12px",
       padding: "18px",
@@ -61,7 +66,7 @@ const AppCard = ({ icon, color, title, items }) => (
     </h5>
     <ul
       style={{
-        color: "#6b7280",
+        color: COLORS.textMuted,
         paddingLeft: "18px",
         margin: 0,
         lineHeight: "1.7",
@@ -74,6 +79,7 @@ const AppCard = ({ icon, color, title, items }) => (
     </ul>
   </div>
 );
+};
 
 // ─── Page ──────────────────────────────────────────────────────────────────────
 const DecoderPage = () => {

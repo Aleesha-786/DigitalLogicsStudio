@@ -98,7 +98,7 @@ const DecoderVsDemux = () => {
         <table style={{ width: "100%", borderCollapse: "collapse", fontFamily: "monospace", fontSize: "0.82rem" }}>
           <tbody>
             {ROWS.map((row, ri) => (
-              <tr key={ri} style={{ background: ri === 0 ? "rgba(15,23,42,0.9)" : ri % 2 === 0 ? "rgba(15,23,42,0.4)" : "transparent" }}>
+              <tr key={ri} sstyle={{ background: ri === 0 ? COLORS.darkBg : ri % 2 === 0 ? COLORS.darkBg : "transparent" }}>
                 {row.map((cell, ci) => (
                   <td
                     key={ci}

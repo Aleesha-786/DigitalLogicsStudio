@@ -224,7 +224,7 @@ const Quiz = ({ questions, feedbackText }) => {
             padding: "10px 18px",
             borderRadius: "10px",
             border: "1px solid rgba(148,163,184,0.24)",
-            background: current === 0 ? "rgba(15,23,42,0.35)" : COLORS.inputBg,
+           background: current === 0 ? COLORS.darkBg : COLORS.inputBg,
             color: current === 0 ? COLORS.textMuted : COLORS.textSecondary,
             fontWeight: "700",
             cursor: current === 0 ? "not-allowed" : "pointer",

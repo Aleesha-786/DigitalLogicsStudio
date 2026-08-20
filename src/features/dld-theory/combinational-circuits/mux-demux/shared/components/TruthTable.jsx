@@ -20,7 +20,7 @@ const TruthTable = ({ headers, rows, activeRow = -1, inputCount = 2 }) => (
               key={i}
               style={{
                 padding: "10px 14px",
-                background: "rgba(15,23,42,0.9)",
+               background: COLORS.darkBg,
                 color: i < inputCount ? COLORS.blue : COLORS.warn,
                 textAlign: "center",
                 borderBottom: "2px solid rgba(99,102,241,0.3)",
@@ -44,7 +44,7 @@ const TruthTable = ({ headers, rows, activeRow = -1, inputCount = 2 }) => (
                 background: isActive
                   ? "rgba(0,255,136,0.08)"
                   : ri % 2 === 0
-                  ? "rgba(15,23,42,0.4)"
+                  ? COLORS.darkBg
                   : "transparent",
                 transition: "background 0.2s",
               }}

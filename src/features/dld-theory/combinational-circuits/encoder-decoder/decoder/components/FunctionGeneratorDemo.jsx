@@ -68,7 +68,7 @@ const FunctionGeneratorDemo = () => {
                   key={i}
                   style={{
                     padding: "9px 14px",
-                    background: "rgba(15,23,42,0.9)",
+                    background: COLORS.darkBg,
                     color: i < 3 ? COLORS.blue : i === 3 ? COLORS.warn : COLORS.high,
                     textAlign: "center",
                     borderBottom: "1px solid rgba(99,102,241,0.3)",
