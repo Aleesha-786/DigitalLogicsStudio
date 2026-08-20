@@ -60,6 +60,7 @@ const Boolforge = ({
   const [wires, setWires] = useState([]);
   const [selectedGate, setSelectedGate] = useState(null);
   const [selectedGateIds, setSelectedGateIds] = useState([]);
+  const [selectedWireIds, setSelectedWireIds] = useState([]);
   const [dragging, setDragging] = useState(false);
   const [connectingFrom, setConnectingFrom] = useState(null);
   const [connectCursor, setConnectCursor] = useState(null);
@@ -387,6 +388,7 @@ const Boolforge = ({
   const startDrag = (e, gate) => {
     if (e.button !== 0) return;
     e.stopPropagation();
+    setSelectedWireIds([]);
     setIsPanning(false);
 
     const isCtrl = e.ctrlKey || e.metaKey;
@@ -537,11 +539,15 @@ const Boolforge = ({
 
   const deleteWire = (wireId) => {
     setWires((prev) => prev.filter((w) => w.id !== wireId));
+    setSelectedWireIds((prev) => prev.filter((id) => id !== wireId));
     saveToHistory();
   };
 
   const handleCanvasContextMenu = (e) => {
     e.preventDefault();
+    const { x, y } = clientToWorld(e.clientX, e.clientY);
+    const hit = hitWireAt(x, y, wires, gateMap);
+    if (hit) deleteWire(hit.id);
   };
 
   const stopPortEvent = (e) => {
@@ -558,6 +564,16 @@ const Boolforge = ({
         return;
       }
       const { x: startX, y: startY } = clientToWorld(e.clientX, e.clientY);
+      if (e.button === 0) {
+        const hit = hitWireAt(startX, startY, wires, gateMap);
+        if (hit) {
+          setSelectedWireIds([hit.id]);
+          setSelectedGateIds([]);
+          setSelectedGate(null);
+          return;
+        }
+        setSelectedWireIds([]);
+      }
       const isCtrl = e.ctrlKey || e.metaKey;
       const isMiddleClick = e.button === 1;
 
