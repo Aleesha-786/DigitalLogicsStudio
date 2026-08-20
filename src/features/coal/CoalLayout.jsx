@@ -10,7 +10,7 @@ import {
   isCoalPartSidebarActive,
   isCoalPartSidebarDone,
 } from "../../shared/utils/coalCourseUtils";
-import "./CoalLayout.css";
+import "../styles/CoalLayout.css";
 
 const coalTopicPages = buildCoalTopicPages();
 const coalPartSidebarPages = buildCoalPartSidebarPages();

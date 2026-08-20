@@ -9,7 +9,7 @@ import {
   COAL_THEORY_OVERVIEW_PATH,
   getCoalPartForPath,
 } from "../../shared/utils/coalCourseUtils";
-import "./CoalSidebar.css";
+import "../styles/CoalSidebar.css";
 
 const COAL_TOPIC = {
   id: "coal-theory",
