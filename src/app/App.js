@@ -27,22 +27,22 @@ const ProblemEditorPage = lazy(
 );
 // ── COAL Practical Labs (now lazy-loaded, previously eager imports) ──
 const InstructionTraceLabPage = lazy(
-  () => import("../features/coal/InstructionTraceLabPage"),
+  () => import("../features/coal/practical-playgrounds/InstructionTraceLabPage"),
 );
 const AluFlagsSimulatorPage = lazy(
-  () => import("../features/coal/AluFlagsSimulatorPage"),
+  () => import("../features/coal/practical-playgrounds/AluFlagsSimulatorPage"),
 );
 const StackMemorySimulatorPage = lazy(
-  () => import("../features/coal/StackMemorySimulatorPage"),
+  () => import("../features/coal/practical-playgrounds/StackMemorySimulatorPage"),
 );
 const AssemblyDrillsPage = lazy(
-  () => import("../features/coal/AssemblyDrillsPage"),
+  () => import("../features/coal/practical-playgrounds/AssemblyDrillsPage"),
 );
 const AddressingModePlaygroundPage = lazy(
-  () => import("../features/coal/AddressingModePlaygroundPage"),
+  () => import("../features/coal/practical-playgrounds/AddressingModePlaygroundPage"),
 );
 const InstructionLaboratoryPage = lazy(
-  () => import("../features/coal/InstructionLaboratoryPage"),
+  () => import("../features/coal/practical-playgrounds/InstructionLaboratoryPage"),
 );
 const RegCounters = lazy(
   () => import("../features/dld-theory/registers-transfers/RegCounters"),

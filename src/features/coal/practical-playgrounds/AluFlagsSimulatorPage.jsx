@@ -1,18 +1,18 @@
 import React from "react";
 import { Link } from "react-router-dom";
 import { ArrowLeft } from "lucide-react";
-import Navbar from "../../shared/components/navbar";
-import Footer from "../../shared/components/Footer";
-import { useTheme } from "../../shared/context/ThemeContext";
-import usePointerGlow from "../../shared/hooks/usePointerGlow";
-import { coalCourseMeta } from "../../shared/data/coalCourseOutline";
-import CPUExplorer from "./CPUExplorer";
-import "../home/Home.css";
-import "../../shared/styles/LearningResourcesPage.css";
+import Navbar from "../../../shared/components/navbar";
+import Footer from "../../../shared/components/Footer";
+import { useTheme } from "../../../shared/context/ThemeContext";
+import usePointerGlow from "../../../shared/hooks/usePointerGlow";
+import { coalCourseMeta } from "../../../shared/data/coalCourseOutline";
+import AluFlagsSimulator from "../components/AluFlagsSimulator";
+import "../../home/Home.css";
+import "../../../shared/styles/LearningResourcesPage.css";
 
 const COAL_ACCENT = coalCourseMeta.accent;
 
-function InstructionTraceLabPage() {
+function AluFlagsSimulatorPage() {
   const { theme, toggle: toggleTheme } = useTheme();
   const glowRootRef = usePointerGlow({ color: COAL_ACCENT, alpha: 0.2 });
 
@@ -25,10 +25,10 @@ function InstructionTraceLabPage() {
         <section className="learning-resources-hero">
           <div className="learning-resources-hero-content">
             <span className="learning-resources-badge">Practical</span>
-            <h1>Instruction Trace Lab</h1>
+            <h1>ALU & Flags Simulator</h1>
             <p>
-              Click any CPU component, step through the fetch–decode–execute
-              cycle, and watch data travel across the buses in real time.
+              Explore simple arithmetic operations and observe how carry, zero,
+              overflow, and sign flags respond in real time.
             </p>
 
             <div className="learning-resources-hero-actions">
@@ -44,7 +44,7 @@ function InstructionTraceLabPage() {
         </section>
 
         <section className="learning-resources-section">
-          <CPUExplorer />
+          <AluFlagsSimulator />
         </section>
       </main>
 
@@ -53,4 +53,4 @@ function InstructionTraceLabPage() {
   );
 }
 
-export default InstructionTraceLabPage;
+export default AluFlagsSimulatorPage;

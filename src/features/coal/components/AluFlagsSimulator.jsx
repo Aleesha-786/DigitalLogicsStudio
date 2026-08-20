@@ -1,5 +1,5 @@
 import React, { useMemo, useState } from "react";
-import "./AluFlagsSimulator.css";
+import "../styles/AluFlagsSimulator.css";
 
 const OPERATIONS = ["ADD", "SUB", "AND", "OR", "XOR"];
 
