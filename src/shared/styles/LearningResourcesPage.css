@@ -1215,3 +1215,15 @@
   transform: translateY(-1px);
   outline: none;
 }
+
+[data-theme='light'] .learning-resources-badge--open {
+  background: rgba(124, 58, 237, 0.12);
+  border-color: rgba(124, 58, 237, 0.4);
+  color: #5b21b6;
+}
+
+[data-theme='light'] .learning-resources-badge--open:hover,
+[data-theme='light'] .learning-resources-badge--open:focus-visible {
+  background: rgba(124, 58, 237, 0.2);
+  color: #4c1d95;
+}
