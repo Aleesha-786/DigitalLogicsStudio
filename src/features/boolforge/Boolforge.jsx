@@ -26,6 +26,7 @@ import {
   getCurvePoints,
   getWirePoints,
   wirePathD,
+  hitWireAt,
   defaultInputCount,
   computeGateOutput
 } from "./utils";
@@ -1205,8 +1206,21 @@ const Boolforge = ({
 
   // 🚀 HOOK USAGE FOR KEYBOARD SHORTCUTS
   useKeyboardShortcuts({
-    undo, redo, gates, selectedGateIds, setSelectedGateIds, deleteGate,
-    copySelectedGates, pasteGates, duplicateSelectedGates, setConnectingFrom, setConnectCursor
+    undo,
+    redo,
+    gates,
+    selectedGateIds,
+    setSelectedGateIds,
+    selectedWireIds,
+    setSelectedWireIds,
+    deleteGate,
+    setWires,
+    saveToHistory,
+    copySelectedGates,
+    pasteGates,
+    duplicateSelectedGates,
+    setConnectingFrom,
+    setConnectCursor,
   });
 
   useEffect(() => {
@@ -1292,8 +1306,27 @@ const Boolforge = ({
               const pts = getWirePoints(fromGate, toGate, wire.fromOutputIndex, wire.toIndex);
               const isActive = evaluateGate(fromGate, wire.fromOutputIndex ?? 0);
               return (
-                <g key={wire.id} className={isActive ? "wire-on" : "wire-off"}>
-                  <path className="wire-hit" d={wirePathD(pts)} fill="none" onContextMenu={(e) => { e.preventDefault(); e.stopPropagation(); deleteWire(wire.id); }} />
+                <g
+                  key={wire.id}
+                  className={`${isActive ? "wire-on" : "wire-off"}${selectedWireIds.includes(wire.id) ? " wire-selected" : ""}`}
+                >
+                  <path
+                    className="wire-hit"
+                    d={wirePathD(pts)}
+                    fill="none"
+                    onMouseDown={(e) => {
+                      e.stopPropagation();
+                      e.preventDefault();
+                      setSelectedWireIds([wire.id]);
+                      setSelectedGateIds([]);
+                      setSelectedGate(null);
+                    }}
+                    onContextMenu={(e) => {
+                      e.preventDefault();
+                      e.stopPropagation();
+                      deleteWire(wire.id);
+                    }}
+                  />
                   {isActive && <path className="wire-glow" d={wirePathD(pts)} fill="none" />}
                   <path className="wire-path" d={wirePathD(pts)} fill="none" />
                 </g>
