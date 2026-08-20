@@ -93,7 +93,7 @@ const BinaryIndexExplorer = () => {
         <table style={{ width: "100%", borderCollapse: "collapse", fontFamily: "monospace", fontSize: "0.82rem" }}>
           <thead>
             <tr>
-              <th style={{ padding: "8px 12px", color: COLORS.blue, textAlign: "center", borderBottom: "1px solid rgba(99,102,241,0.3)", background: "rgba(15,23,42,0.8)" }}>
+              <th style={{ padding: "8px 12px", color: COLORS.blue, textAlign: "center", borderBottom: "1px solid rgba(99,102,241,0.3)", background: COLORS.darkBg }}>
                 Index
               </th>
               {Array.from({ length: numBits }, (_, k) => (
@@ -104,14 +104,14 @@ const BinaryIndexExplorer = () => {
                     color: k === selectedBit ? COLORS.warn : COLORS.textSecondary,
                     textAlign: "center",
                     borderBottom: "1px solid rgba(99,102,241,0.3)",
-                    background: k === selectedBit ? "rgba(251,191,36,0.1)" : "rgba(15,23,42,0.8)",
+                    background: k === selectedBit ? "rgba(251,191,36,0.1)" :COLORS.darkBg,
                     fontWeight: k === selectedBit ? "800" : "600",
                   }}
                 >
                   bit-{k} {k === selectedBit ? "← selected" : ""}
                 </th>
               ))}
-              <th style={{ padding: "8px 12px", color: COLORS.textSecondary, textAlign: "center", borderBottom: "1px solid rgba(99,102,241,0.3)", background: "rgba(15,23,42,0.8)" }}>
+              <th style={{ padding: "8px 12px", color: COLORS.textSecondary, textAlign: "center", borderBottom: "1px solid rgba(99,102,241,0.3)", background: COLORS.darkBg }}>
                 Include in A{selectedBit}?
               </th>
             </tr>

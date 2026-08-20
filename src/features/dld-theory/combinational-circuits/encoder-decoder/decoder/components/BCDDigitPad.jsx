@@ -49,7 +49,7 @@ const BCDDigitPad = () => {
               height: "52px",
               borderRadius: "10px",
               border: `2px solid ${digit === i ? COLORS.high : "rgba(99,102,241,0.25)"}`,
-              background: digit === i ? "rgba(0,255,136,0.15)" : "rgba(12,18,35,0.7)",
+              background: digit === i ? "rgba(0,255,136,0.15)" : COLORS.darkBg,
               color: digit === i ? COLORS.high : COLORS.textMuted,
               fontFamily: "monospace",
               fontWeight: "700",
@@ -72,7 +72,7 @@ const BCDDigitPad = () => {
         {/* BCD info panel */}
         <div style={{ flex: 1, minWidth: "220px" }}>
           {/* BCD code */}
-          <div style={{ marginBottom: "16px", padding: "14px", background: "rgba(12,18,35,0.8)", border: "1px solid rgba(99,102,241,0.2)", borderRadius: "10px" }}>
+          <div style={{ marginBottom: "16px", padding: "14px", background: COLORS.darkBg, border: "1px solid rgba(99,102,241,0.2)", borderRadius: "10px" }}>
             <div style={{ color: COLORS.textSecondary, fontSize: "0.75rem", marginBottom: "6px" }}>BCD CODE (ABCD)</div>
             <div style={{ display: "flex", gap: "10px", alignItems: "center" }}>
               {bcdBits.split("").map((bit, i) => (

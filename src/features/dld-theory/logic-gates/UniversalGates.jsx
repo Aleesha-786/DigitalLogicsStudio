@@ -294,10 +294,10 @@ const UniversalGates = () => {
         
         .gate-btn {
           padding: 12px 24px;
-          background: rgba(15, 23, 42, 0.6);
+          background: var(--card-bg-solid);
           border: 2px solid rgba(148, 163, 184, 0.25);
           border-radius: 8px;
-          color: #e2e8f0;
+          color: var(--text-color);
           cursor: pointer;
           transition: all 0.2s ease;
           font-size: 1rem;
@@ -315,7 +315,7 @@ const UniversalGates = () => {
         }
         
         .gate-info {
-          background: rgba(15, 23, 42, 0.6);
+          background: var(--card-bg-solid);
           border: 1px solid rgba(148, 163, 184, 0.25);
           border-radius: 12px;
           padding: 20px;
@@ -327,7 +327,7 @@ const UniversalGates = () => {
         }
         
         .gate-info p {
-          color: #9ca3af;
+         color: var(--secondary-text);
           margin-bottom: 16px;
         }
         
@@ -347,7 +347,7 @@ const UniversalGates = () => {
         }
         
         .implementation-card {
-          background: rgba(15, 23, 42, 0.6);
+          background: var(--card-bg-solid);
           border: 1px solid rgba(148, 163, 184, 0.25);
           border-radius: 12px;
           padding: 20px;
@@ -367,13 +367,13 @@ const UniversalGates = () => {
         }
         
         .expression-display code {
-          color: #e2e8f0;
+          color: var(--text-color);
           font-family: 'Courier New', monospace;
           font-size: 0.95rem;
         }
         
         .implementation-desc {
-          color: #9ca3af;
+          color: var(--secondary-text);
           font-size: 0.9rem;
         }
         
@@ -397,7 +397,7 @@ const UniversalGates = () => {
         }
         
         .importance-item p {
-          color: #9ca3af;
+          color: var(--secondary-text);
           margin: 0;
           line-height: 1.6;
         }
@@ -421,13 +421,13 @@ const UniversalGates = () => {
         }
         
         .activity-card p {
-          color: #9ca3af;
+          color: var(--secondary-text);
           margin-bottom: 16px;
           line-height: 1.6;
         }
         
         .activity-steps {
-          background: rgba(15, 23, 42, 0.4);
+          background: var(--card-bg-solid);
           border-radius: 8px;
           padding: 16px;
         }
@@ -435,7 +435,7 @@ const UniversalGates = () => {
         .activity-steps ol {
           margin: 0;
           padding-left: 20px;
-          color: #e2e8f0;
+         color: var(--text-color);
         }
         
         .activity-steps li {
@@ -452,7 +452,7 @@ const UniversalGates = () => {
           display: flex;
           justify-content: space-between;
           align-items: center;
-          background: rgba(15, 23, 42, 0.4);
+         background: var(--card-bg-solid);
           padding: 12px;
           border-radius: 8px;
         }
@@ -463,7 +463,7 @@ const UniversalGates = () => {
         }
         
         .hint {
-          color: #9ca3af;
+          color: var(--secondary-text);
           font-size: 0.9rem;
           font-style: italic;
         }
@@ -476,7 +476,7 @@ const UniversalGates = () => {
         .comparison-table table {
           width: 100%;
           border-collapse: collapse;
-          background: rgba(15, 23, 42, 0.4);
+          background: var(--card-bg-solid);
           border-radius: 8px;
           overflow: hidden;
         }
@@ -486,7 +486,7 @@ const UniversalGates = () => {
           padding: 12px;
           text-align: center;
           border: 1px solid rgba(148, 163, 184, 0.2);
-          color: #e2e8f0;
+         color: var(--text-color);
         }
         
         .comparison-table th {

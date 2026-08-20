@@ -13,6 +13,7 @@
  *   6. Real-World Applications
  *   7. Quiz
  */
+import { useTheme } from "../../../../../shared/context/ThemeContext";
 import React, { useState, useMemo } from "react";
 import CombinationalLayout from "../../CombinationalLayout";
 
@@ -40,26 +41,37 @@ import {
 import { COLORS } from "../shared/theme.js";
 
 // ─── Real-world application card ───────────────────────────────────────────────
-const AppCard = ({ icon, color, title, items }) => (
-  <div style={{ background: "rgba(12,18,35,0.7)", border: `1px solid ${color}25`, borderRadius: "12px", padding: "18px" }}>
-    <div style={{ fontSize: "1.8rem", marginBottom: "8px" }}>{icon}</div>
-    <h5 style={{ color, marginBottom: "12px", fontSize: "0.88rem", fontWeight: "700" }}>{title}</h5>
-    <ul style={{ color: COLORS.textMuted, paddingLeft: "18px", margin: 0, lineHeight: "1.7", fontSize: "0.83rem" }}>
-      {items.map((item, i) => <li key={i}>{item}</li>)}
-    </ul>
-  </div>
-);
+const AppCard = ({ icon, color, title, items }) => {
+  const { theme } = useTheme();
+  const cardBg = theme === "light" ? "#ffffff" : "rgba(12,18,35,0.7)";
+  const cardShadow = theme === "light" ? "0 2px 8px rgba(15,23,42,0.08)" : "none";
+  return (
+    <div style={{ background: cardBg, border: `1px solid ${color}25`, borderRadius: "12px", padding: "18px", boxShadow: cardShadow }}>
+      <div style={{ fontSize: "1.8rem", marginBottom: "8px" }}>{icon}</div>
+      <h5 style={{ color, marginBottom: "12px", fontSize: "0.88rem", fontWeight: "700" }}>{title}</h5>
+      <ul style={{ color: COLORS.textMuted, paddingLeft: "18px", margin: 0, lineHeight: "1.7", fontSize: "0.83rem" }}>
+        {items.map((item, i) => <li key={i}>{item}</li>)}
+      </ul>
+    </div>
+  );
+};
 
 // ─── Key property card (used in concept section) ───────────────────────────────
-const PropertyCard = ({ icon, label, desc, color }) => (
-  <div style={{ display: "flex", gap: "12px", alignItems: "center", padding: "10px 14px", background: "rgba(12,18,35,0.6)", borderRadius: "9px", border: `1px solid ${color}20` }}>
-    <span style={{ fontSize: "1.2rem" }}>{icon}</span>
-    <div>
-      <div style={{ color, fontWeight: "700", fontSize: "0.82rem" }}>{label}</div>
-      <div style={{ color: COLORS.textMuted, fontSize: "0.78rem" }}>{desc}</div>
+
+const PropertyCard = ({ icon, label, desc, color }) => {
+  const { theme } = useTheme();
+  const cardBg = theme === "light" ? "#ffffff" : "rgba(12,18,35,0.6)";
+  return (
+    <div style={{ display: "flex", gap: "12px", alignItems: "center", padding: "10px 14px", background: cardBg, borderRadius: "9px", border: `1px solid ${color}20` }}>
+      <span style={{ fontSize: "1.2rem" }}>{icon}</span>
+      <div>
+        <div style={{ color, fontWeight: "700", fontSize: "0.82rem" }}>{label}</div>
+        <div style={{ color: COLORS.textMuted, fontSize: "0.78rem" }}>{desc}</div>
+      </div>
     </div>
-  </div>
-);
+  );
+};
+
 
 // ─── Main page ─────────────────────────────────────────────────────────────────
 const EncoderPage = () => {

@@ -81,7 +81,7 @@ const GateExplanation = () => {
           gap: 16px;
         }
         .gate-card {
-          background: rgba(15,23,42,0.6);
+          background: var(--card-bg-solid);
           border: 1px solid rgba(148,163,184,0.25);
           border-radius: 12px;
           padding: 16px;
@@ -96,7 +96,7 @@ const GateExplanation = () => {
           margin: 4px 0;
         }
         .gate-desc {
-          color: #9ca3af;
+        color: var(--secondary-text);
           margin: 0;
         }
       `}</style>

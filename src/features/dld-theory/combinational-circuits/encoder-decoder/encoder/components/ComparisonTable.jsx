@@ -27,7 +27,7 @@ const ComparisonTable = () => (
               key={i}
               style={{
                 padding: "12px 16px",
-                background: "rgba(15,23,42,0.9)",
+                background: COLORS.darkBg,
                 color: i === 0 ? COLORS.textSecondary : i === 1 ? COLORS.blue : COLORS.warn,
                 textAlign: "left",
                 borderBottom: "2px solid rgba(99,102,241,0.3)",
@@ -43,7 +43,7 @@ const ComparisonTable = () => (
       </thead>
       <tbody>
         {ROWS.map(([feat, plain, prio], ri) => (
-          <tr key={ri} style={{ background: ri % 2 === 0 ? "rgba(15,23,42,0.4)" : "transparent" }}>
+          <tr key={ri} style={{ background: ri % 2 === 0 ? COLORS.darkBg : "transparent" }}>
             <td style={{ padding: "11px 16px", color: COLORS.textPrimary,  fontWeight: "600", borderBottom: "1px solid rgba(30,40,60,0.5)" }}>{feat}</td>
             <td style={{ padding: "11px 16px", color: COLORS.blue,         lineHeight: "1.5", borderBottom: "1px solid rgba(30,40,60,0.5)" }}>{plain}</td>
             <td style={{ padding: "11px 16px", color: COLORS.warn,         lineHeight: "1.5", borderBottom: "1px solid rgba(30,40,60,0.5)" }}>{prio}</td>

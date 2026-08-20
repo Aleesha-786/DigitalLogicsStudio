@@ -2819,6 +2819,10 @@ pre {
   position: relative;
 }
 
+[data-theme="light"] .solver-container {
+  background: linear-gradient(135deg, #eef4ff 0%, #f5f8ff 50%, #e8f0ff 100%);
+}
+
 .solver-container::before {
   content: "";
   position: fixed;
@@ -4936,4 +4940,3 @@ select:focus-visible {
 .quat-arrow.open {
   transform: rotate(180deg);
 }
-
