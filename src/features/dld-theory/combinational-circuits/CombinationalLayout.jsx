@@ -28,6 +28,7 @@ const CombinationalLayout = ({
     intro={intro}
     highlights={highlights}
     pages={combinationalPages}
+    overviewPath={combinationalPages[0]?.path}
     topicLabel="Combinational Circuits"
     sidebarTitle="Combinational Circuits"
     sidebarCopy="Move through signal routing, encoding, decoding, and selection with one premium lesson framework."

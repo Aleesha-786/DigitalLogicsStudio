@@ -17,6 +17,7 @@ const RegLayout = ({ children, title, subtitle }) => (
     title={title}
     subtitle={subtitle}
     pages={regPages}
+    overviewPath={regPages[0]?.path}
     topicLabel="Registers & Transfers"
     sidebarTitle="Registers & Transfers"
     sidebarCopy="Explore storage, shifting, loading, and counting patterns through one polished navigation system."

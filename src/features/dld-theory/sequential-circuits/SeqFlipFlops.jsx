@@ -1,6 +1,7 @@
 import React, { useState, useRef, useEffect } from "react";
 import SeqLayout from "./SeqLayout";
 import SeqTable from "./components/SeqTable";
+import { useTheme } from "../../../shared/context/ThemeContext";
 
 /* ─────────────────────────────────────────────
    DATA TABLES
@@ -113,6 +114,11 @@ const MasterSlaveWalkthrough = () => {
   const [step, setStep] = useState(0);
   const s = msSteps[step];
 
+  const { theme } = useTheme();
+  const frozenFill = theme === "light" ? "#f1f5f9" : "rgba(30,27,75,0.7)";
+  const frozenStroke = theme === "light" ? "#cbd5e1" : "#475569";
+  const frozenText = theme === "light" ? "#94a3b8" : "#64748b";
+
   return (
     <div className="seq-ms-walkthrough">
       {/* Diagram */}
@@ -162,8 +168,8 @@ const MasterSlaveWalkthrough = () => {
             width="160"
             height="80"
             rx="10"
-            fill={s.masterOpen ? "rgba(245,158,11,0.12)" : "rgba(30,27,75,0.7)"}
-            stroke={s.masterOpen ? "#f59e0b" : "#475569"}
+            fill={s.masterOpen ? "rgba(245,158,11,0.12)" : frozenFill}
+            stroke={s.masterOpen ? "#f59e0b" : frozenStroke}
             strokeWidth={s.masterOpen ? "2.5" : "1.5"}
             style={{ transition: "all 0.4s" }}
           />
@@ -171,7 +177,7 @@ const MasterSlaveWalkthrough = () => {
             x="160"
             y="88"
             fontSize="13"
-            fill={s.masterOpen ? "#fbbf24" : "#64748b"}
+            fill={s.masterOpen ? "#fbbf24" : frozenText}
             textAnchor="middle"
             fontWeight="700"
             style={{ transition: "all 0.4s" }}
@@ -182,7 +188,7 @@ const MasterSlaveWalkthrough = () => {
             x="160"
             y="107"
             fontSize="10"
-            fill={s.masterOpen ? "#f59e0b" : "#475569"}
+            fill={s.masterOpen ? "#f59e0b" : frozenStroke}
             textAnchor="middle"
             style={{ transition: "all 0.4s" }}
           >
@@ -230,8 +236,8 @@ const MasterSlaveWalkthrough = () => {
             width="160"
             height="80"
             rx="10"
-            fill={s.slaveOpen ? "rgba(16,185,129,0.12)" : "rgba(30,27,75,0.7)"}
-            stroke={s.slaveOpen ? "#10b981" : "#475569"}
+            fill={s.slaveOpen ? "rgba(16,185,129,0.12)" : frozenFill}
+            stroke={s.slaveOpen ? "#10b981" : frozenStroke}
             strokeWidth={s.slaveOpen ? "2.5" : "1.5"}
             style={{ transition: "all 0.4s" }}
           />
@@ -239,7 +245,7 @@ const MasterSlaveWalkthrough = () => {
             x="390"
             y="88"
             fontSize="13"
-            fill={s.slaveOpen ? "#34d399" : "#64748b"}
+            fill={s.slaveOpen ? "#34d399" : frozenText}
             textAnchor="middle"
             fontWeight="700"
             style={{ transition: "all 0.4s" }}
@@ -250,7 +256,7 @@ const MasterSlaveWalkthrough = () => {
             x="390"
             y="107"
             fontSize="10"
-            fill={s.slaveOpen ? "#10b981" : "#475569"}
+            fill={s.slaveOpen ? "#10b981" : frozenStroke}
             textAnchor="middle"
             style={{ transition: "all 0.4s" }}
           >

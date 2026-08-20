@@ -17,6 +17,7 @@ const SeqLayout = ({ children, title, subtitle }) => (
     title={title}
     subtitle={subtitle}
     pages={seqPages}
+    overviewPath={seqPages[0]?.path}
     topicLabel="Sequential Circuits"
     sidebarTitle="Sequential Circuits"
     sidebarCopy="Follow one state-logic chapter at a time with the same premium learning path used across the platform."

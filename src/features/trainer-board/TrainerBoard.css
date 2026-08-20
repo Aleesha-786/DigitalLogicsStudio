@@ -1,11 +1,3 @@
-/* ════════════════════════════════════════════════════════════════
-   Trainer Board — IT-300 Digital Logic Training System
-   Static/structural styles. Anything that depends on live board state
-   (LED colors, wire colors, IC body colors, hover states driven by
-   props, etc.) stays inline in its component since it's computed at
-   render time — only the fixed chrome lives here.
-   ════════════════════════════════════════════════════════════════ */
-
 @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@700;900&display=swap');
 
 @keyframes blink {
@@ -25,9 +17,16 @@
   justify-content: center;
   padding: 18px;
   user-select: none;
+  transition: background 0.3s ease;
 }
 
-/* ── Outer chassis (the grey plastic case) ── */
+/* Light Theme Background for Shell */
+.theme-light .trainer-page-container,
+[data-theme="light"] .trainer-page-container {
+  background: radial-gradient(ellipse at 40% 40%, #e2e8f0, #cbd5e1);
+}
+
+/* ── Outer chassis (the grey/beige plastic casing) ── */
 .trainer-outer-chassis {
   position: relative;
   border-radius: 18px 18px 8px 8px;
@@ -39,6 +38,17 @@
     inset 0 3px 6px rgba(255, 255, 255, .5);
   max-width: 1280px;
   width: 100%;
+  transition: background 0.3s ease, box-shadow 0.3s ease;
+}
+
+/* Light Theme Chassis Adjustments (Softer, realistic workbench feel) */
+.theme-light .trainer-outer-chassis,
+[data-theme="light"] .trainer-outer-chassis {
+  background: linear-gradient(160deg, #ffffff, #f1f5f9 40%, #e2e8f0 70%, #cbd5e1);
+  box-shadow:
+    0 30px 60px rgba(15, 23, 42, 0.15),
+    0 10px 20px rgba(15, 23, 42, 0.1),
+    inset 0 3px 6px rgba(255, 255, 255, 0.9);
 }
 
 .trainer-side-wall {
@@ -49,6 +59,11 @@
   width: 15px;
   background: linear-gradient(90deg, #aaa, #666);
   border-radius: 0 8px 8px 0;
+}
+
+.theme-light .trainer-side-wall,
+[data-theme="light"] .trainer-side-wall {
+  background: linear-gradient(90deg, #cbd5e1, #94a3b8);
 }
 
 .trainer-bottom-bar {
@@ -62,7 +77,13 @@
   box-shadow: 0 8px 20px rgba(0, 0, 0, .8);
 }
 
-/* ── PCB ── */
+.theme-light .trainer-bottom-bar,
+[data-theme="light"] .trainer-bottom-bar {
+  background: linear-gradient(180deg, #cbd5e1, #64748b);
+  box-shadow: 0 8px 20px rgba(15, 23, 42, 0.15);
+}
+
+/* ── PCB (Main Circuit Board) ── */
 .trainer-pcb {
   border-radius: 8px;
   padding: 10px;
@@ -72,6 +93,16 @@
   background-image:
     radial-gradient(ellipse 55% 35% at 20% 20%, #1b5430, transparent),
     radial-gradient(ellipse 55% 35% at 80% 80%, #17422a, transparent);
+  transition: background 0.3s ease;
+}
+
+/* Light Theme PCB (Slightly brighter green silk-screen style for clarity) */
+.theme-light .trainer-pcb,
+[data-theme="light"] .trainer-pcb {
+  background: #143d1f;
+  background-image:
+    radial-gradient(ellipse 55% 35% at 20% 20%, #236b3c, transparent),
+    radial-gradient(ellipse 55% 35% at 80% 80%, #1c5731, transparent);
 }
 
 .trainer-pcb-grid {
@@ -81,6 +112,13 @@
   background-image:
     repeating-linear-gradient(0deg, transparent, transparent 19px, rgba(210, 165, 60, .04) 20px),
     repeating-linear-gradient(90deg, transparent, transparent 19px, rgba(210, 165, 60, .04) 20px);
+}
+
+.theme-light .trainer-pcb-grid,
+[data-theme="light"] .trainer-pcb-grid {
+  background-image:
+    repeating-linear-gradient(0deg, transparent, transparent 19px, rgba(210, 165, 60, .08) 20px),
+    repeating-linear-gradient(90deg, transparent, transparent 19px, rgba(210, 165, 60, .08) 20px);
 }
 
 /* ── Main 3-column layout ── */

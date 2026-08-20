@@ -5,8 +5,8 @@ import CoalLayout from "./CoalLayout";
 import CoalTopicContent from "./components/CoalTopicContent";
 import { getCoalTopicContent } from "../../shared/data/coalTopicContent";
 import { getCoalModuleBySlug } from "../../shared/utils/coalCourseUtils";
-import "./CoalPages.css";
-import "./CoalLayout.css";
+import "./styles/CoalPages.css";
+import "./styles/CoalLayout.css";
 
 function CoalTopicPage() {
   const { slug } = useParams();

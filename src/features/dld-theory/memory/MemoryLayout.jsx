@@ -1,5 +1,5 @@
 import React from "react";
-import TopicLayout from "../../shared/components/topics/TopicLayout";
+import TopicLayout from "../../../shared/components/topics/TopicLayout";
 import "./MemorySystem.css";
 import {
   memoryPages,

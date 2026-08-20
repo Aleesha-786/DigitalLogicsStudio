@@ -177,7 +177,7 @@ export default function IT300() {
   }, [recordUndo]);
 
   return (
-    <div className={`boolforge-page theme-${theme}`} style={{ background: "#1a1a1a" }}>
+    <div className={`boolforge-page theme-${theme}`}>
       <Navbar toggleTheme={toggleTheme} theme={theme} />
 
       <div className="trainer-page-container">
