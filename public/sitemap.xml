@@ -2,673 +2,631 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   <url>
     <loc>https://circuits.quantumlogicslimited.com/</loc>
-    <lastmod>2026-07-16T12:57:16.577Z</lastmod>
+    <lastmod>2026-08-20T14:14:29.729Z</lastmod>
     <changefreq>weekly</changefreq>
     <priority>1.0</priority>
   </url>
   <url>
     <loc>https://circuits.quantumlogicslimited.com/boolforge</loc>
-    <lastmod>2026-07-16T12:57:16.577Z</lastmod>
+    <lastmod>2026-08-20T14:14:29.729Z</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.95</priority>
   </url>
   <url>
     <loc>https://circuits.quantumlogicslimited.com/kmapgenerator</loc>
-    <lastmod>2026-07-16T12:57:16.577Z</lastmod>
+    <lastmod>2026-08-20T14:14:29.729Z</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.80</priority>
   </url>
   <url>
     <loc>https://circuits.quantumlogicslimited.com/standard-forms</loc>
-    <lastmod>2026-07-16T12:57:16.577Z</lastmod>
+    <lastmod>2026-08-20T14:14:29.729Z</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.80</priority>
   </url>
   <url>
     <loc>https://circuits.quantumlogicslimited.com/paritybitcalculator</loc>
-    <lastmod>2026-07-16T12:57:16.577Z</lastmod>
+    <lastmod>2026-08-20T14:14:29.729Z</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.80</priority>
   </url>
   <url>
     <loc>https://circuits.quantumlogicslimited.com/problems</loc>
-    <lastmod>2026-07-16T12:57:16.577Z</lastmod>
+    <lastmod>2026-08-20T14:14:29.729Z</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.80</priority>
   </url>
   <url>
     <loc>https://circuits.quantumlogicslimited.com/problems/boolean-algebra</loc>
-    <lastmod>2026-07-16T12:57:16.577Z</lastmod>
+    <lastmod>2026-08-20T14:14:29.729Z</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.80</priority>
   </url>
   <url>
     <loc>https://circuits.quantumlogicslimited.com/problems/k-map</loc>
-    <lastmod>2026-07-16T12:57:16.577Z</lastmod>
+    <lastmod>2026-08-20T14:14:29.729Z</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.80</priority>
   </url>
   <url>
     <loc>https://circuits.quantumlogicslimited.com/problems/number-systems</loc>
-    <lastmod>2026-07-16T12:57:16.577Z</lastmod>
+    <lastmod>2026-08-20T14:14:29.729Z</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.80</priority>
   </url>
   <url>
     <loc>https://circuits.quantumlogicslimited.com/problems/sequential-circuits</loc>
-    <lastmod>2026-07-16T12:57:16.577Z</lastmod>
+    <lastmod>2026-08-20T14:14:29.729Z</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.80</priority>
   </url>
   <url>
     <loc>https://circuits.quantumlogicslimited.com/problems/flip-flops</loc>
-    <lastmod>2026-07-16T12:57:16.577Z</lastmod>
+    <lastmod>2026-08-20T14:14:29.729Z</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.80</priority>
   </url>
   <url>
     <loc>https://circuits.quantumlogicslimited.com/book</loc>
-    <lastmod>2026-07-16T12:57:16.577Z</lastmod>
+    <lastmod>2026-08-20T14:14:29.729Z</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.80</priority>
   </url>
   <url>
     <loc>https://circuits.quantumlogicslimited.com/book/ch2</loc>
-    <lastmod>2026-07-16T12:57:16.577Z</lastmod>
+    <lastmod>2026-08-20T14:14:29.729Z</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.80</priority>
   </url>
   <url>
     <loc>https://circuits.quantumlogicslimited.com/timing-diagrams</loc>
-    <lastmod>2026-07-16T12:57:16.577Z</lastmod>
+    <lastmod>2026-08-20T14:14:29.729Z</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.80</priority>
   </url>
   <url>
     <loc>https://circuits.quantumlogicslimited.com/trainer-board</loc>
-    <lastmod>2026-07-16T12:57:16.577Z</lastmod>
+    <lastmod>2026-08-20T14:14:29.729Z</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.80</priority>
   </url>
   <url>
     <loc>https://circuits.quantumlogicslimited.com/boolean/overview</loc>
-    <lastmod>2026-07-16T12:57:16.577Z</lastmod>
+    <lastmod>2026-08-20T14:14:29.729Z</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.80</priority>
   </url>
   <url>
     <loc>https://circuits.quantumlogicslimited.com/boolean/identities</loc>
-    <lastmod>2026-07-16T12:57:16.577Z</lastmod>
+    <lastmod>2026-08-20T14:14:29.729Z</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.80</priority>
   </url>
   <url>
     <loc>https://circuits.quantumlogicslimited.com/boolean/laws</loc>
-    <lastmod>2026-07-16T12:57:16.577Z</lastmod>
+    <lastmod>2026-08-20T14:14:29.729Z</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.80</priority>
   </url>
   <url>
     <loc>https://circuits.quantumlogicslimited.com/boolean/complement</loc>
-    <lastmod>2026-07-16T12:57:16.577Z</lastmod>
+    <lastmod>2026-08-20T14:14:29.729Z</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.80</priority>
   </url>
   <url>
     <loc>https://circuits.quantumlogicslimited.com/boolean/duality</loc>
-    <lastmod>2026-07-16T12:57:16.577Z</lastmod>
+    <lastmod>2026-08-20T14:14:29.729Z</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.80</priority>
   </url>
   <url>
     <loc>https://circuits.quantumlogicslimited.com/boolean/consensus</loc>
-    <lastmod>2026-07-16T12:57:16.577Z</lastmod>
+    <lastmod>2026-08-20T14:14:29.729Z</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.80</priority>
   </url>
   <url>
     <loc>https://circuits.quantumlogicslimited.com/boolean/minterms</loc>
-    <lastmod>2026-07-16T12:57:16.577Z</lastmod>
+    <lastmod>2026-08-20T14:14:29.729Z</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.80</priority>
   </url>
   <url>
     <loc>https://circuits.quantumlogicslimited.com/boolean/maxterms</loc>
-    <lastmod>2026-07-16T12:57:16.577Z</lastmod>
+    <lastmod>2026-08-20T14:14:29.729Z</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.80</priority>
   </url>
   <url>
     <loc>https://circuits.quantumlogicslimited.com/boolean/minterms-maxterms</loc>
-    <lastmod>2026-07-16T12:57:16.577Z</lastmod>
+    <lastmod>2026-08-20T14:14:29.729Z</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.80</priority>
   </url>
   <url>
     <loc>https://circuits.quantumlogicslimited.com/boolean/significant-digits</loc>
-    <lastmod>2026-07-16T12:57:16.577Z</lastmod>
+    <lastmod>2026-08-20T14:14:29.729Z</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.80</priority>
   </url>
   <url>
     <loc>https://circuits.quantumlogicslimited.com/number-systems/binary-representation</loc>
-    <lastmod>2026-07-16T12:57:16.577Z</lastmod>
+    <lastmod>2026-08-20T14:14:29.729Z</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.80</priority>
   </url>
   <url>
     <loc>https://circuits.quantumlogicslimited.com/number-systems/number-conversion</loc>
-    <lastmod>2026-07-16T12:57:16.577Z</lastmod>
+    <lastmod>2026-08-20T14:14:29.729Z</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.80</priority>
   </url>
   <url>
     <loc>https://circuits.quantumlogicslimited.com/number-systems/bit-extension</loc>
-    <lastmod>2026-07-16T12:57:16.577Z</lastmod>
+    <lastmod>2026-08-20T14:14:29.729Z</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.80</priority>
   </url>
   <url>
     <loc>https://circuits.quantumlogicslimited.com/number-systems/bcd-notation</loc>
-    <lastmod>2026-07-16T12:57:16.577Z</lastmod>
+    <lastmod>2026-08-20T14:14:29.729Z</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.80</priority>
   </url>
   <url>
     <loc>https://circuits.quantumlogicslimited.com/number-systems/ascii-notation</loc>
-    <lastmod>2026-07-16T12:57:16.577Z</lastmod>
+    <lastmod>2026-08-20T14:14:29.729Z</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.80</priority>
   </url>
   <url>
     <loc>https://circuits.quantumlogicslimited.com/number-systems/bit-converter</loc>
-    <lastmod>2026-07-16T12:57:16.577Z</lastmod>
+    <lastmod>2026-08-20T14:14:29.729Z</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.80</priority>
   </url>
   <url>
     <loc>https://circuits.quantumlogicslimited.com/number-systems/calculator</loc>
-    <lastmod>2026-07-16T12:57:16.577Z</lastmod>
+    <lastmod>2026-08-20T14:14:29.729Z</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.80</priority>
   </url>
   <url>
     <loc>https://circuits.quantumlogicslimited.com/arithmetic/binary-adders</loc>
-    <lastmod>2026-07-16T12:57:16.577Z</lastmod>
+    <lastmod>2026-08-20T14:14:29.729Z</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.80</priority>
   </url>
   <url>
     <loc>https://circuits.quantumlogicslimited.com/arithmetic/binary-subtractor</loc>
-    <lastmod>2026-07-16T12:57:16.577Z</lastmod>
+    <lastmod>2026-08-20T14:14:29.729Z</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.80</priority>
   </url>
   <url>
     <loc>https://circuits.quantumlogicslimited.com/arithmetic/binary-add-subtractor</loc>
-    <lastmod>2026-07-16T12:57:16.577Z</lastmod>
+    <lastmod>2026-08-20T14:14:29.729Z</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.80</priority>
   </url>
   <url>
     <loc>https://circuits.quantumlogicslimited.com/arithmetic/binary-multipliers</loc>
-    <lastmod>2026-07-16T12:57:16.577Z</lastmod>
+    <lastmod>2026-08-20T14:14:29.729Z</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.80</priority>
   </url>
   <url>
     <loc>https://circuits.quantumlogicslimited.com/arithmetic/code-conversion</loc>
-    <lastmod>2026-07-16T12:57:16.577Z</lastmod>
+    <lastmod>2026-08-20T14:14:29.729Z</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.80</priority>
   </url>
   <url>
     <loc>https://circuits.quantumlogicslimited.com/arithmetic/magnitude-comparator</loc>
-    <lastmod>2026-07-16T12:57:16.577Z</lastmod>
+    <lastmod>2026-08-20T14:14:29.729Z</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.80</priority>
   </url>
   <url>
     <loc>https://circuits.quantumlogicslimited.com/arithmetic/parity-generators</loc>
-    <lastmod>2026-07-16T12:57:16.577Z</lastmod>
+    <lastmod>2026-08-20T14:14:29.729Z</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.80</priority>
   </url>
   <url>
     <loc>https://circuits.quantumlogicslimited.com/arithmetic/design-applications</loc>
-    <lastmod>2026-07-16T12:57:16.577Z</lastmod>
+    <lastmod>2026-08-20T14:14:29.729Z</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.80</priority>
   </url>
   <url>
     <loc>https://circuits.quantumlogicslimited.com/arithmetic/complements</loc>
-    <lastmod>2026-07-16T12:57:16.577Z</lastmod>
+    <lastmod>2026-08-20T14:14:29.729Z</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.80</priority>
   </url>
   <url>
     <loc>https://circuits.quantumlogicslimited.com/arithmetic/signed-unsigned</loc>
-    <lastmod>2026-07-16T12:57:16.577Z</lastmod>
+    <lastmod>2026-08-20T14:14:29.729Z</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.80</priority>
   </url>
   <url>
     <loc>https://circuits.quantumlogicslimited.com/encoder</loc>
-    <lastmod>2026-07-16T12:57:16.577Z</lastmod>
+    <lastmod>2026-08-20T14:14:29.729Z</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.80</priority>
   </url>
   <url>
     <loc>https://circuits.quantumlogicslimited.com/decoder</loc>
-    <lastmod>2026-07-16T12:57:16.577Z</lastmod>
+    <lastmod>2026-08-20T14:14:29.729Z</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.80</priority>
   </url>
   <url>
     <loc>https://circuits.quantumlogicslimited.com/mux</loc>
-    <lastmod>2026-07-16T12:57:16.577Z</lastmod>
+    <lastmod>2026-08-20T14:14:29.729Z</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.80</priority>
   </url>
   <url>
     <loc>https://circuits.quantumlogicslimited.com/demux</loc>
-    <lastmod>2026-07-16T12:57:16.577Z</lastmod>
+    <lastmod>2026-08-20T14:14:29.729Z</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.80</priority>
   </url>
   <url>
     <loc>https://circuits.quantumlogicslimited.com/sequential/intro</loc>
-    <lastmod>2026-07-16T12:57:16.577Z</lastmod>
+    <lastmod>2026-08-20T14:14:29.729Z</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.80</priority>
   </url>
   <url>
     <loc>https://circuits.quantumlogicslimited.com/sequential/latches</loc>
-    <lastmod>2026-07-16T12:57:16.577Z</lastmod>
+    <lastmod>2026-08-20T14:14:29.729Z</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.80</priority>
   </url>
   <url>
     <loc>https://circuits.quantumlogicslimited.com/sequential/flip-flops</loc>
-    <lastmod>2026-07-16T12:57:16.577Z</lastmod>
+    <lastmod>2026-08-20T14:14:29.729Z</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.80</priority>
   </url>
   <url>
     <loc>https://circuits.quantumlogicslimited.com/sequential/flip-flop-types</loc>
-    <lastmod>2026-07-16T12:57:16.577Z</lastmod>
+    <lastmod>2026-08-20T14:14:29.729Z</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.80</priority>
   </url>
   <url>
     <loc>https://circuits.quantumlogicslimited.com/sequential/analysis</loc>
-    <lastmod>2026-07-16T12:57:16.577Z</lastmod>
+    <lastmod>2026-08-20T14:14:29.729Z</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.80</priority>
   </url>
   <url>
     <loc>https://circuits.quantumlogicslimited.com/sequential/design-procedures</loc>
-    <lastmod>2026-07-16T12:57:16.577Z</lastmod>
+    <lastmod>2026-08-20T14:14:29.729Z</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.80</priority>
   </url>
   <url>
     <loc>https://circuits.quantumlogicslimited.com/sequential/state-diagram</loc>
-    <lastmod>2026-07-16T12:57:16.577Z</lastmod>
+    <lastmod>2026-08-20T14:14:29.729Z</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.80</priority>
   </url>
   <url>
     <loc>https://circuits.quantumlogicslimited.com/sequential/state-reduction</loc>
-    <lastmod>2026-07-16T12:57:16.577Z</lastmod>
+    <lastmod>2026-08-20T14:14:29.729Z</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.80</priority>
   </url>
   <url>
     <loc>https://circuits.quantumlogicslimited.com/registers/intro</loc>
-    <lastmod>2026-07-16T12:57:16.577Z</lastmod>
+    <lastmod>2026-08-20T14:14:29.729Z</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.80</priority>
   </url>
   <url>
     <loc>https://circuits.quantumlogicslimited.com/registers/counters</loc>
-    <lastmod>2026-07-16T12:57:16.577Z</lastmod>
+    <lastmod>2026-08-20T14:14:29.729Z</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.80</priority>
   </url>
   <url>
     <loc>https://circuits.quantumlogicslimited.com/registers/sync-async</loc>
-    <lastmod>2026-07-16T12:57:16.577Z</lastmod>
+    <lastmod>2026-08-20T14:14:29.729Z</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.80</priority>
   </url>
   <url>
     <loc>https://circuits.quantumlogicslimited.com/registers/shift-registers</loc>
-    <lastmod>2026-07-16T12:57:16.577Z</lastmod>
+    <lastmod>2026-08-20T14:14:29.729Z</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.80</priority>
   </url>
   <url>
     <loc>https://circuits.quantumlogicslimited.com/registers/serial-shift</loc>
-    <lastmod>2026-07-16T12:57:16.577Z</lastmod>
+    <lastmod>2026-08-20T14:14:29.729Z</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.80</priority>
   </url>
   <url>
     <loc>https://circuits.quantumlogicslimited.com/registers/loading</loc>
-    <lastmod>2026-07-16T12:57:16.577Z</lastmod>
+    <lastmod>2026-08-20T14:14:29.729Z</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.80</priority>
   </url>
   <url>
     <loc>https://circuits.quantumlogicslimited.com/registers/parallel</loc>
-    <lastmod>2026-07-16T12:57:16.577Z</lastmod>
+    <lastmod>2026-08-20T14:14:29.729Z</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.80</priority>
   </url>
   <url>
     <loc>https://circuits.quantumlogicslimited.com/registers/ripple-counters</loc>
-    <lastmod>2026-07-16T12:57:16.577Z</lastmod>
+    <lastmod>2026-08-20T14:14:29.729Z</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.80</priority>
   </url>
   <url>
     <loc>https://circuits.quantumlogicslimited.com/registers/sync-binary-counters</loc>
-    <lastmod>2026-07-16T12:57:16.577Z</lastmod>
+    <lastmod>2026-08-20T14:14:29.729Z</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.80</priority>
   </url>
   <url>
     <loc>https://circuits.quantumlogicslimited.com/memory/basics</loc>
-    <lastmod>2026-07-16T12:57:16.577Z</lastmod>
+    <lastmod>2026-08-20T14:14:29.729Z</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.80</priority>
   </url>
   <url>
     <loc>https://circuits.quantumlogicslimited.com/memory/read-only-memories</loc>
-    <lastmod>2026-07-16T12:57:16.577Z</lastmod>
+    <lastmod>2026-08-20T14:14:29.729Z</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.80</priority>
   </url>
   <url>
     <loc>https://circuits.quantumlogicslimited.com/memory/programmable-logic-array</loc>
-    <lastmod>2026-07-16T12:57:16.577Z</lastmod>
+    <lastmod>2026-08-20T14:14:29.729Z</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.80</priority>
   </url>
   <url>
     <loc>https://circuits.quantumlogicslimited.com/memory/random-access-memory</loc>
-    <lastmod>2026-07-16T12:57:16.577Z</lastmod>
+    <lastmod>2026-08-20T14:14:29.729Z</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.80</priority>
   </url>
   <url>
     <loc>https://circuits.quantumlogicslimited.com/memory/static-dynamic-ram</loc>
-    <lastmod>2026-07-16T12:57:16.577Z</lastmod>
+    <lastmod>2026-08-20T14:14:29.729Z</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.80</priority>
   </url>
   <url>
     <loc>https://circuits.quantumlogicslimited.com/memory/array-of-ram-ics</loc>
-    <lastmod>2026-07-16T12:57:16.577Z</lastmod>
+    <lastmod>2026-08-20T14:14:29.729Z</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.80</priority>
   </url>
   <url>
     <loc>https://circuits.quantumlogicslimited.com/memory/memory-construction-ram</loc>
-    <lastmod>2026-07-16T12:57:16.577Z</lastmod>
+    <lastmod>2026-08-20T14:14:29.729Z</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.80</priority>
   </url>
   <url>
     <loc>https://circuits.quantumlogicslimited.com/circuit-cost</loc>
-    <lastmod>2026-07-16T12:57:16.577Z</lastmod>
+    <lastmod>2026-08-20T14:14:29.729Z</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.80</priority>
   </url>
   <url>
     <loc>https://circuits.quantumlogicslimited.com/gates</loc>
-    <lastmod>2026-07-16T12:57:16.577Z</lastmod>
+    <lastmod>2026-08-20T14:14:29.729Z</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.80</priority>
   </url>
   <url>
     <loc>https://circuits.quantumlogicslimited.com/resources</loc>
-    <lastmod>2026-07-16T12:57:16.577Z</lastmod>
+    <lastmod>2026-08-20T14:14:29.729Z</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.80</priority>
   </url>
   <url>
     <loc>https://circuits.quantumlogicslimited.com/resources/dld</loc>
-    <lastmod>2026-07-16T12:57:16.577Z</lastmod>
+    <lastmod>2026-08-20T14:14:29.729Z</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.80</priority>
   </url>
   <url>
     <loc>https://circuits.quantumlogicslimited.com/resources/coal</loc>
-    <lastmod>2026-07-16T12:57:16.577Z</lastmod>
+    <lastmod>2026-08-20T14:14:29.729Z</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.80</priority>
   </url>
   <url>
     <loc>https://circuits.quantumlogicslimited.com/resources/coal/theory</loc>
-    <lastmod>2026-07-16T12:57:16.577Z</lastmod>
+    <lastmod>2026-08-20T14:14:29.729Z</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.80</priority>
   </url>
   <url>
     <loc>https://circuits.quantumlogicslimited.com/resources/coal/practical</loc>
-    <lastmod>2026-07-16T12:57:16.577Z</lastmod>
+    <lastmod>2026-08-20T14:14:29.729Z</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.80</priority>
   </url>
   <url>
     <loc>https://circuits.quantumlogicslimited.com/resources/coal/practical/instruction-trace-lab</loc>
-    <lastmod>2026-07-16T12:57:16.577Z</lastmod>
+    <lastmod>2026-08-20T14:14:29.729Z</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.80</priority>
+  </url>
+  <url>
+    <loc>https://circuits.quantumlogicslimited.com/resources/coal/practical/alu-flags-simulator</loc>
+    <lastmod>2026-08-20T14:14:29.729Z</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.80</priority>
   </url>
   <url>
     <loc>https://circuits.quantumlogicslimited.com/resources/coal/practical/stack-memory-simulator</loc>
-    <lastmod>2026-07-16T12:57:16.577Z</lastmod>
+    <lastmod>2026-08-20T14:14:29.729Z</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.80</priority>
   </url>
   <url>
     <loc>https://circuits.quantumlogicslimited.com/resources/coal/practical/assembly-drills</loc>
-    <lastmod>2026-07-16T12:57:16.577Z</lastmod>
+    <lastmod>2026-08-20T14:14:29.729Z</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.80</priority>
   </url>
   <url>
     <loc>https://circuits.quantumlogicslimited.com/resources/coal/practical/addressing-mode-playground</loc>
-    <lastmod>2026-07-16T12:57:16.577Z</lastmod>
+    <lastmod>2026-08-20T14:14:29.729Z</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.80</priority>
   </url>
   <url>
     <loc>https://circuits.quantumlogicslimited.com/resources/coal/practical/instruction-laboratory</loc>
-    <lastmod>2026-07-16T12:57:16.577Z</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.80</priority>
-  </url>
-  <url>
-    <loc>https://circuits.quantumlogicslimited.com/resources/coal/problems</loc>
-    <lastmod>2026-07-16T12:57:16.577Z</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.80</priority>
-  </url>
-  <url>
-    <loc>https://circuits.quantumlogicslimited.com/resources/coal/problems/foundations</loc>
-    <lastmod>2026-07-16T12:57:16.577Z</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.80</priority>
-  </url>
-  <url>
-    <loc>https://circuits.quantumlogicslimited.com/resources/coal/problems/number-systems</loc>
-    <lastmod>2026-07-16T12:57:16.577Z</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.80</priority>
-  </url>
-  <url>
-    <loc>https://circuits.quantumlogicslimited.com/resources/coal/problems/isa-registers</loc>
-    <lastmod>2026-07-16T12:57:16.577Z</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.80</priority>
-  </url>
-  <url>
-    <loc>https://circuits.quantumlogicslimited.com/resources/coal/problems/assembly-programming</loc>
-    <lastmod>2026-07-16T12:57:16.577Z</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.80</priority>
-  </url>
-  <url>
-    <loc>https://circuits.quantumlogicslimited.com/resources/coal/problems/cache-memory</loc>
-    <lastmod>2026-07-16T12:57:16.577Z</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.80</priority>
-  </url>
-  <url>
-    <loc>https://circuits.quantumlogicslimited.com/resources/coal/problems/io-interrupts</loc>
-    <lastmod>2026-07-16T12:57:16.577Z</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.80</priority>
-  </url>
-  <url>
-    <loc>https://circuits.quantumlogicslimited.com/resources/coal/problems/pipelining-risc</loc>
-    <lastmod>2026-07-16T12:57:16.577Z</lastmod>
+    <lastmod>2026-08-20T14:14:29.729Z</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.80</priority>
   </url>
   <url>
     <loc>https://circuits.quantumlogicslimited.com/coal/intro-computer-organization</loc>
-    <lastmod>2026-07-16T12:57:16.577Z</lastmod>
+    <lastmod>2026-08-20T14:14:29.729Z</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.80</priority>
   </url>
   <url>
     <loc>https://circuits.quantumlogicslimited.com/coal/number-systems-representation</loc>
-    <lastmod>2026-07-16T12:57:16.577Z</lastmod>
+    <lastmod>2026-08-20T14:14:29.729Z</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.80</priority>
   </url>
   <url>
     <loc>https://circuits.quantumlogicslimited.com/coal/digital-logic-bridge</loc>
-    <lastmod>2026-07-16T12:57:16.577Z</lastmod>
+    <lastmod>2026-08-20T14:14:29.729Z</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.80</priority>
   </url>
   <url>
     <loc>https://circuits.quantumlogicslimited.com/coal/cpu-components</loc>
-    <lastmod>2026-07-16T12:57:16.577Z</lastmod>
+    <lastmod>2026-08-20T14:14:29.729Z</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.80</priority>
   </url>
   <url>
     <loc>https://circuits.quantumlogicslimited.com/coal/instruction-cycle</loc>
-    <lastmod>2026-07-16T12:57:16.577Z</lastmod>
+    <lastmod>2026-08-20T14:14:29.729Z</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.80</priority>
   </url>
   <url>
     <loc>https://circuits.quantumlogicslimited.com/coal/memory-hierarchy</loc>
-    <lastmod>2026-07-16T12:57:16.577Z</lastmod>
+    <lastmod>2026-08-20T14:14:29.729Z</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.80</priority>
   </url>
   <url>
     <loc>https://circuits.quantumlogicslimited.com/coal/instruction-set-architecture</loc>
-    <lastmod>2026-07-16T12:57:16.577Z</lastmod>
+    <lastmod>2026-08-20T14:14:29.729Z</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.80</priority>
   </url>
   <url>
     <loc>https://circuits.quantumlogicslimited.com/coal/addressing-modes</loc>
-    <lastmod>2026-07-16T12:57:16.577Z</lastmod>
+    <lastmod>2026-08-20T14:14:29.729Z</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.80</priority>
   </url>
   <url>
     <loc>https://circuits.quantumlogicslimited.com/coal/flags-and-status</loc>
-    <lastmod>2026-07-16T12:57:16.577Z</lastmod>
+    <lastmod>2026-08-20T14:14:29.729Z</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.80</priority>
   </url>
   <url>
     <loc>https://circuits.quantumlogicslimited.com/coal/coal-syntax</loc>
-    <lastmod>2026-07-16T12:57:16.577Z</lastmod>
+    <lastmod>2026-08-20T14:14:29.729Z</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.80</priority>
   </url>
   <url>
     <loc>https://circuits.quantumlogicslimited.com/coal/control-flow</loc>
-    <lastmod>2026-07-16T12:57:16.577Z</lastmod>
+    <lastmod>2026-08-20T14:14:29.729Z</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.80</priority>
   </url>
   <url>
     <loc>https://circuits.quantumlogicslimited.com/coal/registers-memory</loc>
-    <lastmod>2026-07-16T12:57:16.577Z</lastmod>
+    <lastmod>2026-08-20T14:14:29.729Z</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.80</priority>
   </url>
   <url>
     <loc>https://circuits.quantumlogicslimited.com/coal/procedures-stack</loc>
-    <lastmod>2026-07-16T12:57:16.577Z</lastmod>
+    <lastmod>2026-08-20T14:14:29.729Z</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.80</priority>
   </url>
   <url>
     <loc>https://circuits.quantumlogicslimited.com/coal/arrays-strings</loc>
-    <lastmod>2026-07-16T12:57:16.577Z</lastmod>
+    <lastmod>2026-08-20T14:14:29.729Z</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.80</priority>
   </url>
   <url>
     <loc>https://circuits.quantumlogicslimited.com/coal/ia32-architecture</loc>
-    <lastmod>2026-07-16T12:57:16.577Z</lastmod>
+    <lastmod>2026-08-20T14:14:29.729Z</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.80</priority>
   </url>
   <url>
     <loc>https://circuits.quantumlogicslimited.com/coal/directives-macros</loc>
-    <lastmod>2026-07-16T12:57:16.577Z</lastmod>
+    <lastmod>2026-08-20T14:14:29.729Z</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.80</priority>
   </url>
   <url>
     <loc>https://circuits.quantumlogicslimited.com/coal/hw-sw-interface</loc>
-    <lastmod>2026-07-16T12:57:16.577Z</lastmod>
+    <lastmod>2026-08-20T14:14:29.729Z</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.80</priority>
   </url>
   <url>
     <loc>https://circuits.quantumlogicslimited.com/coal/io-interrupts</loc>
-    <lastmod>2026-07-16T12:57:16.577Z</lastmod>
+    <lastmod>2026-08-20T14:14:29.729Z</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.80</priority>
   </url>
   <url>
     <loc>https://circuits.quantumlogicslimited.com/coal/buses-storage</loc>
-    <lastmod>2026-07-16T12:57:16.577Z</lastmod>
+    <lastmod>2026-08-20T14:14:29.729Z</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.80</priority>
   </url>
   <url>
     <loc>https://circuits.quantumlogicslimited.com/coal/processor-families</loc>
-    <lastmod>2026-07-16T12:57:16.577Z</lastmod>
+    <lastmod>2026-08-20T14:14:29.729Z</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.80</priority>
   </url>
   <url>
     <loc>https://circuits.quantumlogicslimited.com/coal/pipelining</loc>
-    <lastmod>2026-07-16T12:57:16.577Z</lastmod>
+    <lastmod>2026-08-20T14:14:29.729Z</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.80</priority>
   </url>
   <url>
     <loc>https://circuits.quantumlogicslimited.com/coal/computer-organization</loc>
-    <lastmod>2026-07-16T12:57:16.577Z</lastmod>
+    <lastmod>2026-08-20T14:14:29.729Z</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.80</priority>
   </url>
