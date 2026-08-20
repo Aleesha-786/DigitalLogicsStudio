@@ -831,3 +831,234 @@
     animation: none;
   }
 }
+
+/* =========================================================================
+   PATCH — append to: src/features/coal/styles/CPUExplorer.css
+   Adds a [data-theme="light"] palette (previously dark-only).
+   Re-declares the component's CSS custom properties for light mode, then
+   patches the handful of rules that used hardcoded colors instead of vars.
+   ========================================================================= */
+
+[data-theme="light"] .cpux-wrapper {
+  --cpux-bg-deep: #f8fafc;
+  --cpux-bg: #eef2ff;
+  --cpux-surface: #ffffff;
+  --cpux-border: rgba(15, 23, 42, 0.1);
+  --cpux-text: #0f172a;
+  --cpux-text-muted: #475569;
+  --cpux-cyan: #0284c7;
+  --cpux-purple: #7c3aed;
+  --cpux-green: #059669;
+
+  background:
+    radial-gradient(circle at top left, rgba(124, 58, 237, 0.08), transparent 45%),
+    radial-gradient(circle at bottom right, rgba(2, 132, 199, 0.06), transparent 45%),
+    linear-gradient(180deg, var(--cpux-bg-deep), var(--cpux-bg));
+  box-shadow: 0 25px 50px -12px rgba(15, 23, 42, 0.08);
+}
+
+[data-theme="light"] .cpux-eyebrow {
+  background: rgba(2, 132, 199, 0.1);
+  border-color: rgba(2, 132, 199, 0.25);
+  color: #0369a1;
+}
+
+[data-theme="light"] .cpux-heading {
+  background: linear-gradient(90deg, #0f172a 0%, #0284c7 55%, #7c3aed 110%);
+  -webkit-background-clip: text;
+  background-clip: text;
+}
+
+[data-theme="light"] .cpux-btn-guide {
+  background: rgba(2, 132, 199, 0.08);
+  border-color: rgba(2, 132, 199, 0.3);
+  color: #075985;
+}
+
+[data-theme="light"] .cpux-btn-guide:hover:not(:disabled) {
+  box-shadow: 0 10px 24px -14px rgba(2, 132, 199, 0.35);
+}
+
+[data-theme="light"] .cpux-btn {
+  box-shadow: 0 1px 2px rgba(15, 23, 42, 0.06);
+}
+
+[data-theme="light"] .cpux-btn-primary {
+  background: linear-gradient(135deg, rgba(2, 132, 199, 0.14), rgba(124, 58, 237, 0.14));
+  border-color: rgba(2, 132, 199, 0.3);
+  color: #0c4a6e;
+}
+
+[data-theme="light"] .cpux-fde-node.is-done {
+  border-color: rgba(5, 150, 105, 0.35);
+  color: rgba(5, 150, 105, 0.85);
+}
+
+[data-theme="light"] .cpux-fde-node.is-active.cpux-accent-cyan {
+  background: rgba(2, 132, 199, 0.1);
+  color: #075985;
+}
+
+[data-theme="light"] .cpux-fde-node.is-active.cpux-accent-purple {
+  background: rgba(124, 58, 237, 0.1);
+  color: #5b21b6;
+}
+
+[data-theme="light"] .cpux-fde-node.is-active.cpux-accent-green {
+  background: rgba(5, 150, 105, 0.1);
+  color: #065f46;
+}
+
+[data-theme="light"] .cpux-fde-connector.is-active {
+  background: linear-gradient(90deg, #059669, rgba(5, 150, 105, 0.2));
+}
+
+[data-theme="light"] .cpux-node {
+  box-shadow: 0 1px 2px rgba(15, 23, 42, 0.05);
+}
+
+[data-theme="light"] .cpux-node-cu.cpux-accent-purple:hover {
+  box-shadow: 0 12px 30px -16px rgba(124, 58, 237, 0.3);
+}
+
+[data-theme="light"] .cpux-node-alu.cpux-accent-green:hover {
+  box-shadow: 0 12px 30px -16px rgba(5, 150, 105, 0.3);
+}
+
+[data-theme="light"] .cpux-node-cu.is-pulsing {
+  background: rgba(124, 58, 237, 0.1);
+}
+
+[data-theme="light"] .cpux-node-alu.is-pulsing {
+  background: rgba(5, 150, 105, 0.1);
+}
+
+[data-theme="light"] .cpux-node-register.cpux-accent-cyan:hover {
+  box-shadow: 0 10px 24px -16px rgba(2, 132, 199, 0.3);
+}
+
+[data-theme="light"] .cpux-node-register.is-pulsing {
+  background: rgba(2, 132, 199, 0.1);
+}
+
+[data-theme="light"] .cpux-bus-node.is-done {
+  border-color: rgba(5, 150, 105, 0.4);
+  color: rgba(5, 150, 105, 0.85);
+}
+
+[data-theme="light"] .cpux-bus-node.is-active {
+  color: #075985;
+  background: rgba(2, 132, 199, 0.12);
+  box-shadow: 0 0 16px -4px rgba(2, 132, 199, 0.4);
+}
+
+[data-theme="light"] .cpux-bus-connector {
+  color: rgba(15, 23, 42, 0.15);
+}
+
+[data-theme="light"] .cpux-bus-connector.is-active {
+  color: rgba(5, 150, 105, 0.6);
+}
+
+[data-theme="light"] .cpux-bus-connector.is-flowing {
+  color: #0284c7;
+}
+
+[data-theme="light"] .cpux-segment-card {
+  box-shadow: 0 1px 2px rgba(15, 23, 42, 0.05);
+}
+
+[data-theme="light"] .cpux-segment-card.cpux-accent-cyan:hover,
+[data-theme="light"] .cpux-segment-card.cpux-accent-cyan.is-active {
+  box-shadow: 0 10px 24px -16px rgba(2, 132, 199, 0.3);
+}
+
+[data-theme="light"] .cpux-segment-card.cpux-accent-purple:hover,
+[data-theme="light"] .cpux-segment-card.cpux-accent-purple.is-active {
+  box-shadow: 0 10px 24px -16px rgba(124, 58, 237, 0.3);
+}
+
+[data-theme="light"] .cpux-segment-card.cpux-accent-green:hover,
+[data-theme="light"] .cpux-segment-card.cpux-accent-green.is-active {
+  box-shadow: 0 10px 24px -16px rgba(5, 150, 105, 0.3);
+}
+
+[data-theme="light"] .cpux-chip {
+  background: rgba(15, 23, 42, 0.04);
+  border-color: rgba(15, 23, 42, 0.12);
+  color: #0f172a;
+}
+
+[data-theme="light"] .cpux-chip-green {
+  border-color: rgba(5, 150, 105, 0.35);
+  color: #047857;
+  background: rgba(5, 150, 105, 0.08);
+}
+
+[data-theme="light"] .cpux-chip-purple {
+  border-color: rgba(124, 58, 237, 0.35);
+  color: #6d28d9;
+  background: rgba(124, 58, 237, 0.08);
+}
+
+[data-theme="light"] .cpux-instruction-row {
+  background: rgba(15, 23, 42, 0.03);
+}
+
+[data-theme="light"] .cpux-instruction-row code {
+  color: #0369a1;
+}
+
+[data-theme="light"] .cpux-example-line {
+  background: rgba(15, 23, 42, 0.03);
+  color: #047857;
+}
+
+[data-theme="light"] .cpux-panel-overlay {
+  background: rgba(148, 163, 184, 0.45);
+}
+
+[data-theme="light"] .cpux-panel {
+  background: linear-gradient(180deg, #ffffff, #f8fafc);
+  box-shadow: 0 30px 70px -20px rgba(15, 23, 42, 0.25);
+}
+
+[data-theme="light"] .cpux-panel.cpux-accent-cyan {
+  border-color: rgba(2, 132, 199, 0.25);
+}
+
+[data-theme="light"] .cpux-panel.cpux-accent-purple {
+  border-color: rgba(124, 58, 237, 0.25);
+}
+
+[data-theme="light"] .cpux-panel.cpux-accent-green {
+  border-color: rgba(5, 150, 105, 0.25);
+}
+
+[data-theme="light"] .cpux-panel-close {
+  background: rgba(15, 23, 42, 0.04);
+  border-color: rgba(15, 23, 42, 0.12);
+}
+
+[data-theme="light"] .cpux-panel-close:hover {
+  color: #0f172a;
+  border-color: rgba(15, 23, 42, 0.25);
+}
+
+[data-theme="light"] .cpux-register-value-card {
+  background: rgba(15, 23, 42, 0.03);
+  border-color: rgba(15, 23, 42, 0.1);
+}
+
+[data-theme="light"] .cpux-register-hex {
+  color: #0284c7;
+}
+
+[data-theme="light"] .cpux-hex-sub {
+  color: #7c3aed;
+}
+
+[data-theme="light"] .cpux-guide-item {
+  background: rgba(15, 23, 42, 0.03);
+  border-color: rgba(15, 23, 42, 0.1);
+}

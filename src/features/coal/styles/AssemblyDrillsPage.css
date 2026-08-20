@@ -675,3 +675,262 @@
 .asm-log-viewport::-webkit-scrollbar-thumb:hover {
   background: #334155;
 }
+
+/* =========================================================================
+   PATCH — append to: src/features/coal/styles/AssemblyDrillsPage.css
+   Adds a [data-theme="light"] palette (previously dark-only).
+   ========================================================================= */
+
+[data-theme="light"] .asm-ide-root {
+  background: #f8fafc;
+  color: #0f172a;
+  border-color: #e2e8f0;
+  box-shadow: 0 25px 50px -12px rgba(15, 23, 42, 0.08);
+}
+
+[data-theme="light"] .asm-tooltip-icon {
+  color: #94a3b8;
+}
+[data-theme="light"] .asm-tooltip:hover .asm-tooltip-icon {
+  color: #6366f1;
+}
+[data-theme="light"] .asm-tooltip-box {
+  background: #1e293b;
+  color: #f1f5f9;
+  border-color: #334155;
+}
+[data-theme="light"] .asm-tooltip-arrow {
+  border-top-color: #1e293b;
+}
+
+[data-theme="light"] .asm-header {
+  border-bottom-color: #e2e8f0;
+}
+
+[data-theme="light"] .asm-header-icon-wrap {
+  background: rgba(99, 102, 241, 0.12);
+  color: #4f46e5;
+  border-color: rgba(99, 102, 241, 0.25);
+}
+
+[data-theme="light"] .asm-title {
+  color: #0f172a;
+}
+
+[data-theme="light"] .asm-subtitle {
+  color: #64748b;
+}
+
+[data-theme="light"] .asm-template-select {
+  background: #ffffff;
+  border-color: #e2e8f0;
+}
+[data-theme="light"] .asm-template-select svg {
+  color: #0284c7;
+}
+[data-theme="light"] .asm-template-select label {
+  color: #64748b;
+}
+[data-theme="light"] .asm-template-select select {
+  color: #0f172a;
+}
+[data-theme="light"] .asm-template-select select option {
+  background: #ffffff;
+  color: #0f172a;
+}
+
+[data-theme="light"] .asm-btn {
+  background: #ffffff;
+  color: #334155;
+  border-color: #e2e8f0;
+  box-shadow: 0 1px 2px rgba(15, 23, 42, 0.05);
+}
+[data-theme="light"] .asm-btn:hover {
+  background: #f1f5f9;
+  color: #0f172a;
+}
+
+[data-theme="light"] .asm-btn-run {
+  background: rgba(16, 185, 129, 0.12);
+  color: #047857;
+  border-color: rgba(16, 185, 129, 0.3);
+}
+[data-theme="light"] .asm-btn-run:hover {
+  background: rgba(16, 185, 129, 0.22);
+  color: #065f46;
+}
+[data-theme="light"] .asm-btn-step {
+  background: rgba(59, 130, 246, 0.12);
+  color: #1d4ed8;
+  border-color: rgba(59, 130, 246, 0.3);
+}
+[data-theme="light"] .asm-btn-step:hover {
+  background: rgba(59, 130, 246, 0.22);
+  color: #1e40af;
+}
+[data-theme="light"] .asm-btn-pause {
+  background: rgba(245, 158, 11, 0.14);
+  color: #b45309;
+  border-color: rgba(245, 158, 11, 0.32);
+}
+[data-theme="light"] .asm-btn-pause:hover {
+  background: rgba(245, 158, 11, 0.24);
+  color: #92400e;
+}
+[data-theme="light"] .asm-btn-reset {
+  background: rgba(239, 68, 68, 0.12);
+  color: #b91c1c;
+  border-color: rgba(239, 68, 68, 0.3);
+}
+[data-theme="light"] .asm-btn-reset:hover {
+  background: rgba(239, 68, 68, 0.22);
+  color: #991b1b;
+}
+
+[data-theme="light"] .asm-panel {
+  background: #ffffff;
+  border-color: #e2e8f0;
+  box-shadow: 0 4px 6px -1px rgba(15, 23, 42, 0.05), 0 2px 4px -1px rgba(15, 23, 42, 0.03);
+}
+
+[data-theme="light"] .asm-panel-title {
+  color: #475569;
+}
+
+[data-theme="light"] .asm-icon-blue { color: #2563eb; }
+[data-theme="light"] .asm-icon-purple { color: #7c3aed; }
+[data-theme="light"] .asm-icon-green { color: #059669; }
+[data-theme="light"] .asm-icon-yellow { color: #b45309; }
+[data-theme="light"] .asm-icon-red { color: #dc2626; }
+
+[data-theme="light"] .asm-editor-container {
+  background: #f8fafc;
+  border-color: #e2e8f0;
+}
+[data-theme="light"] .asm-editor-gutter {
+  background: #f1f5f9;
+  border-right-color: #e2e8f0;
+  color: #94a3b8;
+}
+[data-theme="light"] .asm-editor-line-num.is-current {
+  color: #2563eb;
+}
+[data-theme="light"] .asm-editor-textarea {
+  color: #0f172a;
+}
+[data-theme="light"] .asm-editor-line-highlight {
+  background: rgba(59, 130, 246, 0.1);
+  border-left-color: #2563eb;
+}
+
+[data-theme="light"] .asm-register-cell {
+  background: #f8fafc;
+  border-color: #e2e8f0;
+}
+[data-theme="light"] .asm-register-cell.is-changed {
+  border-color: #2563eb;
+  background: rgba(59, 130, 246, 0.06);
+  box-shadow: 0 0 8px rgba(59, 130, 246, 0.15);
+}
+[data-theme="light"] .asm-register-label-row {
+  color: #64748b;
+}
+[data-theme="light"] .asm-register-input {
+  color: #0f172a;
+}
+[data-theme="light"] .asm-register-input:focus {
+  color: #2563eb;
+}
+
+[data-theme="light"] .asm-flag-badge {
+  background: #f8fafc;
+  border-color: #e2e8f0;
+  color: #64748b;
+}
+[data-theme="light"] .asm-flag-badge.is-active {
+  background: rgba(16, 185, 129, 0.14);
+  color: #047857;
+  border-color: rgba(16, 185, 129, 0.35);
+}
+
+[data-theme="light"] .asm-memory-input {
+  background: #ffffff;
+  border-color: #e2e8f0;
+  color: #0f172a;
+}
+[data-theme="light"] .asm-memory-input:focus {
+  border-color: #2563eb;
+}
+
+[data-theme="light"] .asm-memory-grid-wrap {
+  background: #f8fafc;
+  border-color: #e2e8f0;
+}
+[data-theme="light"] .asm-memory-table th,
+[data-theme="light"] .asm-memory-table td {
+  border-color: #e2e8f0;
+}
+[data-theme="light"] .asm-memory-table th {
+  color: #64748b;
+}
+[data-theme="light"] .asm-memory-row-header {
+  color: #475569;
+}
+[data-theme="light"] .asm-memory-cell {
+  color: #1e293b;
+}
+[data-theme="light"] .asm-memory-cell:hover {
+  background: #e2e8f0;
+}
+[data-theme="light"] .asm-memory-cell.is-changed {
+  background: rgba(168, 85, 247, 0.14);
+  color: #7e22ce;
+}
+[data-theme="light"] .asm-memory-cell.is-highlighted {
+  outline-color: #2563eb;
+}
+
+[data-theme="light"] .asm-learning-box {
+  background: rgba(99, 102, 241, 0.06);
+  border-color: rgba(99, 102, 241, 0.3);
+}
+[data-theme="light"] .asm-learning-title-row {
+  color: #4f46e5;
+}
+[data-theme="light"] .asm-learning-body {
+  color: #334155;
+}
+[data-theme="light"] .asm-learning-code {
+  background: #f8fafc;
+  color: #0f172a;
+  border-color: #e2e8f0;
+}
+
+[data-theme="light"] .asm-log-panel {
+  background: #ffffff;
+  border-color: #e2e8f0;
+}
+[data-theme="light"] .asm-log-viewport {
+  background: #f8fafc;
+  border-color: #e2e8f0;
+}
+[data-theme="light"] .asm-log-row {
+  color: #334155;
+}
+[data-theme="light"] .asm-log-row.is-error { color: #dc2626; }
+[data-theme="light"] .asm-log-row.is-success { color: #059669; }
+[data-theme="light"] .asm-log-row.is-info { color: #2563eb; }
+[data-theme="light"] .asm-log-index {
+  color: #94a3b8;
+}
+
+[data-theme="light"] .asm-editor-textarea::-webkit-scrollbar-thumb,
+[data-theme="light"] .asm-memory-grid-wrap::-webkit-scrollbar-thumb,
+[data-theme="light"] .asm-log-viewport::-webkit-scrollbar-thumb {
+  background: #cbd5e1;
+}
+[data-theme="light"] .asm-editor-textarea::-webkit-scrollbar-thumb:hover,
+[data-theme="light"] .asm-memory-grid-wrap::-webkit-scrollbar-thumb:hover,
+[data-theme="light"] .asm-log-viewport::-webkit-scrollbar-thumb:hover {
+  background: #94a3b8;
+}
