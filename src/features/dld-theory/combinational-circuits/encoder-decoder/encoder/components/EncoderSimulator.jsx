@@ -199,7 +199,7 @@ const EncoderSimulator = ({ config, inputVals, setInputVals }) => {
         </div>
 
         {/* Encoding result summary */}
-        <div style={{ padding: "14px", background: "rgba(8,14,30,0.8)", border: "1px solid rgba(99,102,241,0.25)", borderRadius: "10px" }}>
+       <div style={{ padding: "14px", background: COLORS.darkBg, border: "1px solid rgba(99,102,241,0.25)", borderRadius: "10px" }}>
           {result.active >= 0 ? (
             <>
               <div style={{ color: "#86efac", fontSize: "0.78rem", fontWeight: "700", marginBottom: "6px" }}>ENCODING RESULT</div>

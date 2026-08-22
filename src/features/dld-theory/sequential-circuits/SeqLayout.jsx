@@ -12,6 +12,11 @@ const nextPart =
 const nextPartPath = nextPart?.modules?.[0]?.path || null;
 const nextPartLabel = nextPart?.title || null;
 
+const prevPart =
+  currentPartIndex > 0 ? dldCourseParts[currentPartIndex - 1] : null;
+const prevPartPath = prevPart?.modules?.[0]?.path || null;
+const prevPartLabel = prevPart?.title || null;
+
 const SeqLayout = ({ children, title, subtitle }) => (
   <TopicLayout
     title={title}
@@ -32,6 +37,8 @@ const SeqLayout = ({ children, title, subtitle }) => (
     nextPartLabel={nextPartLabel}
     sidebarFooterLink="/resources/dld"
     sidebarFooterLabel="← DLD home"
+    prevPartPath={prevPartPath}
+    prevPartLabel={prevPartLabel}
   >
     {children}
   </TopicLayout>

@@ -94,8 +94,10 @@ const PremiumLearningShell = ({
   rootClassName = "",
    sidebarFooterLink = "/",
   sidebarFooterLabel = "← Back to All Topics",
-  nextPartPath = null,      // ← add
+  nextPartPath = null,     
   nextPartLabel = null,
+  prevPartPath = null,      
+  prevPartLabel = null,
 }) => {
   const location = useLocation();
   const { theme, toggle: toggleTheme } = useTheme();
@@ -217,9 +219,12 @@ const PremiumLearningShell = ({
 // page. Only fires once per page visit, and only if not already read
 // — scrolling back up/down again after that does nothing further.
 const autoMarkedRef = useRef(false);
+const scrollArmedRef = useRef(false);
 
 useEffect(() => {
   autoMarkedRef.current = false;
+  scrollArmedRef.current = false;
+  window.scrollTo({ top: 0, left: 0, behavior: "instant" });
 }, [currentPath]);
 
 useEffect(() => {
@@ -227,6 +232,16 @@ useEffect(() => {
 
   const checkScrollProgress = () => {
     if (autoMarkedRef.current || isRead) return;
+
+    // Ignore scroll events until we've actually observed the page
+    // sitting near the top at least once. Protects against a leftover
+    // smooth-scroll animation (or the browser clamping an old scroll
+    // position into a shorter new page) firing scroll events with a
+    // stale, still-high scrollY right after navigation.
+    if (!scrollArmedRef.current) {
+      if (window.scrollY > 40) return;
+      scrollArmedRef.current = true;
+    }
 
     const scrollableHeight = document.documentElement.scrollHeight - window.innerHeight;
     if (scrollableHeight <= 0) return;
@@ -241,6 +256,7 @@ useEffect(() => {
   window.addEventListener("scroll", checkScrollProgress, { passive: true });
   return () => window.removeEventListener("scroll", checkScrollProgress);
 }, [trackedTopic, subtopicId, catalog, isRead, toggleCompletion]);
+
 
   const pageDone = (pageIndex, page) => {
     if (isSidebarItemDone) return isSidebarItemDone(page, completedSubtopics);
@@ -467,32 +483,32 @@ useEffect(() => {
 
           <footer className="afhdl-footer-nav">
             {prev ? (
-              <NavLink to={prev.path} className="afhdl-footer-link">
-                <span className="afhdl-footer-arrow">
-                  <svg
-                    width="16"
-                    height="16"
-                    viewBox="0 0 20 20"
-                    fill="none"
-                    aria-hidden="true"
-                  >
-                    <path
-                      d="M13 5l-5 5 5 5"
-                      stroke="currentColor"
-                      strokeWidth="2"
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                    />
-                  </svg>
-                </span>
-                <span>
-                  <span className="afhdl-footer-label">Previous</span>
-                  <span className="afhdl-footer-title">{prev.label}</span>
-                </span>
-              </NavLink>
-            ) : (
-              <div />
-            )}
+  <NavLink to={prev.path} className="afhdl-footer-link">
+    <span className="afhdl-footer-arrow">
+      <svg width="16" height="16" viewBox="0 0 20 20" fill="none" aria-hidden="true">
+        <path d="M13 5l-5 5 5 5" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+      </svg>
+    </span>
+    <span>
+      <span className="afhdl-footer-label">Previous</span>
+      <span className="afhdl-footer-title">{prev.label}</span>
+    </span>
+  </NavLink>
+) : prevPartPath ? (
+  <Link to={prevPartPath} className="afhdl-footer-link">
+    <span className="afhdl-footer-arrow">
+      <svg width="16" height="16" viewBox="0 0 20 20" fill="none" aria-hidden="true">
+        <path d="M13 5l-5 5 5 5" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+      </svg>
+    </span>
+    <span>
+      <span className="afhdl-footer-label">Previous part</span>
+      <span className="afhdl-footer-title">{prevPartLabel}</span>
+    </span>
+  </Link>
+) : (
+  <div />
+)}
 
             <div className="afhdl-footer-right">
               {tracking && subtopicId ? (

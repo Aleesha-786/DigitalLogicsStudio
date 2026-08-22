@@ -1,5 +1,6 @@
 import { memo, useMemo, useState } from "react";
 import { Link, NavLink, useLocation, useNavigate } from "react-router-dom";
+//import { Home } from "lucide-react";   
 import { useAuth } from "../../../auth/context/AuthContext";
 
 import { BrandLogo } from "./BrandLogo";
@@ -7,12 +8,14 @@ import { ProfileDropdown } from "./ProfileDropdown";
 import ThemeToggler from "./ThemeToggler";
 
 const DLD_NAV_LINKS = [
+  { to: "/", label: "Home", end: true }, 
   { to: "/problems", label: "Problems" },
   { to: "/boolforge", label: "Circuit Forge" },
   { to: "/kmapgenerator", label: "K-Map Studio" },
 ];
 
 const COAL_NAV_LINKS = [
+  { to: "/", label: "Home", end: true }, 
   { to: "/resources/coal", label: "COAL Home", end: true },
   { to: "/resources/coal/theory", label: "Theory", matchTheory: true },
   { to: "/resources/coal/practical", label: "Practical" },
@@ -34,7 +37,9 @@ function NavbarBase({ toggleTheme, theme, onHomeClick, onToggleNavbar }) {
   const location = useLocation();
 
   const onCoalTrack = isCoalRoute(location.pathname);
-  const navLinks = onCoalTrack ? COAL_NAV_LINKS : DLD_NAV_LINKS;
+  const navLinks = (onCoalTrack ? COAL_NAV_LINKS : DLD_NAV_LINKS).filter(
+  (link) => !(link.to === "/" && location.pathname === "/"),
+);
   const brandTagline = onCoalTrack
     ? "Computer Organization & Assembly"
     : "The Digital Logic Playground";
@@ -86,11 +91,13 @@ function NavbarBase({ toggleTheme, theme, onHomeClick, onToggleNavbar }) {
   return (
     <header className="home-header">
       <div className="home-header-inner">
-        <BrandLogo tagline={brandTagline} onClick={handleHomeClick} />
+       <BrandLogo tagline={brandTagline} onClick={handleHomeClick} />
 
-        <nav className="home-nav" aria-label="Main navigation">
-          {renderNavLinks("home-nav-link")}
+      <nav className="home-nav" aria-label="Main navigation">
+       {renderNavLinks("home-nav-link")}
         </nav>
+
+
 
         <div className="home-nav-controls">
           {!loading && (

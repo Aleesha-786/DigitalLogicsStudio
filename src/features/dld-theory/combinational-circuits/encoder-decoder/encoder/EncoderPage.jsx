@@ -157,7 +157,7 @@ const EncoderPage = () => {
               <li>For output bit Aₖ, find every index where <strong style={{ color: COLORS.warn }}>bit k = 1</strong> in binary</li>
               <li>OR those input lines together — that's your equation!</li>
             </ol>
-            <div style={{ marginTop: "14px", padding: "12px", background: "rgba(0,0,0,0.3)", borderRadius: "8px", fontFamily: "monospace", fontSize: "0.87rem" }}>
+            <div style={{ marginTop: "14px", padding: "12px", background: COLORS.darkBg, borderRadius: "8px", fontFamily: "monospace", fontSize: "0.87rem" }}>
               <span style={{ color: COLORS.warn }}>Example — A0 in 8-to-3 encoder:</span><br />
               <span style={{ color: COLORS.textSecondary }}>Indices 0–7 in binary: </span>
               <span style={{ color: COLORS.textDim }}>000 001 010 011 100 101 110 111</span><br />

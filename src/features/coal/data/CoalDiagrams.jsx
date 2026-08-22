@@ -764,7 +764,7 @@ export function RaidComparisonDiagram() {
         {/* RAID 0 (Striping) */}
         <text x="90" y="25" textAnchor="middle" className="coal-diagram__label" style={{ fontSize: "13px" }}>RAID 0 (Striping)</text>
         {/* Disk 0 */}
-        <rect x="25" y="45" width="60" height="150" rx="4" fill="rgba(15, 23, 42, 0.4)" stroke="rgba(167, 139, 250, 0.3)" />
+        <rect x="25" y="45" width="60" height="150" rx="4"fill="var(--card-bg-solid)" stroke="rgba(167, 139, 250, 0.3)" />
         <text x="55" y="180" textAnchor="middle" className="coal-diagram__sublabel">Disk 1</text>
         <rect x="30" y="55" width="50" height="25" rx="2" className="coal-diagram__box coal-diagram__box--cpu" />
         <text x="55" y="72" textAnchor="middle" className="coal-diagram__label">Block 1</text>
@@ -774,7 +774,7 @@ export function RaidComparisonDiagram() {
         <text x="55" y="132" textAnchor="middle" className="coal-diagram__label">Block 5</text>
         
         {/* Disk 1 */}
-        <rect x="95" y="45" width="60" height="150" rx="4" fill="rgba(15, 23, 42, 0.4)" stroke="rgba(167, 139, 250, 0.3)" />
+        <rect x="95" y="45" width="60" height="150" rx="4" fill="var(--card-bg-solid)" stroke="rgba(167, 139, 250, 0.3)" />
         <text x="125" y="180" textAnchor="middle" className="coal-diagram__sublabel">Disk 2</text>
         <rect x="100" y="55" width="50" height="25" rx="2" className="coal-diagram__box coal-diagram__box--cpu" />
         <text x="125" y="72" textAnchor="middle" className="coal-diagram__label">Block 2</text>
@@ -788,7 +788,7 @@ export function RaidComparisonDiagram() {
         {/* RAID 1 (Mirroring) */}
         <text x="270" y="25" textAnchor="middle" className="coal-diagram__label" style={{ fontSize: "13px" }}>RAID 1 (Mirroring)</text>
         {/* Disk 0 */}
-        <rect x="205" y="45" width="60" height="150" rx="4" fill="rgba(15, 23, 42, 0.4)" stroke="rgba(167, 139, 250, 0.3)" />
+        <rect x="205" y="45" width="60" height="150" rx="4" fill="var(--card-bg-solid)" stroke="rgba(167, 139, 250, 0.3)" />
         <text x="235" y="180" textAnchor="middle" className="coal-diagram__sublabel">Disk 1</text>
         <rect x="210" y="55" width="50" height="25" rx="2" className="coal-diagram__box coal-diagram__box--mem" />
         <text x="235" y="72" textAnchor="middle" className="coal-diagram__label">Block 1</text>
@@ -798,7 +798,7 @@ export function RaidComparisonDiagram() {
         <text x="235" y="132" textAnchor="middle" className="coal-diagram__label">Block 3</text>
         
         {/* Disk 1 */}
-        <rect x="275" y="45" width="60" height="150" rx="4" fill="rgba(15, 23, 42, 0.4)" stroke="rgba(167, 139, 250, 0.3)" />
+        <rect x="275" y="45" width="60" height="150" rx="4" fill="var(--card-bg-solid)" stroke="rgba(167, 139, 250, 0.3)" />
         <text x="305" y="180" textAnchor="middle" className="coal-diagram__sublabel">Disk 2</text>
         <rect x="280" y="55" width="50" height="25" rx="2" className="coal-diagram__box coal-diagram__box--mem" />
         <text x="305" y="72" textAnchor="middle" className="coal-diagram__label">Block 1</text>
@@ -812,7 +812,7 @@ export function RaidComparisonDiagram() {
         {/* RAID 5 (Parity) */}
         <text x="450" y="25" textAnchor="middle" className="coal-diagram__label" style={{ fontSize: "13px" }}>RAID 5 (Distributed Parity)</text>
         {/* Disk 0 */}
-        <rect x="385" y="45" width="40" height="150" rx="4" fill="rgba(15, 23, 42, 0.4)" stroke="rgba(167, 139, 250, 0.3)" />
+        <rect x="385" y="45" width="40" height="150" rx="4" fill="var(--card-bg-solid)" stroke="rgba(167, 139, 250, 0.3)" />
         <text x="405" y="180" textAnchor="middle" className="coal-diagram__sublabel">Disk 1</text>
         <rect x="390" y="55" width="30" height="25" rx="2" className="coal-diagram__box coal-diagram__box--cpu" />
         <text x="405" y="72" textAnchor="middle" className="coal-diagram__label" style={{ fontSize: "10px" }}>Block 1</text>
@@ -822,7 +822,7 @@ export function RaidComparisonDiagram() {
         <text x="405" y="132" textAnchor="middle" className="coal-diagram__label" style={{ fill: "#fbbf24", fontSize: "10px" }}>P (5-6)</text>
         
         {/* Disk 1 */}
-        <rect x="430" y="45" width="40" height="150" rx="4" fill="rgba(15, 23, 42, 0.4)" stroke="rgba(167, 139, 250, 0.3)" />
+        <rect x="430" y="45" width="40" height="150" rx="4" fill="var(--card-bg-solid)" stroke="rgba(167, 139, 250, 0.3)" />
         <text x="450" y="180" textAnchor="middle" className="coal-diagram__sublabel">Disk 2</text>
         <rect x="435" y="55" width="30" height="25" rx="2" className="coal-diagram__box coal-diagram__box--cpu" />
         <text x="450" y="72" textAnchor="middle" className="coal-diagram__label" style={{ fontSize: "10px" }}>Block 2</text>
@@ -832,7 +832,7 @@ export function RaidComparisonDiagram() {
         <text x="450" y="132" textAnchor="middle" className="coal-diagram__label" style={{ fontSize: "10px" }}>Block 5</text>
 
         {/* Disk 2 */}
-        <rect x="475" y="45" width="40" height="150" rx="4" fill="rgba(15, 23, 42, 0.4)" stroke="rgba(167, 139, 250, 0.3)" />
+        <rect x="475" y="45" width="40" height="150" rx="4" fill="var(--card-bg-solid)" stroke="rgba(167, 139, 250, 0.3)" />
         <text x="495" y="180" textAnchor="middle" className="coal-diagram__sublabel">Disk 3</text>
         <rect x="480" y="55" width="30" height="25" rx="2" className="coal-diagram__box coal-diagram__box--io" />
         <text x="495" y="72" textAnchor="middle" className="coal-diagram__label" style={{ fill: "#fbbf24", fontSize: "10px" }}>P (1-2)</text>
@@ -882,7 +882,7 @@ export function CiscRiscComparisonDiagram() {
         {/* RISC Column */}
         <text x="405" y="25" textAnchor="middle" className="coal-diagram__label" style={{ fontSize: "14px" }}>RISC (e.g. ARM, RISC-V)</text>
 
-        <rect x="295" y="45" width="220" height="110" rx="6" fill="rgba(15, 23, 42, 0.4)" stroke="rgba(167, 139, 250, 0.3)" />
+        <rect x="295" y="45" width="220" height="110" rx="6" fill="var(--card-bg-solid)" stroke="rgba(167, 139, 250, 0.3)" />
         
         <rect x="305" y="55" width="200" height="22" rx="3" className="coal-diagram__box coal-diagram__box--mem" />
         <text x="405" y="70" textAnchor="middle" className="coal-diagram__label" style={{ fontSize: "10px" }}>LDR R1, [MemA]   ; Load value</text>
