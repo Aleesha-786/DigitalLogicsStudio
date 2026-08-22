@@ -34,11 +34,31 @@ export default function TheoryLayout({ track, children, title, subtitle, intro, 
     : null;
       const nextPartLabel = nextPart?.title || null;
 
-  const currentPartPages = currentPart.modules.map((module) => ({
-    path: utils.getTopicPath(module.slug),
-    label: module.title,
-    description: module.description || `Part ${currentPart.part} · ${currentPart.title}`,
-  }));
+        const prevPart =
+    currentPartIndex > 0 ? courseParts[currentPartIndex - 1] : null;
+  const prevPartPath = prevPart?.modules?.[0]
+    ? utils.getTopicPath(prevPart.modules[0].slug)
+    : null;
+  const prevPartLabel = prevPart?.title || null;
+
+ const currentPartPages = currentPart.modules.map((module) => ({
+  path: utils.getTopicPath(module.slug),
+  label: module.title,
+  description: module.description || `Part ${currentPart.part} · ${currentPart.title}`,
+}));
+
+// Scope path→subtopicId to just this part's modules, so the progress
+// ring's "X of Y" count matches the same pages shown in this view — not
+// every topic in the whole course. This matters most for COAL, which
+// tracks all its progress under one shared topic id across every part;
+// without this, a topic completed back in Part 1 would still count
+// toward Part 2's ring.
+const currentPartPathToSubtopicId = Object.fromEntries(
+  currentPart.modules.map((module) => [
+    utils.getTopicPath(module.slug),
+    module.subtopicId || module.slug,
+  ]),
+);
 
   const pages = track.pagesScope === "all" ? utils.buildTopicPages() : currentPartPages;
 
@@ -72,9 +92,11 @@ export default function TheoryLayout({ track, children, title, subtitle, intro, 
       rootClassName={track.rootClassName}
       sidebarFooterLink={track.homePath}
       sidebarFooterLabel={`← ${track.id === "coal" ? "COAL" : "DLD"} home`}
-      tracking={{ topic, pathToSubtopicId: utils.PATH_TO_SUBTOPIC_ID }}
+      tracking={{ topic, pathToSubtopicId: currentPartPathToSubtopicId }}
       nextPartPath={nextPartPath}
       nextPartLabel={nextPartLabel}
+      prevPartPath={prevPartPath}
+      prevPartLabel={prevPartLabel}
     >
       {children}
     </TopicLayout>

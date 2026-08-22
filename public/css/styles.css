@@ -4883,7 +4883,7 @@ select:focus-visible {
 .quat-content {
   margin-top: 15px;
   padding: 15px;
-  background: rgba(0, 0, 0, 0.2);
+   background: var(--card-bg-solid);
   border-left: 3px solid var(--accent-secondary);
   animation: fadeIn 0.3s ease;
 }

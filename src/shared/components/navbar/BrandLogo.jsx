@@ -1,13 +1,10 @@
 import React from "react";
-import { Link } from "react-router-dom";
 
 export function BrandLogo({ tagline, onClick }) {
   return (
-    <Link
-      to="/"
+    <div
       className="home-brand home-brand-link"
       aria-label="Go to home page"
-      onClick={onClick}
     >
       <div className="home-logo-container">
         <svg viewBox="0 0 100 100" className="home-logo-svg">
@@ -42,6 +39,6 @@ export function BrandLogo({ tagline, onClick }) {
         <span className="home-title">Boolforge</span>
         <span className="home-tagline">{tagline}</span>
       </div>
-    </Link>
+    </div>
   );
 }

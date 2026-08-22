@@ -6,6 +6,13 @@ import {
   MEMORY_PATH_TO_SUBTOPIC_ID,
   MEMORY_TOPIC,
 } from "./memoryConfig";
+import { dldCourseParts } from "../../../shared/data/dldCourseOutline";
+
+const currentPartIndex = dldCourseParts.findIndex((p) => p.id === "memory-systems");
+const prevPart =
+  currentPartIndex > 0 ? dldCourseParts[currentPartIndex - 1] : null;
+const prevPartPath = prevPart?.modules?.[0]?.path || null;
+const prevPartLabel = prevPart?.title || null;
 
 const MemoryLayout = ({ title, kicker, description, children }) => (
   <TopicLayout
@@ -22,6 +29,8 @@ const MemoryLayout = ({ title, kicker, description, children }) => (
       topic: MEMORY_TOPIC,
       pathToSubtopicId: MEMORY_PATH_TO_SUBTOPIC_ID,
     }}
+    prevPartPath={prevPartPath}
+    prevPartLabel={prevPartLabel}
   >
     {children}
   </TopicLayout>

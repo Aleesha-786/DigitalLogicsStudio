@@ -22,6 +22,8 @@ const TopicLayout = ({
   sidebarFooterLabel = "← Back to All Topics",
   nextPartPath = null,
   nextPartLabel = null,
+  prevPartPath = null,     
+  prevPartLabel = null,
   children,
 }) => (
   <PremiumLearningShell
@@ -45,6 +47,8 @@ const TopicLayout = ({
     tracking={tracking}
     nextPartPath={nextPartPath}
     nextPartLabel={nextPartLabel}
+     prevPartPath={prevPartPath}    
+    prevPartLabel={prevPartLabel}
   >
     {children}
   </PremiumLearningShell>
