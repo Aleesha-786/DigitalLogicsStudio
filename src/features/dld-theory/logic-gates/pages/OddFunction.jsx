@@ -393,11 +393,17 @@ const OddFunction = () => {
           margin-bottom: 12px;
         }
 
+        .expression-content {
+          background: var(--bg-card-accent);
+          border-radius: 6px;
+          padding: 12px;
+          margin-bottom: 8px;
+        }
+
         .expression-content code {
           display: block;
           color: var(--text-primary);
           font-family: 'Courier New', monospace;
-          background: var(--bg-elevated);
           border: 1px solid var(--border-color);
           padding: 12px;
           border-radius: 6px;
