@@ -121,7 +121,7 @@ export const SEARCH_PREVIEW_MAP = [
     ],
     title: "Universal Gates",
     route: "/universal-gates",
-    Component: React.lazy(() => import("../../features/dld-theory/logic-gates/UniversalGates")),
+    Component: React.lazy(() => import("../../features/dld-theory/logic-gates/pages/UniversalGates")),
   },
   {
     keywords: [
@@ -130,7 +130,7 @@ export const SEARCH_PREVIEW_MAP = [
     ],
     title: "Logic Gates",
     route: "/gates",
-    Component: React.lazy(() => import("../../features/dld-theory/logic-gates/GateExplanation")),
+    Component: React.lazy(() => import("../../features/dld-theory/logic-gates/pages/GateExplanation")),
   },
   {
     keywords: [
@@ -139,7 +139,7 @@ export const SEARCH_PREVIEW_MAP = [
     ],
     title: "Odd Function",
     route: "/odd-function",
-    Component: React.lazy(() => import("../../features/dld-theory/logic-gates/OddFunction")),
+    Component: React.lazy(() => import("../../features/dld-theory/logic-gates/pages/OddFunction")),
   },
   {
     keywords: ["timing diagrams", "timing"],

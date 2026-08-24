@@ -5,7 +5,7 @@ import {
   advancedLogicPages,
   ADVANCED_LOGIC_TOPIC,
   ADVANCED_LOGIC_PATH_TO_SUBTOPIC_ID,
-} from "../../features/dld-theory/logic-gates/advancedLogicConfig";
+} from "../../features/dld-theory/logic-gates/pages/advancedLogicConfig";
 
 const currentPartIndex = dldCourseParts.findIndex((p) => p.id === "advanced-logic");
 const nextPart =

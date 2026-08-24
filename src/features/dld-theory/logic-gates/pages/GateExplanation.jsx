@@ -1,24 +1,12 @@
 import React, { useState } from 'react';
-import AdvancedLogicLayout from '../../../shared/layouts/AdvancedLogicLayout';
-import ExplanationBlock from '../../../shared/components/ExplanationBlock';
-import CircuitModal from '../../../shared/components/CircuitModal';
-import { gateSymbols } from '../../../shared/data/gates';
+import AdvancedLogicLayout from '../../../../shared/layouts/AdvancedLogicLayout';
+import ExplanationBlock from '../../../../shared/components/ExplanationBlock';
+import CircuitModal from '../../../../shared/components/CircuitModal';
+import { gateSymbols } from '../../../../shared/data/gates';
+import { gates, gateExplanationExample, gateExplanationVariables } from '../data/gateLibraryData';
 
 const GateExplanation = () => {
   const [open, setOpen] = useState(false);
-  const variables = ['A', 'B'];
-  const example = "F = A'B + AB'";
-
-  const gates = [
-    { type: 'AND', title: 'AND', desc: 'Outputs 1 only if all inputs are 1.' },
-    { type: 'OR', title: 'OR', desc: 'Outputs 1 if any input is 1.' },
-    { type: 'NOT', title: 'NOT', desc: 'Inverts the input: 1 → 0, 0 → 1.' },
-    { type: 'NAND', title: 'NAND', desc: 'Inverse of AND; outputs 0 only if all inputs are 1.' },
-    { type: 'NOR', title: 'NOR', desc: 'Inverse of OR; outputs 1 only if all inputs are 0.' },
-    { type: 'XOR', title: 'XOR', desc: 'Outputs 1 when inputs differ.' },
-    { type: 'XNOR', title: 'XNOR', desc: 'Outputs 1 when inputs are equal.' },
-    { type: 'BUFFER', title: 'BUFFER', desc: 'Passes input to output unchanged.' }
-  ];
 
   return (
     <AdvancedLogicLayout
@@ -27,16 +15,16 @@ const GateExplanation = () => {
       intro="Review the core gate library inside the same premium learning shell used by the rest of the platform so even reference material feels integrated."
       highlights={[
         {
-          title: "Visual Library",
-          text: "Scan the fundamental gate set and keep symbols paired with behavior at a glance.",
+          title: 'Visual Library',
+          text: 'Scan the fundamental gate set and keep symbols paired with behavior at a glance.',
         },
         {
-          title: "Behavior Intuition",
-          text: "Use concise descriptions to connect each symbol to its logical meaning.",
+          title: 'Behavior Intuition',
+          text: 'Use concise descriptions to connect each symbol to its logical meaning.',
         },
         {
-          title: "Circuit Exploration",
-          text: "Jump from reference to live experimentation without leaving the lesson flow.",
+          title: 'Circuit Exploration',
+          text: 'Jump from reference to live experimentation without leaving the lesson flow.',
         },
       ]}
     >
@@ -51,7 +39,7 @@ const GateExplanation = () => {
 
       <ExplanationBlock title="Gate Library">
         <div className="gate-grid">
-          {gates.map(g => (
+          {gates.map((g) => (
             <div key={g.type} className="gate-card">
               <div className="gate-icon">{gateSymbols[g.type]}</div>
               <h4 className="gate-title">{g.title}</h4>
@@ -63,15 +51,16 @@ const GateExplanation = () => {
 
       <ExplanationBlock title="Truth Table Intuition">
         <p className="explanation-intro">
-          Use XOR example {example} to see differing inputs produce 1. Open the circuit editor to experiment.
+          Use XOR example {gateExplanationExample} to see differing inputs produce 1. Open the
+          circuit editor to experiment.
         </p>
       </ExplanationBlock>
 
       <CircuitModal
         open={open}
         onClose={() => setOpen(false)}
-        expression={example}
-        variables={variables}
+        expression={gateExplanationExample}
+        variables={gateExplanationVariables}
       />
 
       <style jsx>{`
@@ -82,7 +71,7 @@ const GateExplanation = () => {
         }
         .gate-card {
           background: var(--card-bg-solid);
-          border: 1px solid rgba(148,163,184,0.25);
+          border: 1px solid var(--border-color);
           border-radius: 12px;
           padding: 16px;
         }
@@ -96,7 +85,7 @@ const GateExplanation = () => {
           margin: 4px 0;
         }
         .gate-desc {
-        color: var(--secondary-text);
+          color: var(--secondary-text);
           margin: 0;
         }
       `}</style>
