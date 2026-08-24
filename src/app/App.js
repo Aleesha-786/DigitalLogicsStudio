@@ -78,15 +78,15 @@ const CoalTopicPageRoute = lazy(() => import("../features/coal/CoalTopicPageRout
 const DldMemoryTopicPage = lazy(() => import("../shared/layouts/DldMemoryTopicRoute"));
 const ParityBitCalculator = lazy(() => import("../features/dld-theory/arithmetic-hdl/ParityBitCalculator"));
 const KMapGenerator = lazy(() => import("../features/kmap/KmapGenerator"));
-const GateExplanation = lazy(() => import("../features/dld-theory/logic-gates/GateExplanation"));
+const GateExplanation = lazy(() => import("../features/dld-theory/logic-gates/pages/GateExplanation"));
 const TimeDiagrams = lazy(() => import("../features/TimeDiagrams/TimeDiagrams"));
 const BooleanAlgebraOverview = lazy(
   () => import("../features/dld-theory/boolean-algebra/BooleanAlgebraOverview"),
 );
 const StandardForms = lazy(() => import("../features/dld-theory/boolean-algebra/StandardForms"));
 const CircuitCost = lazy(() => import("../features/dld-theory/boolean-algebra/CircuitCost"));
-const UniversalGates = lazy(() => import("../features/dld-theory/logic-gates/UniversalGates"));
-const OddFunction = lazy(() => import("../features/dld-theory/logic-gates/OddFunction"));
+const UniversalGates = lazy(() => import("../features/dld-theory/logic-gates/pages/UniversalGates"));
+const OddFunction = lazy(() => import("../features/dld-theory/logic-gates/pages/OddFunction"));
 const BooleanLaws = lazy(() => import("../features/dld-theory/boolean-algebra/BooleanLaws"));
 const BooleanIdentities = lazy(
   () => import("../features/dld-theory/boolean-algebra/BooleanIdentities"),

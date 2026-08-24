@@ -1,73 +1,37 @@
 import React, { useState } from 'react';
-import AdvancedLogicLayout from '../../../shared/layouts/AdvancedLogicLayout';
-import ExplanationBlock from '../../../shared/components/ExplanationBlock';
-import InteractiveDemo from './components/InteractiveDemo';
-import CircuitModal from '../../../shared/components/CircuitModal';
+import AdvancedLogicLayout from '../../../../shared/layouts/AdvancedLogicLayout';
+import ExplanationBlock from '../../../../shared/components/ExplanationBlock';
+import InteractiveDemo from '../components/InteractiveDemo';
+import CircuitModal from '../../../../shared/components/CircuitModal';
+import { useOddFunction } from '../hooks/useOddFunction';
+
+const oddFunctionInputs = [
+  { name: 'A', label: 'Input A' },
+  { name: 'B', label: 'Input B' },
+  { name: 'C', label: 'Input C' },
+];
 
 const OddFunction = () => {
   const [open, setOpen] = useState(false);
-  const [inputValues, setInputValues] = useState({
-    A: false,
-    B: false,
-    C: false
-  });
-
-  const inputs = [
-    { name: 'A', label: 'Input A' },
-    { name: 'B', label: 'Input B' },
-    { name: 'C', label: 'Input C' }
-  ];
-
-  // Calculate XOR output for 3 variables
-  const calculateXOR3 = (inputs) => {
-    const values = Object.values(inputs);
-    // XOR of 3 variables: (A ⊕ B) ⊕ C
-    return values[0] !== values[1] !== values[2];
-  };
-
-  // Calculate parity (odd number of 1s)
-  const calculateParity = (inputs) => {
-    const values = Object.values(inputs);
-    const ones = values.filter(v => v).length;
-    return ones % 2 === 1;
-  };
-
-  const xorOutput = calculateXOR3(inputValues);
-  const parityOutput = calculateParity(inputValues);
-
-  const handleInputChange = (newInputs) => {
-    setInputValues(newInputs);
-  };
-
-  // Truth table for 3-variable XOR
-  const truthTableData = [
-    { inputs: { A: false, B: false, C: false }, outputs: { 'A⊕B⊕C': false, 'Parity': false } },
-    { inputs: { A: false, B: false, C: true }, outputs: { 'A⊕B⊕C': true, 'Parity': true } },
-    { inputs: { A: false, B: true, C: false }, outputs: { 'A⊕B⊕C': true, 'Parity': true } },
-    { inputs: { A: false, B: true, C: true }, outputs: { 'A⊕B⊕C': false, 'Parity': false } },
-    { inputs: { A: true, B: false, C: false }, outputs: { 'A⊕B⊕C': true, 'Parity': true } },
-    { inputs: { A: true, B: false, C: true }, outputs: { 'A⊕B⊕C': false, 'Parity': false } },
-    { inputs: { A: true, B: true, C: false }, outputs: { 'A⊕B⊕C': false, 'Parity': false } },
-    { inputs: { A: true, B: true, C: true }, outputs: { 'A⊕B⊕C': true, 'Parity': true } }
-  ];
+  const { handleInputChange, xorOutput, parityOutput, truthTableData } = useOddFunction();
 
   return (
     <AdvancedLogicLayout
-      title="Odd Function (3-Variable XOR)" 
+      title="Odd Function (3-Variable XOR)"
       subtitle="Understanding XOR with three variables and parity detection"
       intro="Study the odd function inside the shared premium advanced-logic shell, connecting parity detection, XOR behavior, and implementation strategy."
       highlights={[
         {
-          title: "Parity Detection",
-          text: "Map output behavior directly to the count of active logic-high inputs.",
+          title: 'Parity Detection',
+          text: 'Map output behavior directly to the count of active logic-high inputs.',
         },
         {
-          title: "Equivalent Forms",
-          text: "Compare SOP, POS, and cascaded XOR implementations of the same function.",
+          title: 'Equivalent Forms',
+          text: 'Compare SOP, POS, and cascaded XOR implementations of the same function.',
         },
         {
-          title: "Interactive Behavior",
-          text: "Flip live inputs and watch parity and XOR outputs stay perfectly aligned.",
+          title: 'Interactive Behavior',
+          text: 'Flip live inputs and watch parity and XOR outputs stay perfectly aligned.',
         },
       ]}
     >
@@ -80,7 +44,7 @@ const OddFunction = () => {
         </button>
       </div>
 
-      <ExplanationBlock 
+      <ExplanationBlock
         title="What is an Odd Function?"
         intro="An odd function outputs 1 when there's an odd number of 1s in the input. For 3 variables, this is equivalent to a 3-input XOR gate."
       >
@@ -97,7 +61,7 @@ const OddFunction = () => {
           <div className="parity-explanation">
             <h4>Parity Detection</h4>
             <p>
-              The odd function acts as a parity detector. It outputs 1 when the number of 
+              The odd function acts as a parity detector. It outputs 1 when the number of
               1s in the input is odd (1 or 3), and 0 when the number is even (0 or 2).
             </p>
             <div className="parity-examples">
@@ -118,17 +82,17 @@ const OddFunction = () => {
       <InteractiveDemo
         title="Interactive 3-Variable XOR"
         description="Toggle inputs to see the XOR and parity outputs in real-time"
-        inputs={inputs}
+        inputs={oddFunctionInputs}
         outputs={[
           { name: 'A⊕B⊕C', label: 'XOR Output', value: xorOutput },
-          { name: 'Parity', label: 'Parity (Odd)', value: parityOutput }
+          { name: 'Parity', label: 'Parity (Odd)', value: parityOutput },
         ]}
         onInputChange={handleInputChange}
         showTruthTable={true}
         truthTableData={truthTableData}
       />
 
-      <ExplanationBlock 
+      <ExplanationBlock
         title="Boolean Expressions"
         intro="The 3-variable XOR can be expressed in multiple forms:"
       >
@@ -167,7 +131,7 @@ const OddFunction = () => {
         </div>
       </ExplanationBlock>
 
-      <ExplanationBlock 
+      <ExplanationBlock
         title="Circuit Implementations"
         intro="Different ways to implement the 3-variable XOR function:"
       >
@@ -237,7 +201,7 @@ const OddFunction = () => {
         </div>
       </ExplanationBlock>
 
-      <ExplanationBlock 
+      <ExplanationBlock
         title="Interactive Activities"
         intro="Hands-on exercises to master the odd function:"
       >
@@ -259,9 +223,7 @@ const OddFunction = () => {
 
           <div className="activity-card">
             <h4>🧮 Activity 2: Expression Simplification</h4>
-            <p>
-              Try simplifying the SOP expression step by step:
-            </p>
+            <p>Try simplifying the SOP expression step by step:</p>
             <div className="simplification-steps">
               <div className="step">
                 <strong>Start:</strong> F = A'B'C + A'BC' + AB'C' + ABC
@@ -280,9 +242,7 @@ const OddFunction = () => {
 
           <div className="activity-card">
             <h4>🔍 Activity 3: Truth Table Analysis</h4>
-            <p>
-              Analyze patterns in the truth table:
-            </p>
+            <p>Analyze patterns in the truth table:</p>
             <div className="patterns">
               <div className="pattern">
                 <strong>Hamming Weight:</strong> Output equals 1 when Hamming weight is odd
@@ -298,9 +258,7 @@ const OddFunction = () => {
 
           <div className="activity-card">
             <h4>🏗️ Activity 4: Build Your Own</h4>
-            <p>
-              Implement the 3-variable XOR using only:
-            </p>
+            <p>Implement the 3-variable XOR using only:</p>
             <div className="build-challenges">
               <div className="challenge">
                 <strong>NAND Gates:</strong> Use 4 NAND gates
@@ -316,7 +274,7 @@ const OddFunction = () => {
         </div>
       </ExplanationBlock>
 
-      <ExplanationBlock 
+      <ExplanationBlock
         title="Applications"
         intro="Where 3-variable XOR is used in real-world systems:"
       >
@@ -324,7 +282,7 @@ const OddFunction = () => {
           <div className="application-item">
             <h4>🔒 Error Detection</h4>
             <p>
-              Parity bits in data transmission use odd functions to detect 
+              Parity bits in data transmission use odd functions to detect
               single-bit errors during transmission.
             </p>
           </div>
@@ -332,7 +290,7 @@ const OddFunction = () => {
           <div className="application-item">
             <h4>🎮 Game Logic</h4>
             <p>
-              Three-player game scenarios where odd number of players 
+              Three-player game scenarios where odd number of players
               choosing "yes" triggers an action.
             </p>
           </div>
@@ -340,7 +298,7 @@ const OddFunction = () => {
           <div className="application-item">
             <h4>🔐 Cryptography</h4>
             <p>
-              Stream ciphers and cryptographic algorithms use XOR operations 
+              Stream ciphers and cryptographic algorithms use XOR operations
               for their reversible properties.
             </p>
           </div>
@@ -348,7 +306,7 @@ const OddFunction = () => {
           <div className="application-item">
             <h4>📊 Signal Processing</h4>
             <p>
-              Digital signal processing uses XOR for edge detection 
+              Digital signal processing uses XOR for edge detection
               and signal comparison operations.
             </p>
           </div>
@@ -369,120 +327,121 @@ const OddFunction = () => {
           gap: 24px;
           margin-top: 20px;
         }
-        
+
         .function-definition,
         .parity-explanation {
-          background: rgba(15, 23, 42, 0.6);
-          border: 1px solid rgba(148, 163, 184, 0.25);
+          background: var(--bg-surface);
+          border: 1px solid var(--border-color);
           border-radius: 12px;
           padding: 20px;
         }
-        
+
         .function-definition h4,
         .parity-explanation h4 {
           color: #93c5fd;
           margin-bottom: 16px;
         }
-        
+
         .formula p {
-          color: #e2e8f0;
+          color: var(--text-primary);
           font-family: 'Courier New', monospace;
           margin-bottom: 8px;
           background: rgba(99, 102, 241, 0.1);
           padding: 8px;
           border-radius: 4px;
         }
-        
+
         .parity-explanation p {
-          color: #9ca3af;
+          color: var(--text-secondary);
           margin-bottom: 16px;
           line-height: 1.6;
         }
-        
+
         .parity-examples {
           display: grid;
           gap: 8px;
         }
-        
+
         .example {
-          background: rgba(34, 197, 94, 0.1);
-          border: 1px solid rgba(34, 197, 94, 0.3);
+          background: var(--accent-green-bg);
+          border: 1px solid var(--accent-green-border);
           border-radius: 6px;
           padding: 8px;
         }
-        
+
         .example code {
-          color: #86efac;
+          color: var(--accent-green-text);
           font-family: 'Courier New', monospace;
         }
-        
+
         .expressions-grid {
           display: grid;
           grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
           gap: 20px;
           margin-top: 20px;
         }
-        
+
         .expression-card {
-          background: rgba(15, 23, 42, 0.6);
-          border: 1px solid rgba(148, 163, 184, 0.25);
+          background: var(--bg-surface);
+          border: 1px solid var(--border-color);
           border-radius: 12px;
           padding: 20px;
         }
-        
+
         .expression-card h4 {
           color: #93c5fd;
           margin-bottom: 12px;
         }
-        
+
         .expression-content code {
           display: block;
-          color: #e2e8f0;
+          color: var(--text-primary);
           font-family: 'Courier New', monospace;
-          background: rgba(99, 102, 241, 0.1);
+          background: var(--bg-elevated);
+          border: 1px solid var(--border-color);
           padding: 12px;
           border-radius: 6px;
           margin-bottom: 8px;
           word-break: break-all;
         }
-        
+
         .expression-content p {
-          color: #9ca3af;
+          color: var(--text-secondary);
           margin: 0;
           font-size: 0.9rem;
         }
-        
+
         .implementations {
           display: grid;
           grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
           gap: 20px;
           margin-top: 20px;
         }
-        
+
         .implementation-card {
-          background: rgba(251, 146, 60, 0.1);
-          border: 1px solid rgba(251, 146, 60, 0.3);
+          background: var(--accent-orange-bg);
+          border: 1px solid var(--accent-orange-border);
           border-radius: 12px;
           padding: 20px;
         }
-        
+
         .implementation-card h4 {
-          color: #fdba74;
+          color: var(--accent-orange-text);
           margin-bottom: 12px;
         }
-        
+
         .implementation-card p {
-          color: #9ca3af;
+          color: var(--text-secondary);
           margin-bottom: 16px;
         }
-        
+
         .gate-diagram {
           display: flex;
           flex-direction: column;
           align-items: center;
           gap: 12px;
         }
-        
+
         .gate-symbol {
           width: 60px;
           height: 40px;
@@ -496,203 +455,203 @@ const OddFunction = () => {
           font-weight: bold;
           font-size: 1.2rem;
         }
-        
+
         .gate-inputs,
         .gate-output {
           display: flex;
           gap: 20px;
-          color: #e2e8f0;
+          color: var(--text-primary);
           font-family: 'Courier New', monospace;
         }
-        
+
         .cascaded-diagram {
           display: flex;
           flex-direction: column;
           align-items: center;
           gap: 16px;
         }
-        
+
         .gate-stage {
           display: flex;
           align-items: center;
           gap: 12px;
         }
-        
+
         .stage-labels {
           display: flex;
           gap: 8px;
-          color: #e2e8f0;
+          color: var(--text-primary);
           font-family: 'Courier New', monospace;
           font-size: 0.9rem;
         }
-        
+
         .intermediate,
         .output {
           color: #93c5fd;
           font-family: 'Courier New', monospace;
           font-weight: bold;
         }
-        
+
         .and-or-diagram {
           display: flex;
           flex-direction: column;
           gap: 12px;
         }
-        
+
         .and-gates {
           display: grid;
           grid-template-columns: 1fr 1fr;
           gap: 8px;
         }
-        
+
         .and-group {
           background: rgba(99, 102, 241, 0.1);
           border: 1px solid rgba(99, 102, 241, 0.3);
           border-radius: 6px;
           padding: 8px;
-          color: #e2e8f0;
+          color: var(--text-primary);
           font-family: 'Courier New', monospace;
           font-size: 0.8rem;
           text-align: center;
         }
-        
+
         .or-gate {
-          background: rgba(34, 197, 94, 0.1);
-          border: 1px solid rgba(34, 197, 94, 0.3);
+          background: var(--accent-green-bg);
+          border: 1px solid var(--accent-green-border);
           border-radius: 6px;
           padding: 8px;
-          color: #86efac;
+          color: var(--accent-green-text);
           font-family: 'Courier New', monospace;
           text-align: center;
         }
-        
+
         .activities {
           display: grid;
           gap: 20px;
           margin-top: 20px;
         }
-        
+
         .activity-card {
-          background: rgba(168, 85, 247, 0.1);
-          border: 1px solid rgba(168, 85, 247, 0.3);
+          background: var(--accent-purple-bg);
+          border: 1px solid var(--accent-purple-border);
           border-radius: 12px;
           padding: 20px;
         }
-        
+
         .activity-card h4 {
-          color: #c4b5fd;
+          color: var(--accent-purple-text);
           margin-bottom: 12px;
         }
-        
+
         .activity-card p {
-          color: #9ca3af;
+          color: var(--text-secondary);
           margin-bottom: 16px;
           line-height: 1.6;
         }
-        
+
         .activity-steps {
-          background: rgba(15, 23, 42, 0.4);
+          background: var(--bg-card-accent);
           border-radius: 8px;
           padding: 16px;
         }
-        
+
         .activity-steps ol {
           margin: 0;
           padding-left: 20px;
-          color: #e2e8f0;
+          color: var(--text-primary);
         }
-        
+
         .activity-steps li {
           margin-bottom: 8px;
         }
-        
+
         .simplification-steps {
           display: grid;
           gap: 8px;
           margin-top: 16px;
         }
-        
+
         .step {
-          background: rgba(15, 23, 42, 0.4);
+          background: var(--bg-card-accent);
           border-radius: 6px;
           padding: 8px;
-          color: #e2e8f0;
+          color: var(--text-primary);
           font-family: 'Courier New', monospace;
           font-size: 0.9rem;
         }
-        
+
         .patterns {
           display: grid;
           gap: 8px;
           margin-top: 16px;
         }
-        
+
         .pattern {
-          background: rgba(15, 23, 42, 0.4);
+          background: var(--bg-card-accent);
           border-radius: 6px;
           padding: 8px;
-          color: #e2e8f0;
+          color: var(--text-primary);
         }
-        
+
         .pattern strong {
           color: #93c5fd;
         }
-        
+
         .build-challenges {
           display: grid;
           gap: 8px;
           margin-top: 16px;
         }
-        
+
         .challenge {
-          background: rgba(15, 23, 42, 0.4);
+          background: var(--bg-card-accent);
           border-radius: 6px;
           padding: 8px;
-          color: #e2e8f0;
+          color: var(--text-primary);
         }
-        
+
         .challenge strong {
-          color: #fdba74;
+          color: var(--accent-orange-text);
         }
-        
+
         .applications-grid {
           display: grid;
           grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
           gap: 20px;
           margin-top: 20px;
         }
-        
+
         .application-item {
-          background: rgba(34, 197, 94, 0.1);
-          border: 1px solid rgba(34, 197, 94, 0.3);
+          background: var(--accent-green-bg);
+          border: 1px solid var(--accent-green-border);
           border-radius: 12px;
           padding: 20px;
         }
-        
+
         .application-item h4 {
-          color: #86efac;
+          color: var(--accent-green-text);
           margin-bottom: 12px;
         }
-        
+
         .application-item p {
-          color: #9ca3af;
+          color: var(--text-secondary);
           margin: 0;
           line-height: 1.6;
         }
-        
+
         @media (max-width: 768px) {
           .odd-function-intro {
             grid-template-columns: 1fr;
           }
-          
+
           .expressions-grid {
             grid-template-columns: 1fr;
           }
-          
+
           .implementations {
             grid-template-columns: 1fr;
           }
-          
+
           .applications-grid {
             grid-template-columns: 1fr;
           }

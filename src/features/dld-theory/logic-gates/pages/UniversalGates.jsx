@@ -1,67 +1,24 @@
 import React, { useState } from 'react';
-import AdvancedLogicLayout from '../../../shared/layouts/AdvancedLogicLayout';
-import ExplanationBlock from '../../../shared/components/ExplanationBlock';
-import InteractiveDemo from './components/InteractiveDemo';
-import CircuitModal from '../../../shared/components/CircuitModal';
-import { gateSymbols } from '../../../shared/data/gates';
+import AdvancedLogicLayout from '../../../../shared/layouts/AdvancedLogicLayout';
+import ExplanationBlock from '../../../../shared/components/ExplanationBlock';
+import InteractiveDemo from '../components/InteractiveDemo';
+import CircuitModal from '../../../../shared/components/CircuitModal';
+import { gateSymbols } from '../../../../shared/data/gates';
+import { useUniversalGate } from '../hooks/useUniversalGate';
+import {
+  universalGateDemoInputs,
+  complexExpressions,
+  implementationDescriptions,
+} from '../data/universalGatesData';
 
 const UniversalGates = () => {
   const [open, setOpen] = useState(false);
-  const [selectedGate, setSelectedGate] = useState('NAND');
-  const demoInputs = [
-    { name: 'A', label: 'Input A' },
-    { name: 'B', label: 'Input B' }
-  ];
-
-  const expressions = [
-    { expression: 'F = A·B + C·D', hint: 'Hint: Break into AND and OR operations' },
-    { expression: 'F = (A + B)·(C\' + D)', hint: 'Hint: Handle complement and distribution' }
-  ];
-
+  const { selectedGate, setSelectedGate, currentGate } = useUniversalGate('NAND');
 
   const handleInputChange = (inputs) => {
     // This will be called when demo inputs change
     console.log('Inputs changed:', inputs);
   };
-
-  const gateImplementations = {
-    NAND: {
-      title: 'NAND Gate',
-      description: 'NOT AND - The negation of AND gate output',
-      truthTable: [
-        { inputs: { A: false, B: false }, outputs: { Q: true } },
-        { inputs: { A: false, B: true }, outputs: { Q: true } },
-        { inputs: { A: true, B: false }, outputs: { Q: true } },
-        { inputs: { A: true, B: true }, outputs: { Q: false } }
-      ],
-      implementations: {
-        NOT: 'Q = NAND(A, A)',
-        AND: 'Q = NAND(NAND(A, B), NAND(A, B))',
-        OR: 'Q = NAND(NAND(A, A), NAND(B, B))',
-        XOR: 'Q = NAND(NAND(NAND(A, B), A), NAND(NAND(A, B), B))',
-        NOR: 'Q = NAND(NAND(NAND(A, A), NAND(B, B)), NAND(NAND(A, A), NAND(B, B)))'
-      }
-    },
-    NOR: {
-      title: 'NOR Gate',
-      description: 'NOT OR - The negation of OR gate output',
-      truthTable: [
-        { inputs: { A: false, B: false }, outputs: { Q: true } },
-        { inputs: { A: false, B: true }, outputs: { Q: false } },
-        { inputs: { A: true, B: false }, outputs: { Q: false } },
-        { inputs: { A: true, B: true }, outputs: { Q: false } }
-      ],
-      implementations: {
-        NOT: 'Q = NOR(A, A)',
-        OR: 'Q = NOR(NOR(A, B), NOR(A, B))',
-        AND: 'Q = NOR(NOR(A, A), NOR(B, B))',
-        XOR: 'Q = NOR(NOR(A, NOR(A, B)), NOR(B, NOR(A, B)))',
-        NAND: 'Q = NOR(NOR(NOR(A, A), NOR(B, B)), NOR(NOR(A, A), NOR(B, B)))'
-      }
-    }
-  };
-
-  const currentGate = gateImplementations[selectedGate];
 
   return (
     <AdvancedLogicLayout
@@ -70,16 +27,16 @@ const UniversalGates = () => {
       intro="Follow a unified advanced-logic lesson path while exploring how NAND and NOR gates can synthesize every other logic function."
       highlights={[
         {
-          title: "Single-Gate Universality",
-          text: "See why NAND and NOR can build complete digital systems on their own.",
+          title: 'Single-Gate Universality',
+          text: 'See why NAND and NOR can build complete digital systems on their own.',
         },
         {
-          title: "Interactive Verification",
-          text: "Toggle truth tables and compare reusable gate constructions side by side.",
+          title: 'Interactive Verification',
+          text: 'Toggle truth tables and compare reusable gate constructions side by side.',
         },
         {
-          title: "Design Motivation",
-          text: "Connect universal gates to manufacturing efficiency and logic-family choices.",
+          title: 'Design Motivation',
+          text: 'Connect universal gates to manufacturing efficiency and logic-family choices.',
         },
       ]}
     >
@@ -128,7 +85,7 @@ const UniversalGates = () => {
       <InteractiveDemo
         title={`${currentGate.title} Truth Table`}
         description="Interactive truth table for the selected universal gate"
-        inputs={demoInputs}
+        inputs={universalGateDemoInputs}
         outputs={[{ name: 'Q', label: 'Output', value: null }]}
         onInputChange={handleInputChange}
         showTruthTable={true}
@@ -146,13 +103,7 @@ const UniversalGates = () => {
               <div className="expression-display">
                 <code>{expression}</code>
               </div>
-              <div className="implementation-desc">
-                {gateType === 'NOT' && 'Using both inputs of the same universal gate creates a NOT gate'}
-                {gateType === 'AND' && 'Double negation of NAND gives AND functionality'}
-                {gateType === 'OR' && 'De Morgan\'s law applied to NAND creates OR'}
-                {gateType === 'XOR' && 'Complex combination using only universal gates'}
-                {gateType === 'NOR' && 'Creating NOR from NAND (or vice versa)'}
-              </div>
+              <div className="implementation-desc">{implementationDescriptions[gateType]}</div>
             </div>
           ))}
         </div>
@@ -219,11 +170,9 @@ const UniversalGates = () => {
 
           <div className="activity-card">
             <h4>🧮 Activity 2: Implement Complex Functions</h4>
-            <p>
-              Implement the following Boolean expressions using only universal gates:
-            </p>
+            <p>Implement the following Boolean expressions using only universal gates:</p>
             <div className="expressions">
-              {expressions.map((expression, index) => (
+              {complexExpressions.map((expression, index) => (
                 <div key={index} className="expression-item">
                   <code>{expression.expression}</code>
                   <span className="hint">{expression.hint}</span>
@@ -234,9 +183,7 @@ const UniversalGates = () => {
 
           <div className="activity-card">
             <h4>🔍 Activity 3: Gate Count Comparison</h4>
-            <p>
-              Compare the number of universal gates needed vs. standard gates for various functions:
-            </p>
+            <p>Compare the number of universal gates needed vs. standard gates for various functions:</p>
             <div className="comparison-table">
               <table>
                 <thead>
@@ -281,83 +228,94 @@ const UniversalGates = () => {
           gap: 24px;
           margin-top: 20px;
         }
-        
+
         .gate-selector h3 {
           color: #93c5fd;
           margin-bottom: 16px;
         }
-        
+
         .gate-buttons {
           display: flex;
           gap: 12px;
         }
-        
+
         .gate-btn {
           padding: 12px 24px;
           background: var(--card-bg-solid);
-          border: 2px solid rgba(148, 163, 184, 0.25);
+          border: 2px solid var(--border-color);
           border-radius: 8px;
           color: var(--text-color);
           cursor: pointer;
           transition: all 0.2s ease;
           font-size: 1rem;
         }
-        
+
         .gate-btn:hover {
           border-color: #6366f1;
           background: rgba(99, 102, 241, 0.1);
         }
-        
+
         .gate-btn.active {
           background: rgba(99, 102, 241, 0.2);
           border-color: #6366f1;
           color: #93c5fd;
         }
-        
+
         .gate-info {
           background: var(--card-bg-solid);
-          border: 1px solid rgba(148, 163, 184, 0.25);
+          border: 1px solid var(--border-color);
           border-radius: 12px;
           padding: 20px;
+          overflow: hidden;
         }
-        
+
         .gate-info h4 {
           color: #93c5fd;
           margin-bottom: 12px;
         }
-        
+
         .gate-info p {
-         color: var(--secondary-text);
+          color: var(--secondary-text);
           margin-bottom: 16px;
         }
-        
+
         .symbol-display {
           font-size: 3rem;
           color: #6366f1;
-          text-align: center;
+          display: flex;
+          align-items: center;
+          justify-content: center;
           padding: 20px;
           background: rgba(99, 102, 241, 0.1);
           border-radius: 8px;
+          overflow: hidden;
         }
-        
+
+        .symbol-display :global(svg) {
+          width: 48px;
+          height: 48px;
+          max-width: 100%;
+          max-height: 100%;
+        }
+
         .implementations {
           display: grid;
           gap: 16px;
           margin-top: 20px;
         }
-        
+
         .implementation-card {
           background: var(--card-bg-solid);
-          border: 1px solid rgba(148, 163, 184, 0.25);
+          border: 1px solid var(--border-color);
           border-radius: 12px;
           padding: 20px;
         }
-        
+
         .implementation-card h4 {
           color: #93c5fd;
           margin-bottom: 12px;
         }
-        
+
         .expression-display {
           background: rgba(99, 102, 241, 0.1);
           border: 1px solid rgba(99, 102, 241, 0.3);
@@ -365,114 +323,114 @@ const UniversalGates = () => {
           padding: 12px;
           margin-bottom: 12px;
         }
-        
+
         .expression-display code {
           color: var(--text-color);
           font-family: 'Courier New', monospace;
           font-size: 0.95rem;
         }
-        
+
         .implementation-desc {
           color: var(--secondary-text);
           font-size: 0.9rem;
         }
-        
+
         .importance-grid {
           display: grid;
           grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
           gap: 20px;
           margin-top: 20px;
         }
-        
+
         .importance-item {
-          background: rgba(34, 197, 94, 0.1);
-          border: 1px solid rgba(34, 197, 94, 0.3);
+          background: var(--accent-green-bg);
+          border: 1px solid var(--accent-green-border);
           border-radius: 12px;
           padding: 20px;
         }
-        
+
         .importance-item h4 {
-          color: #86efac;
+          color: var(--accent-green-text);
           margin-bottom: 12px;
         }
-        
+
         .importance-item p {
           color: var(--secondary-text);
           margin: 0;
           line-height: 1.6;
         }
-        
+
         .activities {
           display: grid;
           gap: 20px;
           margin-top: 20px;
         }
-        
+
         .activity-card {
-          background: rgba(251, 146, 60, 0.1);
-          border: 1px solid rgba(251, 146, 60, 0.3);
+          background: var(--accent-orange-bg);
+          border: 1px solid var(--accent-orange-border);
           border-radius: 12px;
           padding: 20px;
         }
-        
+
         .activity-card h4 {
-          color: #fdba74;
+          color: var(--accent-orange-text);
           margin-bottom: 12px;
         }
-        
+
         .activity-card p {
           color: var(--secondary-text);
           margin-bottom: 16px;
           line-height: 1.6;
         }
-        
+
         .activity-steps {
           background: var(--card-bg-solid);
           border-radius: 8px;
           padding: 16px;
         }
-        
+
         .activity-steps ol {
           margin: 0;
           padding-left: 20px;
-         color: var(--text-color);
+          color: var(--text-color);
         }
-        
+
         .activity-steps li {
           margin-bottom: 8px;
         }
-        
+
         .expressions {
           display: grid;
           gap: 12px;
           margin-top: 16px;
         }
-        
+
         .expression-item {
           display: flex;
           justify-content: space-between;
           align-items: center;
-         background: var(--card-bg-solid);
+          background: var(--card-bg-solid);
           padding: 12px;
           border-radius: 8px;
         }
-        
+
         .expression-item code {
           color: #93c5fd;
           font-family: 'Courier New', monospace;
         }
-        
+
         .hint {
           color: var(--secondary-text);
           font-size: 0.9rem;
           font-style: italic;
         }
-        
+
         .comparison-table {
           overflow-x: auto;
           margin-top: 16px;
         }
-        
+
         .comparison-table table {
           width: 100%;
           border-collapse: collapse;
@@ -480,26 +438,26 @@ const UniversalGates = () => {
           border-radius: 8px;
           overflow: hidden;
         }
-        
+
         .comparison-table th,
         .comparison-table td {
           padding: 12px;
           text-align: center;
-          border: 1px solid rgba(148, 163, 184, 0.2);
-         color: var(--text-color);
+          border: 1px solid var(--border-color);
+          color: var(--text-color);
         }
-        
+
         .comparison-table th {
-          background: rgba(99, 102, 241, 0.2);
-          color: #93c5fd;
+          background: var(--accent-purple-bg);
+          color: var(--accent-purple-text);
           font-weight: 600;
         }
-        
+
         @media (max-width: 768px) {
           .universal-intro {
             grid-template-columns: 1fr;
           }
-          
+
           .importance-grid {
             grid-template-columns: 1fr;
           }
