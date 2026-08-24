@@ -397,7 +397,8 @@ const OddFunction = () => {
           display: block;
           color: var(--text-primary);
           font-family: 'Courier New', monospace;
-          background: rgba(99, 102, 241, 0.1);
+          background: var(--bg-elevated);
+          border: 1px solid var(--border-color);
           padding: 12px;
           border-radius: 6px;
           margin-bottom: 8px;

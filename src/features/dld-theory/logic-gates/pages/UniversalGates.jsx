@@ -266,6 +266,7 @@ const UniversalGates = () => {
           border: 1px solid var(--border-color);
           border-radius: 12px;
           padding: 20px;
+          overflow: hidden;
         }
 
         .gate-info h4 {
@@ -281,10 +282,20 @@ const UniversalGates = () => {
         .symbol-display {
           font-size: 3rem;
           color: #6366f1;
-          text-align: center;
+          display: flex;
+          align-items: center;
+          justify-content: center;
           padding: 20px;
           background: rgba(99, 102, 241, 0.1);
           border-radius: 8px;
+          overflow: hidden;
+        }
+
+        .symbol-display :global(svg) {
+          width: 48px;
+          height: 48px;
+          max-width: 100%;
+          max-height: 100%;
         }
 
         .implementations {
