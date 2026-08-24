@@ -1,35 +1,19 @@
-import React, { useState, useRef, useEffect, useCallback } from "react";
-import { gateSymbols, IC_META, IC_TYPES } from "../../shared/data/gates";
-import { TruthTableGenerator } from "./components/TruthTable";
-import { SaveAndLoad } from "./components/SaveAndLoad";
+import React, { useState, useRef, useEffect } from "react";
 import { parseExpressionToCircuit } from "../../shared/utils/expressionParser";
 import RelatedSeoLinks from "../../shared/seo/RelatedSeoLinks";
 import Navbar from "../../shared/components/navbar";
 import Footer from "../../shared/components/Footer";
 import { useTheme } from "../../shared/context/ThemeContext";
-import { getCircuitHint } from "../../shared/services/circuitMindService";
-import { generateAiCircuit } from "../../shared/services/aiService";
 import "./Boolforge.css";
 
-// 🚀 BARREL IMPORTS FROM NEW FOLDERS
-import { Sidebar, RenameModal } from "./components";
-import { useKeyboardShortcuts } from "./hooks";
+import { Sidebar, RenameModal, CircuitCanvas, CircuitControls } from "./components";
 import {
-  MAX_GATE_INPUTS,
-  MIN_GATE_INPUTS,
-  MULTI_INPUT_GATES,
-  GRID_SIZE,
-  SNAP_TO_GRID,
-  GATE_WIDTH,
-  getICHeight,
-  getOutputY,
-  getCurvePoints,
-  getWirePoints,
-  wirePathD,
-  hitWireAt,
-  defaultInputCount,
-  computeGateOutput
-} from "./utils";
+  useKeyboardShortcuts,
+  useCircuitState,
+  useCanvasInteractions,
+  useSimulation,
+  useAI,
+} from "./hooks";
 
 const Boolforge = ({
   simplifiedExpression = null,
@@ -42,1169 +26,110 @@ const Boolforge = ({
 }) => {
   const { theme, toggle: toggleTheme } = useTheme();
 
-  // ── UI & Canvas state ──────────────────────────────────────────────────────
+  // ── UI shell state ──────────────────────────────────────────────────────
   const [navbarVisible, setNavbarVisible] = useState(true);
   const [footerVisible, setFooterVisible] = useState(true);
-  const [zoom, setZoom] = useState(1);
-  const [panOffset, setPanOffset] = useState({ x: 0, y: 0 });
-  const [isPanning, setIsPanning] = useState(false);
-  const [panStart, setPanStart] = useState({ x: 0, y: 0 });
-  const [spacePressed, setSpacePressed] = useState(false);
-  const [selectionToolActive, setSelectionToolActive] = useState(false);
-  const [isSelecting, setIsSelecting] = useState(false);
-  const [selectionStart, setSelectionStart] = useState({ x: 0, y: 0 });
-  const [selectionEnd, setSelectionEnd] = useState({ x: 0, y: 0 });
-  const [selectionStartIds, setSelectionStartIds] = useState([]);
 
-  // ── Gate & Wire state ──────────────────────────────────────────────────────
-  const [gates, setGates] = useState([]);
-  const [wires, setWires] = useState([]);
-  const [selectedGate, setSelectedGate] = useState(null);
-  const [selectedGateIds, setSelectedGateIds] = useState([]);
-  const [selectedWireIds, setSelectedWireIds] = useState([]);
-  const [dragging, setDragging] = useState(false);
-  const [connectingFrom, setConnectingFrom] = useState(null);
-  const [connectCursor, setConnectCursor] = useState(null);
-  const [gateIdCounter, setGateIdCounter] = useState(0);
-  const [wireIdCounter, setWireIdCounter] = useState(0);
-  const [inputCounter, setInputCounter] = useState(0);
-  const [outputCounter, setOutputCounter] = useState(0);
-  const [dragStartPositions, setDragStartPositions] = useState({});
-  const [dragStartMouse, setDragStartMouse] = useState({ x: 0, y: 0 });
-
-  // ── Rename & AI state ──────────────────────────────────────────────────────
-  const [renamingGate, setRenamingGate] = useState(null);
-  const [renameValue, setRenameValue] = useState("");
-  const [aiPrompt, setAiPrompt] = useState("");
-  const [hint, setHint] = useState(null);
-  const [hintLoading, setHintLoading] = useState(false);
-  const [hintError, setHintError] = useState("");
-  const [isGenLoading, setIsGenLoading] = useState(false);
-
-  // ── History ────────────────────────────────────────────────────────────────
-  const [history, setHistory] = useState([]);
-  const [historyIndex, setHistoryIndex] = useState(-1);
-
-  // ── Refs ───────────────────────────────────────────────────────────────────
-  const hasMovedRef = useRef(false);
-  const wasCtrlClickRef = useRef(false);
-  const copiedDataRef = useRef(null);
+  // ── Refs shared across hooks ─────────────────────────────────────────────
   const canvasRef = useRef(null);
   const containerRef = useRef(null);
-  const gateStateRef = useRef(new Map());
-  const touchStateRef = useRef({ type: null, id: null, startX: 0, startY: 0 });
   const hasAutoBuilt = useRef(false);
   const lastSyncKeyRef = useRef(null);
 
-  // ── Derived ────────────────────────────────────────────────────────────────
-  const gateMap = React.useMemo(() => {
-    const map = new Map();
-    gates.forEach((g) => map.set(g.id, g));
-    return map;
-  }, [gates]);
-
-  const inputGates = React.useMemo(() => gates.filter((g) => g.type === "INPUT"), [gates]);
-  const outputGates = React.useMemo(() => gates.filter((g) => g.type === "OUTPUT"), [gates]);
-
-  const generateInputLabel = useCallback(
-    (index) => portNames?.inputs?.[index] ?? `I${index}`,
-    [portNames]
-  );
-  const generateOutputLabel = useCallback(
-    (index) => portNames?.outputs?.[index] ?? `S${index}`,
-    [portNames]
-  );
-
-  // ── Simulation ─────────────────────────────────────────────────────────────
-  const gateValues = React.useMemo(() => {
-    const incomingWires = new Map();
-    gates.forEach((g) => incomingWires.set(g.id, []));
-    wires.forEach((w) => {
-      if (incomingWires.has(w.toId)) incomingWires.get(w.toId).push(w);
-    });
-
-    let prev = new Map();
-    gates.forEach((g) => {
-      if (g.type === "INPUT") {
-        prev.set(g.id, g.inputValues[0] || false);
-      } else if (IC_TYPES.has(g.type)) {
-        const numOut = IC_META[g.type].outputs;
-        const cached = gateStateRef.current.get(g.id);
-        prev.set(g.id, Array.isArray(cached) ? cached : Array(numOut).fill(false));
-      } else {
-        prev.set(g.id, gateStateRef.current.get(g.id) ?? false);
-      }
-    });
-
-    const MAX_ITER = 100;
-    for (let iter = 0; iter < MAX_ITER; iter++) {
-      const next = new Map(prev);
-      let changed = false;
-      for (const gate of gates) {
-        if (gate.type === "INPUT") {
-          const incoming = incomingWires.get(gate.id) || [];
-          let v = gate.inputValues[0] || false;
-          if (incoming.length > 0) {
-            const w = incoming[0];
-            const srcVal = prev.get(w.fromId);
-            if (IC_TYPES.has(gateMap.get(w.fromId)?.type) && Array.isArray(srcVal)) {
-              v = srcVal[w.fromOutputIndex ?? 0] ?? false;
-            } else {
-              v = srcVal ?? false;
-            }
-          }
-          if (prev.get(gate.id) !== v) {
-            next.set(gate.id, v);
-            changed = true;
-          }
-          continue;
-        }
-        const inputs = [];
-        for (const w of incomingWires.get(gate.id) || []) {
-          const srcVal = prev.get(w.fromId);
-          if (IC_TYPES.has(gateMap.get(w.fromId)?.type) && Array.isArray(srcVal)) {
-            inputs[w.toIndex] = srcVal[w.fromOutputIndex ?? 0] ?? false;
-          } else {
-            inputs[w.toIndex] = srcVal ?? false;
-          }
-        }
-        if (IC_TYPES.has(gate.type)) {
-          const numOut = IC_META[gate.type].outputs;
-          const newVals = Array.from({ length: numOut }, (_, i) =>
-            computeGateOutput(gate, inputs, i)
-          );
-          const oldVals = prev.get(gate.id);
-          if (!Array.isArray(oldVals) || newVals.some((v, i) => v !== oldVals[i])) {
-            next.set(gate.id, newVals);
-            changed = true;
-          }
-        } else {
-          const newVal = computeGateOutput(gate, inputs);
-          next.set(gate.id, newVal);
-          if (prev.get(gate.id) !== newVal) changed = true;
-        }
-      }
-      prev = next;
-      if (!changed) break;
-    }
-    gateStateRef.current = prev;
-    return prev;
-  }, [gates, wires, gateMap]);
-
-  const evaluateGate = useCallback(
-    (gate, outputIndex = 0) => {
-      if (!gate) return false;
-      const val = gateValues.get(gate.id);
-      if (Array.isArray(val)) return val[outputIndex] ?? false;
-      return val ?? false;
-    },
-    [gateValues]
-  );
-
-  // ── History ────────────────────────────────────────────────────────────────
-  const saveToHistory = useCallback(() => {
-    const state = {
-      gates: JSON.parse(JSON.stringify(gates)),
-      wires: JSON.parse(JSON.stringify(wires)),
-      gateIdCounter,
-      wireIdCounter,
-      inputCounter,
-      outputCounter,
-    };
-    setHistory((prev) => {
-      const newHistory = prev.slice(0, historyIndex + 1);
-      newHistory.push(state);
-      return newHistory.slice(-50);
-    });
-    setHistoryIndex((prev) => Math.min(prev + 1, 49));
-  }, [gates, wires, gateIdCounter, wireIdCounter, inputCounter, outputCounter, historyIndex]);
-
-  const undo = useCallback(() => {
-    if (historyIndex > 0) {
-      const newIndex = historyIndex - 1;
-      const state = history[newIndex];
-      setGates(JSON.parse(JSON.stringify(state.gates)));
-      setWires(JSON.parse(JSON.stringify(state.wires)));
-      setGateIdCounter(state.gateIdCounter);
-      setWireIdCounter(state.wireIdCounter);
-      setInputCounter(state.inputCounter || 0);
-      setOutputCounter(state.outputCounter || 0);
-      setHistoryIndex(newIndex);
-    }
-  }, [history, historyIndex]);
-
-  const redo = useCallback(() => {
-    if (historyIndex < history.length - 1) {
-      const newIndex = historyIndex + 1;
-      const state = history[newIndex];
-      setGates(JSON.parse(JSON.stringify(state.gates)));
-      setWires(JSON.parse(JSON.stringify(state.wires)));
-      setGateIdCounter(state.gateIdCounter);
-      setWireIdCounter(state.wireIdCounter);
-      setInputCounter(state.inputCounter || 0);
-      setOutputCounter(state.outputCounter || 0);
-      setHistoryIndex(newIndex);
-    }
-  }, [history, historyIndex]);
-
-  // ── Gate CRUD ──────────────────────────────────────────────────────────────
-  const snapToGrid = useCallback(
-    (value) => (SNAP_TO_GRID ? Math.round(value / GRID_SIZE) * GRID_SIZE : value),
-    []
-  );
-
-  const deleteGate = useCallback(
-    (gateOrId = null) => {
-      let targets = [];
-      if (gateOrId) {
-        const id = typeof gateOrId === "object" ? gateOrId.id : gateOrId;
-        targets = selectedGateIds.includes(id) ? selectedGateIds : [id];
-      } else {
-        targets = selectedGateIds;
-      }
-      if (targets.length === 0) return;
-      if (!window.confirm(`Are you sure you want to delete the ${targets.length} selected component(s)?`)) return;
-
-      setGates((prev) => prev.filter((g) => !targets.includes(g.id)));
-      setWires((prev) =>
-        prev.filter((w) => !targets.includes(w.fromId) && !targets.includes(w.toId))
-      );
-
-      let inputDec = 0, outputDec = 0;
-      gates.forEach((g) => {
-        if (targets.includes(g.id)) {
-          if (g.type === "INPUT") inputDec++;
-          if (g.type === "OUTPUT") outputDec++;
-        }
-      });
-      if (inputDec > 0) setInputCounter((prev) => Math.max(0, prev - inputDec));
-      if (outputDec > 0) setOutputCounter((prev) => Math.max(0, prev - outputDec));
-
-      setSelectedGateIds((prev) => prev.filter((id) => !targets.includes(id)));
-      setSelectedGate(null);
-      saveToHistory();
-    },
-    [selectedGateIds, gates, saveToHistory]
-  );
-
-  const addGate = (type) => {
-    const finalInputs = defaultInputCount(type);
-    const isIC = IC_TYPES.has(type);
-    const hasOutput = type !== "OUTPUT";
-    let label = type;
-    if (type === "INPUT") {
-      label = generateInputLabel(inputCounter);
-      setInputCounter((prev) => prev + 1);
-    } else if (type === "OUTPUT") {
-      label = generateOutputLabel(outputCounter);
-      setOutputCounter((prev) => prev + 1);
-    } else if (isIC) label = type;
-
-    const container = containerRef.current;
-    const canvasW = container ? container.clientWidth : 600;
-    const GATE_STEP_X = 160;
-    const GATE_STEP_Y = isIC ? getICHeight(type) + 40 : 120;
-    const COLS = Math.max(1, Math.floor((canvasW - 60) / GATE_STEP_X));
-    const col = gates.length % COLS;
-    const row = Math.floor(gates.length / COLS);
-
-    const newGate = {
-      id: gateIdCounter,
-      type,
-      label,
-      x: 30 + col * GATE_STEP_X,
-      y: 30 + row * GATE_STEP_Y,
-      inputs: finalInputs,
-      outputs: isIC ? IC_META[type].outputs : 1,
-      hasOutput,
-      inputValues: type === "INPUT" ? [false] : [],
-    };
-    setGates((prev) => [...prev, newGate]);
-    setGateIdCounter((prev) => prev + 1);
-    saveToHistory();
-  };
-
-  const addInputSlot = useCallback(
-    (e, gate) => {
-      e.stopPropagation();
-      if (!MULTI_INPUT_GATES.has(gate.type) || gate.inputs >= MAX_GATE_INPUTS) return;
-      setGates((prev) =>
-        prev.map((g) => (g.id === gate.id ? { ...g, inputs: g.inputs + 1 } : g))
-      );
-      saveToHistory();
-    },
-    [saveToHistory]
-  );
-
-  const removeInputSlot = useCallback(
-    (e, gate) => {
-      e.stopPropagation();
-      if (!MULTI_INPUT_GATES.has(gate.type) || gate.inputs <= MIN_GATE_INPUTS) return;
-      const lastIdx = gate.inputs - 1;
-      setWires((prev) =>
-        prev.filter((w) => !(w.toId === gate.id && w.toIndex === lastIdx))
-      );
-      setGates((prev) =>
-        prev.map((g) => (g.id === gate.id ? { ...g, inputs: g.inputs - 1 } : g))
-      );
-      saveToHistory();
-    },
-    [saveToHistory]
-  );
-
-  // ── Gate rename ────────────────────────────────────────────────────────────
-  const startRename = (e, gate) => {
-    e.stopPropagation();
-    e.preventDefault();
-    setRenamingGate(gate);
-    setRenameValue(gate.label || gate.type);
-  };
-  const commitRename = () => {
-    if (!renamingGate) return;
-    const trimmed = renameValue.trim();
-    if (trimmed) {
-      setGates((prev) =>
-        prev.map((g) => (g.id === renamingGate.id ? { ...g, label: trimmed } : g))
-      );
-      saveToHistory();
-    }
-    setRenamingGate(null);
-    setRenameValue("");
-  };
-  const cancelRename = () => {
-    setRenamingGate(null);
-    setRenameValue("");
-  };
-
-  // ── Toggle input ───────────────────────────────────────────────────────────
-  const toggleInput = (gate) => {
-    setGates((prev) =>
-      prev.map((g) =>
-        g.id === gate.id ? { ...g, inputValues: [!g.inputValues[0]] } : g
-      )
-    );
-  };
-
-  // ── Drag (single & group) ─────────────────────────────────────────────────
-  const startDrag = (e, gate) => {
-    if (e.button !== 0) return;
-    e.stopPropagation();
-    setSelectedWireIds([]);
-    setIsPanning(false);
-
-    const isCtrl = e.ctrlKey || e.metaKey;
-    let nextSelection = [...selectedGateIds];
-    if (isCtrl) {
-      if (selectedGateIds.includes(gate.id))
-        nextSelection = nextSelection.filter((id) => id !== gate.id);
-      else nextSelection.push(gate.id);
-    } else {
-      if (!selectedGateIds.includes(gate.id)) nextSelection = [gate.id];
-    }
-    setSelectedGateIds(nextSelection);
-    setSelectedGate(gate);
-    wasCtrlClickRef.current = isCtrl;
-    hasMovedRef.current = false;
-
-    const startPositions = {};
-    gates.forEach((g) => {
-      if (nextSelection.includes(g.id)) startPositions[g.id] = { x: g.x, y: g.y };
-    });
-    setDragStartPositions(startPositions);
-
-    const rect = containerRef.current.getBoundingClientRect();
-    const mouseX = (e.clientX - rect.left - panOffset.x) / zoom;
-    const mouseY = (e.clientY - rect.top - panOffset.y) / zoom;
-    setDragStartMouse({ x: mouseX, y: mouseY });
-    setDragging(true);
-  };
-
-  const onDrag = (e) => {
-    if (!dragging || selectedGateIds.length === 0 || isPanning) return;
-    const rect = containerRef.current.getBoundingClientRect();
-    const mouseX = (e.clientX - rect.left - panOffset.x) / zoom;
-    const mouseY = (e.clientY - rect.top - panOffset.y) / zoom;
-    const dx = mouseX - dragStartMouse.x;
-    const dy = mouseY - dragStartMouse.y;
-
-    if (Math.abs(dx) > 2 || Math.abs(dy) > 2) hasMovedRef.current = true;
-
-    setGates((prev) =>
-      prev.map((g) => {
-        if (selectedGateIds.includes(g.id)) {
-          const startPos = dragStartPositions[g.id];
-          if (startPos) {
-            return {
-              ...g,
-              x: snapToGrid(startPos.x + dx),
-              y: snapToGrid(startPos.y + dy),
-            };
-          }
-        }
-        return g;
-      })
-    );
-  };
-
-  const stopDrag = () => {
-    if (dragging) {
-      setDragging(false);
-      if (!hasMovedRef.current && selectedGate && !wasCtrlClickRef.current) {
-        setSelectedGateIds([selectedGate.id]);
-      }
-      saveToHistory();
-    }
-  };
-
-  const clientToWorld = (clientX, clientY) => {
-    const rect = containerRef.current?.getBoundingClientRect();
-    if (!rect) return { x: 0, y: 0 };
-    return {
-      x: (clientX - rect.left - panOffset.x) / zoom,
-      y: (clientY - rect.top - panOffset.y) / zoom,
-    };
-  };
-
-  // ── Wire connections ──────────────────────────────────────────────────────
-  const startConnection = (gate, outputIndex = 0) => {
-    if (!gate.hasOutput) return;
-    setConnectingFrom({ gateId: gate.id, outputIndex });
-    setConnectCursor({
-      x: gate.x + GATE_WIDTH,
-      y: getOutputY(gate, outputIndex),
-    });
-  };
-
-  const endWiring = () => {
-    setConnectingFrom(null);
-    setConnectCursor(null);
-  };
-
-  const mergeInputGates = (keepId, removeId) => {
-    setWires((prev) => {
-      const rest = prev.filter((w) => w.fromId !== removeId && w.toId !== removeId);
-      const occupied = new Set(rest.map((w) => `${w.toId}:${w.toIndex}`));
-      const redirected = prev
-        .filter((w) => w.fromId === removeId && w.toId !== removeId)
-        .filter((w) => !occupied.has(`${w.toId}:${w.toIndex}`))
-        .map((w) => ({ ...w, fromId: keepId }));
-      return [...rest, ...redirected];
-    });
-    setGates((prev) => prev.filter((g) => g.id !== removeId));
-    setSelectedGateIds((prev) => prev.filter((id) => id !== removeId));
-    setSelectedGate((prev) => (prev?.id === removeId ? null : prev));
-    endWiring();
-    saveToHistory();
-  };
-
-  const completeConnection = (toGate, toIndex) => {
-    const fromGateId = connectingFrom?.gateId ?? connectingFrom?.gate?.id;
-    if (!connectingFrom || fromGateId == null || fromGateId === toGate.id) {
-      endWiring();
-      return;
-    }
-
-    const fromGate = gateMap.get(fromGateId);
-    if (fromGate?.type === "INPUT" && toGate.type === "INPUT") {
-      mergeInputGates(fromGateId, toGate.id);
-      return;
-    }
-
-    const fromOutputIndex = connectingFrom.outputIndex ?? 0;
-    const filteredWires = wires.filter((w) => !(w.toId === toGate.id && w.toIndex === toIndex));
-    const finalWires =
-      toGate.type === "OUTPUT" || toGate.type === "INPUT"
-        ? filteredWires.filter((w) => w.toId !== toGate.id)
-        : filteredWires;
-    const newWire = {
-      id: wireIdCounter,
-      fromId: fromGateId,
-      fromOutputIndex,
-      toId: toGate.id,
-      toIndex,
-    };
-    setWires([...finalWires, newWire]);
-    setWireIdCounter((prev) => prev + 1);
-    endWiring();
-    saveToHistory();
-  };
-
-  const handleOutputPortClick = (gate, outputIndex = 0) => {
-    const fromGateId = connectingFrom?.gateId ?? connectingFrom?.gate?.id;
-    if (connectingFrom && fromGateId !== gate.id && gate.type === "INPUT") {
-      completeConnection(gate, 0);
-      return;
-    }
-    startConnection(gate, outputIndex);
-  };
-
-  const deleteWire = (wireId) => {
-    setWires((prev) => prev.filter((w) => w.id !== wireId));
-    setSelectedWireIds((prev) => prev.filter((id) => id !== wireId));
-    saveToHistory();
-  };
-
-  const handleCanvasContextMenu = (e) => {
-    e.preventDefault();
-    const { x, y } = clientToWorld(e.clientX, e.clientY);
-    const hit = hitWireAt(x, y, wires, gateMap);
-    if (hit) deleteWire(hit.id);
-  };
-
-  const stopPortEvent = (e) => {
-    e.stopPropagation();
-  };
-
-  // ── Canvas events (pan, select, zoom) ──────────────────────────────────────
-  const handleCanvasMouseDown = (e) => {
-    if (e.target === canvasRef.current) {
-      e.preventDefault();
-      if (connectingFrom) {
-        setConnectingFrom(null);
-        setConnectCursor(null);
-        return;
-      }
-      const { x: startX, y: startY } = clientToWorld(e.clientX, e.clientY);
-      if (e.button === 0) {
-        const hit = hitWireAt(startX, startY, wires, gateMap);
-        if (hit) {
-          setSelectedWireIds([hit.id]);
-          setSelectedGateIds([]);
-          setSelectedGate(null);
-          return;
-        }
-        setSelectedWireIds([]);
-      }
-      const isCtrl = e.ctrlKey || e.metaKey;
-      const isMiddleClick = e.button === 1;
-
-      if (spacePressed || isMiddleClick) {
-        setIsPanning(true);
-        setPanStart({ x: e.clientX - panOffset.x, y: e.clientY - panOffset.y });
-      } else if (e.button === 0) {
-        if (!selectionToolActive && !e.shiftKey) {
-          setIsPanning(true);
-          setPanStart({ x: e.clientX - panOffset.x, y: e.clientY - panOffset.y });
-        } else {
-          setIsSelecting(true);
-          setSelectionStart({ x: startX, y: startY });
-          setSelectionEnd({ x: startX, y: startY });
-          setSelectionStartIds(isCtrl ? selectedGateIds : []);
-          if (!isCtrl) {
-            setSelectedGateIds([]);
-            setSelectedGate(null);
-          }
-        }
-      }
-    }
-  };
-
-  const handleMouseMove = (e) => {
-    if (isPanning) {
-      setPanOffset({ x: e.clientX - panStart.x, y: e.clientY - panStart.y });
-    } else if (isSelecting) {
-      const rect = containerRef.current.getBoundingClientRect();
-      const currentX = (e.clientX - rect.left - panOffset.x) / zoom;
-      const currentY = (e.clientY - rect.top - panOffset.y) / zoom;
-      setSelectionEnd({ x: currentX, y: currentY });
-
-      const left = Math.min(selectionStart.x, currentX);
-      const top = Math.min(selectionStart.y, currentY);
-      const width = Math.abs(selectionStart.x - currentX);
-      const height = Math.abs(selectionStart.y - currentY);
-      const box = { x1: left, y1: top, x2: left + width, y2: top + height };
-
-      const intersectingIds = gates
-        .filter((g) => {
-          const gH = IC_TYPES.has(g.type) ? getICHeight(g.type) : 100;
-          const gateBox = { x1: g.x, y1: g.y, x2: g.x + GATE_WIDTH, y2: g.y + gH };
-          return (
-            gateBox.x1 < box.x2 &&
-            gateBox.x2 > box.x1 &&
-            gateBox.y1 < box.y2 &&
-            gateBox.y2 > box.y1
-          );
-        })
-        .map((g) => g.id);
-
-      if (e.ctrlKey || e.metaKey) {
-        setSelectedGateIds(Array.from(new Set([...selectionStartIds, ...intersectingIds])));
-      } else {
-        setSelectedGateIds(intersectingIds);
-      }
-    }
-  };
-
-  const handleMouseUp = () => {
-    setIsPanning(false);
-    setIsSelecting(false);
-  };
-
-  // ── Touch support ──────────────────────────────────────────────────────────
-  const handleTouchStart = useCallback(
-    (e) => {
-      if (e.touches.length !== 1) return;
-      const touch = e.touches[0];
-      const canvas = canvasRef.current;
-      const gateEl = touch.target.closest?.(".gate");
-      if (gateEl) {
-        const gateId = parseInt(gateEl.dataset.gateId, 10);
-        const gate = gates.find((g) => g.id === gateId);
-        if (gate) {
-          e.preventDefault();
-          let nextSelection = [...selectedGateIds];
-          if (!selectedGateIds.includes(gate.id)) nextSelection = [gate.id];
-          setSelectedGateIds(nextSelection);
-          setSelectedGate(gate);
-
-          const startPositions = {};
-          gates.forEach((g) => {
-            if (nextSelection.includes(g.id)) startPositions[g.id] = { x: g.x, y: g.y };
-          });
-          setDragStartPositions(startPositions);
-
-          const rect = containerRef.current.getBoundingClientRect();
-          const mouseX = (touch.clientX - rect.left - panOffset.x) / zoom;
-          const mouseY = (touch.clientY - rect.top - panOffset.y) / zoom;
-          setDragStartMouse({ x: mouseX, y: mouseY });
-
-          touchStateRef.current = { type: "drag", id: gateId, startX: touch.clientX, startY: touch.clientY };
-          setDragging(true);
-          return;
-        }
-      }
-      if (touch.target === canvas || touch.target.classList.contains("gates-container")) {
-        e.preventDefault();
-        touchStateRef.current = { type: "pan", id: null, startX: 0, startY: 0 };
-        setIsPanning(true);
-        setPanStart({ x: touch.clientX - panOffset.x, y: touch.clientY - panOffset.y });
-      }
-    },
-    [gates, zoom, panOffset, selectedGateIds]
-  );
-
-  const handleTouchMove = useCallback(
-    (e) => {
-      if (e.touches.length !== 1) return;
-      const touch = e.touches[0];
-      const state = touchStateRef.current;
-      if (state.type === "pan") {
-        e.preventDefault();
-        setPanOffset({ x: touch.clientX - panStart.x, y: touch.clientY - panStart.y });
-      } else if (state.type === "drag") {
-        e.preventDefault();
-        const rect = containerRef.current.getBoundingClientRect();
-        const mouseX = (touch.clientX - rect.left - panOffset.x) / zoom;
-        const mouseY = (touch.clientY - rect.top - panOffset.y) / zoom;
-        const dx = mouseX - dragStartMouse.x;
-        const dy = mouseY - dragStartMouse.y;
-        setGates((prev) =>
-          prev.map((g) => {
-            if (selectedGateIds.includes(g.id)) {
-              const startPos = dragStartPositions[g.id];
-              if (startPos) {
-                return {
-                  ...g,
-                  x: snapToGrid(startPos.x + dx),
-                  y: snapToGrid(startPos.y + dy),
-                };
-              }
-            }
-            return g;
-          })
-        );
-      }
-    },
-    [panStart, zoom, panOffset, snapToGrid, selectedGateIds, dragStartMouse, dragStartPositions]
-  );
-
-  const handleTouchEnd = useCallback(() => {
-    if (touchStateRef.current.type === "drag" && dragging) {
-      setDragging(false);
-      saveToHistory();
-    }
-    if (touchStateRef.current.type === "pan") setIsPanning(false);
-    touchStateRef.current = { type: null, id: null, startX: 0, startY: 0 };
-  }, [dragging, saveToHistory]);
-
-  // ── Fit to view ────────────────────────────────────────────────────────────
-  const fitToView = useCallback(() => {
-    const container = containerRef.current;
-    if (!container || gates.length === 0) return;
-    const GATE_W = 130, GATE_H = 100, PADDING = 40;
-    let minX = Infinity, minY = Infinity, maxX = -Infinity, maxY = -Infinity;
-    gates.forEach((g) => {
-      minX = Math.min(minX, g.x);
-      minY = Math.min(minY, g.y);
-      maxX = Math.max(maxX, g.x + GATE_W);
-      maxY = Math.max(maxY, g.y + GATE_H);
-    });
-    const contentW = maxX - minX + PADDING * 2;
-    const contentH = maxY - minY + PADDING * 2;
-    const containerW = container.clientWidth;
-    const containerH = container.clientHeight;
-    const scaleX = containerW / contentW;
-    const scaleY = containerH / contentH;
-    const newZoom = Math.min(scaleX, scaleY, 1.5);
-    setZoom(newZoom);
-    setPanOffset({
-      x: PADDING * newZoom - minX * newZoom,
-      y: PADDING * newZoom - minY * newZoom,
-    });
-  }, [gates]);
-
-  // ── Copy / Paste / Duplicate ───────────────────────────────────────────────
-  const copySelectedGates = useCallback(() => {
-    if (selectedGateIds.length === 0) return;
-    copiedDataRef.current = {
-      gates: JSON.parse(JSON.stringify(gates.filter((g) => selectedGateIds.includes(g.id)))),
-      wires: JSON.parse(
-        JSON.stringify(wires.filter((w) => selectedGateIds.includes(w.fromId) && selectedGateIds.includes(w.toId)))
-      ),
-    };
-  }, [selectedGateIds, gates, wires]);
-
-  const pasteGates = useCallback(() => {
-    if (!copiedDataRef.current) return;
-    const { gates: copiedGates, wires: copiedWires } = copiedDataRef.current;
-    if (copiedGates.length === 0) return;
-
-    const idMap = {};
-    let currentGateId = gateIdCounter, currentWireId = wireIdCounter;
-    let newInputCounter = inputCounter, newOutputCounter = outputCounter;
-
-    const pastedGates = copiedGates.map((g) => {
-      const newId = currentGateId++;
-      idMap[g.id] = newId;
-      let newLabel = g.label;
-      if (g.type === "INPUT") newLabel = generateInputLabel(newInputCounter++);
-      else if (g.type === "OUTPUT") newLabel = generateOutputLabel(newOutputCounter++);
-      return {
-        ...g,
-        id: newId,
-        label: newLabel,
-        x: g.x + 40,
-        y: g.y + 40,
-        inputValues: g.type === "INPUT" ? [false] : [],
-      };
-    });
-
-    const pastedWires = copiedWires.map((w) => ({
-      ...w,
-      id: currentWireId++,
-      fromId: idMap[w.fromId],
-      toId: idMap[w.toId],
-    }));
-
-    setGates((prev) => [...prev, ...pastedGates]);
-    setWires((prev) => [...prev, ...pastedWires]);
-    setGateIdCounter(currentGateId);
-    setWireIdCounter(currentWireId);
-    setInputCounter(newInputCounter);
-    setOutputCounter(newOutputCounter);
-    setSelectedGateIds(pastedGates.map((g) => g.id));
-    saveToHistory();
-  }, [gateIdCounter, wireIdCounter, inputCounter, outputCounter, saveToHistory, generateInputLabel, generateOutputLabel]);
-
-  const duplicateSelectedGates = useCallback(() => {
-    if (selectedGateIds.length === 0) return;
-    const selectedGatesList = gates.filter((g) => selectedGateIds.includes(g.id));
-    const selectedWiresList = wires.filter(
-      (w) => selectedGateIds.includes(w.fromId) && selectedGateIds.includes(w.toId)
-    );
-
-    const idMap = {};
-    let currentGateId = gateIdCounter, currentWireId = wireIdCounter;
-    let newInputCounter = inputCounter, newOutputCounter = outputCounter;
-
-    const duplicatedGates = selectedGatesList.map((g) => {
-      const newId = currentGateId++;
-      idMap[g.id] = newId;
-      let newLabel = g.label;
-      if (g.type === "INPUT") newLabel = generateInputLabel(newInputCounter++);
-      else if (g.type === "OUTPUT") newLabel = generateOutputLabel(newOutputCounter++);
-      return {
-        ...g,
-        id: newId,
-        label: newLabel,
-        x: g.x + 40,
-        y: g.y + 40,
-        inputValues: g.type === "INPUT" ? [false] : [],
-      };
-    });
-
-    const duplicatedWires = selectedWiresList.map((w) => ({
-      ...w,
-      id: currentWireId++,
-      fromId: idMap[w.fromId],
-      toId: idMap[w.toId],
-    }));
-
-    setGates((prev) => [...prev, ...duplicatedGates]);
-    setWires((prev) => [...prev, ...duplicatedWires]);
-    setGateIdCounter(currentGateId);
-    setWireIdCounter(currentWireId);
-    setInputCounter(newInputCounter);
-    setOutputCounter(newOutputCounter);
-    setSelectedGateIds(duplicatedGates.map((g) => g.id));
-    saveToHistory();
-  }, [selectedGateIds, gates, wires, gateIdCounter, wireIdCounter, inputCounter, outputCounter, saveToHistory, generateInputLabel, generateOutputLabel]);
-
-  const clearCircuit = () => {
-    setGates([]);
-    setWires([]);
-    setGateIdCounter(0);
-    setWireIdCounter(0);
-    setInputCounter(0);
-    setOutputCounter(0);
-    setHistory([]);
-    setHistoryIndex(-1);
-  };
-
-  // ── Truth table / expression helpers ───────────────────────────────────────
-  const evaluateGateWithGates = useCallback(
-    (gate, gatesArray, outputIndex = 0) => {
-      const localGateMap = new Map();
-      gatesArray.forEach((g) => localGateMap.set(g.id, g));
-      const incomingWires = new Map();
-      gatesArray.forEach((g) => incomingWires.set(g.id, []));
-      wires.forEach((w) => {
-        if (incomingWires.has(w.toId)) incomingWires.get(w.toId).push(w);
-      });
-
-      let prev = new Map();
-      gatesArray.forEach((g) => {
-        if (g.type === "INPUT") prev.set(g.id, g.inputValues[0] || false);
-        else if (IC_TYPES.has(g.type)) prev.set(g.id, Array(IC_META[g.type].outputs).fill(false));
-        else prev.set(g.id, false);
-      });
-
-      for (let iter = 0; iter < 100; iter++) {
-        const next = new Map(prev);
-        let changed = false;
-        for (const g of gatesArray) {
-          if (g.type === "INPUT") continue;
-          const inputs = [];
-          for (const w of incomingWires.get(g.id) || []) {
-            const srcVal = prev.get(w.fromId);
-            if (IC_TYPES.has(localGateMap.get(w.fromId)?.type) && Array.isArray(srcVal))
-              inputs[w.toIndex] = srcVal[w.fromOutputIndex ?? 0] ?? false;
-            else inputs[w.toIndex] = srcVal ?? false;
-          }
-          if (IC_TYPES.has(g.type)) {
-            const numOut = IC_META[g.type].outputs;
-            const newVals = Array.from({ length: numOut }, (_, i) => computeGateOutput(g, inputs, i));
-            const oldVals = prev.get(g.id);
-            if (!Array.isArray(oldVals) || newVals.some((v, i) => v !== oldVals[i])) {
-              next.set(g.id, newVals);
-              changed = true;
-            }
-          } else {
-            const newVal = computeGateOutput(g, inputs);
-            next.set(g.id, newVal);
-            if (prev.get(g.id) !== newVal) changed = true;
-          }
-        }
-        prev = next;
-        if (!changed) break;
-      }
-      const val = prev.get(gate.id);
-      if (Array.isArray(val)) return val[outputIndex] ?? false;
-      return val ?? false;
-    },
-    [wires]
-  );
-
-  const deriveExpression = useCallback(
-    (gate, gatesArray, depth = 0, visited = new Set()) => {
-      if (!gate || depth > 20 || visited.has(gate.id)) return "?";
-      const newVisited = new Set(visited);
-      newVisited.add(gate.id);
-      if (gate.type === "INPUT") {
-        const incoming = wires.find((w) => w.toId === gate.id);
-        if (incoming) {
-          const src = gatesArray.find((g) => g.id === incoming.fromId);
-          return deriveExpression(src, gatesArray, depth + 1, newVisited);
-        }
-        return gate.label;
-      }
-
-      const incomingForGate = wires.filter((w) => w.toId === gate.id);
-      const slotExprs = {};
-      incomingForGate.forEach((w) => {
-        const src = gatesArray.find((g) => g.id === w.fromId);
-        slotExprs[w.toIndex] = deriveExpression(src, gatesArray, depth + 1, newVisited);
-      });
-      const slots = Object.keys(slotExprs).sort((a, b) => Number(a) - Number(b)).map((k) => slotExprs[k]);
-      if (slots.length === 0) return gate.label || gate.type;
-
-      const wrap = (expr) => (expr.includes("+") || expr.includes("⊕") ? `(${expr})` : expr);
-      switch (gate.type) {
-        case "OUTPUT":
-        case "BUFFER": return slots[0];
-        case "NOT": return `${wrap(slots[0])}'`;
-        case "AND": return slots.map(wrap).join(".");
-        case "NAND": return `(${slots.map(wrap).join(".")})'`;
-        case "OR": return slots.join("+");
-        case "NOR": return `(${slots.join("+")})'`;
-        case "XOR": return slots.join("⊕");
-        case "XNOR": return `(${slots.join("⊕")})'`;
-        default: return `${gate.type}(${slots.join(",")})`;
-      }
-    },
-    [wires]
-  );
-
-  const generateTruthTable = useCallback(() => {
-    const inputs = gates.filter((g) => g.type === "INPUT");
-    const outputs = gates.filter((g) => g.type === "OUTPUT");
-    if (inputs.length === 0 || outputs.length === 0) return { headers: [], rows: [] };
-
-    const intermediates = gates.filter((g) => g.type !== "INPUT" && g.type !== "OUTPUT").sort((a, b) => a.x - b.x);
-    const visibleIntermediates = intermediates.filter((g) => {
-      const outgoingWires = wires.filter((w) => w.fromId === g.id);
-      return outgoingWires.length > 0 && outgoingWires.some((w) => !outputs.some((o) => o.id === w.toId));
-    });
-
-    const rawLabels = visibleIntermediates.map((g) => g.label || g.type);
-    const labelCount = {};
-    rawLabels.forEach((l) => { labelCount[l] = (labelCount[l] || 0) + 1; });
-    const labelSeen = {};
-    const getIntermediateLabel = (gate) => {
-      const base = gate.label || gate.type;
-      if (labelCount[base] > 1) {
-        labelSeen[base] = (labelSeen[base] || 0) + 1;
-        return `${base}${labelSeen[base]}`;
-      }
-      return base;
-    };
-
-    const numCombinations = 1 << inputs.length;
-    const rows = [];
-    for (let i = 0; i < numCombinations; i++) {
-      const inputValues = inputs.map((_, idx) => Boolean((i >> (inputs.length - 1 - idx)) & 1));
-      const tempGates = gates.map((g) => {
-        if (g.type === "INPUT") {
-          const index = inputs.findIndex((inp) => inp.id === g.id);
-          return { ...g, inputValues: [inputValues[index]] };
-        }
-        return g;
-      });
-
-      const intermediateValues = visibleIntermediates.map((intGate) => {
-        const gate = tempGates.find((g) => g.id === intGate.id);
-        if (IC_TYPES.has(intGate.type)) {
-          const numOut = IC_META[intGate.type].outputs;
-          return Array.from({ length: numOut }, (_, oi) => evaluateGateWithGates(gate, tempGates, oi) ? 1 : 0).join("/");
-        }
-        return evaluateGateWithGates(gate, tempGates) ? 1 : 0;
-      });
-
-      const outputValues = outputs.map((outGate) => {
-        const gate = tempGates.find((g) => g.id === outGate.id);
-        return evaluateGateWithGates(gate, tempGates) ? 1 : 0;
-      });
-
-      rows.push([...inputValues.map((v) => (v ? 1 : 0)), ...intermediateValues, ...outputValues]);
-    }
-
-    return {
-      headers: [
-        ...inputs.map((g) => g.label),
-        ...visibleIntermediates.map(getIntermediateLabel),
-        ...outputs.map((g) => {
-          const expr = deriveExpression(g, gates);
-          return expr && expr !== g.label ? `${g.label}=${expr}` : g.label;
-        }),
-      ],
-      rows,
-    };
-  }, [gates, wires, evaluateGateWithGates, deriveExpression]);
-
-  const truthTable = React.useMemo(() => generateTruthTable(), [generateTruthTable]);
-
-  // ── AI integration (CircuitMind) ───────────────────────────────────────────
-  const isCircuitComplete = gates.length > 0 && wires.length > 0 && inputGates.length > 0 && outputGates.length > 0;
-
-  const applyGeneratedCircuit = useCallback(
-    (data) => {
-      if (!data || !Array.isArray(data.gates) || data.gates.length === 0) {
-        alert("AI generated no gates. Try describing the circuit differently.");
-        return false;
-      }
-      const rawGates = data.gates;
-      const rawWires = data.wires || [];
-      const genInputNodes = rawGates.filter((g) => (g.type || "").toUpperCase() === "INPUT" || (g.label && g.label.toLowerCase().includes("input")));
-      const genOutputNodes = rawGates.filter((g) => (g.type || "").toUpperCase() === "OUTPUT" || (g.label && (g.label.toLowerCase().includes("output") || g.label.toLowerCase().includes("sum") || g.label.toLowerCase().includes("carry"))));
-      const genLogicNodes = rawGates.filter((g) => !genInputNodes.includes(g) && !genOutputNodes.includes(g));
-
-      const finalInputs = genInputNodes.map((g, i) => ({
-        id: g.id ?? i, type: "INPUT", x: g.x ?? 80, y: g.y ?? 80 + i * 100,
-        label: g.label || `A${i + 1}`, inputs: 0, hasOutput: true, inputValues: [false],
-      }));
-      const finalOutputs = genOutputNodes.map((g, i) => ({
-        id: g.id ?? 100 + i, type: "OUTPUT", x: g.x ?? 750, y: g.y ?? 80 + i * 100,
-        label: g.label || `Y${i + 1}`, inputs: 1, hasOutput: false, inputValues: [],
-      }));
-      const formattedLogic = genLogicNodes.map((g, idx) => {
-        const typeUpper = (g.type || "AND").toUpperCase();
-        let numInputs = g.inputs;
-        if (numInputs === undefined || numInputs === null || (numInputs === 1 && !["NOT", "BUFFER"].includes(typeUpper))) {
-          numInputs = ["NOT", "BUFFER"].includes(typeUpper) ? 1 : 2;
-        }
-        return {
-          id: g.id ?? 200 + idx, type: typeUpper, x: g.x ?? 300 + idx * 160, y: g.y ?? 100 + (idx % 2) * 80,
-          label: g.label || typeUpper, inputs: numInputs, hasOutput: true, inputValues: [],
-        };
-      });
-
-      const finalGates = [...finalInputs, ...formattedLogic, ...finalOutputs];
-      const maxGateId = Math.max(...finalGates.map((g) => Number(g.id) || 0), 0) + 1;
-      const maxWireId = Math.max(...rawWires.map((w) => Number(w.id) || 0), 0) + 1;
-
-      setGates(finalGates);
-      setWires(rawWires);
-      setGateIdCounter(maxGateId);
-      setWireIdCounter(maxWireId);
-      setInputCounter(finalInputs.length);
-      setOutputCounter(finalOutputs.length);
-      setTimeout(() => saveToHistory(), 0);
-      return true;
-    },
-    [saveToHistory]
-  );
-
-  const runAiGenerate = useCallback(
-    async (description, sendCurrentCircuit) => {
-      if (isGenLoading) return;
-      setIsGenLoading(true);
-      try {
-        const res = await generateAiCircuit({
-          problem_title: description || "Custom circuit",
-          problem_description: description || "",
-          prompt: description ? `make a ${description} circuit` : "make a logic circuit",
-          inputs: inputGates.map((g) => g.label),
-          outputs: outputGates.map((g) => g.label),
-          truthTable: [],
-          ...(sendCurrentCircuit ? { circuit: { gates, wires } } : {}),
-        });
-        const data = res?.data || res;
-        applyGeneratedCircuit(data);
-      } catch (error) {
-        alert(error.message || "Could not generate circuit. Make sure backend is running.");
-      } finally {
-        setIsGenLoading(false);
-      }
-    },
-    [isGenLoading, inputGates, outputGates, gates, wires, applyGeneratedCircuit]
-  );
-
-  const handleGenerateCircuit = useCallback(() => {
-    if (isGenLoading) return;
-    if (isCircuitComplete) runAiGenerate(aiPrompt, true);
-    else if (aiPrompt.trim()) runAiGenerate(aiPrompt, false);
-  }, [isGenLoading, isCircuitComplete, aiPrompt, runAiGenerate]);
-
-  const handleRequestHint = useCallback(async () => {
-    if (hintLoading) return;
-    setHintLoading(true);
-    setHintError("");
-    try {
-      const problemContext = {
-        title: aiPrompt || "Custom circuit", description: aiPrompt || "",
-        inputs: inputGates.map((g) => g.label), outputs: outputGates.map((g) => g.label), truthTable: [],
-      };
-      const data = await getCircuitHint({ problem: problemContext, gates, wires, result: null });
-      setHint(data.hint);
-    } catch (error) {
-      setHint(null);
-      setHintError(error.message || "Couldn't get a hint right now.");
-    } finally {
-      setHintLoading(false);
-    }
-  }, [hintLoading, aiPrompt, inputGates, outputGates, gates, wires]);
-
-  // ── Effects ────────────────────────────────────────────────────────────────
-  useEffect(() => {
-    if (simplifiedExpression && variables.length > 0 && !hasAutoBuilt.current) {
-      const circuit = parseExpressionToCircuit(simplifiedExpression, variables);
-      if (circuit.gates && circuit.gates.length > 0) {
-        setGates(circuit.gates);
-        setWires(circuit.wires);
-        setGateIdCounter(circuit.gateIdCounter || circuit.gates.length);
-        setWireIdCounter(circuit.wireIdCounter || circuit.wires.length);
-        const inputCount = circuit.gates.filter((g) => g.type === "INPUT").length;
-        const outputCount = circuit.gates.filter((g) => g.type === "OUTPUT").length;
-        setInputCounter(inputCount);
-        setOutputCounter(outputCount);
-        hasAutoBuilt.current = true;
-        setTimeout(() => {
-          setHistory([{ gates: circuit.gates, wires: circuit.wires, gateIdCounter: circuit.gateIdCounter || circuit.gates.length, wireIdCounter: circuit.wireIdCounter || circuit.wires.length, inputCounter: inputCount, outputCounter: outputCount }]);
-          setHistoryIndex(0);
-        }, 100);
-      }
-    }
-  }, [simplifiedExpression, variables]);
-
-  useEffect(() => {
-    if (Array.isArray(initialGates) && initialGates.length > 0) {
-      const key = JSON.stringify({ g: initialGates, w: initialWires || [] });
-      if (lastSyncKeyRef.current === key) return;
-      lastSyncKeyRef.current = key;
-      setGates(initialGates);
-      setWires(Array.isArray(initialWires) ? initialWires : []);
-      const maxGateId = Math.max(...initialGates.map((g) => Number(g.id) || 0), 0) + 1;
-      const maxWireId = Math.max(...(initialWires || []).map((w) => Number(w.id) || 0), 0) + 1;
-      setGateIdCounter(maxGateId);
-      setWireIdCounter(maxWireId);
-    }
-  }, [initialGates, initialWires]);
-
-  useEffect(() => {
-    if (typeof onCircuitChange === "function") {
-      lastSyncKeyRef.current = JSON.stringify({ g: gates, w: wires });
-      onCircuitChange(gates, wires);
-    }
-  }, [gates, wires, onCircuitChange]);
-
-  useEffect(() => {
-    const canvas = canvasRef.current;
-    const container = containerRef.current;
-    if (!canvas || !container) return;
-    const resizeCanvas = () => {
-      const w = container.clientWidth;
-      const h = container.clientHeight;
-      if (w > 0 && h > 0) {
-        canvas.width = w;
-        canvas.height = h;
-        const ctx = canvas.getContext("2d");
-        if (ctx) ctx.clearRect(0, 0, w, h);
-      }
-    };
-    resizeCanvas();
-    window.addEventListener("resize", resizeCanvas);
-    let ro;
-    if (typeof ResizeObserver !== "undefined") {
-      ro = new ResizeObserver(resizeCanvas);
-      ro.observe(container);
-    }
-    return () => {
-      window.removeEventListener("resize", resizeCanvas);
-      if (ro) ro.disconnect();
-    };
-  }, []);
-
-  useEffect(() => {
-    const down = (e) => {
-      if (e.key === " " && document.activeElement.tagName !== "INPUT" && document.activeElement.tagName !== "TEXTAREA") setSpacePressed(true);
-    };
-    const up = (e) => { if (e.key === " ") setSpacePressed(false); };
-    window.addEventListener("keydown", down);
-    window.addEventListener("keyup", up);
-    return () => { window.removeEventListener("keydown", down); window.removeEventListener("keyup", up); };
-  }, []);
-
-  // 🚀 HOOK USAGE FOR KEYBOARD SHORTCUTS
+  // CIRCUIT STATE (gates, wires, counters, history, CRUD)
+  const circuit = useCircuitState({ portNames, containerRef });
+  const {
+    gates, setGates,
+    wires, setWires,
+    gateIdCounter, setGateIdCounter,
+    wireIdCounter, setWireIdCounter,
+    inputCounter, setInputCounter,
+    outputCounter, setOutputCounter,
+    selectedGate, setSelectedGate,
+    selectedGateIds, setSelectedGateIds,
+    selectedWireIds, setSelectedWireIds,
+    renamingGate, renameValue, setRenameValue,
+    history, setHistory, historyIndex, setHistoryIndex,
+    gateMap, inputGates, outputGates,
+    saveToHistory, undo, redo,
+    snapToGrid,
+    deleteGate, addGate, addInputSlot, removeInputSlot,
+    startRename, commitRename, cancelRename,
+    toggleInput,
+    mergeInputGates, deleteWire,
+    copySelectedGates, pasteGates, duplicateSelectedGates,
+    clearCircuit,
+  } = circuit;
+
+  // SIMULATION (gate evaluation + truth table)
+  const { evaluateGate, truthTable } = useSimulation({ gates, wires, gateMap });
+
+  // CANVAS INTERACTIONS (pan, zoom, selection, drag, wiring, touch)
+  const canvas = useCanvasInteractions({
+    gates,
+    setGates,
+    wires,
+    setWires,
+    gateMap,
+    wireIdCounter,
+    setWireIdCounter,
+    saveToHistory,
+    snapToGrid,
+    selectedGateIds,
+    setSelectedGateIds,
+    selectedGate,
+    setSelectedGate,
+    selectedWireIds,
+    setSelectedWireIds,
+    mergeInputGates,
+    deleteWire,
+    containerRef,
+    canvasRef,
+  });
+  const {
+    zoom, setZoom,
+    panOffset, setPanOffset,
+    isPanning,
+    spacePressed,
+    selectionToolActive, setSelectionToolActive,
+    isSelecting, selectionStart, selectionEnd,
+    connectingFrom, setConnectingFrom,
+    connectCursor, setConnectCursor,
+    clientToWorld,
+    startDrag, onDrag, stopDrag,
+    handleOutputPortClick,
+    handleCanvasContextMenu,
+    handleCanvasMouseDown, handleMouseMove, handleMouseUp,
+    completeConnection,
+    stopPortEvent,
+    fitToView,
+    setIsPanning,
+    setPanStart,
+  } = canvas;
+
+  // AI INTEGRATION (CircuitMind hints + AI generation)
+  const {
+    aiPrompt, setAiPrompt,
+    hint, setHint,
+    hintLoading, hintError, setHintError,
+    isGenLoading,
+    handleGenerateCircuit,
+    handleRequestHint,
+  } = useAI({
+    gates,
+    wires,
+    inputGates,
+    outputGates,
+    setGates,
+    setWires,
+    setGateIdCounter,
+    setWireIdCounter,
+    setInputCounter,
+    setOutputCounter,
+    saveToHistory,
+  });
+
+  // HOOK USAGE FOR KEYBOARD SHORTCUTS
   useKeyboardShortcuts({
     undo,
     redo,
@@ -1223,37 +148,95 @@ const Boolforge = ({
     setConnectCursor,
   });
 
+  // ── Effects ────────────────────────────────────────────────────────────
   useEffect(() => {
-    const container = containerRef.current;
-    if (!container) return;
-    const wheelHandler = (e) => {
-      e.preventDefault();
-      const rect = container.getBoundingClientRect();
-      const mouseX = e.clientX - rect.left, mouseY = e.clientY - rect.top;
-      const delta = e.deltaY > 0 ? 0.9 : 1.1;
-      const newZoom = Math.max(0.1, Math.min(3, zoom * delta));
-      const ratio = newZoom / zoom;
-      setZoom(newZoom);
-      setPanOffset({ x: mouseX - (mouseX - panOffset.x) * ratio, y: mouseY - (mouseY - panOffset.y) * ratio });
-    };
-    container.addEventListener("wheel", wheelHandler, { passive: false });
-    return () => container.removeEventListener("wheel", wheelHandler);
-  }, [zoom, panOffset]);
+    if (simplifiedExpression && variables.length > 0 && !hasAutoBuilt.current) {
+      const circuitFromExpr = parseExpressionToCircuit(simplifiedExpression, variables);
+      if (circuitFromExpr.gates && circuitFromExpr.gates.length > 0) {
+        setGates(circuitFromExpr.gates);
+        setWires(circuitFromExpr.wires);
+        setGateIdCounter(circuitFromExpr.gateIdCounter || circuitFromExpr.gates.length);
+        setWireIdCounter(circuitFromExpr.wireIdCounter || circuitFromExpr.wires.length);
+        const inputCount = circuitFromExpr.gates.filter((g) => g.type === "INPUT").length;
+        const outputCount = circuitFromExpr.gates.filter((g) => g.type === "OUTPUT").length;
+        setInputCounter(inputCount);
+        setOutputCounter(outputCount);
+        hasAutoBuilt.current = true;
+        setTimeout(() => {
+          setHistory([{
+            gates: circuitFromExpr.gates,
+            wires: circuitFromExpr.wires,
+            gateIdCounter: circuitFromExpr.gateIdCounter || circuitFromExpr.gates.length,
+            wireIdCounter: circuitFromExpr.wireIdCounter || circuitFromExpr.wires.length,
+            inputCounter: inputCount,
+            outputCounter: outputCount,
+          }]);
+          setHistoryIndex(0);
+        }, 100);
+      }
+    }
+  }, [
+    simplifiedExpression,
+    variables,
+    setGates,
+    setWires,
+    setGateIdCounter,
+    setWireIdCounter,
+    setInputCounter,
+    setOutputCounter,
+    setHistory,
+    setHistoryIndex,
+  ]);
 
   useEffect(() => {
+    if (Array.isArray(initialGates) && initialGates.length > 0) {
+      const key = JSON.stringify({ g: initialGates, w: initialWires || [] });
+      if (lastSyncKeyRef.current === key) return;
+      lastSyncKeyRef.current = key;
+      setGates(initialGates);
+      setWires(Array.isArray(initialWires) ? initialWires : []);
+      const maxGateId = Math.max(...initialGates.map((g) => Number(g.id) || 0), 0) + 1;
+      const maxWireId = Math.max(...(initialWires || []).map((w) => Number(w.id) || 0), 0) + 1;
+      setGateIdCounter(maxGateId);
+      setWireIdCounter(maxWireId);
+    }
+  }, [initialGates, initialWires, setGates, setWires, setGateIdCounter, setWireIdCounter]);
+
+  useEffect(() => {
+    if (typeof onCircuitChange === "function") {
+      lastSyncKeyRef.current = JSON.stringify({ g: gates, w: wires });
+      onCircuitChange(gates, wires);
+    }
+  }, [gates, wires, onCircuitChange]);
+
+  useEffect(() => {
+    const canvasEl = canvasRef.current;
     const container = containerRef.current;
-    if (!container) return;
-    container.addEventListener("touchstart", handleTouchStart, { passive: false });
-    container.addEventListener("touchmove", handleTouchMove, { passive: false });
-    container.addEventListener("touchend", handleTouchEnd, { passive: false });
+    if (!canvasEl || !container) return;
+    const resizeCanvas = () => {
+      const w = container.clientWidth;
+      const h = container.clientHeight;
+      if (w > 0 && h > 0) {
+        canvasEl.width = w;
+        canvasEl.height = h;
+        const ctx = canvasEl.getContext("2d");
+        if (ctx) ctx.clearRect(0, 0, w, h);
+      }
+    };
+    resizeCanvas();
+    window.addEventListener("resize", resizeCanvas);
+    let ro;
+    if (typeof ResizeObserver !== "undefined") {
+      ro = new ResizeObserver(resizeCanvas);
+      ro.observe(container);
+    }
     return () => {
-      container.removeEventListener("touchstart", handleTouchStart);
-      container.removeEventListener("touchmove", handleTouchMove);
-      container.removeEventListener("touchend", handleTouchEnd);
+      window.removeEventListener("resize", resizeCanvas);
+      if (ro) ro.disconnect();
     };
-  }, [handleTouchStart, handleTouchMove, handleTouchEnd]);
+  }, []);
 
-  // ── Render ─────────────────────────────────────────────────────────────────
+  // ── Render ─────────────────────────────────────────────────────────────
   const circuitTool = (
     <div
       className="container circuit-maker"
@@ -1272,250 +255,117 @@ const Boolforge = ({
       }}
       onTouchEnd={() => { stopDrag(); handleMouseUp(); }}
     >
-      
-      {/* 🚀 SIDEBAR COMPONENT INJECTED HERE */}
-      <Sidebar 
+      {/* SIDEBAR COMPONENT */}
+      <Sidebar
         selectionToolActive={selectionToolActive}
         setSelectionToolActive={setSelectionToolActive}
         simplifiedExpression={simplifiedExpression}
         addGate={addGate}
       />
 
-      {/* Canvas */}
-      <div className={`canvas-container${connectingFrom ? " is-wiring" : ""}`} ref={containerRef}>
-        <canvas
-          ref={canvasRef}
-          onContextMenu={handleCanvasContextMenu}
-          onMouseDown={handleCanvasMouseDown}
-          onTouchStart={(e) => {
-            if (e.touches.length === 1) {
-              const t = e.touches[0];
-              setIsPanning(true);
-              setPanStart({ x: t.clientX - panOffset.x, y: t.clientY - panOffset.y });
-            }
-          }}
-          style={{ cursor: isPanning ? "grabbing" : spacePressed ? "grab" : selectionToolActive ? "crosshair" : "grab" }}
-        />
+      {/* CANVAS COMPONENT */}
+      <CircuitCanvas
+        gates={gates}
+        wires={wires}
+        gateMap={gateMap}
+        selectedGateIds={selectedGateIds}
+        selectedWireIds={selectedWireIds}
+        setSelectedGateIds={setSelectedGateIds}
+        setSelectedWireIds={setSelectedWireIds}
+        setSelectedGate={setSelectedGate}
+        evaluateGate={evaluateGate}
+        zoom={zoom}
+        panOffset={panOffset}
+        isPanning={isPanning}
+        spacePressed={spacePressed}
+        selectionToolActive={selectionToolActive}
+        setSelectionToolActive={setSelectionToolActive}
+        isSelecting={isSelecting}
+        selectionStart={selectionStart}
+        selectionEnd={selectionEnd}
+        connectingFrom={connectingFrom}
+        setConnectCursor={setConnectCursor}
+        connectCursor={connectCursor}
+        clientToWorld={clientToWorld}
+        startDrag={startDrag}
+        onDrag={onDrag}
+        stopDrag={stopDrag}
+        setIsPanning={setIsPanning}
+        setPanStart={setPanStart}
+        handleOutputPortClick={handleOutputPortClick}
+        handleCanvasContextMenu={handleCanvasContextMenu}
+        handleCanvasMouseDown={handleCanvasMouseDown}
+        handleMouseMove={handleMouseMove}
+        handleMouseUp={handleMouseUp}
+        stopPortEvent={stopPortEvent}
+        fitToView={fitToView}
+        setZoom={setZoom}
+        addInputSlot={addInputSlot}
+        removeInputSlot={removeInputSlot}
+        startRename={startRename}
+        deleteGate={deleteGate}
+        deleteWire={deleteWire}
+        completeConnection={completeConnection}
+        containerRef={containerRef}
+        canvasRef={canvasRef}
+      />
 
-        <div className="gates-container" style={{ transform: `translate(${panOffset.x}px, ${panOffset.y}px) scale(${zoom})`, transformOrigin: "0 0" }}>
-          <svg className="wire-layer" aria-hidden="true">
-            {wires.map((wire) => {
-              const fromGate = gateMap.get(wire.fromId);
-              const toGate = gateMap.get(wire.toId);
-              if (!fromGate || !toGate) return null;
-              const pts = getWirePoints(fromGate, toGate, wire.fromOutputIndex, wire.toIndex);
-              const isActive = evaluateGate(fromGate, wire.fromOutputIndex ?? 0);
-              return (
-                <g
-                  key={wire.id}
-                  className={`${isActive ? "wire-on" : "wire-off"}${selectedWireIds.includes(wire.id) ? " wire-selected" : ""}`}
-                >
-                  <path
-                    className="wire-hit"
-                    d={wirePathD(pts)}
-                    fill="none"
-                    onMouseDown={(e) => {
-                      e.stopPropagation();
-                      e.preventDefault();
-                      setSelectedWireIds([wire.id]);
-                      setSelectedGateIds([]);
-                      setSelectedGate(null);
-                    }}
-                    onContextMenu={(e) => {
-                      e.preventDefault();
-                      e.stopPropagation();
-                      deleteWire(wire.id);
-                    }}
-                  />
-                  {isActive && <path className="wire-glow" d={wirePathD(pts)} fill="none" />}
-                  <path className="wire-path" d={wirePathD(pts)} fill="none" />
-                </g>
-              );
-            })}
-            {connectingFrom && connectCursor && (() => {
-              const fromGate = gateMap.get(connectingFrom.gateId ?? connectingFrom.gate?.id);
-              if (!fromGate) return null;
-              const pts = getCurvePoints(fromGate.x + GATE_WIDTH, getOutputY(fromGate, connectingFrom.outputIndex ?? 0), connectCursor.x, connectCursor.y);
-              return <path className="wire-preview" d={wirePathD(pts)} fill="none" />;
-            })()}
-          </svg>
-          {isSelecting && (
-            <div
-              className="selection-rectangle"
-              style={{ position: "absolute", left: Math.min(selectionStart.x, selectionEnd.x), top: Math.min(selectionStart.y, selectionEnd.y), width: Math.abs(selectionStart.x - selectionEnd.x), height: Math.abs(selectionStart.y - selectionEnd.y), border: "1.5px dashed var(--accent-secondary, #00d4ff)", background: "rgba(0, 212, 255, 0.12)", pointerEvents: "none", zIndex: 1000, borderRadius: "3px", boxShadow: "0 0 8px rgba(0, 212, 255, 0.2)" }}
-            />
-          )}
+      {/* RIGHT PANEL / CONTROLS COMPONENT */}
+      <CircuitControls
+        embedded={embedded}
+        aiPrompt={aiPrompt}
+        setAiPrompt={setAiPrompt}
+        handleRequestHint={handleRequestHint}
+        hintLoading={hintLoading}
+        handleGenerateCircuit={handleGenerateCircuit}
+        isGenLoading={isGenLoading}
+        hint={hint}
+        hintError={hintError}
+        setHint={setHint}
+        setHintError={setHintError}
+        inputGates={inputGates}
+        outputGates={outputGates}
+        wires={wires}
+        toggleInput={toggleInput}
+        evaluateGate={evaluateGate}
+        truthTable={truthTable}
+        undo={undo}
+        redo={redo}
+        historyIndex={historyIndex}
+        history={history}
+        gates={gates}
+        gateIdCounter={gateIdCounter}
+        wireIdCounter={wireIdCounter}
+        inputCounter={inputCounter}
+        outputCounter={outputCounter}
+        setGates={setGates}
+        setWires={setWires}
+        setGateIdCounter={setGateIdCounter}
+        setWireIdCounter={setWireIdCounter}
+        setInputCounter={setInputCounter}
+        setOutputCounter={setOutputCounter}
+        saveToHistory={saveToHistory}
+        clearCircuit={clearCircuit}
+        zoom={zoom}
+        setZoom={setZoom}
+        setPanOffset={setPanOffset}
+        fitToView={fitToView}
+      />
 
-          {gates.map((gate) => {
-            const canExpand = MULTI_INPUT_GATES.has(gate.type);
-            const canAddInput = canExpand && gate.inputs < MAX_GATE_INPUTS;
-            const canRemoveInput = canExpand && gate.inputs > MIN_GATE_INPUTS;
-            const isIC = IC_TYPES.has(gate.type);
-            const icMeta = isIC ? IC_META[gate.type] : null;
-            const icH = isIC ? getICHeight(gate.type) : 100;
-            const cfGateId = connectingFrom?.gateId ?? connectingFrom?.gate?.id;
-
-            return (
-              <div
-                key={gate.id}
-                data-gate-id={gate.id}
-                className={`gate ${gate.type === "OUTPUT" ? "output-gate" : ""} ${isIC ? "gate--ic" : ""} ${selectedGateIds.includes(gate.id) ? "selected" : ""} ${gate.type === "OUTPUT" && evaluateGate(gate) ? "active" : ""}`}
-                style={{ left: gate.x, top: gate.y, height: isIC ? icH : undefined }}
-                onMouseDown={(e) => {
-                  if (connectingFrom && gate.type === "INPUT") { e.stopPropagation(); completeConnection(gate, 0); return; }
-                  startDrag(e, gate);
-                }}
-                onTouchStart={(e) => { if (e.touches.length === 1) { e.stopPropagation(); startDrag(e.touches[0], gate); } }}
-                onDoubleClick={(e) => startRename(e, gate)}
-                onContextMenu={(e) => { e.preventDefault(); deleteGate(gate); }}
-              >
-                <div className="gate-content">
-                  {gateSymbols[gate.type]}
-                  {!isIC && <div className="gate-label">{gate.label || gate.type}</div>}
-                </div>
-
-                {canExpand && (
-                  <div className="gate-input-controls">
-                    <button className="gate-input-btn" title={canRemoveInput ? `Remove input (${gate.inputs - 1} inputs)` : `Minimum ${MIN_GATE_INPUTS} inputs`} disabled={!canRemoveInput} onMouseDown={(e) => e.stopPropagation()} onClick={(e) => removeInputSlot(e, gate)}>−</button>
-                    <span className="gate-input-count">{gate.inputs}</span>
-                    <button className="gate-input-btn" title={canAddInput ? `Add input (${gate.inputs + 1} inputs)` : `Maximum ${MAX_GATE_INPUTS} inputs`} disabled={!canAddInput} onMouseDown={(e) => e.stopPropagation()} onClick={(e) => addInputSlot(e, gate)}>+</button>
-                  </div>
-                )}
-
-                {isIC && Array.from({ length: icMeta.outputs }).map((_, outIdx) => {
-                  const n = icMeta.outputs, topPct = n === 1 ? 50 : 10 + (outIdx / (n - 1)) * 80;
-                  const isConnecting = cfGateId === gate.id && connectingFrom?.outputIndex === outIdx;
-                  return (
-                    <div key={`out-${outIdx}`} className={`connection-point output-point ic-output-point ${isConnecting ? "active" : ""} ${evaluateGate(gate, outIdx) ? "ic-output-point--high" : ""}`} style={{ top: `${topPct}%` }} title={icMeta.outputLabels[outIdx]} onMouseDown={stopPortEvent} onClick={() => handleOutputPortClick(gate, outIdx)}>
-                      <span className="ic-pin-label">{icMeta.outputLabels[outIdx]}</span>
-                    </div>
-                  );
-                })}
-
-                {!isIC && gate.hasOutput && (
-                  <div className={`connection-point output-point ${cfGateId === gate.id ? "active" : ""}`} onMouseDown={stopPortEvent} onClick={() => handleOutputPortClick(gate, 0)} />
-                )}
-
-                {gate.type === "INPUT" && (
-                  <div className={`connection-point input-point ${connectingFrom ? "active" : ""}`} style={{ top: "50%" }} title="Drop a wire here to join this input with another" onMouseDown={stopPortEvent} onClick={() => completeConnection(gate, 0)} />
-                )}
-
-                {isIC && Array.from({ length: icMeta.inputs }).map((_, idx) => {
-                  const n = icMeta.inputs, topPct = n === 1 ? 50 : 10 + (idx / (n - 1)) * 80;
-                  return (
-                    <div key={`in-${idx}`} className={`connection-point input-point ic-input-point ${connectingFrom ? "active" : ""}`} style={{ top: `${topPct}%` }} title={icMeta.inputLabels[idx]} onMouseDown={stopPortEvent} onClick={() => completeConnection(gate, idx)}>
-                      <span className="ic-pin-label ic-pin-label--left">{icMeta.inputLabels[idx]}</span>
-                    </div>
-                  );
-                })}
-
-                {!isIC && gate.inputs >= 2 && Array.from({ length: gate.inputs }).map((_, idx) => {
-                  const n = gate.inputs, topPct = n === 2 ? (idx === 0 ? 35 : 65) : 15 + (idx / (n - 1)) * 70;
-                  return <div key={idx} className={`connection-point input-point ${connectingFrom ? "active" : ""}`} style={{ top: `${topPct}%` }} onMouseDown={stopPortEvent} onClick={() => completeConnection(gate, idx)} />;
-                })}
-                {!isIC && gate.inputs === 1 && (
-                  <div className={`connection-point input-point ${connectingFrom ? "active" : ""}`} style={{ top: "50%" }} onMouseDown={stopPortEvent} onClick={() => completeConnection(gate, 0)} />
-                )}
-              </div>
-            );
-          })}
-        </div>
-
-        <div className="canvas-overlay-controls">
-          <button className={`canvas-overlay-btn${selectionToolActive ? " canvas-overlay-btn--active" : ""}`} onClick={() => setSelectionToolActive((v) => !v)} style={selectionToolActive ? { background: "var(--accent-primary, #7c3aed)", color: "#fff", borderColor: "var(--accent-primary, #7c3aed)" } : {}}>⬚</button>
-          <button className="canvas-overlay-btn" onClick={fitToView}>⊡</button>
-          <button className="canvas-overlay-btn" onClick={() => setZoom((z) => Math.min(3, z * 1.2))}>+</button>
-          <button className="canvas-overlay-btn" onClick={() => setZoom((z) => Math.max(0.3, z * 0.8))}>−</button>
-        </div>
-      </div>
-
-      {/* Right panel */}
-      <div className="truth-table-panel">
-        <h2>Circuit Control</h2>
-
-        {!embedded && (
-          <div className="ai-assistant-section">
-            <h3 className="ai-title">🤖 CircuitMind Assistant</h3>
-            <textarea className="ai-textarea" value={aiPrompt} onChange={(e) => setAiPrompt(e.target.value)} placeholder="Describe the circuit (e.g. 'half adder', 'A AND B OR C')…" rows={2} />
-            <div className="controls">
-              <button className="btn hint-btn" onClick={handleRequestHint} disabled={hintLoading} style={{ cursor: hintLoading ? "wait" : "pointer" }}>{hintLoading ? "💡 Thinking…" : "💡 Get Hint"}</button>
-              <button className="btn generate-btn" onClick={handleGenerateCircuit} disabled={isGenLoading} style={{ cursor: isGenLoading ? "wait" : "pointer" }}>{isGenLoading ? "⚡ Generating…" : "⚡ AI Generate"}</button>
-            </div>
-            {(hint || hintError) && (
-              <div className={`ai-response ${hintError ? "error" : ""}`}>
-                {hintError || hint}
-                <button className="dismiss-hint" onClick={() => { setHint(null); setHintError(""); }}>✕</button>
-              </div>
-            )}
-          </div>
-        )}
-
-        {inputGates.length > 0 && (
-          <div className="input-controls">
-            <h3 style={{ fontSize: "12px", color: "var(--accent-primary)", marginBottom: "10px" }}>Input Toggles</h3>
-            {inputGates.map((gate) => {
-              const driven = wires.some((w) => w.toId === gate.id);
-              return (
-                <div key={gate.id} className="input-toggle">
-                  <label>{gate.label}{driven ? " (linked)" : ""}</label>
-                  <div className={`toggle-btn ${gate.inputValues[0] ? "on" : ""}`} onClick={() => { if (!driven) toggleInput(gate); }} style={driven ? { opacity: 0.4, cursor: "not-allowed" } : undefined} title={driven ? "This input is driven by a wire" : undefined} />
-                </div>
-              );
-            })}
-          </div>
-        )}
-
-        {outputGates.length > 0 && (
-          <div className="output-display">
-            <h3>Output Values</h3>
-            {outputGates.map((gate) => (
-              <div key={gate.id} className="output-item">
-                <label>{gate.label}</label>
-                <div className={`output-value ${evaluateGate(gate) ? "high" : "low"}`}>{evaluateGate(gate) ? "1" : "0"}</div>
-              </div>
-            ))}
-          </div>
-        )}
-
-        <TruthTableGenerator truthTable={truthTable} />
-
-        <div className="controls">
-          <button className="btn" onClick={undo} disabled={historyIndex <= 0}>↶ Undo</button>
-          <button className="btn" onClick={redo} disabled={historyIndex >= history.length - 1}>↷ Redo</button>
-          <SaveAndLoad data={{ gates, wires, gateIdCounter, wireIdCounter, inputCounter, outputCounter }} setGates={setGates} setWires={setWires} setGateIdCounter={setGateIdCounter} setWireIdCounter={setWireIdCounter} setInputCounter={setInputCounter} setOutputCounter={setOutputCounter} saveToHistory={saveToHistory} />
-          <button className="btn danger" onClick={clearCircuit}>🗑️ Clear All</button>
-        </div>
-
-        <div className="zoom-controls">
-          <button className="btn zoom-btn" onClick={() => setZoom(Math.min(3, zoom * 1.2))} title="Zoom In">🔍+</button>
-          <span className="zoom-level">{Math.round(zoom * 100)}%</span>
-          <button className="btn zoom-btn" onClick={() => setZoom(Math.max(0.1, zoom * 0.8))} title="Zoom Out">🔍−</button>
-          <button className="btn zoom-btn" onClick={() => { setZoom(1); setPanOffset({ x: 0, y: 0 }); }} title="Reset Zoom">⟲</button>
-          <button className="btn zoom-btn" onClick={fitToView} title="Fit all gates into view" style={{ flex: 1 }}>⊡ Fit</button>
-        </div>
-
-        <div className="stats">
-          <div><span>Gates:</span> <strong>{gates.length}</strong></div>
-          <div><span>Wires:</span> <strong>{wires.length}</strong></div>
-          <div><span>Inputs:</span> <strong>{inputGates.length}</strong></div>
-          <div><span>Outputs:</span> <strong>{outputGates.length}</strong></div>
-        </div>
-      </div>
-
-      {/* 🚀 RENAME MODAL COMPONENT INJECTED HERE */}
-      <RenameModal 
-         renamingGate={renamingGate}
-         renameValue={renameValue}
-         setRenameValue={setRenameValue}
-         commitRename={commitRename}
-         cancelRename={cancelRename}
+      {/* RENAME MODAL COMPONENT */}
+      <RenameModal
+        renamingGate={renamingGate}
+        renameValue={renameValue}
+        setRenameValue={setRenameValue}
+        commitRename={commitRename}
+        cancelRename={cancelRename}
       />
 
       <RelatedSeoLinks />
     </div>
   );
 
-  // ── Page Shell ──────────────────────────────────────────────────────────────
+  // ── Page Shell ─────────────────────────────────────────────────────────
   if (embedded) return circuitTool;
 
   return (
