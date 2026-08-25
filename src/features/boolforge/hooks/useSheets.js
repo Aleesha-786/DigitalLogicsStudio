@@ -14,12 +14,10 @@ import {
 // Each sheet stores an independent circuit: gates, wires, id counters, and
 // undo/redo history. This mirrors the state previously owned by
 // useCircuitState, but now keyed per-sheet so multiple circuits can coexist.
-let sheetSeq = 0;
-function makeEmptySheet(name) {
-  sheetSeq += 1;
+function makeEmptySheet(name, index) {
   return {
-    id: `sheet-${Date.now()}-${sheetSeq}`,
-    name: name || `Sheet ${sheetSeq}`,
+    id: `sheet-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
+    name: name || `Sheet ${index}`,
     circuit: {
       gates: [],
       wires: [],
@@ -38,7 +36,7 @@ function makeEmptySheet(name) {
 // hooks (useCanvasInteractions, useAI, useSimulation, useKeyboardShortcuts)
 // keep working unmodified — they just receive these values/setters as before.
 export function useSheets({ portNames = null, containerRef } = {}) {
-  const [sheets, setSheets] = useState(() => [makeEmptySheet("Sheet 1")]);
+  const [sheets, setSheets] = useState(() => [makeEmptySheet("Sheet 1", 1)]);
   const [activeSheetId, setActiveSheetIdState] = useState(() => sheets[0].id);
 
   // ── Live circuit state (mirrors the active sheet) ─────────────────────
@@ -123,7 +121,7 @@ export function useSheets({ portNames = null, containerRef } = {}) {
 
   const addSheet = useCallback(
     (name) => {
-      const newSheet = makeEmptySheet(name);
+      const newSheet = makeEmptySheet(name, sheets.length + 1);
       setSheets((prev) => [
         ...prev.map((s) => (s.id === activeSheetId ? { ...s, circuit: liveRef.current } : s)),
         newSheet,
@@ -132,7 +130,7 @@ export function useSheets({ portNames = null, containerRef } = {}) {
       setActiveSheetIdState(newSheet.id);
       return newSheet.id;
     },
-    [activeSheetId, loadCircuitIntoLiveState]
+    [activeSheetId, sheets, loadCircuitIntoLiveState]
   );
 
   const renameSheet = useCallback((id, newName) => {
