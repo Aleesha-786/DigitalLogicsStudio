@@ -1,6 +1,7 @@
 import { useState, useCallback } from "react";
 import { getCircuitHint } from "../../../shared/services/circuitMindService";
 import { generateAiCircuit } from "../../../shared/services/aiService";
+import { useToast } from "../../../shared/context/ToastContext";
 
 // Self-contained AI integration: prompt state, hint requests, and circuit
 // generation (with the messy "figure out which raw nodes are inputs /
@@ -18,6 +19,7 @@ export function useAI({
   setOutputCounter,
   saveToHistory,
 }) {
+  const toast = useToast();
   const [aiPrompt, setAiPrompt] = useState("");
   const [hint, setHint] = useState(null);
   const [hintLoading, setHintLoading] = useState(false);
@@ -29,7 +31,7 @@ export function useAI({
   const applyGeneratedCircuit = useCallback(
     (data) => {
       if (!data || !Array.isArray(data.gates) || data.gates.length === 0) {
-        alert("AI generated no gates. Try describing the circuit differently.");
+        toast.warning("AI generated no gates. Try describing the circuit differently.");
         return false;
       }
       const rawGates = data.gates;
@@ -71,7 +73,7 @@ export function useAI({
       setTimeout(() => saveToHistory(), 0);
       return true;
     },
-    [setGates, setWires, setGateIdCounter, setWireIdCounter, setInputCounter, setOutputCounter, saveToHistory]
+    [setGates, setWires, setGateIdCounter, setWireIdCounter, setInputCounter, setOutputCounter, saveToHistory, toast]
   );
 
   const runAiGenerate = useCallback(
@@ -91,12 +93,12 @@ export function useAI({
         const data = res?.data || res;
         applyGeneratedCircuit(data);
       } catch (error) {
-        alert(error.message || "Could not generate circuit. Make sure backend is running.");
+        toast.error(error.message || "Could not generate circuit. Make sure backend is running.");
       } finally {
         setIsGenLoading(false);
       }
     },
-    [isGenLoading, inputGates, outputGates, gates, wires, applyGeneratedCircuit]
+    [isGenLoading, inputGates, outputGates, gates, wires, applyGeneratedCircuit, toast]
   );
 
   const handleGenerateCircuit = useCallback(() => {

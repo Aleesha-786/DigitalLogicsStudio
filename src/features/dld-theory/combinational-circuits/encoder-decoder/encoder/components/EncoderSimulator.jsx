@@ -13,6 +13,7 @@
 import React, { useState, useMemo } from "react";
 import { COLORS, bitIndicatorStyle } from "../../shared/theme.js";
 import TruthTable from "../../shared/components/TruthTable.jsx";
+import { useToast } from "../../../../../../shared/context/ToastContext";
 
 // ─── Sub: single input toggle button ──────────────────────────────────────────
 const InputToggle = ({ name, isActive, isWinner, onClick }) => {
@@ -51,83 +52,86 @@ const InputToggle = ({ name, isActive, isWinner, onClick }) => {
 };
 
 // ─── Sub: expandable equation row ─────────────────────────────────────────────
-const EquationRow = ({ eq, isExpanded, onToggle }) => (
-  <div
-    style={{
-      borderRadius: "14px",
-      border: `1px solid ${eq.color}40`,
-      background: COLORS.glassBg,
-      backdropFilter: "blur(10px)",
-      WebkitBackdropFilter: "blur(10px)",
-      marginBottom: "10px",
-      overflow: "hidden",
-      transition: "all 0.3s ease",
-    }}
-  >
+const EquationRow = ({ eq, isExpanded, onToggle }) => {
+  const toast = useToast();
+  return (
     <div
       style={{
-        width: "100%",
-        padding: "14px 18px",
-        background: isExpanded ? `${eq.color}15` : "transparent",
-        display: "flex",
-        justifyContent: "space-between",
-        alignItems: "center",
-        cursor: "pointer",
+        borderRadius: "14px",
+        border: `1px solid ${eq.color}40`,
+        background: COLORS.glassBg,
+        backdropFilter: "blur(10px)",
+        WebkitBackdropFilter: "blur(10px)",
+        marginBottom: "10px",
+        overflow: "hidden",
+        transition: "all 0.3s ease",
       }}
-      onClick={onToggle}
     >
-      <div style={{ display: "flex", alignItems: "center", gap: "12px" }}>
-        <code style={{ color: eq.color, fontFamily: "monospace", fontSize: "0.95rem", fontWeight: "800" }}>
-          {eq.eq}
-        </code>
-      </div>
-      <div style={{ display: "flex", alignItems: "center", gap: "15px" }}>
-        <button
-          onClick={(e) => {
-            e.stopPropagation();
-            navigator.clipboard.writeText(eq.eq);
-            alert("Equation copied!");
-          }}
-          style={{
-            padding: "2px 8px",
-            fontSize: "0.65rem",
-            background: "rgba(255,255,255,0.05)",
-            border: "1px solid rgba(255,255,255,0.1)",
-            color: COLORS.textSecondary,
-            borderRadius: "4px",
-            cursor: "pointer",
-            fontWeight: "700",
-          }}
-        >
-          📋 COPY
-        </button>
-        <span style={{ color: COLORS.textMuted, fontSize: "0.8rem" }}>
-          {isExpanded ? "▲" : "▼"}
-        </span>
-      </div>
-    </div>
-
-    {isExpanded && (
-      <div style={{ padding: "0 18px 18px", borderTop: `1px solid ${eq.color}20` }}>
-        <p style={{ color: COLORS.textSecondary, fontSize: "0.9rem", lineHeight: "1.7", margin: "16px 0" }}>
-          {eq.explanation}
-        </p>
-        <div
-          style={{
-            padding: "12px 16px",
-            background: `${eq.color}15`,
-            border: `1px solid ${eq.color}40`,
-            borderRadius: "10px",
-            boxShadow: `inset 0 0 10px ${eq.color}10`,
-          }}
-        >
-          <span style={{ color: eq.color, fontSize: "0.8rem", fontWeight: "800" }}>🎯 MEMORY TRICK: </span>
-          <span style={{ color: COLORS.textPrimary, fontSize: "0.85rem", opacity: 0.9 }}>{eq.trick}</span>
+      <div
+        style={{
+          width: "100%",
+          padding: "14px 18px",
+          background: isExpanded ? `${eq.color}15` : "transparent",
+          display: "flex",
+          justifyContent: "space-between",
+          alignItems: "center",
+          cursor: "pointer",
+        }}
+        onClick={onToggle}
+      >
+        <div style={{ display: "flex", alignItems: "center", gap: "12px" }}>
+          <code style={{ color: eq.color, fontFamily: "monospace", fontSize: "0.95rem", fontWeight: "800" }}>
+            {eq.eq}
+          </code>
+        </div>
+        <div style={{ display: "flex", alignItems: "center", gap: "15px" }}>
+          <button
+            onClick={(e) => {
+              e.stopPropagation();
+              navigator.clipboard.writeText(eq.eq);
+              toast.success("Equation copied!");
+            }}
+            style={{
+              padding: "2px 8px",
+              fontSize: "0.65rem",
+              background: "rgba(255,255,255,0.05)",
+              border: "1px solid rgba(255,255,255,0.1)",
+              color: COLORS.textSecondary,
+              borderRadius: "4px",
+              cursor: "pointer",
+              fontWeight: "700",
+            }}
+          >
+            📋 COPY
+          </button>
+          <span style={{ color: COLORS.textMuted, fontSize: "0.8rem" }}>
+            {isExpanded ? "▲" : "▼"}
+          </span>
         </div>
       </div>
-    )}
-  </div>
-);
+
+      {isExpanded && (
+        <div style={{ padding: "0 18px 18px", borderTop: `1px solid ${eq.color}20` }}>
+          <p style={{ color: COLORS.textSecondary, fontSize: "0.9rem", lineHeight: "1.7", margin: "16px 0" }}>
+            {eq.explanation}
+          </p>
+          <div
+            style={{
+              padding: "12px 16px",
+              background: `${eq.color}15`,
+              border: `1px solid ${eq.color}40`,
+              borderRadius: "10px",
+              boxShadow: `inset 0 0 10px ${eq.color}10`,
+            }}
+          >
+            <span style={{ color: eq.color, fontSize: "0.8rem", fontWeight: "800" }}>🎯 MEMORY TRICK: </span>
+            <span style={{ color: COLORS.textPrimary, fontSize: "0.85rem", opacity: 0.9 }}>{eq.trick}</span>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+};
 
 // ─── Main component ────────────────────────────────────────────────────────────
 const EncoderSimulator = ({ config, inputVals, setInputVals }) => {

@@ -16,9 +16,7 @@ export const SheetTabs = ({
   const handleDelete = (e, id) => {
     e.stopPropagation();
     if (sheets.length <= 1) return;
-    if (window.confirm('Delete this sheet? This cannot be undone.')) {
-      onDeleteSheet(id);
-    }
+    onDeleteSheet(id);
   };
 
   return (
