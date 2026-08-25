@@ -10,25 +10,47 @@ import {
   getICHeight,
 } from "../utils";
 
-// DEPRECATED: superseded by useSheets.js, which supports multiple
-// independent circuit sheets and mirrors this same state shape into a
-// single "active" circuit. Kept here as a lightweight, single-circuit
-// alternative for any embed/tooling that doesn't need multi-sheet support
-// (e.g. a future minimal circuit-only embed), and as a reference for the
-// CRUD logic that useSheets duplicates per-sheet.
-//
-// Centralises gates/wires state, id counters, and undo/redo history, plus
-// the CRUD-ish operations that mutate them (add/delete gate, rename,
-// copy/paste/duplicate, merge input gates). Canvas interaction (drag,
-// pan, wiring) stays in useCanvasInteractions and calls back into these
-// setters/helpers.
-export function useCircuitState({ portNames = null, containerRef } = {}) {
-  const [gates, setGates] = useState([]);
-  const [wires, setWires] = useState([]);
-  const [gateIdCounter, setGateIdCounter] = useState(0);
-  const [wireIdCounter, setWireIdCounter] = useState(0);
-  const [inputCounter, setInputCounter] = useState(0);
-  const [outputCounter, setOutputCounter] = useState(0);
+// ─── Sheet factory ──────────────────────────────────────────────────────────
+// Each sheet stores an independent circuit: gates, wires, id counters, and
+// undo/redo history. This mirrors the state previously owned by
+// useCircuitState, but now keyed per-sheet so multiple circuits can coexist.
+let sheetSeq = 0;
+function makeEmptySheet(name) {
+  sheetSeq += 1;
+  return {
+    id: `sheet-${Date.now()}-${sheetSeq}`,
+    name: name || `Sheet ${sheetSeq}`,
+    circuit: {
+      gates: [],
+      wires: [],
+      gateIdCounter: 0,
+      wireIdCounter: 0,
+      inputCounter: 0,
+      outputCounter: 0,
+      history: [],
+      historyIndex: -1,
+    },
+  };
+}
+
+// useSheets owns the collection of sheets and mirrors the "active" sheet's
+// circuit into live gates/wires/etc state so that all the existing circuit
+// hooks (useCanvasInteractions, useAI, useSimulation, useKeyboardShortcuts)
+// keep working unmodified — they just receive these values/setters as before.
+export function useSheets({ portNames = null, containerRef } = {}) {
+  const [sheets, setSheets] = useState(() => [makeEmptySheet("Sheet 1")]);
+  const [activeSheetId, setActiveSheetIdState] = useState(() => sheets[0].id);
+
+  // ── Live circuit state (mirrors the active sheet) ─────────────────────
+  const activeInit = sheets.find((s) => s.id === activeSheetId)?.circuit;
+  const [gates, setGates] = useState(activeInit?.gates ?? []);
+  const [wires, setWires] = useState(activeInit?.wires ?? []);
+  const [gateIdCounter, setGateIdCounter] = useState(activeInit?.gateIdCounter ?? 0);
+  const [wireIdCounter, setWireIdCounter] = useState(activeInit?.wireIdCounter ?? 0);
+  const [inputCounter, setInputCounter] = useState(activeInit?.inputCounter ?? 0);
+  const [outputCounter, setOutputCounter] = useState(activeInit?.outputCounter ?? 0);
+  const [history, setHistory] = useState(activeInit?.history ?? []);
+  const [historyIndex, setHistoryIndex] = useState(activeInit?.historyIndex ?? -1);
 
   const [selectedGate, setSelectedGate] = useState(null);
   const [selectedGateIds, setSelectedGateIds] = useState([]);
@@ -37,10 +59,21 @@ export function useCircuitState({ portNames = null, containerRef } = {}) {
   const [renamingGate, setRenamingGate] = useState(null);
   const [renameValue, setRenameValue] = useState("");
 
-  const [history, setHistory] = useState([]);
-  const [historyIndex, setHistoryIndex] = useState(-1);
-
   const copiedDataRef = useRef(null);
+
+  // Always-current snapshot of the live circuit, for persisting into the
+  // sheets array on switch (avoids stale-closure issues in setActiveSheetId).
+  const liveRef = useRef(null);
+  liveRef.current = {
+    gates,
+    wires,
+    gateIdCounter,
+    wireIdCounter,
+    inputCounter,
+    outputCounter,
+    history,
+    historyIndex,
+  };
 
   const gateMap = useMemo(() => {
     const map = new Map();
@@ -58,6 +91,107 @@ export function useCircuitState({ portNames = null, containerRef } = {}) {
   const generateOutputLabel = useCallback(
     (index) => portNames?.outputs?.[index] ?? `S${index}`,
     [portNames]
+  );
+
+  // ── Sheet switching ─────────────────────────────────────────────────────
+  const loadCircuitIntoLiveState = useCallback((circuit) => {
+    setGates(circuit.gates || []);
+    setWires(circuit.wires || []);
+    setGateIdCounter(circuit.gateIdCounter || 0);
+    setWireIdCounter(circuit.wireIdCounter || 0);
+    setInputCounter(circuit.inputCounter || 0);
+    setOutputCounter(circuit.outputCounter || 0);
+    setHistory(circuit.history || []);
+    setHistoryIndex(circuit.historyIndex ?? -1);
+    setSelectedGate(null);
+    setSelectedGateIds([]);
+    setSelectedWireIds([]);
+  }, []);
+
+  const setActiveSheetId = useCallback(
+    (id) => {
+      if (id === activeSheetId) return;
+      setSheets((prev) =>
+        prev.map((s) => (s.id === activeSheetId ? { ...s, circuit: liveRef.current } : s))
+      );
+      const target = sheets.find((s) => s.id === id);
+      if (target) loadCircuitIntoLiveState(target.circuit);
+      setActiveSheetIdState(id);
+    },
+    [activeSheetId, sheets, loadCircuitIntoLiveState]
+  );
+
+  const addSheet = useCallback(
+    (name) => {
+      const newSheet = makeEmptySheet(name);
+      setSheets((prev) => [
+        ...prev.map((s) => (s.id === activeSheetId ? { ...s, circuit: liveRef.current } : s)),
+        newSheet,
+      ]);
+      loadCircuitIntoLiveState(newSheet.circuit);
+      setActiveSheetIdState(newSheet.id);
+      return newSheet.id;
+    },
+    [activeSheetId, loadCircuitIntoLiveState]
+  );
+
+  const renameSheet = useCallback((id, newName) => {
+    const trimmed = (newName || "").trim();
+    if (!trimmed) return;
+    setSheets((prev) => prev.map((s) => (s.id === id ? { ...s, name: trimmed } : s)));
+  }, []);
+
+  const deleteSheet = useCallback(
+    (id) => {
+      setSheets((prev) => {
+        if (prev.length <= 1) return prev; // always keep at least one sheet
+        const remaining = prev.filter((s) => s.id !== id);
+        if (id === activeSheetId) {
+          const fallback = remaining[0];
+          loadCircuitIntoLiveState(fallback.circuit);
+          setActiveSheetIdState(fallback.id);
+          return remaining.map((s) =>
+            s.id === fallback.id ? { ...s, circuit: fallback.circuit } : s
+          );
+        }
+        return remaining;
+      });
+    },
+    [activeSheetId, loadCircuitIntoLiveState]
+  );
+
+  // Persisted view of sheets for save/load, always reflecting the live
+  // (active) circuit rather than the possibly-stale snapshot in `sheets`.
+  const sheetsSnapshot = useMemo(
+    () =>
+      sheets.map((s) => (s.id === activeSheetId ? { ...s, circuit: liveRef.current } : s)),
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [sheets, activeSheetId, gates, wires, gateIdCounter, wireIdCounter, inputCounter, outputCounter, history, historyIndex]
+  );
+
+  // Load an entirely new sheets array (used by "Load Project" / import).
+  const loadSheets = useCallback(
+    (newSheets) => {
+      if (!Array.isArray(newSheets) || newSheets.length === 0) return;
+      const normalized = newSheets.map((s, i) => ({
+        id: s.id || `sheet-${Date.now()}-${i}`,
+        name: s.name || `Sheet ${i + 1}`,
+        circuit: {
+          gates: s.circuit?.gates || s.gates || [],
+          wires: s.circuit?.wires || s.wires || [],
+          gateIdCounter: s.circuit?.gateIdCounter ?? s.gateIdCounter ?? 0,
+          wireIdCounter: s.circuit?.wireIdCounter ?? s.wireIdCounter ?? 0,
+          inputCounter: s.circuit?.inputCounter ?? s.inputCounter ?? 0,
+          outputCounter: s.circuit?.outputCounter ?? s.outputCounter ?? 0,
+          history: [],
+          historyIndex: -1,
+        },
+      }));
+      setSheets(normalized);
+      setActiveSheetIdState(normalized[0].id);
+      loadCircuitIntoLiveState(normalized[0].circuit);
+    },
+    [loadCircuitIntoLiveState]
   );
 
   // ── History ────────────────────────────────────────────────────────────
@@ -106,7 +240,7 @@ export function useCircuitState({ portNames = null, containerRef } = {}) {
     }
   }, [history, historyIndex]);
 
-  // ── Gate CRUD ──────────────────────────────────────────────────────────
+  // ── Gate CRUD (identical logic to useCircuitState) ─────────────────────
   const snapToGrid = useCallback(
     (value) => (SNAP_TO_GRID ? Math.round(value / GRID_SIZE) * GRID_SIZE : value),
     []
@@ -390,8 +524,23 @@ export function useCircuitState({ portNames = null, containerRef } = {}) {
     setHistoryIndex(-1);
   }, []);
 
+  const activeSheet = useMemo(
+    () => sheetsSnapshot.find((s) => s.id === activeSheetId) || sheetsSnapshot[0],
+    [sheetsSnapshot, activeSheetId]
+  );
+
   return {
-    // state
+    // sheets
+    sheets: sheetsSnapshot,
+    activeSheetId,
+    activeSheet,
+    setActiveSheetId,
+    addSheet,
+    renameSheet,
+    deleteSheet,
+    loadSheets,
+
+    // live circuit state (mirrors active sheet) — same shape as useCircuitState
     gates, setGates,
     wires, setWires,
     gateIdCounter, setGateIdCounter,

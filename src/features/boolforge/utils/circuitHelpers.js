@@ -98,4 +98,3 @@ export function deriveExpression(gate, gatesArray, wires, depth = 0, visited = n
     default: return `${gate.type}(${slots.join(",")})`;
   }
 }
-

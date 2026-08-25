@@ -28,18 +28,10 @@ export const CircuitControls = ({
   redo,
   historyIndex,
   history,
-  // save/load
+  // save/load (multi-sheet project)
   gates,
-  gateIdCounter,
-  wireIdCounter,
-  inputCounter,
-  outputCounter,
-  setGates,
-  setWires,
-  setGateIdCounter,
-  setWireIdCounter,
-  setInputCounter,
-  setOutputCounter,
+  sheets,
+  loadSheets,
   saveToHistory,
   clearCircuit,
   // zoom
@@ -101,7 +93,7 @@ export const CircuitControls = ({
       <div className="controls">
         <button className="btn" onClick={undo} disabled={historyIndex <= 0}>↶ Undo</button>
         <button className="btn" onClick={redo} disabled={historyIndex >= history.length - 1}>↷ Redo</button>
-        <SaveAndLoad data={{ gates, wires, gateIdCounter, wireIdCounter, inputCounter, outputCounter }} setGates={setGates} setWires={setWires} setGateIdCounter={setGateIdCounter} setWireIdCounter={setWireIdCounter} setInputCounter={setInputCounter} setOutputCounter={setOutputCounter} saveToHistory={saveToHistory} />
+        <SaveAndLoad sheets={sheets} loadSheets={loadSheets} />
         <button className="btn danger" onClick={clearCircuit}>🗑️ Clear All</button>
       </div>
 
