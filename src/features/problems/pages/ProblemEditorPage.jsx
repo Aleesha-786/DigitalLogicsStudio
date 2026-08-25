@@ -4,7 +4,7 @@ import { ArrowLeft, Trash2 } from "lucide-react";
 import { useTheme } from "../../../shared/context/ThemeContext";
 import Navbar from "../../../shared/components/navbar";
 import { useProblemsCatalog } from "../hooks";
-import { Toast } from "../components";
+import { Toast } from "../../../shared/components/Toast";
 import "../styles/ProblemsPage.css";
 import "../styles/ProblemEditorPage.css";
 
