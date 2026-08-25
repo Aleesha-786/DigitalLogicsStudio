@@ -73,7 +73,7 @@ export function useAI({
       setTimeout(() => saveToHistory(), 0);
       return true;
     },
-    [setGates, setWires, setGateIdCounter, setWireIdCounter, setInputCounter, setOutputCounter, saveToHistory]
+    [setGates, setWires, setGateIdCounter, setWireIdCounter, setInputCounter, setOutputCounter, saveToHistory, toast]
   );
 
   const runAiGenerate = useCallback(
@@ -98,7 +98,7 @@ export function useAI({
         setIsGenLoading(false);
       }
     },
-    [isGenLoading, inputGates, outputGates, gates, wires, applyGeneratedCircuit]
+    [isGenLoading, inputGates, outputGates, gates, wires, applyGeneratedCircuit, toast]
   );
 
   const handleGenerateCircuit = useCallback(() => {

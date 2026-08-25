@@ -1,5 +1,6 @@
 import { useState, useCallback, useRef, useMemo } from "react";
 import { IC_META, IC_TYPES } from "../../../shared/data/gates";
+import { useToast } from "../../../shared/context/ToastContext";
 import {
   MAX_GATE_INPUTS,
   MIN_GATE_INPUTS,
@@ -36,6 +37,7 @@ function makeEmptySheet(name, index) {
 // hooks (useCanvasInteractions, useAI, useSimulation, useKeyboardShortcuts)
 // keep working unmodified — they just receive these values/setters as before.
 export function useSheets({ portNames = null, containerRef } = {}) {
+  const toast = useToast();
   const [sheets, setSheets] = useState(() => [makeEmptySheet("Sheet 1", 1)]);
   const [activeSheetId, setActiveSheetIdState] = useState(() => sheets[0].id);
 
@@ -143,19 +145,23 @@ export function useSheets({ portNames = null, containerRef } = {}) {
     (id) => {
       setSheets((prev) => {
         if (prev.length <= 1) return prev; // always keep at least one sheet
+        const targetSheet = prev.find((s) => s.id === id);
+        const name = targetSheet ? targetSheet.name : "Sheet";
         const remaining = prev.filter((s) => s.id !== id);
         if (id === activeSheetId) {
           const fallback = remaining[0];
           loadCircuitIntoLiveState(fallback.circuit);
           setActiveSheetIdState(fallback.id);
+          toast.success(`Deleted "${name}".`);
           return remaining.map((s) =>
             s.id === fallback.id ? { ...s, circuit: fallback.circuit } : s
           );
         }
+        toast.success(`Deleted "${name}".`);
         return remaining;
       });
     },
-    [activeSheetId, loadCircuitIntoLiveState]
+    [activeSheetId, loadCircuitIntoLiveState, toast]
   );
 
   // Persisted view of sheets for save/load, always reflecting the live
@@ -254,7 +260,6 @@ export function useSheets({ portNames = null, containerRef } = {}) {
         targets = selectedGateIds;
       }
       if (targets.length === 0) return;
-      if (!window.confirm(`Are you sure you want to delete the ${targets.length} selected component(s)?`)) return;
 
       setGates((prev) => prev.filter((g) => !targets.includes(g.id)));
       setWires((prev) =>
@@ -274,8 +279,9 @@ export function useSheets({ portNames = null, containerRef } = {}) {
       setSelectedGateIds((prev) => prev.filter((id) => !targets.includes(id)));
       setSelectedGate(null);
       saveToHistory();
+      toast.success(`Deleted ${targets.length} component(s).`);
     },
-    [selectedGateIds, gates, saveToHistory]
+    [selectedGateIds, gates, saveToHistory, toast]
   );
 
   const addGate = useCallback(
