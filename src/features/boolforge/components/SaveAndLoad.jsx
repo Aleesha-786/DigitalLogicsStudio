@@ -2,16 +2,9 @@ import { useState, useRef } from "react";
 
 const STORAGE_KEY = "logic_editor_saved_projects_v1";
 
-export function SaveAndLoad({
-  data,
-  setGates,
-  setWires,
-  setGateIdCounter,
-  setWireIdCounter,
-  setInputCounter,
-  setOutputCounter,
-  saveToHistory,
-}) {
+// `sheets` is the full multi-sheet project: [{ id, name, circuit }, ...]
+// `loadSheets(sheetsArray)` replaces the whole project with the given sheets.
+export function SaveAndLoad({ sheets, loadSheets }) {
   const [showSave, setShowSave] = useState(false);
   const [showLoad, setShowLoad] = useState(false);
   const [projectName, setProjectName] = useState("");
@@ -36,7 +29,7 @@ export function SaveAndLoad({
 
     projects[projectName] = {
       versions: [
-        { ...data, time: Date.now() },
+        { sheets, time: Date.now() },
         ...(projects[projectName]?.versions || []),
       ].slice(0, 10),
     };
@@ -47,13 +40,25 @@ export function SaveAndLoad({
   };
 
   const loadSnapshot = (snap) => {
-    setGates(snap.gates || []);
-    setWires(snap.wires || []);
-    setGateIdCounter(snap.gateIdCounter || 0);
-    setWireIdCounter(snap.wireIdCounter || 0);
-    setInputCounter(snap.inputCounter || 0);
-    setOutputCounter(snap.outputCounter || 0);
-    saveToHistory();
+    // Back-compat: older saves stored a single circuit (gates/wires/...)
+    // instead of a sheets array. Wrap it into a single-sheet project.
+    if (Array.isArray(snap.sheets) && snap.sheets.length > 0) {
+      loadSheets(snap.sheets);
+    } else if (Array.isArray(snap.gates)) {
+      loadSheets([
+        {
+          name: "Sheet 1",
+          circuit: {
+            gates: snap.gates || [],
+            wires: snap.wires || [],
+            gateIdCounter: snap.gateIdCounter || 0,
+            wireIdCounter: snap.wireIdCounter || 0,
+            inputCounter: snap.inputCounter || 0,
+            outputCounter: snap.outputCounter || 0,
+          },
+        },
+      ]);
+    }
     setShowLoad(false);
   };
 
@@ -64,21 +69,21 @@ export function SaveAndLoad({
     setShowLoad(true);
   };
 
-  // ── Export: download current circuit as a JSON file ──────────────────────
+  // ── Export: download current project (all sheets) as a JSON file ─────────
   const exportJSON = () => {
-    const exportData = { ...data, exportedAt: new Date().toISOString() };
+    const exportData = { sheets, exportedAt: new Date().toISOString() };
     const blob = new Blob([JSON.stringify(exportData, null, 2)], {
       type: "application/json",
     });
     const url = URL.createObjectURL(blob);
     const a = document.createElement("a");
     a.href = url;
-    a.download = `boolforge-circuit-${Date.now()}.json`;
+    a.download = `boolforge-project-${Date.now()}.json`;
     a.click();
     URL.revokeObjectURL(url);
   };
 
-  // ── Import: read a JSON file and load it as the current circuit ───────────
+  // ── Import: read a JSON file and load it as the current project ──────────
   const handleImportFile = (e) => {
     const file = e.target.files?.[0];
     if (!file) return;
@@ -90,10 +95,12 @@ export function SaveAndLoad({
       try {
         const parsed = JSON.parse(event.target.result);
 
-        // Basic validation — make sure it looks like a circuit snapshot
-        if (!Array.isArray(parsed.gates) || !Array.isArray(parsed.wires)) {
+        const looksLikeSheets = Array.isArray(parsed.sheets) && parsed.sheets.length > 0;
+        const looksLikeLegacyCircuit = Array.isArray(parsed.gates) && Array.isArray(parsed.wires);
+
+        if (!looksLikeSheets && !looksLikeLegacyCircuit) {
           setImportError(
-            "Invalid file: missing gates or wires. Is this a Boolforge JSON?",
+            "Invalid file: missing sheets/gates/wires. Is this a Boolforge JSON?",
           );
           return;
         }
@@ -137,7 +144,7 @@ export function SaveAndLoad({
       <button
         className="logic-circuit-project-manager-primary-action-button"
         onClick={exportJSON}
-        title="Export current circuit as a JSON file to your computer"
+        title="Export current project (all sheets) as a JSON file to your computer"
       >
         ⬇ Export JSON
       </button>

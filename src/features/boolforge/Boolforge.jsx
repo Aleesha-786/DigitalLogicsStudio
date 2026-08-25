@@ -6,10 +6,10 @@ import Footer from "../../shared/components/Footer";
 import { useTheme } from "../../shared/context/ThemeContext";
 import "./Boolforge.css";
 
-import { Sidebar, RenameModal, CircuitCanvas, CircuitControls } from "./components";
+import { Sidebar, RenameModal, CircuitCanvas, CircuitControls} from "./components";
 import {
   useKeyboardShortcuts,
-  useCircuitState,
+  useSheets,
   useCanvasInteractions,
   useSimulation,
   useAI,
@@ -36,15 +36,19 @@ const Boolforge = ({
   const hasAutoBuilt = useRef(false);
   const lastSyncKeyRef = useRef(null);
 
-  // CIRCUIT STATE (gates, wires, counters, history, CRUD)
-  const circuit = useCircuitState({ portNames, containerRef });
+  // SHEETS + CIRCUIT STATE (gates, wires, counters, history, CRUD) —
+  // useSheets manages multiple independent circuit sheets and mirrors the
+  // active sheet's circuit into the same live gates/wires/etc state shape
+  // that useCircuitState used to provide, so downstream hooks are unchanged.
+  const circuit = useSheets({ portNames, containerRef });
   const {
+    sheets, activeSheetId, setActiveSheetId, addSheet, renameSheet, deleteSheet, loadSheets,
     gates, setGates,
     wires, setWires,
-    gateIdCounter, setGateIdCounter,
+    setGateIdCounter,
     wireIdCounter, setWireIdCounter,
-    inputCounter, setInputCounter,
-    outputCounter, setOutputCounter,
+    setInputCounter,
+    setOutputCounter,
     selectedGate, setSelectedGate,
     selectedGateIds, setSelectedGateIds,
     selectedWireIds, setSelectedWireIds,
@@ -308,6 +312,13 @@ const Boolforge = ({
         completeConnection={completeConnection}
         containerRef={containerRef}
         canvasRef={canvasRef}
+        sheets={sheets}
+        activeSheetId={activeSheetId}
+        onSwitchSheet={setActiveSheetId}
+        onAddSheet={addSheet}
+        onRenameSheet={renameSheet}
+        onDeleteSheet={deleteSheet}
+        embedded={embedded}
       />
 
       {/* RIGHT PANEL / CONTROLS COMPONENT */}
@@ -334,16 +345,8 @@ const Boolforge = ({
         historyIndex={historyIndex}
         history={history}
         gates={gates}
-        gateIdCounter={gateIdCounter}
-        wireIdCounter={wireIdCounter}
-        inputCounter={inputCounter}
-        outputCounter={outputCounter}
-        setGates={setGates}
-        setWires={setWires}
-        setGateIdCounter={setGateIdCounter}
-        setWireIdCounter={setWireIdCounter}
-        setInputCounter={setInputCounter}
-        setOutputCounter={setOutputCounter}
+        sheets={sheets}
+        loadSheets={loadSheets}
         saveToHistory={saveToHistory}
         clearCircuit={clearCircuit}
         zoom={zoom}
