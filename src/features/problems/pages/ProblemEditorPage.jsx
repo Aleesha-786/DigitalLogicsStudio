@@ -4,7 +4,7 @@ import { ArrowLeft, Trash2 } from "lucide-react";
 import { useTheme } from "../../../shared/context/ThemeContext";
 import Navbar from "../../../shared/components/navbar";
 import { useProblemsCatalog } from "../hooks";
-import Toast from "../../../shared/components/Toast";
+import { useToast } from "../../../shared/context/ToastContext";
 import "../styles/ProblemsPage.css";
 import "../styles/ProblemEditorPage.css";
 
@@ -76,12 +76,12 @@ export default function ProblemEditorPage() {
     return problemsCatalog.find((p) => String(p.id) === String(problemId)) || null;
   }, [isCreate, problemsCatalog, problemId]);
 
+  const toast = useToast();
   const [form, setForm] = React.useState(emptyForm);
   const [truthTable, setTruthTable] = React.useState([]);
   const [error, setError] = React.useState(null);
   const [saving, setSaving] = React.useState(false);
   const [deleting, setDeleting] = React.useState(false);
-  const [toast, setToast] = React.useState(null);
   const [hydrated, setHydrated] = React.useState(isCreate);
 
   React.useEffect(() => {
@@ -160,10 +160,7 @@ export default function ProblemEditorPage() {
       } else {
         await editProblem(existingProblem.id, payload);
       }
-      setToast({
-        tone: "success",
-        message: isCreate ? "Problem created." : "Problem updated.",
-      });
+      toast.success(isCreate ? "Problem created." : "Problem updated.");
       setTimeout(() => navigate("/problems"), 600);
     } catch (err) {
       // 403 = role gate rejected server-side even though the route was
@@ -188,7 +185,7 @@ export default function ProblemEditorPage() {
     setError(null);
     try {
       await removeProblem(existingProblem.id);
-      setToast({ tone: "success", message: "Problem deleted." });
+      toast.success("Problem deleted.");
       setTimeout(() => navigate("/problems"), 500);
     } catch (err) {
       setError(err?.response?.data?.message || "Failed to delete problem.");
@@ -378,12 +375,6 @@ export default function ProblemEditorPage() {
           </form>
         </div>
       </main>
-
-      <Toast
-        message={toast?.message}
-        tone={toast?.tone}
-        onDismiss={() => setToast(null)}
-      />
     </div>
   );
 }

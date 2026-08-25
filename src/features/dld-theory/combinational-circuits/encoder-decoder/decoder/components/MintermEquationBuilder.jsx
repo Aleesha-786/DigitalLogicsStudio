@@ -13,6 +13,7 @@
  */
 import React, { useState } from "react";
 import { COLORS } from "../../shared/theme.js";
+import { useToast } from "../../../../../../shared/context/ToastContext";
 
 // Generate input names for n bits: A, B, C... or A0, A1, A2...
 const makeInputNames = (n) => {
@@ -21,6 +22,7 @@ const makeInputNames = (n) => {
 };
 
 const MintermEquationBuilder = () => {
+  const toast = useToast();
   const [numBits, setNumBits] = useState(2); // number of address bits
   const [selectedMinterm, setSelectedMinterm] = useState(0); // which output Di to explore
 
@@ -146,7 +148,7 @@ const MintermEquationBuilder = () => {
           <button
             onClick={() => {
               navigator.clipboard.writeText(`D${selectedMinterm} = ${equation}`);
-              alert("Equation copied to clipboard!");
+              toast.success("Equation copied to clipboard!");
             }}
             style={{
               padding: "4px 10px",
