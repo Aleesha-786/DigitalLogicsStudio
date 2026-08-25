@@ -1,5 +1,6 @@
 import React from "react";
 import { gateSymbols, IC_META, IC_TYPES } from "../../../shared/data/gates";
+import { SheetTabs } from './SheetTabs';
 import {
   MULTI_INPUT_GATES,
   MAX_GATE_INPUTS,
@@ -56,6 +57,13 @@ export const CircuitCanvas = ({
   completeConnection,
   containerRef,
   canvasRef,
+  sheets = [],
+  activeSheetId = null,
+  onSwitchSheet = () => {},
+  onAddSheet = () => {},
+  onRenameSheet = () => {},
+  onDeleteSheet = () => {},
+  embedded = false,
 }) => {
   return (
     <div className={`canvas-container${connectingFrom ? " is-wiring" : ""}`} ref={containerRef}>
@@ -203,6 +211,19 @@ export const CircuitCanvas = ({
         <button className="canvas-overlay-btn" onClick={() => setZoom((z) => Math.min(3, z * 1.2))}>+</button>
         <button className="canvas-overlay-btn" onClick={() => setZoom((z) => Math.max(0.3, z * 0.8))}>−</button>
       </div>
+
+    {!embedded && (
+        <div className="canvas-sheet-tabs-wrapper">
+          <SheetTabs
+            sheets={sheets}
+            activeSheetId={activeSheetId}
+            onSwitchSheet={onSwitchSheet}
+            onAddSheet={onAddSheet}
+            onRenameSheet={onRenameSheet}
+            onDeleteSheet={onDeleteSheet}
+          />
+        </div>
+      )}
     </div>
   );
 };

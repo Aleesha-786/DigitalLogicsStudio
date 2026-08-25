@@ -6,7 +6,7 @@ import Footer from "../../shared/components/Footer";
 import { useTheme } from "../../shared/context/ThemeContext";
 import "./Boolforge.css";
 
-import { Sidebar, RenameModal, CircuitCanvas, CircuitControls, SheetTabs } from "./components";
+import { Sidebar, RenameModal, CircuitCanvas, CircuitControls} from "./components";
 import {
   useKeyboardShortcuts,
   useSheets,
@@ -312,21 +312,14 @@ const Boolforge = ({
         completeConnection={completeConnection}
         containerRef={containerRef}
         canvasRef={canvasRef}
+        sheets={sheets}
+        activeSheetId={activeSheetId}
+        onSwitchSheet={setActiveSheetId}
+        onAddSheet={addSheet}
+        onRenameSheet={renameSheet}
+        onDeleteSheet={deleteSheet}
+        embedded={embedded}
       />
-
-      {/* SHEET TABS — bottom-left of the canvas, lets the user switch/add/
-          rename/delete independent circuit sheets. Hidden in embedded mode
-          to keep the compact modal view uncluttered. */}
-      {!embedded && (
-        <SheetTabs
-          sheets={sheets}
-          activeSheetId={activeSheetId}
-          onSwitchSheet={setActiveSheetId}
-          onAddSheet={addSheet}
-          onRenameSheet={renameSheet}
-          onDeleteSheet={deleteSheet}
-        />
-      )}
 
       {/* RIGHT PANEL / CONTROLS COMPONENT */}
       <CircuitControls

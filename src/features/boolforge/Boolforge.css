@@ -925,6 +925,20 @@ body:has(.boolforge-page) {
   cursor: not-allowed;
 }
 
+.canvas-container {
+  position: relative;
+  overflow: hidden; 
+}
+
+.canvas-sheet-tabs-wrapper {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  z-index: 20; 
+  pointer-events: auto; 
+  max-width: 100%;
+  overflow-x: auto;
+}
 
 /* ── Sheet Tabs (multi-sheet circuits) ───────────────────────────────────── */
 .sheet-tabs-wrapper {
