@@ -247,7 +247,8 @@
 }
 
 [data-theme='light'] .dls-mentor-launcher {
-  background: transparent;
+  background: linear-gradient(145deg, #ffffff 0%, #f8fafc 100%);
+  border-color: rgba(180, 140, 20, 0.7);
 }
 
 [data-theme='light'] .dls-mentor-panel {
