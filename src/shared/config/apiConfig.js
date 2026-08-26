@@ -56,6 +56,12 @@ export function resolveAiBaseUrl() {
   return `${resolveApiBaseUrl()}/ai`;
 }
 
+// Circuit generate/hint live on the main DLS backend (/api/ai/...), not the
+// BoolMentor chatbot (REACT_APP_AI_URL, often localhost:5100).
+export function resolveCircuitAiBaseUrl() {
+  return `${resolveApiBaseUrl()}/ai`;
+}
+
 const DEFAULT_CIRCUITMIND_API_URL =
   process.env.NODE_ENV === "production"
     ? "https://circuit-mind-two.vercel.app"
