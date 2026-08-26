@@ -2,6 +2,7 @@ import { useState, useCallback } from "react";
 import { getCircuitHint } from "../../../shared/services/circuitMindService";
 import { generateAiCircuit } from "../../../shared/services/aiService";
 import { useToast } from "../../../shared/context/ToastContext";
+import { layoutGeneratedCircuit } from "../utils/layoutGeneratedCircuit";
 
 // Self-contained AI integration: prompt state, hint requests, and circuit
 // generation (with the messy "figure out which raw nodes are inputs /
@@ -60,7 +61,10 @@ export function useAI({
         };
       });
 
-      const finalGates = [...finalInputs, ...formattedLogic, ...finalOutputs];
+      const finalGates = layoutGeneratedCircuit(
+        [...finalInputs, ...formattedLogic, ...finalOutputs],
+        rawWires,
+      );
       const maxGateId = Math.max(...finalGates.map((g) => Number(g.id) || 0), 0) + 1;
       const maxWireId = Math.max(...rawWires.map((w) => Number(w.id) || 0), 0) + 1;
 
