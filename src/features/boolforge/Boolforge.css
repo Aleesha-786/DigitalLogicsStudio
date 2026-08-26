@@ -297,6 +297,11 @@ body:has(.boolforge-page) {
 /* ── Light-mode overrides for the circuit tool surfaces ──────────────────── */
 /* styles.css defines --bg-dark/medium/light with dark values only.
    These overrides ensure the sidebars and canvas look correct in light mode. */
+.boolforge-main .truth-table-panel {
+  /* Leave room for the fixed BoolMentor launcher in the bottom-right */
+  padding-bottom: 88px;
+}
+
 [data-theme="light"] .boolforge-main .sidebar,
 [data-theme="light"] .boolforge-main .truth-table-panel {
   background: var(--bg-medium);
