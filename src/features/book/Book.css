@@ -1,0 +1,239 @@
+/* ============================================
+   BOOK FEATURE — SHARED THEMED STYLES
+   Built entirely on the CSS variables defined in
+   styles.css (:root and [data-theme="light"]).
+   Nothing here hardcodes a color, so every piece
+   below already supports light/dark automatically.
+   ============================================ */
+
+/* ---- Concept sections (used throughout detailed explanations) ---- */
+.concept-section {
+  margin-bottom: var(--spacing-lg);
+}
+
+.concept-section:last-child {
+  margin-bottom: 0;
+}
+
+.concept-section h6 {
+  font-family: var(--font-mono);
+  font-size: 0.95rem;
+  font-weight: 700;
+  color: var(--color-accent-primary);
+  margin-bottom: var(--spacing-sm);
+}
+
+.simple-explanation {
+  color: var(--color-text-secondary);
+  line-height: 1.75;
+  font-size: 0.92rem;
+  margin-bottom: var(--spacing-sm);
+}
+
+.simple-explanation:last-child {
+  margin-bottom: 0;
+}
+
+.simple-explanation strong {
+  color: var(--color-text-primary);
+}
+
+/* ---- Short answer box (inside every ProblemCard) ---- */
+.short-answer-box {
+  background: rgba(16, 185, 129, 0.08);
+  border: 1px solid var(--color-accent-green);
+  border-radius: var(--radius-md);
+  padding: var(--spacing-md) var(--spacing-lg);
+  margin-bottom: var(--spacing-md);
+}
+
+.short-answer-title {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-sm);
+  color: var(--color-accent-green);
+  font-family: var(--font-mono);
+  font-weight: 700;
+  font-size: 0.95rem;
+  margin: 0 0 var(--spacing-sm) 0;
+}
+
+.short-answer-content {
+  color: var(--color-text-primary);
+}
+
+.answer-text {
+  line-height: 1.7;
+  font-size: 0.95rem;
+  margin: 0;
+}
+
+/* ---- Application steps (numbered "what the computer does" lists) ---- */
+.application-item {
+  display: flex;
+  gap: var(--spacing-md);
+  align-items: flex-start;
+  margin-bottom: var(--spacing-md);
+  color: var(--color-text-secondary);
+  font-size: 0.92rem;
+  line-height: 1.7;
+}
+
+.application-item:last-of-type {
+  margin-bottom: var(--spacing-sm);
+}
+
+.application-item strong {
+  color: var(--color-text-primary);
+}
+
+.app-bullet {
+  flex-shrink: 0;
+  width: 1.75rem;
+  height: 1.75rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  background: rgba(96, 165, 250, 0.15);
+  color: var(--color-accent-primary);
+  font-family: var(--font-mono);
+  font-weight: 700;
+  font-size: 0.8rem;
+}
+
+/* ---- Binary visual blocks (e.g. "all switches ON") ---- */
+.binary-visual {
+  margin-bottom: var(--spacing-md);
+}
+
+.binary-visual strong {
+  display: block;
+  color: var(--color-text-secondary);
+  font-size: 0.85rem;
+  margin-bottom: var(--spacing-xs);
+}
+
+.binary-display {
+  font-family: var(--font-mono);
+  font-size: 1.1rem;
+  letter-spacing: 3px;
+  color: var(--color-accent-green);
+  background: var(--color-bg-primary);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-sm);
+  padding: var(--spacing-sm) var(--spacing-md);
+  word-break: break-all;
+}
+
+/* ---- Calculation steps ---- */
+.calculation-steps {
+  background: var(--color-bg-primary);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-sm);
+  padding: var(--spacing-md);
+  margin-bottom: var(--spacing-md);
+}
+
+.calculation-steps > strong {
+  display: block;
+  color: var(--color-accent-secondary);
+  font-family: var(--font-mono);
+  font-size: 0.85rem;
+  margin-bottom: var(--spacing-sm);
+}
+
+.calc-step {
+  font-family: var(--font-mono);
+  font-size: 0.9rem;
+  color: var(--color-text-secondary);
+  padding: 2px 0;
+}
+
+/* ---- Answer highlight ---- */
+.answer-highlight {
+  background: rgba(16, 185, 129, 0.08);
+  border-left: 4px solid var(--color-accent-green);
+  border-radius: var(--radius-sm);
+  padding: var(--spacing-md);
+  margin: var(--spacing-md) 0;
+  color: var(--color-text-primary);
+  font-size: 0.95rem;
+}
+
+.answer-highlight strong {
+  color: var(--color-accent-green);
+}
+
+.answer-highlight code {
+  color: var(--color-accent-green);
+  font-weight: 700;
+}
+
+/* ---- Formula display ---- */
+.formula-display {
+  background: var(--color-bg-tertiary);
+  border-left: 4px solid var(--color-accent-amber);
+  border-radius: var(--radius-sm);
+  padding: var(--spacing-md);
+  margin-bottom: var(--spacing-sm);
+  font-family: var(--font-mono);
+  color: var(--color-text-primary);
+}
+
+/* ---- Reference table wrapper (reuses table look of conversion-table) ---- */
+.reference-table {
+  overflow-x: auto;
+  margin: var(--spacing-md) 0;
+  border-radius: var(--radius-md);
+  border: 1px solid var(--color-border);
+}
+
+.reference-table table {
+  width: 100%;
+  border-collapse: collapse;
+  font-family: var(--font-mono);
+  font-size: 0.85rem;
+  background: var(--color-bg-primary);
+}
+
+.reference-table th {
+  background: var(--color-bg-tertiary);
+  color: var(--color-accent-primary);
+  padding: var(--spacing-sm) var(--spacing-md);
+  text-align: left;
+  border-bottom: 2px solid var(--color-accent-primary);
+  font-weight: 700;
+}
+
+.reference-table td {
+  padding: var(--spacing-sm) var(--spacing-md);
+  border-bottom: 1px solid var(--color-border);
+  color: var(--color-text-secondary);
+  text-align: center;
+}
+
+.reference-table tr:hover td {
+  background: rgba(96, 165, 250, 0.05);
+}
+
+/* ---- Key takeaway box (distinct from the existing .key-insight) ---- */
+.key-takeaway {
+  background: rgba(96, 165, 250, 0.08);
+  border: 1px dashed var(--color-accent-primary);
+  border-radius: var(--radius-md);
+  padding: var(--spacing-lg);
+  margin-top: var(--spacing-lg);
+}
+
+.key-takeaway h6 {
+  color: var(--color-accent-primary);
+  font-family: var(--font-mono);
+  font-size: 0.95rem;
+  margin-bottom: var(--spacing-sm);
+}
+
+/* ---- Small utility used inside a few detailed explanations ---- */
+.simple-explanation.list-block {
+  padding-left: 1.25rem;
+}
