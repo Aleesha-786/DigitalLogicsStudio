@@ -5,7 +5,7 @@ import Navbar from "../../shared/components/navbar";
 import { useTheme } from "../../shared/context/ThemeContext";
 import "./Boolforge.css";
 
-import { Sidebar, RenameModal, CircuitCanvas, ToolbarRibbon } from "./components";
+import { Sidebar, RenameModal, CircuitCanvas, ToolbarRibbon, ZoomWidget } from "./components";
 import {
   useKeyboardShortcuts,
   useSheets,
@@ -286,15 +286,19 @@ const Boolforge = ({
         loadSheets={loadSheets}
         saveToHistory={saveToHistory}
         clearCircuit={clearCircuit}
-        zoom={zoom}
-        setZoom={setZoom}
-        setPanOffset={setPanOffset}
-        fitToView={fitToView}
         selectionToolActive={selectionToolActive}
         setSelectionToolActive={setSelectionToolActive}
         theme={theme}
         toggleTheme={toggleTheme}
         onToggleFullScreen={() => setFullScreen(!fullScreen)} 
+      />
+    
+      {/*Zoom Widget*/}
+      <ZoomWidget
+        zoom={zoom}
+        setZoom={setZoom}
+        setPanOffset={setPanOffset}
+        fitToView={fitToView}
       />
 
       {/* WORKSPACE — sidebar + canvas, below the ribbon */}
