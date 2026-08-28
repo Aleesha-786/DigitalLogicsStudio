@@ -5,7 +5,7 @@ import Navbar from "../../shared/components/navbar";
 import { useTheme } from "../../shared/context/ThemeContext";
 import "./Boolforge.css";
 
-import { Sidebar, RenameModal, CircuitCanvas, ToolbarRibbon, ZoomWidget } from "./components";
+import { Sidebar, RenameModal, CircuitCanvas, ToolbarRibbon } from "./components";
 import {
   useKeyboardShortcuts,
   useSheets,
@@ -27,6 +27,9 @@ const Boolforge = ({
 
   // ── UI shell state ──────────────────────────────────────────────────────
   const [fullScreen, setFullScreen] = useState(false);
+
+  const [showSimulate, setShowSimulate] = useState(false);
+  const [showAIPanel, setShowAIPanel] = useState(false);
 
   // ── Refs shared across hooks ─────────────────────────────────────────────
   const canvasRef = useRef(null);
@@ -291,16 +294,12 @@ const Boolforge = ({
         theme={theme}
         toggleTheme={toggleTheme}
         onToggleFullScreen={() => setFullScreen(!fullScreen)} 
+        showSimulate={showSimulate}
+        onToggleSimulate={() => setShowSimulate((v) => !v)}
+        showAI={showAIPanel}
+        onToggleAI={() => setShowAIPanel((v) => !v)}
       />
     
-      {/*Zoom Widget*/}
-      <ZoomWidget
-        zoom={zoom}
-        setZoom={setZoom}
-        setPanOffset={setPanOffset}
-        fitToView={fitToView}
-      />
-
       {/* WORKSPACE — sidebar + canvas, below the ribbon */}
       <div className="circuit-workspace">
         {/* SIDEBAR COMPONENT */}
@@ -363,6 +362,25 @@ const Boolforge = ({
           onRenameSheet={renameSheet}
           onDeleteSheet={deleteSheet}
           embedded={embedded}
+          setPanOffset={setPanOffset}
+          inputGates={inputGates}
+          outputGates={outputGates}
+          toggleInput={toggleInput}
+          truthTable={truthTable}
+          showSimulate={showSimulate}
+          onCloseSimulate={() => setShowSimulate(false)}
+          showAIPanel={showAIPanel}
+          onCloseAIPanel={() => setShowAIPanel(false)}
+          aiPrompt={aiPrompt}
+          setAiPrompt={setAiPrompt}
+          handleRequestHint={handleRequestHint}
+          hintLoading={hintLoading}
+          handleGenerateCircuit={handleGenerateCircuit}
+          isGenLoading={isGenLoading}
+          hint={hint}
+          hintError={hintError}
+          setHint={setHint}
+          setHintError={setHintError}
         />
       </div>
 

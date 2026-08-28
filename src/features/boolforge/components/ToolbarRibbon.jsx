@@ -11,12 +11,12 @@ import {
   Magnet,
   Grid3x3,
   Bot,
-  Sparkles,
-  Lightbulb,
-  X,
+  // Sparkles,
+  // Lightbulb,
+  // X,
   Zap,
   Activity,
-  Table2,
+  // Table2,
   Image,
   MessageSquare,
   History,
@@ -30,7 +30,7 @@ import {
   LogOut,
   Check,
 } from "lucide-react";
-import { TruthTableGenerator } from "./TruthTable";
+// import { TruthTableGenerator } from "./TruthTable";
 import { SaveAndLoad } from "./SaveAndLoad";
 import { RibbonMenu, RibbonMenuSection, RibbonMenuItem, RibbonMenuDivider, SoonBadge } from "./RibbonMenu";
 import { useToast } from "../../../shared/context/ToastContext";
@@ -77,6 +77,10 @@ export const ToolbarRibbon = ({
   toggleTheme,
 
   onToggleFullScreen,
+  showSimulate,
+  onToggleSimulate,
+  showAI,
+  onToggleAI,
 }) => {
   const toast = useToast();
   const [openMenu, setOpenMenu] = useState(null);
@@ -184,106 +188,26 @@ export const ToolbarRibbon = ({
 
       <div className="ribbon-divider" />
 
-      {/* ── Simulate ─────────────────────────────────────────────────── */}
-      <RibbonMenu label="Simulate" icon={Activity} isOpen={openMenu === "simulate"} onToggle={() => toggleMenu("simulate")} wide>
-        {inputGates.length > 0 && (
-          <RibbonMenuSection title="Input Toggles">
-            <div className="ribbon-io-list">
-              {inputGates.map((gate) => {
-                // Preserve the original driven-input lock: a toggle wired
-                // from another gate stays disabled and visibly dimmed.
-                const driven = wires.some((w) => w.toId === gate.id);
-                return (
-                  <div key={gate.id} className="input-toggle">
-                    <label>
-                      {gate.label}
-                      {driven ? " (linked)" : ""}
-                    </label>
-                    <div
-                      className={`toggle-btn ${gate.inputValues[0] ? "on" : ""}`}
-                      onClick={() => {
-                        if (!driven) toggleInput(gate);
-                      }}
-                      style={driven ? { opacity: 0.4, cursor: "not-allowed" } : undefined}
-                      title={driven ? "This input is driven by a wire" : undefined}
-                    />
-                  </div>
-                );
-              })}
-            </div>
-          </RibbonMenuSection>
-        )}
+      <button
+        className={`ribbon-button${showSimulate ? " ribbon-button--active" : ""}`}
+        onClick={onToggleSimulate}
+        title="Toggle Simulate panel"
+      >
+        <Activity size={15} strokeWidth={2} className="ribbon-btn-icon" />
+        <span>Simulate</span>
+      </button>
 
-        {outputGates.length > 0 && (
-          <RibbonMenuSection title="Output Values">
-            <div className="ribbon-io-list">
-              {outputGates.map((gate) => (
-                <div key={gate.id} className="output-item">
-                  <label>{gate.label}</label>
-                  <div className={`output-value ${evaluateGate(gate) ? "high" : "low"}`}>
-                    {evaluateGate(gate) ? "1" : "0"}
-                  </div>
-                </div>
-              ))}
-            </div>
-          </RibbonMenuSection>
-        )}
+      <div className="ribbon-divider" />
 
-        <RibbonMenuSection title="Analysis">
-          <div className="ribbon-truth-table-row">
-            <Table2 size={16} strokeWidth={2} />
-            <TruthTableGenerator truthTable={truthTable} />
-          </div>
-        </RibbonMenuSection>
-      </RibbonMenu>
-
-      {/* ── AI (hidden in embedded mode) ────────────────────────────── */}
       {!embedded && (
-        <RibbonMenu label="AI" icon={Bot} isOpen={openMenu === "ai"} onToggle={() => toggleMenu("ai")} wide>
-          <RibbonMenuSection title="CircuitMind Assistant">
-            <textarea
-              className="ai-textarea"
-              value={aiPrompt}
-              onChange={(e) => setAiPrompt(e.target.value)}
-              placeholder="Describe the circuit (e.g. 'half adder', 'A AND B OR C')…"
-              rows={2}
-            />
-            <div className="controls">
-              <button
-                className="btn hint-btn"
-                onClick={handleRequestHint}
-                disabled={hintLoading}
-                style={{ cursor: hintLoading ? "wait" : "pointer" }}
-              >
-                <Lightbulb size={14} strokeWidth={2} style={{ marginRight: 4, verticalAlign: -2 }} />
-                {hintLoading ? "Thinking…" : "Get Hint"}
-              </button>
-              <button
-                className="btn generate-btn"
-                onClick={handleGenerateCircuit}
-                disabled={isGenLoading}
-                style={{ cursor: isGenLoading ? "wait" : "pointer" }}
-              >
-                <Sparkles size={14} strokeWidth={2} style={{ marginRight: 4, verticalAlign: -2 }} />
-                {isGenLoading ? "Generating…" : "AI Generate"}
-              </button>
-            </div>
-            {(hint || hintError) && (
-              <div className={`ai-response ${hintError ? "error" : ""}`}>
-                {hintError || hint}
-                <button
-                  className="dismiss-hint"
-                  onClick={() => {
-                    setHint(null);
-                    setHintError("");
-                  }}
-                >
-                  <X size={13} strokeWidth={2.5} />
-                </button>
-              </div>
-            )}
-          </RibbonMenuSection>
-        </RibbonMenu>
+        <button
+          className={`ribbon-button${showAI ? " ribbon-button--active" : ""}`}
+          onClick={onToggleAI}
+          title="Toggle AI Assistant panel"
+        >
+          <Bot size={15} strokeWidth={2} className="ribbon-btn-icon" />
+          <span>AI</span>
+        </button>
       )}
 
       {/* ── Tools: visible but not-yet-wired feature previews ───────── */}

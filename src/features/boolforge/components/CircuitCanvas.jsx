@@ -13,6 +13,10 @@ import {
   wirePathD,
 } from "../utils";
 
+import { ZoomWidget } from "./ZoomWidget";
+import { SimulatePanel } from "./SimulatePanel";
+import { AIPanel } from "./AIPanel";
+
 export const CircuitCanvas = ({
   gates,
   wires,
@@ -64,6 +68,25 @@ export const CircuitCanvas = ({
   onRenameSheet = () => {},
   onDeleteSheet = () => {},
   embedded = false,
+  setPanOffset,
+  inputGates = [],
+  outputGates = [],
+  toggleInput,
+  truthTable,
+  showSimulate,
+  onCloseSimulate,
+  showAIPanel,
+  onCloseAIPanel,
+  aiPrompt,
+  setAiPrompt,
+  handleRequestHint,
+  hintLoading,
+  handleGenerateCircuit,
+  isGenLoading,
+  hint,
+  hintError,
+  setHint,
+  setHintError,
 }) => {
   return (
     <div className={`canvas-container${connectingFrom ? " is-wiring" : ""}`} ref={containerRef}>
@@ -211,6 +234,36 @@ export const CircuitCanvas = ({
         <button className="canvas-overlay-btn" onClick={() => setZoom((z) => Math.min(3, z * 1.2))}>+</button>
         <button className="canvas-overlay-btn" onClick={() => setZoom((z) => Math.max(0.3, z * 0.8))}>−</button>
       </div>
+
+      <ZoomWidget zoom={zoom} setZoom={setZoom} setPanOffset={setPanOffset} fitToView={fitToView} />
+
+      {showSimulate && (
+        <SimulatePanel
+          onClose={onCloseSimulate}
+          inputGates={inputGates}
+          outputGates={outputGates}
+          wires={wires}
+          toggleInput={toggleInput}
+          evaluateGate={evaluateGate}
+          truthTable={truthTable}
+        />
+      )}
+
+      {showAIPanel && (
+        <AIPanel
+          onClose={onCloseAIPanel}
+          aiPrompt={aiPrompt}
+          setAiPrompt={setAiPrompt}
+          handleRequestHint={handleRequestHint}
+          hintLoading={hintLoading}
+          handleGenerateCircuit={handleGenerateCircuit}
+          isGenLoading={isGenLoading}
+          hint={hint}
+          hintError={hintError}
+          setHint={setHint}
+          setHintError={setHintError}
+        />
+      )}
 
     {!embedded && (
         <div className="canvas-sheet-tabs-wrapper">

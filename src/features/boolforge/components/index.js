@@ -4,3 +4,6 @@ export { CircuitCanvas } from './CircuitCanvas';
 export { ToolbarRibbon } from './ToolbarRibbon';
 export { SheetTabs } from './SheetTabs';
 export { ZoomWidget } from './ZoomWidget';
+export { FloatingPanel } from './FloatingPanel';
+export { SimulatePanel } from './SimulatePanel';
+export { AIPanel } from './AIPanel';
