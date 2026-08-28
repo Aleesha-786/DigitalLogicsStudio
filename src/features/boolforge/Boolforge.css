@@ -1502,3 +1502,32 @@ body:has(.boolforge-page) {
   /* stack instead of overlapping when both are open on small screens */
   .floating-panel--ai { bottom: calc(60vh + 16px); }
 }
+
+/* ───────────────────────────────────────────────────────────────
+   Force sidebar gate palettes to be single‑column & full‑width
+   ─────────────────────────────────────────────────────────────── */
+.sidebar--compact .gate-palette {
+  display: grid;
+  grid-template-columns: 1fr !important;   /* one column, always */
+  gap: 5px;
+}
+
+/* (optional) ensure each gate button fills the column */
+.sidebar--compact .gate-btn {
+  width: 100%;
+  box-sizing: border-box;
+  text-align: center;   /* keep label centered */
+}
+
+/* Override any mobile overrides that might try to multi‑column */
+@media (max-width: 900px) {
+  .gate-palette {
+    grid-template-columns: 1fr !important;
+  }
+}
+
+@media (max-width: 600px) {
+  .gate-palette {
+    grid-template-columns: 1fr !important;
+  }
+}
