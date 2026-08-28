@@ -1,4 +1,5 @@
 import React from 'react';
+import { Plus, X } from 'lucide-react';
 
 export const SheetTabs = ({
   sheets,
@@ -20,7 +21,7 @@ export const SheetTabs = ({
   };
 
   return (
-    <div className="sheet-tabs-wrapper">
+    <div className="sheet-tabs-wrapper sheet-tabs-wrapper--excel">
       {sheets.map((sheet) => (
         <div
           key={sheet.id}
@@ -41,14 +42,14 @@ export const SheetTabs = ({
               onClick={(e) => handleDelete(e, sheet.id)}
               title="Close sheet"
             >
-              ×
+              <X size={12} strokeWidth={2.5} />
             </button>
           )}
         </div>
       ))}
 
       <button className="sheet-tab-add" onClick={() => onAddSheet()} title="Add New Sheet">
-        +
+        <Plus size={14} strokeWidth={2.5} />
       </button>
     </div>
   );

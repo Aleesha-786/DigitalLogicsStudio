@@ -6,7 +6,7 @@ import Footer from "../../shared/components/Footer";
 import { useTheme } from "../../shared/context/ThemeContext";
 import "./Boolforge.css";
 
-import { Sidebar, RenameModal, CircuitCanvas, CircuitControls} from "./components";
+import { Sidebar, RenameModal, CircuitCanvas, ToolbarRibbon } from "./components";
 import {
   useKeyboardShortcuts,
   useSheets,
@@ -259,70 +259,8 @@ const Boolforge = ({
       }}
       onTouchEnd={() => { stopDrag(); handleMouseUp(); }}
     >
-      {/* SIDEBAR COMPONENT */}
-      <Sidebar
-        selectionToolActive={selectionToolActive}
-        setSelectionToolActive={setSelectionToolActive}
-        simplifiedExpression={simplifiedExpression}
-        addGate={addGate}
-      />
-
-      {/* CANVAS COMPONENT */}
-      <CircuitCanvas
-        gates={gates}
-        wires={wires}
-        gateMap={gateMap}
-        selectedGateIds={selectedGateIds}
-        selectedWireIds={selectedWireIds}
-        setSelectedGateIds={setSelectedGateIds}
-        setSelectedWireIds={setSelectedWireIds}
-        setSelectedGate={setSelectedGate}
-        evaluateGate={evaluateGate}
-        zoom={zoom}
-        panOffset={panOffset}
-        isPanning={isPanning}
-        spacePressed={spacePressed}
-        selectionToolActive={selectionToolActive}
-        setSelectionToolActive={setSelectionToolActive}
-        isSelecting={isSelecting}
-        selectionStart={selectionStart}
-        selectionEnd={selectionEnd}
-        connectingFrom={connectingFrom}
-        setConnectCursor={setConnectCursor}
-        connectCursor={connectCursor}
-        clientToWorld={clientToWorld}
-        startDrag={startDrag}
-        onDrag={onDrag}
-        stopDrag={stopDrag}
-        setIsPanning={setIsPanning}
-        setPanStart={setPanStart}
-        handleOutputPortClick={handleOutputPortClick}
-        handleCanvasContextMenu={handleCanvasContextMenu}
-        handleCanvasMouseDown={handleCanvasMouseDown}
-        handleMouseMove={handleMouseMove}
-        handleMouseUp={handleMouseUp}
-        stopPortEvent={stopPortEvent}
-        fitToView={fitToView}
-        setZoom={setZoom}
-        addInputSlot={addInputSlot}
-        removeInputSlot={removeInputSlot}
-        startRename={startRename}
-        deleteGate={deleteGate}
-        deleteWire={deleteWire}
-        completeConnection={completeConnection}
-        containerRef={containerRef}
-        canvasRef={canvasRef}
-        sheets={sheets}
-        activeSheetId={activeSheetId}
-        onSwitchSheet={setActiveSheetId}
-        onAddSheet={addSheet}
-        onRenameSheet={renameSheet}
-        onDeleteSheet={deleteSheet}
-        embedded={embedded}
-      />
-
-      {/* RIGHT PANEL / CONTROLS COMPONENT */}
-      <CircuitControls
+      {/* TOOLBAR RIBBON — replaces the old right-hand CircuitControls panel */}
+      <ToolbarRibbon
         embedded={embedded}
         aiPrompt={aiPrompt}
         setAiPrompt={setAiPrompt}
@@ -345,6 +283,7 @@ const Boolforge = ({
         historyIndex={historyIndex}
         history={history}
         gates={gates}
+        setGates={setGates}
         sheets={sheets}
         loadSheets={loadSheets}
         saveToHistory={saveToHistory}
@@ -353,7 +292,76 @@ const Boolforge = ({
         setZoom={setZoom}
         setPanOffset={setPanOffset}
         fitToView={fitToView}
+        selectionToolActive={selectionToolActive}
+        setSelectionToolActive={setSelectionToolActive}
+        theme={theme}
+        toggleTheme={toggleTheme}
       />
+
+      {/* WORKSPACE — sidebar + canvas, below the ribbon */}
+      <div className="circuit-workspace">
+        {/* SIDEBAR COMPONENT */}
+        <Sidebar
+          selectionToolActive={selectionToolActive}
+          setSelectionToolActive={setSelectionToolActive}
+          simplifiedExpression={simplifiedExpression}
+          addGate={addGate}
+        />
+
+        {/* CANVAS COMPONENT */}
+        <CircuitCanvas
+          gates={gates}
+          wires={wires}
+          gateMap={gateMap}
+          selectedGateIds={selectedGateIds}
+          selectedWireIds={selectedWireIds}
+          setSelectedGateIds={setSelectedGateIds}
+          setSelectedWireIds={setSelectedWireIds}
+          setSelectedGate={setSelectedGate}
+          evaluateGate={evaluateGate}
+          zoom={zoom}
+          panOffset={panOffset}
+          isPanning={isPanning}
+          spacePressed={spacePressed}
+          selectionToolActive={selectionToolActive}
+          setSelectionToolActive={setSelectionToolActive}
+          isSelecting={isSelecting}
+          selectionStart={selectionStart}
+          selectionEnd={selectionEnd}
+          connectingFrom={connectingFrom}
+          setConnectCursor={setConnectCursor}
+          connectCursor={connectCursor}
+          clientToWorld={clientToWorld}
+          startDrag={startDrag}
+          onDrag={onDrag}
+          stopDrag={stopDrag}
+          setIsPanning={setIsPanning}
+          setPanStart={setPanStart}
+          handleOutputPortClick={handleOutputPortClick}
+          handleCanvasContextMenu={handleCanvasContextMenu}
+          handleCanvasMouseDown={handleCanvasMouseDown}
+          handleMouseMove={handleMouseMove}
+          handleMouseUp={handleMouseUp}
+          stopPortEvent={stopPortEvent}
+          fitToView={fitToView}
+          setZoom={setZoom}
+          addInputSlot={addInputSlot}
+          removeInputSlot={removeInputSlot}
+          startRename={startRename}
+          deleteGate={deleteGate}
+          deleteWire={deleteWire}
+          completeConnection={completeConnection}
+          containerRef={containerRef}
+          canvasRef={canvasRef}
+          sheets={sheets}
+          activeSheetId={activeSheetId}
+          onSwitchSheet={setActiveSheetId}
+          onAddSheet={addSheet}
+          onRenameSheet={renameSheet}
+          onDeleteSheet={deleteSheet}
+          embedded={embedded}
+        />
+      </div>
 
       {/* RENAME MODAL COMPONENT */}
       <RenameModal
