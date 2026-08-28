@@ -1,6 +1,5 @@
-import { memo, useMemo, useState } from "react";
+import { memo, useMemo, useState, useEffect } from "react";
 import { Link, NavLink, useLocation, useNavigate } from "react-router-dom";
-//import { Home } from "lucide-react";   
 import { useAuth } from "../../../auth/context/AuthContext";
 
 import { BrandLogo } from "./BrandLogo";
@@ -16,10 +15,9 @@ const DLD_NAV_LINKS = [
 
 const COAL_NAV_LINKS = [
   { to: "/", label: "Home", end: true }, 
+  { to: "/problems", label: "Problems" },
   { to: "/resources/coal", label: "COAL Home", end: true },
-  { to: "/resources/coal/theory", label: "Theory", matchTheory: true },
   { to: "/resources/coal/practical", label: "Practical" },
-  { to: "/problems?course=coal", label: "Problems" },
 ];
 
 function isCoalTheoryRoute(pathname) {
@@ -30,16 +28,28 @@ function isCoalRoute(pathname) {
   return pathname.startsWith("/resources/coal") || pathname.startsWith("/coal/");
 }
 
-function NavbarBase({ toggleTheme, theme, onHomeClick, onToggleNavbar }) {
+function NavbarBase({ 
+  toggleTheme, 
+  theme, 
+  onHomeClick, 
+  isVisible = true 
+}) {
   const [menuOpen, setMenuOpen] = useState(false);
   const { user, loading, logout } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
 
+  // Close mobile menu automatically if navbar is hidden externally
+  useEffect(() => {
+    if (!isVisible) {
+      setMenuOpen(false);
+    }
+  }, [isVisible]);
+
   const onCoalTrack = isCoalRoute(location.pathname);
   const navLinks = (onCoalTrack ? COAL_NAV_LINKS : DLD_NAV_LINKS).filter(
-  (link) => !(link.to === "/" && location.pathname === "/"),
-);
+    (link) => !(link.to === "/" && location.pathname === "/"),
+  );
   const brandTagline = onCoalTrack
     ? "Computer Organization & Assembly"
     : "The Digital Logic Playground";
@@ -51,6 +61,8 @@ function NavbarBase({ toggleTheme, theme, onHomeClick, onToggleNavbar }) {
     if (parts.length === 1) return parts[0].slice(0, 2).toUpperCase();
     return `${parts[0][0]}${parts[1][0]}`.toUpperCase();
   }, [user?.name]);
+
+  if (!isVisible) return null;
 
   const handleHomeClick = () => {
     setMenuOpen(false);
@@ -91,13 +103,11 @@ function NavbarBase({ toggleTheme, theme, onHomeClick, onToggleNavbar }) {
   return (
     <header className="home-header">
       <div className="home-header-inner">
-       <BrandLogo tagline={brandTagline} onClick={handleHomeClick} />
+        <BrandLogo tagline={brandTagline} onClick={handleHomeClick} />
 
-      <nav className="home-nav" aria-label="Main navigation">
-       {renderNavLinks("home-nav-link")}
+        <nav className="home-nav" aria-label="Main navigation">
+          {renderNavLinks("home-nav-link")}
         </nav>
-
-
 
         <div className="home-nav-controls">
           {!loading && (
@@ -123,20 +133,6 @@ function NavbarBase({ toggleTheme, theme, onHomeClick, onToggleNavbar }) {
           )}
 
           <ThemeToggler theme={theme} toggleTheme={toggleTheme} />
-
-          {onToggleNavbar && (
-            <button
-              onClick={onToggleNavbar}
-              className="home-navbar-toggle-btn"
-              aria-label="Hide navbar"
-              title="Hide navbar"
-            >
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
-                <rect x="3" y="3" width="18" height="18" rx="2" ry="2" />
-                <line x1="3" y1="9" x2="21" y2="9" />
-              </svg>
-            </button>
-          )}
 
           <button
             className={`home-hamburger${menuOpen ? " is-open" : ""}`}

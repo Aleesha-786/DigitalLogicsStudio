@@ -2,7 +2,6 @@ import React, { useState, useRef, useEffect } from "react";
 import { parseExpressionToCircuit } from "../../shared/utils/expressionParser";
 import RelatedSeoLinks from "../../shared/seo/RelatedSeoLinks";
 import Navbar from "../../shared/components/navbar";
-import Footer from "../../shared/components/Footer";
 import { useTheme } from "../../shared/context/ThemeContext";
 import "./Boolforge.css";
 
@@ -27,8 +26,7 @@ const Boolforge = ({
   const { theme, toggle: toggleTheme } = useTheme();
 
   // ── UI shell state ──────────────────────────────────────────────────────
-  const [navbarVisible, setNavbarVisible] = useState(true);
-  const [footerVisible, setFooterVisible] = useState(true);
+  const [fullScreen, setFullScreen] = useState(false);
 
   // ── Refs shared across hooks ─────────────────────────────────────────────
   const canvasRef = useRef(null);
@@ -296,6 +294,7 @@ const Boolforge = ({
         setSelectionToolActive={setSelectionToolActive}
         theme={theme}
         toggleTheme={toggleTheme}
+        onToggleFullScreen={() => setFullScreen(!fullScreen)} 
       />
 
       {/* WORKSPACE — sidebar + canvas, below the ribbon */}
@@ -382,21 +381,15 @@ const Boolforge = ({
   return (
     <div className={`boolforge-page theme-${theme}`}>
       <div className="grid-background" />
-      {navbarVisible && <Navbar toggleTheme={toggleTheme} theme={theme} onToggleNavbar={() => setNavbarVisible(false)} />}
-      {!navbarVisible && (
-        <button className="navbar-restore-btn" onClick={() => setNavbarVisible(true)} aria-label="Show navbar" title="Show navbar">
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="3" width="18" height="18" rx="2" ry="2" /><line x1="3" y1="9" x2="21" y2="9" /></svg>
-        </button>
-      )}
-      <main className={`boolforge-main${navbarVisible ? "" : " boolforge-main--fullscreen"}`}>
+      <Navbar 
+        toggleTheme={toggleTheme} 
+        theme={theme} 
+        isVisible={!fullScreen} 
+      />
+
+      <main className={`boolforge-main${!fullScreen ? "" : " boolforge-main--fullscreen"}`}>
         {circuitTool}
       </main>
-      {footerVisible && <Footer onToggleFooter={() => setFooterVisible(false)} />}
-      {!footerVisible && (
-        <button className="footer-restore-btn" onClick={() => setFooterVisible(true)} aria-label="Show footer" title="Show footer">
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="3" width="18" height="18" rx="2" ry="2" /><line x1="3" y1="15" x2="21" y2="15" /></svg>
-        </button>
-      )}
     </div>
   );
 };
