@@ -36,7 +36,7 @@ function makeEmptySheet(name, index) {
 // circuit into live gates/wires/etc state so that all the existing circuit
 // hooks (useCanvasInteractions, useAI, useSimulation, useKeyboardShortcuts)
 // keep working unmodified — they just receive these values/setters as before.
-export function useSheets({ portNames = null, containerRef } = {}) {
+export function useSheets({ portNames = null, containerRef, customComponents = [] } = {}) {
   const toast = useToast();
   const [sheets, setSheets] = useState(() => [makeEmptySheet("Sheet 1", 1)]);
   const [activeSheetId, setActiveSheetIdState] = useState(() => sheets[0].id);
@@ -83,6 +83,26 @@ export function useSheets({ portNames = null, containerRef } = {}) {
 
   const inputGates = useMemo(() => gates.filter((g) => g.type === "INPUT"), [gates]);
   const outputGates = useMemo(() => gates.filter((g) => g.type === "OUTPUT"), [gates]);
+
+  const customIcMeta = useMemo(
+  () =>
+    Object.fromEntries(
+      customComponents.map((c) => [
+        `CUSTOM_${c.id}`,
+        {
+          inputs: c.inputs.length,
+          outputs: c.outputs.length,
+          inputLabels: c.inputs.map((p) => p.label),
+          outputLabels: c.outputs.map((p) => p.label),
+        },
+      ]),
+    ),
+  [customComponents],
+);
+const mergedIcTypes = useMemo(
+  () => new Set([...IC_TYPES, ...Object.keys(customIcMeta)]),
+  [customIcMeta],
+);
 
   const generateInputLabel = useCallback(
     (index) => portNames?.inputs?.[index] ?? `I${index}`,
@@ -287,7 +307,8 @@ export function useSheets({ portNames = null, containerRef } = {}) {
   const addGate = useCallback(
     (type) => {
       const finalInputs = defaultInputCount(type);
-      const isIC = IC_TYPES.has(type);
+      const isIC = mergedIcTypes.has(type);
+      const isCustom = type.startsWith("CUSTOM_");
       const hasOutput = type !== "OUTPUT";
       let label = type;
       if (type === "INPUT") {
@@ -301,27 +322,32 @@ export function useSheets({ portNames = null, containerRef } = {}) {
       const container = containerRef?.current;
       const canvasW = container ? container.clientWidth : 600;
       const GATE_STEP_X = 160;
-      const GATE_STEP_Y = isIC ? getICHeight(type) + 40 : 120;
+      const GATE_STEP_Y = isIC ? (isCustom ? Math.max(60, Math.max(customIcMeta[type].inputs, customIcMeta[type].outputs) * 22 + 20) + 40 : getICHeight(type) + 40) : 120;
       const COLS = Math.max(1, Math.floor((canvasW - 60) / GATE_STEP_X));
       const col = gates.length % COLS;
       const row = Math.floor(gates.length / COLS);
 
-      const newGate = {
-        id: gateIdCounter,
-        type,
-        label,
-        x: 30 + col * GATE_STEP_X,
-        y: 30 + row * GATE_STEP_Y,
-        inputs: finalInputs,
-        outputs: isIC ? IC_META[type].outputs : 1,
-        hasOutput,
-        inputValues: type === "INPUT" ? [false] : [],
+      const customDef = isCustom
+  ? customComponents.find((c) => `CUSTOM_${c.id}` === type)
+  : null;
+
+  const newGate = {
+  id: gateIdCounter,
+  type,
+  label,
+  x: 30 + col * GATE_STEP_X,
+  y: 30 + row * GATE_STEP_Y,
+  inputs: finalInputs,
+  outputs: isIC ? (isCustom ? customIcMeta[type].outputs : IC_META[type].outputs) : 1,
+  hasOutput,
+  inputValues: type === "INPUT" ? [false] : [],
+  ...(customDef ? { customDefinition: { gates: customDef.gates, wires: customDef.wires, outputs: customDef.outputs } } : {}),
       };
       setGates((prev) => [...prev, newGate]);
       setGateIdCounter((prev) => prev + 1);
       saveToHistory();
     },
-    [gates, gateIdCounter, inputCounter, outputCounter, containerRef, generateInputLabel, generateOutputLabel, saveToHistory]
+   [gates, gateIdCounter, inputCounter, outputCounter, containerRef, generateInputLabel, generateOutputLabel, saveToHistory, customComponents, customIcMeta, mergedIcTypes ]
   );
 
   const addInputSlot = useCallback(
@@ -570,5 +596,6 @@ export function useSheets({ portNames = null, containerRef } = {}) {
     mergeInputGates, deleteWire,
     copySelectedGates, pasteGates, duplicateSelectedGates,
     clearCircuit,
+    customIcMeta, mergedIcTypes,
   };
 }

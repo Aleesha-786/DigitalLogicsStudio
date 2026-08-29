@@ -5,6 +5,8 @@ export const Sidebar = ({
   setSelectionToolActive,
   simplifiedExpression,
   addGate,
+  customComponents = [],
+  onDeleteComponent,
 }) => {
   return (
     <div className="sidebar">
@@ -186,6 +188,40 @@ export const Sidebar = ({
         <p>• Ctrl + C: Copy &nbsp; Ctrl + V: Paste</p>
         <p>• Delete / Backspace: Remove selected</p>
         <p>• Esc: Cancel wire / Clear selection</p>
+              {customComponents.length > 0 && (
+        <div className="palette-section">
+          <div className="palette-section-title">My Components</div>
+          <div className="gate-palette">
+            {customComponents.map((c) => (
+              <div key={c.id} style={{ display: "flex", alignItems: "center", gap: "4px" }}>
+                <button
+                  className="gate-btn gate-btn--ic"
+                  style={{ flex: 1 }}
+                  onClick={() => addGate(`CUSTOM_${c.id}`)}
+                  title={`${c.inputs.length} input(s), ${c.outputs.length} output(s)`}
+                >
+                  {c.name}
+                </button>
+                {onDeleteComponent && (
+                  <button
+                    className="gate-btn"
+                    style={{ padding: "4px 8px", flex: "0 0 auto" }}
+                    title="Delete this component"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      if (window.confirm(`Delete "${c.name}"? This can't be undone.`)) {
+                        onDeleteComponent(c.id);
+                      }
+                    }}
+                  >
+                    🗑
+                  </button>
+                )}
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
       </div>
     </div>
   );

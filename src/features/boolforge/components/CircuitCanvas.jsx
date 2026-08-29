@@ -13,10 +13,24 @@ import {
   wirePathD,
 } from "../utils";
 
+
+function GenericICSymbol({ name, inputCount, outputCount }) {
+  const height = Math.max(60, Math.max(inputCount, outputCount) * 22 + 20);
+  return (
+    <svg viewBox={`0 0 80 ${height}`} className="gate-symbol gate-symbol--ic">
+      <rect x="8" y="5" width="64" height={height - 10} rx="4" fill="none" stroke="currentColor" strokeWidth="2.5" />
+      <text x="40" y={height / 2 + 4} textAnchor="middle" fontSize="8" fill="currentColor" fontFamily="monospace" fontWeight="700">
+        {name.length > 8 ? name.slice(0, 7) + "…" : name}
+      </text>
+    </svg>
+  );
+}
+
 export const CircuitCanvas = ({
   gates,
   wires,
   gateMap,
+  customIcMeta = {}, 
   selectedGateIds,
   selectedWireIds,
   setSelectedGateIds,
@@ -134,9 +148,10 @@ export const CircuitCanvas = ({
           const canExpand = MULTI_INPUT_GATES.has(gate.type);
           const canAddInput = canExpand && gate.inputs < MAX_GATE_INPUTS;
           const canRemoveInput = canExpand && gate.inputs > MIN_GATE_INPUTS;
-          const isIC = IC_TYPES.has(gate.type);
-          const icMeta = isIC ? IC_META[gate.type] : null;
-          const icH = isIC ? getICHeight(gate.type) : 100;
+          const isCustom = gate.type.startsWith("CUSTOM_");
+          const isIC = IC_TYPES.has(gate.type) || isCustom;
+          const icMeta = isIC ? customIcMeta[gate.type] : null;
+          const icH = isIC ? (isCustom ? Math.max(60, Math.max(icMeta.inputs, icMeta.outputs) * 22 + 20) : getICHeight(gate.type)) : 100;
           const cfGateId = connectingFrom?.gateId ?? connectingFrom?.gate?.id;
 
           return (
@@ -154,7 +169,7 @@ export const CircuitCanvas = ({
               onContextMenu={(e) => { e.preventDefault(); deleteGate(gate); }}
             >
               <div className="gate-content">
-                {gateSymbols[gate.type]}
+              {gateSymbols[gate.type] || (isCustom && <GenericICSymbol name={gate.label} inputCount={icMeta.inputs} outputCount={icMeta.outputs} />)}
                 {!isIC && <div className="gate-label">{gate.label || gate.type}</div>}
               </div>
 
