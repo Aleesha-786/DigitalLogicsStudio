@@ -29,11 +29,10 @@ import {
   LogOut,
   Check,
 } from "lucide-react";
-// import { TruthTableGenerator } from "./TruthTable";
-import { SaveAndLoad } from "./SaveAndLoad";
 import { RibbonMenu, RibbonMenuSection, RibbonMenuItem, RibbonMenuDivider, SoonBadge } from "./RibbonMenu";
 import { useToast } from "../../../shared/context/ToastContext";
 import { layoutGeneratedCircuit } from "../utils/layoutGeneratedCircuit";
+import { useSaveAndLoad, SaveLoadMenuItems, SaveLoadDialogs } from "./SaveAndLoad";
 
 export const ToolbarRibbon = ({
   embedded,
@@ -90,6 +89,7 @@ export const ToolbarRibbon = ({
   const toast = useToast();
   const [openMenu, setOpenMenu] = useState(null);
   const ribbonRef = useRef(null);
+  const saveLoad = useSaveAndLoad({ sheets, loadSheets });
 
   const toggleMenu = (name) => setOpenMenu((m) => (m === name ? null : name));
   const closeMenu = () => setOpenMenu(null);
@@ -198,11 +198,10 @@ export const ToolbarRibbon = ({
       {/* ── File ─────────────────────────────────────────────────────── */}
       <RibbonMenu label="File" icon={FolderOpen} isOpen={openMenu === "file"} onToggle={() => toggleMenu("file")}>
         <RibbonMenuSection title="Project">
-          <SaveAndLoad
-            sheets={sheets}
-            loadSheets={loadSheets}
-            onExportPNG={handleExportPNG}
-            closeMenu={closeMenu}
+          <SaveLoadMenuItems 
+            api={saveLoad} 
+            onExportPNG={handleExportPNG} 
+            closeMenu={closeMenu} 
           />
         </RibbonMenuSection>
         <RibbonMenuDivider />
@@ -392,6 +391,9 @@ export const ToolbarRibbon = ({
           <LogOut size={13} strokeWidth={2} /> {outputGates.length}
         </span>
       </div>
+
+      <SaveLoadDialogs api={saveLoad} />
+      
     </div>
   );
 };

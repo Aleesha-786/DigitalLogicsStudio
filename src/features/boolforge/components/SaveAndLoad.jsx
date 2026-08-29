@@ -1,30 +1,14 @@
 import { useState, useRef } from "react";
-
-import { 
-  Save, 
-  FolderOpen, 
-  Download, 
-  Image as ImageIcon, 
-  Upload,
-  X,
-  FileText,
-  Database,
-  Clock,
-  Play,
-  Trash2,
-  Info
+import {
+  Save, FolderOpen, Download, Image as ImageIcon, Upload,
+  X, FileText, Database, Clock, Play, Trash2, Info,
 } from "lucide-react";
-
 import { RibbonMenuItem } from "./RibbonMenu";
 
 const STORAGE_KEY = "logic_editor_saved_projects_v1";
 
-export function SaveAndLoad({ 
-  sheets, 
-  loadSheets, 
-  onExportPNG, 
-  closeMenu 
-}) {
+// ─── State + logic, owned by ToolbarRibbon (never unmounts) ──────────────
+export function useSaveAndLoad({ sheets, loadSheets }) {
   const [showSave, setShowSave] = useState(false);
   const [showLoad, setShowLoad] = useState(false);
   const [projectName, setProjectName] = useState("");
@@ -35,12 +19,8 @@ export function SaveAndLoad({
   const getProjects = () => JSON.parse(localStorage.getItem(STORAGE_KEY) || "{}");
   const setProjects = (p) => localStorage.setItem(STORAGE_KEY, JSON.stringify(p));
 
-  const openSave = () => { closeMenu?.(); setShowSave(true); };
-  const openLoad = () => { 
-    closeMenu?.(); 
-    setProjectsList(getProjects());
-    setShowLoad(true); 
-  };
+  const openSave = () => setShowSave(true);
+  const openLoad = () => { setProjectsList(getProjects()); setShowLoad(true); };
 
   const saveProject = () => {
     if (!projectName.trim()) return;
@@ -119,59 +99,56 @@ export function SaveAndLoad({
   const formatTime = (timestamp) => {
     if (!timestamp) return "Unknown date";
     try {
-      const date = new Date(timestamp);
-      return date.toLocaleString(undefined, {
-        month: "short",
-        day: "numeric",
-        hour: "numeric",
-        minute: "2-digit",
-        hour12: true
+      return new Date(timestamp).toLocaleString(undefined, {
+        month: "short", day: "numeric", hour: "numeric", minute: "2-digit", hour12: true,
       });
-    } catch (e) {
+    } catch {
       return "Unknown date";
     }
   };
 
-  const names = Object.keys(projectsList);
+  return {
+    showSave, setShowSave, showLoad, setShowLoad,
+    projectName, setProjectName, importError, setImportError,
+    projectsList, importFileRef,
+    openSave, openLoad, saveProject, loadSnapshot, deleteProject,
+    exportJSON, handleImportFile, formatTime,
+    names: Object.keys(projectsList),
+  };
+}
+
+// ─── Trigger buttons — safe to unmount when the File dropdown closes ─────
+export function SaveLoadMenuItems({ api, onExportPNG, closeMenu }) {
+  const handleOpenSave = () => { closeMenu?.(); api.openSave(); };
+  const handleOpenLoad = () => { closeMenu?.(); api.openLoad(); };
+  return (
+    <>
+      <RibbonMenuItem icon={Save} label="Save Project" description="Save current sheets to this browser" onClick={handleOpenSave} />
+      <RibbonMenuItem icon={FolderOpen} label="Load Project" description="Restore a saved project" onClick={handleOpenLoad} />
+      <RibbonMenuItem icon={Download} label="Export JSON" description="Download all sheets as a file" onClick={api.exportJSON} />
+      {onExportPNG && (
+        <RibbonMenuItem icon={ImageIcon} label="Export as PNG" description="Save the canvas as an image" onClick={onExportPNG} />
+      )}
+    </>
+  );
+}
+
+// ─── The actual dialogs — must be rendered OUTSIDE the dropdown's
+// isOpen-gated tree, so they survive the dropdown closing ─────────────────
+export function SaveLoadDialogs({ api }) {
+  if (!api.showSave && !api.showLoad) return null;
 
   return (
     <>
-      <RibbonMenuItem 
-        icon={Save} 
-        label="Save Project" 
-        description="Save current sheets to this browser" 
-        onClick={openSave} 
-      />
-      <RibbonMenuItem 
-        icon={FolderOpen} 
-        label="Load Project" 
-        description="Restore a saved project" 
-        onClick={openLoad} 
-      />
-      <RibbonMenuItem 
-        icon={Download} 
-        label="Export JSON" 
-        description="Download all sheets as a file" 
-        onClick={exportJSON} 
-      />
-      {onExportPNG && (
-        <RibbonMenuItem 
-          icon={ImageIcon} 
-          label="Export as PNG" 
-          description="Save the canvas as an image" 
-          onClick={onExportPNG} 
-        />
-      )}
-
-      {showSave && (
-        <div className="project-modal-overlay" onClick={() => setShowSave(false)}>
+      {api.showSave && (
+        <div className="project-modal-overlay" onClick={() => api.setShowSave(false)}>
           <div className="project-modal" onClick={(e) => e.stopPropagation()}>
             <div className="project-modal-header">
               <div className="project-modal-title">
                 <Save size={18} className="project-modal-icon text-emerald" />
                 <h3>Save Project</h3>
               </div>
-              <button className="project-modal-close" onClick={() => setShowSave(false)} aria-label="Close dialog">
+              <button className="project-modal-close" onClick={() => api.setShowSave(false)} aria-label="Close dialog">
                 <X size={16} />
               </button>
             </div>
@@ -184,36 +161,36 @@ export function SaveAndLoad({
               <FileText size={16} className="project-modal-input-icon" />
               <input
                 className="project-modal-input"
-                value={projectName}
-                onChange={(e) => setProjectName(e.target.value)}
-                onKeyDown={(e) => e.key === "Enter" && saveProject()}
+                value={api.projectName}
+                onChange={(e) => api.setProjectName(e.target.value)}
+                onKeyDown={(e) => e.key === "Enter" && api.saveProject()}
                 placeholder="e.g. 8-Bit Arithmetic Logic Unit"
                 autoFocus
               />
             </div>
 
             <div className="project-modal-actions">
-              <button className="project-modal-btn project-modal-btn--ghost" onClick={() => setShowSave(false)}>Cancel</button>
-              <button className="project-modal-btn project-modal-btn--primary" onClick={saveProject}>Save Project</button>
+              <button className="project-modal-btn project-modal-btn--ghost" onClick={() => api.setShowSave(false)}>Cancel</button>
+              <button className="project-modal-btn project-modal-btn--primary" onClick={api.saveProject}>Save Project</button>
             </div>
           </div>
         </div>
       )}
 
-      {showLoad && (
-        <div className="project-modal-overlay" onClick={() => { setShowLoad(false); setImportError(""); }}>
+      {api.showLoad && (
+        <div className="project-modal-overlay" onClick={() => { api.setShowLoad(false); api.setImportError(""); }}>
           <div className="project-modal" onClick={(e) => e.stopPropagation()}>
             <div className="project-modal-header">
               <div className="project-modal-title">
                 <FolderOpen size={18} className="project-modal-icon text-cyan" />
                 <h3>Load Project</h3>
               </div>
-              <button className="project-modal-close" onClick={() => { setShowLoad(false); setImportError(""); }} aria-label="Close dialog">
+              <button className="project-modal-close" onClick={() => { api.setShowLoad(false); api.setImportError(""); }} aria-label="Close dialog">
                 <X size={16} />
               </button>
             </div>
 
-            <div className="project-modal-import-zone" onClick={() => { setImportError(""); importFileRef.current?.click(); }}>
+            <div className="project-modal-import-zone" onClick={() => { api.setImportError(""); api.importFileRef.current?.click(); }}>
               <div className="project-modal-import-content">
                 <Upload size={24} className="project-modal-import-icon" />
                 <span className="project-modal-import-text">Import JSON file</span>
@@ -221,16 +198,16 @@ export function SaveAndLoad({
               </div>
             </div>
             <input
-              ref={importFileRef}
+              ref={api.importFileRef}
               type="file"
               accept=".json,application/json"
               style={{ display: "none" }}
-              onChange={handleImportFile}
+              onChange={api.handleImportFile}
             />
-            {importError && (
+            {api.importError && (
               <div className="project-modal-error">
                 <Info size={14} className="error-icon" />
-                <span>{importError}</span>
+                <span>{api.importError}</span>
               </div>
             )}
 
@@ -242,15 +219,15 @@ export function SaveAndLoad({
             </div>
 
             <div className="project-modal-list">
-              {names.length === 0 ? (
+              {api.names.length === 0 ? (
                 <div className="project-modal-empty">
                   <FolderOpen size={28} className="empty-icon" />
                   <p>No saved projects yet</p>
                   <span>Save a project first to see it listed here.</span>
                 </div>
               ) : (
-                names.map((name) => {
-                  const project = projectsList[name];
+                api.names.map((name) => {
+                  const project = api.projectsList[name];
                   const lastModified = project?.versions?.[0]?.time;
                   return (
                     <div key={name} className="project-row">
@@ -259,16 +236,16 @@ export function SaveAndLoad({
                         {lastModified && (
                           <span className="project-row-time">
                             <Clock size={10} />
-                            {formatTime(lastModified)}
+                            {api.formatTime(lastModified)}
                           </span>
                         )}
                       </div>
                       <div className="project-row-actions">
-                        <button className="project-row-btn project-row-btn--load" onClick={() => loadSnapshot(project.versions[0])} title="Load Project">
+                        <button className="project-row-btn project-row-btn--load" onClick={() => api.loadSnapshot(project.versions[0])} title="Load Project">
                           <Play size={12} strokeWidth={2.5} />
                           <span>Load</span>
                         </button>
-                        <button className="project-row-btn project-row-btn--delete" onClick={() => deleteProject(name)} title="Delete Project">
+                        <button className="project-row-btn project-row-btn--delete" onClick={() => api.deleteProject(name)} title="Delete Project">
                           <Trash2 size={12} />
                         </button>
                       </div>
@@ -279,7 +256,7 @@ export function SaveAndLoad({
             </div>
 
             <div className="project-modal-actions">
-              <button className="project-modal-btn project-modal-btn--ghost" onClick={() => { setShowLoad(false); setImportError(""); }}>Close</button>
+              <button className="project-modal-btn project-modal-btn--ghost" onClick={() => { api.setShowLoad(false); api.setImportError(""); }}>Close</button>
             </div>
           </div>
         </div>
