@@ -68,6 +68,7 @@ export const CircuitCanvas = ({
   onRenameSheet = () => {},
   onDeleteSheet = () => {},
   embedded = false,
+  showGridOverlay = true,
   setPanOffset,
   inputGates = [],
   outputGates = [],
@@ -89,7 +90,10 @@ export const CircuitCanvas = ({
   setHintError,
 }) => {
   return (
-    <div className={`canvas-container${connectingFrom ? " is-wiring" : ""}`} ref={containerRef}>
+    <div
+      className={`canvas-container${connectingFrom ? " is-wiring" : ""}${showGridOverlay ? "" : " canvas-container--no-grid"}`}
+      ref={containerRef}
+    >
       <canvas
         ref={canvasRef}
         onContextMenu={handleCanvasContextMenu}

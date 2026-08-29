@@ -38,6 +38,7 @@ import { layoutGeneratedCircuit } from "../utils/layoutGeneratedCircuit";
 
 export const ToolbarRibbon = ({
   embedded,
+  containerRef,
   // AI
   aiPrompt,
   setAiPrompt,
@@ -81,6 +82,11 @@ export const ToolbarRibbon = ({
   onToggleSimulate,
   showAI,
   onToggleAI,
+
+  snapEnabled,
+  setSnapEnabled,
+  showGridOverlay,
+  setShowGridOverlay,
 }) => {
   const toast = useToast();
   const [openMenu, setOpenMenu] = useState(null);
@@ -122,6 +128,50 @@ export const ToolbarRibbon = ({
     setGates((prev) => layoutGeneratedCircuit(prev, wires));
     setTimeout(() => saveToHistory(), 0);
     closeMenu();
+  };
+
+  const handleExportPNG = () => {
+    const container = containerRef?.current;
+    const gatesEl = container?.querySelector(".gates-container");
+    if (!container || !gatesEl) return;
+
+    const width = container.clientWidth;
+    const height = container.clientHeight;
+    const bg = getComputedStyle(container).backgroundColor || "#0a0e1a";
+
+    const svgString = `
+      <svg xmlns="http://www.w3.org/2000/svg" width="${width}" height="${height}">
+        <foreignObject width="100%" height="100%">
+          <div xmlns="http://www.w3.org/1999/xhtml" style="width:${width}px;height:${height}px;background:${bg}">
+            ${gatesEl.outerHTML}
+          </div>
+        </foreignObject>
+      </svg>`;
+
+    const url = URL.createObjectURL(new Blob([svgString], { type: "image/svg+xml;charset=utf-8" }));
+    const img = new Image();
+    img.onload = () => {
+      const out = document.createElement("canvas");
+      out.width = width * 2;
+      out.height = height * 2;
+      const ctx = out.getContext("2d");
+      ctx.scale(2, 2);
+      ctx.fillStyle = bg;
+      ctx.fillRect(0, 0, width, height);
+      ctx.drawImage(img, 0, 0, width, height);
+      URL.revokeObjectURL(url);
+      out.toBlob((blob) => {
+        const a = document.createElement("a");
+        a.href = URL.createObjectURL(blob);
+        a.download = `boolforge-circuit-${Date.now()}.png`;
+        a.click();
+      });
+    };
+    img.onerror = () => {
+      toast.error("Couldn't export the image — try a smaller circuit.");
+      URL.revokeObjectURL(url);
+    };
+    img.src = url;
   };
 
   return (
@@ -180,9 +230,23 @@ export const ToolbarRibbon = ({
           />
         </RibbonMenuSection>
         <RibbonMenuDivider />
-        <RibbonMenuSection title="Grid (coming soon)">
-          <RibbonMenuItem icon={Magnet} label="Snap to Grid" trailing={<SoonBadge />} disabled />
-          <RibbonMenuItem icon={Grid3x3} label="Show Grid Overlay" trailing={<SoonBadge />} disabled />
+        <RibbonMenuSection title="Grid">
+          <RibbonMenuItem
+            icon={Magnet}
+            label="Snap to Grid"
+            description="Align dragged gates to the grid"
+            active={snapEnabled}
+            trailing={snapEnabled ? <Check size={14} /> : null}
+            onClick={() => setSnapEnabled((v) => !v)}
+          />
+          <RibbonMenuItem
+            icon={Grid3x3}
+            label="Show Grid Overlay"
+            description="Toggle the background grid lines"
+            active={showGridOverlay}
+            trailing={showGridOverlay ? <Check size={14} /> : null}
+            onClick={() => setShowGridOverlay((v) => !v)}
+          />
         </RibbonMenuSection>
       </RibbonMenu>
 
@@ -217,8 +281,7 @@ export const ToolbarRibbon = ({
             icon={Image}
             label="Export as PNG"
             description="Save the canvas as an image"
-            trailing={<SoonBadge />}
-            onClick={() => notReady("PNG export")}
+            onClick={handleExportPNG}
           />
           <RibbonMenuItem
             icon={MessageSquare}

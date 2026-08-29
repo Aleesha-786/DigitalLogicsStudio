@@ -145,6 +145,10 @@
   pointer-events: auto;
 }
 
+.canvas-container--no-grid {
+  background-image: none;
+}
+
 .circuit-maker .gate:not(.gate--ic) {
   width: 120px;
   height: 100px;

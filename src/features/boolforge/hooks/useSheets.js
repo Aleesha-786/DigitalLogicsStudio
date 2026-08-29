@@ -5,7 +5,6 @@ import {
   MAX_GATE_INPUTS,
   MIN_GATE_INPUTS,
   MULTI_INPUT_GATES,
-  SNAP_TO_GRID,
   GRID_SIZE,
   defaultInputCount,
   getICHeight,
@@ -36,7 +35,7 @@ function makeEmptySheet(name, index) {
 // circuit into live gates/wires/etc state so that all the existing circuit
 // hooks (useCanvasInteractions, useAI, useSimulation, useKeyboardShortcuts)
 // keep working unmodified — they just receive these values/setters as before.
-export function useSheets({ portNames = null, containerRef } = {}) {
+export function useSheets({ portNames = null, containerRef, snapEnabled = true } = {}) {
   const toast = useToast();
   const [sheets, setSheets] = useState(() => [makeEmptySheet("Sheet 1", 1)]);
   const [activeSheetId, setActiveSheetIdState] = useState(() => sheets[0].id);
@@ -246,8 +245,8 @@ export function useSheets({ portNames = null, containerRef } = {}) {
 
   // ── Gate CRUD (identical logic to useCircuitState) ─────────────────────
   const snapToGrid = useCallback(
-    (value) => (SNAP_TO_GRID ? Math.round(value / GRID_SIZE) * GRID_SIZE : value),
-    []
+    (value) => (snapEnabled ? Math.round(value / GRID_SIZE) * GRID_SIZE : value),
+    [snapEnabled]
   );
 
   const deleteGate = useCallback(
