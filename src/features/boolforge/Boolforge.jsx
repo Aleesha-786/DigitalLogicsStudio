@@ -30,6 +30,8 @@ const Boolforge = ({
 
   const [showSimulate, setShowSimulate] = useState(false);
   const [showAIPanel, setShowAIPanel] = useState(false);
+  const [snapEnabled, setSnapEnabled] = useState(true);
+  const [showGridOverlay, setShowGridOverlay] = useState(true);
 
   // ── Refs shared across hooks ─────────────────────────────────────────────
   const canvasRef = useRef(null);
@@ -41,7 +43,7 @@ const Boolforge = ({
   // useSheets manages multiple independent circuit sheets and mirrors the
   // active sheet's circuit into the same live gates/wires/etc state shape
   // that useCircuitState used to provide, so downstream hooks are unchanged.
-  const circuit = useSheets({ portNames, containerRef });
+  const circuit = useSheets({ portNames, containerRef, snapEnabled });
   const {
     sheets, activeSheetId, setActiveSheetId, addSheet, renameSheet, deleteSheet, loadSheets,
     gates, setGates,
@@ -80,6 +82,7 @@ const Boolforge = ({
     setWireIdCounter,
     saveToHistory,
     snapToGrid,
+    snapEnabled,
     selectedGateIds,
     setSelectedGateIds,
     selectedGate,
@@ -263,6 +266,7 @@ const Boolforge = ({
       {/* TOOLBAR RIBBON — replaces the old right-hand CircuitControls panel */}
       <ToolbarRibbon
         embedded={embedded}
+        containerRef={containerRef}
         aiPrompt={aiPrompt}
         setAiPrompt={setAiPrompt}
         handleRequestHint={handleRequestHint}
@@ -298,6 +302,10 @@ const Boolforge = ({
         onToggleSimulate={() => setShowSimulate((v) => !v)}
         showAI={showAIPanel}
         onToggleAI={() => setShowAIPanel((v) => !v)}
+        snapEnabled={snapEnabled}
+        setSnapEnabled={setSnapEnabled}
+        showGridOverlay={showGridOverlay}
+        setShowGridOverlay={setShowGridOverlay}
       />
     
       {/* WORKSPACE — sidebar + canvas, below the ribbon */}
@@ -362,6 +370,7 @@ const Boolforge = ({
           onRenameSheet={renameSheet}
           onDeleteSheet={deleteSheet}
           embedded={embedded}
+          snapEnabled={snapEnabled}
           setPanOffset={setPanOffset}
           inputGates={inputGates}
           outputGates={outputGates}
@@ -381,6 +390,7 @@ const Boolforge = ({
           hintError={hintError}
           setHint={setHint}
           setHintError={setHintError}
+          showGridOverlay={showGridOverlay}
         />
       </div>
 

@@ -17,7 +17,6 @@ import {
   Zap,
   Activity,
   // Table2,
-  Image,
   MessageSquare,
   History,
   Settings2,
@@ -30,14 +29,14 @@ import {
   LogOut,
   Check,
 } from "lucide-react";
-// import { TruthTableGenerator } from "./TruthTable";
-import { SaveAndLoad } from "./SaveAndLoad";
 import { RibbonMenu, RibbonMenuSection, RibbonMenuItem, RibbonMenuDivider, SoonBadge } from "./RibbonMenu";
 import { useToast } from "../../../shared/context/ToastContext";
 import { layoutGeneratedCircuit } from "../utils/layoutGeneratedCircuit";
+import { useSaveAndLoad, SaveLoadMenuItems, SaveLoadDialogs } from "./SaveAndLoad";
 
 export const ToolbarRibbon = ({
   embedded,
+  containerRef,
   // AI
   aiPrompt,
   setAiPrompt,
@@ -81,10 +80,16 @@ export const ToolbarRibbon = ({
   onToggleSimulate,
   showAI,
   onToggleAI,
+
+  snapEnabled,
+  setSnapEnabled,
+  showGridOverlay,
+  setShowGridOverlay,
 }) => {
   const toast = useToast();
   const [openMenu, setOpenMenu] = useState(null);
   const ribbonRef = useRef(null);
+  const saveLoad = useSaveAndLoad({ sheets, loadSheets });
 
   const toggleMenu = (name) => setOpenMenu((m) => (m === name ? null : name));
   const closeMenu = () => setOpenMenu(null);
@@ -124,6 +129,50 @@ export const ToolbarRibbon = ({
     closeMenu();
   };
 
+  const handleExportPNG = () => {
+    const container = containerRef?.current;
+    const gatesEl = container?.querySelector(".gates-container");
+    if (!container || !gatesEl) return;
+
+    const width = container.clientWidth;
+    const height = container.clientHeight;
+    const bg = getComputedStyle(container).backgroundColor || "#0a0e1a";
+
+    const svgString = `
+      <svg xmlns="http://www.w3.org/2000/svg" width="${width}" height="${height}">
+        <foreignObject width="100%" height="100%">
+          <div xmlns="http://www.w3.org/1999/xhtml" style="width:${width}px;height:${height}px;background:${bg}">
+            ${gatesEl.outerHTML}
+          </div>
+        </foreignObject>
+      </svg>`;
+
+    const url = URL.createObjectURL(new Blob([svgString], { type: "image/svg+xml;charset=utf-8" }));
+    const img = new Image();
+    img.onload = () => {
+      const out = document.createElement("canvas");
+      out.width = width * 2;
+      out.height = height * 2;
+      const ctx = out.getContext("2d");
+      ctx.scale(2, 2);
+      ctx.fillStyle = bg;
+      ctx.fillRect(0, 0, width, height);
+      ctx.drawImage(img, 0, 0, width, height);
+      URL.revokeObjectURL(url);
+      out.toBlob((blob) => {
+        const a = document.createElement("a");
+        a.href = URL.createObjectURL(blob);
+        a.download = `boolforge-circuit-${Date.now()}.png`;
+        a.click();
+      });
+    };
+    img.onerror = () => {
+      toast.error("Couldn't export the image — try a smaller circuit.");
+      URL.revokeObjectURL(url);
+    };
+    img.src = url;
+  };
+
   return (
     <div className="toolbar-ribbon" ref={ribbonRef}>
       {/* ── Edit: undo / redo / clear ───────────────────────────────── */}
@@ -149,7 +198,21 @@ export const ToolbarRibbon = ({
       {/* ── File ─────────────────────────────────────────────────────── */}
       <RibbonMenu label="File" icon={FolderOpen} isOpen={openMenu === "file"} onToggle={() => toggleMenu("file")}>
         <RibbonMenuSection title="Project">
-          <SaveAndLoad sheets={sheets} loadSheets={loadSheets} />
+          <SaveLoadMenuItems 
+            api={saveLoad} 
+            onExportPNG={handleExportPNG} 
+            closeMenu={closeMenu} 
+          />
+        </RibbonMenuSection>
+        <RibbonMenuDivider />
+        <RibbonMenuSection title="History">
+          <RibbonMenuItem
+            icon={History}
+            label="Version History"
+            description="Browse past saves"
+            trailing={<SoonBadge />}
+            onClick={() => notReady("Version history")}
+          />
         </RibbonMenuSection>
       </RibbonMenu>
 
@@ -180,9 +243,23 @@ export const ToolbarRibbon = ({
           />
         </RibbonMenuSection>
         <RibbonMenuDivider />
-        <RibbonMenuSection title="Grid (coming soon)">
-          <RibbonMenuItem icon={Magnet} label="Snap to Grid" trailing={<SoonBadge />} disabled />
-          <RibbonMenuItem icon={Grid3x3} label="Show Grid Overlay" trailing={<SoonBadge />} disabled />
+        <RibbonMenuSection title="Grid">
+          <RibbonMenuItem
+            icon={Magnet}
+            label="Snap to Grid"
+            description="Align dragged gates to the grid"
+            active={snapEnabled}
+            trailing={snapEnabled ? <Check size={14} /> : null}
+            onClick={() => setSnapEnabled((v) => !v)}
+          />
+          <RibbonMenuItem
+            icon={Grid3x3}
+            label="Show Grid Overlay"
+            description="Toggle the background grid lines"
+            active={showGridOverlay}
+            trailing={showGridOverlay ? <Check size={14} /> : null}
+            onClick={() => setShowGridOverlay((v) => !v)}
+          />
         </RibbonMenuSection>
       </RibbonMenu>
 
@@ -211,28 +288,14 @@ export const ToolbarRibbon = ({
       )}
 
       {/* ── Tools: visible but not-yet-wired feature previews ───────── */}
-      <RibbonMenu label="Tools" icon={Zap} isOpen={openMenu === "tools"} onToggle={() => toggleMenu("tools")} badge="4">
+      <RibbonMenu label="Tools" icon={Zap} isOpen={openMenu === "tools"} onToggle={() => toggleMenu("tools")} badge="2">
         <RibbonMenuSection title="Coming soon">
-          <RibbonMenuItem
-            icon={Image}
-            label="Export as PNG"
-            description="Save the canvas as an image"
-            trailing={<SoonBadge />}
-            onClick={() => notReady("PNG export")}
-          />
           <RibbonMenuItem
             icon={MessageSquare}
             label="Comments"
             description="Leave notes on the circuit"
             trailing={<SoonBadge />}
             onClick={() => notReady("Comments")}
-          />
-          <RibbonMenuItem
-            icon={History}
-            label="Version History"
-            description="Browse past saves"
-            trailing={<SoonBadge />}
-            onClick={() => notReady("Version history")}
           />
           <RibbonMenuItem
             icon={Boxes}
@@ -328,6 +391,9 @@ export const ToolbarRibbon = ({
           <LogOut size={13} strokeWidth={2} /> {outputGates.length}
         </span>
       </div>
+
+      <SaveLoadDialogs api={saveLoad} />
+      
     </div>
   );
 };

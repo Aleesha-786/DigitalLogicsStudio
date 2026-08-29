@@ -3,7 +3,7 @@ export const MIN_GATE_INPUTS = 2;
 export const MULTI_INPUT_GATES = new Set(["AND", "OR", "NAND", "NOR", "XOR", "XNOR"]);
 export const SINGLE_INPUT_GATES = new Set(["NOT", "BUFFER", "OUTPUT"]);
 export const GRID_SIZE = 20;
-export const SNAP_TO_GRID = true;
+// export const SNAP_TO_GRID = true;
 export const GATE_WIDTH = 120;
 export const GATE_HEIGHT = 100;
 

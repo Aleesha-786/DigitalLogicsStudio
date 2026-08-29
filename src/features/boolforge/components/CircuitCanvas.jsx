@@ -9,6 +9,7 @@ import {
   getICHeight,
   getOutputY,
   getCurvePoints,
+  getOrthogonalPoints,
   getWirePoints,
   wirePathD,
 } from "../utils";
@@ -68,6 +69,8 @@ export const CircuitCanvas = ({
   onRenameSheet = () => {},
   onDeleteSheet = () => {},
   embedded = false,
+  snapEnabled = false,
+  showGridOverlay = true,
   setPanOffset,
   inputGates = [],
   outputGates = [],
@@ -89,7 +92,10 @@ export const CircuitCanvas = ({
   setHintError,
 }) => {
   return (
-    <div className={`canvas-container${connectingFrom ? " is-wiring" : ""}`} ref={containerRef}>
+    <div
+      className={`canvas-container${connectingFrom ? " is-wiring" : ""}${showGridOverlay ? "" : " canvas-container--no-grid"}`}
+      ref={containerRef}
+    >
       <canvas
         ref={canvasRef}
         onContextMenu={handleCanvasContextMenu}
@@ -110,7 +116,7 @@ export const CircuitCanvas = ({
             const fromGate = gateMap.get(wire.fromId);
             const toGate = gateMap.get(wire.toId);
             if (!fromGate || !toGate) return null;
-            const pts = getWirePoints(fromGate, toGate, wire.fromOutputIndex, wire.toIndex);
+            const pts = getWirePoints(fromGate, toGate, wire.fromOutputIndex, wire.toIndex, snapEnabled);
             const isActive = evaluateGate(fromGate, wire.fromOutputIndex ?? 0);
             return (
               <g
@@ -142,7 +148,9 @@ export const CircuitCanvas = ({
           {connectingFrom && connectCursor && (() => {
             const fromGate = gateMap.get(connectingFrom.gateId ?? connectingFrom.gate?.id);
             if (!fromGate) return null;
-            const pts = getCurvePoints(fromGate.x + GATE_WIDTH, getOutputY(fromGate, connectingFrom.outputIndex ?? 0), connectCursor.x, connectCursor.y);
+            const pts = snapEnabled
+              ? getOrthogonalPoints(fromGate.x + GATE_WIDTH, getOutputY(fromGate, connectingFrom.outputIndex ?? 0), connectCursor.x, connectCursor.y)
+              : getCurvePoints(fromGate.x + GATE_WIDTH, getOutputY(fromGate, connectingFrom.outputIndex ?? 0), connectCursor.x, connectCursor.y);
             return <path className="wire-preview" d={wirePathD(pts)} fill="none" />;
           })()}
         </svg>
