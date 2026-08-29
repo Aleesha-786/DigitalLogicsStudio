@@ -1,80 +1,89 @@
 import { useState, useRef } from "react";
 
+import { 
+  Save, 
+  FolderOpen, 
+  Download, 
+  Image as ImageIcon, 
+  Upload,
+  X,
+  FileText,
+  Database,
+  Clock,
+  Play,
+  Trash2,
+  Info
+} from "lucide-react";
+
+import { RibbonMenuItem } from "./RibbonMenu";
+
 const STORAGE_KEY = "logic_editor_saved_projects_v1";
 
-// `sheets` is the full multi-sheet project: [{ id, name, circuit }, ...]
-// `loadSheets(sheetsArray)` replaces the whole project with the given sheets.
-export function SaveAndLoad({ sheets, loadSheets }) {
+export function SaveAndLoad({ 
+  sheets, 
+  loadSheets, 
+  onExportPNG, 
+  closeMenu 
+}) {
   const [showSave, setShowSave] = useState(false);
   const [showLoad, setShowLoad] = useState(false);
   const [projectName, setProjectName] = useState("");
   const [importError, setImportError] = useState("");
+  const [projectsList, setProjectsList] = useState({});
   const importFileRef = useRef(null);
 
-  const getProjects = () =>
-    JSON.parse(localStorage.getItem(STORAGE_KEY) || "{}");
+  const getProjects = () => JSON.parse(localStorage.getItem(STORAGE_KEY) || "{}");
+  const setProjects = (p) => localStorage.setItem(STORAGE_KEY, JSON.stringify(p));
 
-  const setProjects = (p) => {
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(p));
+  const openSave = () => { closeMenu?.(); setShowSave(true); };
+  const openLoad = () => { 
+    closeMenu?.(); 
+    setProjectsList(getProjects());
+    setShowLoad(true); 
   };
 
   const saveProject = () => {
     if (!projectName.trim()) return;
-
     const projects = getProjects();
-
-    if (projects[projectName]) {
-      if (!window.confirm("Overwrite existing project?")) return;
-    }
-
+    if (projects[projectName] && !window.confirm("Overwrite existing project?")) return;
     projects[projectName] = {
-      versions: [
-        { sheets, time: Date.now() },
-        ...(projects[projectName]?.versions || []),
-      ].slice(0, 10),
+      versions: [{ sheets, time: Date.now() }, ...(projects[projectName]?.versions || [])].slice(0, 10),
     };
-
     setProjects(projects);
     setShowSave(false);
     setProjectName("");
   };
 
   const loadSnapshot = (snap) => {
-    // Back-compat: older saves stored a single circuit (gates/wires/...)
-    // instead of a sheets array. Wrap it into a single-sheet project.
     if (Array.isArray(snap.sheets) && snap.sheets.length > 0) {
       loadSheets(snap.sheets);
     } else if (Array.isArray(snap.gates)) {
-      loadSheets([
-        {
-          name: "Sheet 1",
-          circuit: {
-            gates: snap.gates || [],
-            wires: snap.wires || [],
-            gateIdCounter: snap.gateIdCounter || 0,
-            wireIdCounter: snap.wireIdCounter || 0,
-            inputCounter: snap.inputCounter || 0,
-            outputCounter: snap.outputCounter || 0,
-          },
+      loadSheets([{
+        name: "Sheet 1",
+        circuit: {
+          gates: snap.gates || [],
+          wires: snap.wires || [],
+          gateIdCounter: snap.gateIdCounter || 0,
+          wireIdCounter: snap.wireIdCounter || 0,
+          inputCounter: snap.inputCounter || 0,
+          outputCounter: snap.outputCounter || 0,
         },
-      ]);
+      }]);
     }
     setShowLoad(false);
   };
 
   const deleteProject = (name) => {
+    if (!window.confirm(`Are you sure you want to delete "${name}"?`)) return;
     const p = getProjects();
     delete p[name];
     setProjects(p);
-    setShowLoad(true);
+    setProjectsList(p);
   };
 
-  // ── Export: download current project (all sheets) as a JSON file ─────────
   const exportJSON = () => {
     const exportData = { sheets, exportedAt: new Date().toISOString() };
-    const blob = new Blob([JSON.stringify(exportData, null, 2)], {
-      type: "application/json",
-    });
+    const blob = new Blob([JSON.stringify(exportData, null, 2)], { type: "application/json" });
     const url = URL.createObjectURL(blob);
     const a = document.createElement("a");
     a.href = url;
@@ -83,192 +92,195 @@ export function SaveAndLoad({ sheets, loadSheets }) {
     URL.revokeObjectURL(url);
   };
 
-  // ── Import: read a JSON file and load it as the current project ──────────
   const handleImportFile = (e) => {
     const file = e.target.files?.[0];
     if (!file) return;
-
     setImportError("");
     const reader = new FileReader();
-
     reader.onload = (event) => {
       try {
         const parsed = JSON.parse(event.target.result);
-
         const looksLikeSheets = Array.isArray(parsed.sheets) && parsed.sheets.length > 0;
         const looksLikeLegacyCircuit = Array.isArray(parsed.gates) && Array.isArray(parsed.wires);
-
         if (!looksLikeSheets && !looksLikeLegacyCircuit) {
-          setImportError(
-            "Invalid file: missing sheets/gates/wires. Is this a Boolforge JSON?",
-          );
+          setImportError("Invalid file: missing sheets/gates/wires. Is this a Boolforge JSON?");
           return;
         }
-
         loadSnapshot(parsed);
       } catch {
         setImportError("Could not parse file. Make sure it is valid JSON.");
       }
     };
-
-    reader.onerror = () => {
-      setImportError("Failed to read the file. Please try again.");
-    };
-
+    reader.onerror = () => setImportError("Failed to read the file. Please try again.");
     reader.readAsText(file);
-
-    // Reset input so the same file can be re-imported if needed
     e.target.value = "";
   };
 
-  const projects = getProjects();
-  const names = Object.keys(projects);
+  const formatTime = (timestamp) => {
+    if (!timestamp) return "Unknown date";
+    try {
+      const date = new Date(timestamp);
+      return date.toLocaleString(undefined, {
+        month: "short",
+        day: "numeric",
+        hour: "numeric",
+        minute: "2-digit",
+        hour12: true
+      });
+    } catch (e) {
+      return "Unknown date";
+    }
+  };
+
+  const names = Object.keys(projectsList);
 
   return (
     <>
-      <button
-        className="logic-circuit-project-manager-primary-action-button first"
-        onClick={() => setShowSave(true)}
-      >
-        Save Project
-      </button>
+      <RibbonMenuItem 
+        icon={Save} 
+        label="Save Project" 
+        description="Save current sheets to this browser" 
+        onClick={openSave} 
+      />
+      <RibbonMenuItem 
+        icon={FolderOpen} 
+        label="Load Project" 
+        description="Restore a saved project" 
+        onClick={openLoad} 
+      />
+      <RibbonMenuItem 
+        icon={Download} 
+        label="Export JSON" 
+        description="Download all sheets as a file" 
+        onClick={exportJSON} 
+      />
+      {onExportPNG && (
+        <RibbonMenuItem 
+          icon={ImageIcon} 
+          label="Export as PNG" 
+          description="Save the canvas as an image" 
+          onClick={onExportPNG} 
+        />
+      )}
 
-      <button
-        className="logic-circuit-project-manager-primary-action-button"
-        onClick={() => setShowLoad(true)}
-      >
-        Load Project
-      </button>
-
-      {/* ── Export JSON button ── */}
-      <button
-        className="logic-circuit-project-manager-primary-action-button"
-        onClick={exportJSON}
-        title="Export current project (all sheets) as a JSON file to your computer"
-      >
-        ⬇ Export JSON
-      </button>
-
-      {/* SAVE MODAL */}
       {showSave && (
-        <div className="logic-circuit-project-manager-fullscreen-overlay-background-container">
-          <div className="logic-circuit-project-manager-modal-window-card-container">
-            <h3 className="logic-circuit-project-manager-modal-title-text-heading">
-              Save Project
-            </h3>
-
-            <input
-              className="logic-circuit-project-manager-project-name-text-input-field"
-              value={projectName}
-              onChange={(e) => setProjectName(e.target.value)}
-              onKeyDown={(e) => e.key === "Enter" && saveProject()}
-              placeholder="Project name"
-              autoFocus
-            />
-
-            <div className="logic-circuit-project-manager-modal-button-row-layout-wrapper">
-              <button
-                className="logic-circuit-project-manager-confirm-save-button"
-                onClick={saveProject}
-              >
-                Save
+        <div className="project-modal-overlay" onClick={() => setShowSave(false)}>
+          <div className="project-modal" onClick={(e) => e.stopPropagation()}>
+            <div className="project-modal-header">
+              <div className="project-modal-title">
+                <Save size={18} className="project-modal-icon text-emerald" />
+                <h3>Save Project</h3>
+              </div>
+              <button className="project-modal-close" onClick={() => setShowSave(false)} aria-label="Close dialog">
+                <X size={16} />
               </button>
+            </div>
 
-              <button
-                className="logic-circuit-project-manager-cancel-close-button"
-                onClick={() => setShowSave(false)}
-              >
-                Cancel
-              </button>
+            <p className="project-modal-desc">
+              Save your circuit sheets to your browser's local storage. You can restore this workspace at any time.
+            </p>
+
+            <div className="project-modal-input-wrapper">
+              <FileText size={16} className="project-modal-input-icon" />
+              <input
+                className="project-modal-input"
+                value={projectName}
+                onChange={(e) => setProjectName(e.target.value)}
+                onKeyDown={(e) => e.key === "Enter" && saveProject()}
+                placeholder="e.g. 8-Bit Arithmetic Logic Unit"
+                autoFocus
+              />
+            </div>
+
+            <div className="project-modal-actions">
+              <button className="project-modal-btn project-modal-btn--ghost" onClick={() => setShowSave(false)}>Cancel</button>
+              <button className="project-modal-btn project-modal-btn--primary" onClick={saveProject}>Save Project</button>
             </div>
           </div>
         </div>
       )}
 
-      {/* LOAD MODAL */}
       {showLoad && (
-        <div className="logic-circuit-project-manager-fullscreen-overlay-background-container">
-          <div className="logic-circuit-project-manager-modal-window-card-container">
-            <h3 className="logic-circuit-project-manager-modal-title-text-heading">
-              Load Project
-            </h3>
-
-            {/* ── Import from JSON file ── */}
-            <div className="logic-circuit-project-manager-import-section-wrapper">
-              <p className="logic-circuit-project-manager-import-section-label">
-                Import from JSON file
-              </p>
-
-              <button
-                className="logic-circuit-project-manager-import-json-button"
-                onClick={() => {
-                  setImportError("");
-                  importFileRef.current?.click();
-                }}
-              >
-                ⬆ Choose JSON File…
+        <div className="project-modal-overlay" onClick={() => { setShowLoad(false); setImportError(""); }}>
+          <div className="project-modal" onClick={(e) => e.stopPropagation()}>
+            <div className="project-modal-header">
+              <div className="project-modal-title">
+                <FolderOpen size={18} className="project-modal-icon text-cyan" />
+                <h3>Load Project</h3>
+              </div>
+              <button className="project-modal-close" onClick={() => { setShowLoad(false); setImportError(""); }} aria-label="Close dialog">
+                <X size={16} />
               </button>
-
-              {/* Hidden file input */}
-              <input
-                ref={importFileRef}
-                type="file"
-                accept=".json,application/json"
-                style={{ display: "none" }}
-                onChange={handleImportFile}
-              />
-
-              {importError && (
-                <p className="logic-circuit-project-manager-import-error-message">
-                  {importError}
-                </p>
-              )}
             </div>
 
-            {/* ── Divider ── */}
-            <div className="logic-circuit-project-manager-section-divider" />
-
-            {/* ── Saved projects list ── */}
-            {names.length === 0 && (
-              <div className="logic-circuit-project-manager-empty-projects-placeholder-message">
-                No projects saved
+            <div className="project-modal-import-zone" onClick={() => { setImportError(""); importFileRef.current?.click(); }}>
+              <div className="project-modal-import-content">
+                <Upload size={24} className="project-modal-import-icon" />
+                <span className="project-modal-import-text">Import JSON file</span>
+                <span className="project-modal-import-subtext">Click to choose a saved .json project</span>
+              </div>
+            </div>
+            <input
+              ref={importFileRef}
+              type="file"
+              accept=".json,application/json"
+              style={{ display: "none" }}
+              onChange={handleImportFile}
+            />
+            {importError && (
+              <div className="project-modal-error">
+                <Info size={14} className="error-icon" />
+                <span>{importError}</span>
               </div>
             )}
 
-            {names.map((name) => (
-              <div
-                key={name}
-                className="logic-circuit-project-manager-project-row-item-container"
-              >
-                <span>{name}</span>
+            <div className="project-modal-divider" />
 
-                <div className="logic-circuit-project-manager-project-row-button-group-wrapper">
-                  <button
-                    className="logic-circuit-project-manager-small-load-button"
-                    onClick={() => loadSnapshot(projects[name].versions[0])}
-                  >
-                    Load
-                  </button>
+            <div className="project-modal-section-title">
+              <Database size={12} />
+              <span>Saved in Browser</span>
+            </div>
 
-                  <button
-                    className="logic-circuit-project-manager-small-delete-button"
-                    onClick={() => deleteProject(name)}
-                  >
-                    Delete
-                  </button>
+            <div className="project-modal-list">
+              {names.length === 0 ? (
+                <div className="project-modal-empty">
+                  <FolderOpen size={28} className="empty-icon" />
+                  <p>No saved projects yet</p>
+                  <span>Save a project first to see it listed here.</span>
                 </div>
-              </div>
-            ))}
+              ) : (
+                names.map((name) => {
+                  const project = projectsList[name];
+                  const lastModified = project?.versions?.[0]?.time;
+                  return (
+                    <div key={name} className="project-row">
+                      <div className="project-row-info">
+                        <span className="project-row-name" title={name}>{name}</span>
+                        {lastModified && (
+                          <span className="project-row-time">
+                            <Clock size={10} />
+                            {formatTime(lastModified)}
+                          </span>
+                        )}
+                      </div>
+                      <div className="project-row-actions">
+                        <button className="project-row-btn project-row-btn--load" onClick={() => loadSnapshot(project.versions[0])} title="Load Project">
+                          <Play size={12} strokeWidth={2.5} />
+                          <span>Load</span>
+                        </button>
+                        <button className="project-row-btn project-row-btn--delete" onClick={() => deleteProject(name)} title="Delete Project">
+                          <Trash2 size={12} />
+                        </button>
+                      </div>
+                    </div>
+                  );
+                })
+              )}
+            </div>
 
-            <button
-              className="logic-circuit-project-manager-cancel-close-button"
-              onClick={() => {
-                setShowLoad(false);
-                setImportError("");
-              }}
-            >
-              Close
-            </button>
+            <div className="project-modal-actions">
+              <button className="project-modal-btn project-modal-btn--ghost" onClick={() => { setShowLoad(false); setImportError(""); }}>Close</button>
+            </div>
           </div>
         </div>
       )}

@@ -82,6 +82,7 @@ const Boolforge = ({
     setWireIdCounter,
     saveToHistory,
     snapToGrid,
+    snapEnabled,
     selectedGateIds,
     setSelectedGateIds,
     selectedGate,
@@ -369,6 +370,7 @@ const Boolforge = ({
           onRenameSheet={renameSheet}
           onDeleteSheet={deleteSheet}
           embedded={embedded}
+          snapEnabled={snapEnabled}
           setPanOffset={setPanOffset}
           inputGates={inputGates}
           outputGates={outputGates}

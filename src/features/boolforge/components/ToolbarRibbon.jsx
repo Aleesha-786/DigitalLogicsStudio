@@ -17,7 +17,6 @@ import {
   Zap,
   Activity,
   // Table2,
-  Image,
   MessageSquare,
   History,
   Settings2,
@@ -199,7 +198,22 @@ export const ToolbarRibbon = ({
       {/* ── File ─────────────────────────────────────────────────────── */}
       <RibbonMenu label="File" icon={FolderOpen} isOpen={openMenu === "file"} onToggle={() => toggleMenu("file")}>
         <RibbonMenuSection title="Project">
-          <SaveAndLoad sheets={sheets} loadSheets={loadSheets} />
+          <SaveAndLoad
+            sheets={sheets}
+            loadSheets={loadSheets}
+            onExportPNG={handleExportPNG}
+            closeMenu={closeMenu}
+          />
+        </RibbonMenuSection>
+        <RibbonMenuDivider />
+        <RibbonMenuSection title="History">
+          <RibbonMenuItem
+            icon={History}
+            label="Version History"
+            description="Browse past saves"
+            trailing={<SoonBadge />}
+            onClick={() => notReady("Version history")}
+          />
         </RibbonMenuSection>
       </RibbonMenu>
 
@@ -275,27 +289,14 @@ export const ToolbarRibbon = ({
       )}
 
       {/* ── Tools: visible but not-yet-wired feature previews ───────── */}
-      <RibbonMenu label="Tools" icon={Zap} isOpen={openMenu === "tools"} onToggle={() => toggleMenu("tools")} badge="4">
+      <RibbonMenu label="Tools" icon={Zap} isOpen={openMenu === "tools"} onToggle={() => toggleMenu("tools")} badge="2">
         <RibbonMenuSection title="Coming soon">
-          <RibbonMenuItem
-            icon={Image}
-            label="Export as PNG"
-            description="Save the canvas as an image"
-            onClick={handleExportPNG}
-          />
           <RibbonMenuItem
             icon={MessageSquare}
             label="Comments"
             description="Leave notes on the circuit"
             trailing={<SoonBadge />}
             onClick={() => notReady("Comments")}
-          />
-          <RibbonMenuItem
-            icon={History}
-            label="Version History"
-            description="Browse past saves"
-            trailing={<SoonBadge />}
-            onClick={() => notReady("Version history")}
           />
           <RibbonMenuItem
             icon={Boxes}
