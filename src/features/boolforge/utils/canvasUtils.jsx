@@ -1,4 +1,4 @@
-import { SINGLE_INPUT_GATES, GATE_HEIGHT, GATE_WIDTH, IC_HEIGHTS } from './constants';
+import { SINGLE_INPUT_GATES, GATE_HEIGHT, GATE_WIDTH, IC_HEIGHTS, GRID_SIZE } from './constants';
 import { IC_META, IC_TYPES } from "../../../shared/data/gates";
 
 export function defaultInputCount(type) {
@@ -42,37 +42,61 @@ export function getCurvePoints(fromX, fromY, toX, toY) {
   const distance = Math.hypot(dx, toY - fromY) || 1;
   const controlDistance = Math.max(40, Math.min(Math.abs(dx) / 2, distance / 3));
   return {
+    orthogonal: false,
     fromX, fromY, toX, toY,
     cp1x: fromX + controlDistance, cp1y: fromY,
     cp2x: toX - controlDistance, cp2y: toY,
   };
 }
 
-export function getWirePoints(fromGate, toGate, fromOutputIndex, toIndex) {
-  return getCurvePoints(
-    fromGate.x + GATE_WIDTH,
-    getOutputY(fromGate, fromOutputIndex ?? 0),
-    toGate.x,
-    getInputY(toGate, toIndex),
-  );
+export function getOrthogonalPoints(fromX, fromY, toX, toY, gridSize = GRID_SIZE) {
+  const midX = Math.round((fromX + toX) / 2 / gridSize) * gridSize;
+  return { orthogonal: true, fromX, fromY, midX, toX, toY };
+}
+
+export function getWirePoints(fromGate, toGate, fromOutputIndex, toIndex, snap = false) {
+  const fromX = fromGate.x + GATE_WIDTH;
+  const fromY = getOutputY(fromGate, fromOutputIndex ?? 0);
+  const toX = toGate.x;
+  const toY = getInputY(toGate, toIndex);
+  return snap
+    ? getOrthogonalPoints(fromX, fromY, toX, toY)
+    : getCurvePoints(fromX, fromY, toX, toY);
 }
 
 export function wirePathD(pts) {
+  if (pts.orthogonal) {
+    return `M ${pts.fromX} ${pts.fromY} L ${pts.midX} ${pts.fromY} L ${pts.midX} ${pts.toY} L ${pts.toX} ${pts.toY}`;
+  }
   return `M ${pts.fromX} ${pts.fromY} C ${pts.cp1x} ${pts.cp1y}, ${pts.cp2x} ${pts.cp2y}, ${pts.toX} ${pts.toY}`;
 }
 
-export function hitWireAt(x, y, wires, gateMap, radius = 12) {
-  const SAMPLES = 64;
+export function hitWireAt(x, y, wires, gateMap, radius = 12, snap = false) {
   for (const wire of wires) {
     const fromGate = gateMap.get(wire.fromId);
     const toGate = gateMap.get(wire.toId);
     if (!fromGate || !toGate) continue;
-    const pts = getWirePoints(
-      fromGate,
-      toGate,
-      wire.fromOutputIndex,
-      wire.toIndex,
-    );
+    const pts = getWirePoints(fromGate, toGate, wire.fromOutputIndex, wire.toIndex, snap);
+
+    if (pts.orthogonal) {
+      const segments = [
+        [pts.fromX, pts.fromY, pts.midX, pts.fromY],
+        [pts.midX, pts.fromY, pts.midX, pts.toY],
+        [pts.midX, pts.toY, pts.toX, pts.toY],
+      ];
+      for (const [x1, y1, x2, y2] of segments) {
+        const steps = Math.max(4, Math.ceil(Math.hypot(x2 - x1, y2 - y1) / 8));
+        for (let i = 0; i <= steps; i++) {
+          const t = i / steps;
+          const px = x1 + (x2 - x1) * t, py = y1 + (y2 - y1) * t;
+          if (Math.hypot(px - x, py - y) <= radius) return wire;
+        }
+      }
+      continue;
+    }
+
+    const SAMPLES = 64;
+
     for (let i = 0; i <= SAMPLES; i++) {
       const t = i / SAMPLES;
       const mt = 1 - t;

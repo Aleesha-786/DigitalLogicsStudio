@@ -9,10 +9,14 @@ import {
   getICHeight,
   getOutputY,
   getCurvePoints,
+  getOrthogonalPoints,
   getWirePoints,
   wirePathD,
 } from "../utils";
 
+import { ZoomWidget } from "./ZoomWidget";
+import { SimulatePanel } from "./SimulatePanel";
+import { AIPanel } from "./AIPanel";
 
 function GenericICSymbol({ name, inputCount, outputCount }) {
   const height = Math.max(60, Math.max(inputCount, outputCount) * 22 + 20);
@@ -78,9 +82,33 @@ export const CircuitCanvas = ({
   onRenameSheet = () => {},
   onDeleteSheet = () => {},
   embedded = false,
+  snapEnabled = false,
+  showGridOverlay = true,
+  setPanOffset,
+  inputGates = [],
+  outputGates = [],
+  toggleInput,
+  truthTable,
+  showSimulate,
+  onCloseSimulate,
+  showAIPanel,
+  onCloseAIPanel,
+  aiPrompt,
+  setAiPrompt,
+  handleRequestHint,
+  hintLoading,
+  handleGenerateCircuit,
+  isGenLoading,
+  hint,
+  hintError,
+  setHint,
+  setHintError,
 }) => {
   return (
-    <div className={`canvas-container${connectingFrom ? " is-wiring" : ""}`} ref={containerRef}>
+    <div
+      className={`canvas-container${connectingFrom ? " is-wiring" : ""}${showGridOverlay ? "" : " canvas-container--no-grid"}`}
+      ref={containerRef}
+    >
       <canvas
         ref={canvasRef}
         onContextMenu={handleCanvasContextMenu}
@@ -101,7 +129,7 @@ export const CircuitCanvas = ({
             const fromGate = gateMap.get(wire.fromId);
             const toGate = gateMap.get(wire.toId);
             if (!fromGate || !toGate) return null;
-            const pts = getWirePoints(fromGate, toGate, wire.fromOutputIndex, wire.toIndex);
+            const pts = getWirePoints(fromGate, toGate, wire.fromOutputIndex, wire.toIndex, snapEnabled);
             const isActive = evaluateGate(fromGate, wire.fromOutputIndex ?? 0);
             return (
               <g
@@ -133,7 +161,9 @@ export const CircuitCanvas = ({
           {connectingFrom && connectCursor && (() => {
             const fromGate = gateMap.get(connectingFrom.gateId ?? connectingFrom.gate?.id);
             if (!fromGate) return null;
-            const pts = getCurvePoints(fromGate.x + GATE_WIDTH, getOutputY(fromGate, connectingFrom.outputIndex ?? 0), connectCursor.x, connectCursor.y);
+            const pts = snapEnabled
+              ? getOrthogonalPoints(fromGate.x + GATE_WIDTH, getOutputY(fromGate, connectingFrom.outputIndex ?? 0), connectCursor.x, connectCursor.y)
+              : getCurvePoints(fromGate.x + GATE_WIDTH, getOutputY(fromGate, connectingFrom.outputIndex ?? 0), connectCursor.x, connectCursor.y);
             return <path className="wire-preview" d={wirePathD(pts)} fill="none" />;
           })()}
         </svg>
@@ -226,6 +256,36 @@ export const CircuitCanvas = ({
         <button className="canvas-overlay-btn" onClick={() => setZoom((z) => Math.min(3, z * 1.2))}>+</button>
         <button className="canvas-overlay-btn" onClick={() => setZoom((z) => Math.max(0.3, z * 0.8))}>−</button>
       </div>
+
+      <ZoomWidget zoom={zoom} setZoom={setZoom} setPanOffset={setPanOffset} fitToView={fitToView} />
+
+      {showSimulate && (
+        <SimulatePanel
+          onClose={onCloseSimulate}
+          inputGates={inputGates}
+          outputGates={outputGates}
+          wires={wires}
+          toggleInput={toggleInput}
+          evaluateGate={evaluateGate}
+          truthTable={truthTable}
+        />
+      )}
+
+      {showAIPanel && (
+        <AIPanel
+          onClose={onCloseAIPanel}
+          aiPrompt={aiPrompt}
+          setAiPrompt={setAiPrompt}
+          handleRequestHint={handleRequestHint}
+          hintLoading={hintLoading}
+          handleGenerateCircuit={handleGenerateCircuit}
+          isGenLoading={isGenLoading}
+          hint={hint}
+          hintError={hintError}
+          setHint={setHint}
+          setHintError={setHintError}
+        />
+      )}
 
     {!embedded && (
         <div className="canvas-sheet-tabs-wrapper">

@@ -25,6 +25,7 @@ export function useCanvasInteractions({
   deleteWire,
   containerRef,
   canvasRef,
+  snapEnabled = false,
 }) {
   const [zoom, setZoom] = useState(1);
   const [panOffset, setPanOffset] = useState({ x: 0, y: 0 });
@@ -183,7 +184,17 @@ export function useCanvasInteractions({
       endWiring();
       saveToHistory();
     },
-    [connectingFrom, gateMap, mergeInputGates, wires, wireIdCounter, setWires, setWireIdCounter, endWiring, saveToHistory]
+    [
+      connectingFrom, 
+      gateMap, 
+      mergeInputGates, 
+      wires, 
+      wireIdCounter, 
+      setWires, 
+      setWireIdCounter, 
+      endWiring, 
+      saveToHistory
+    ]
   );
 
   const handleOutputPortClick = useCallback(
@@ -202,10 +213,10 @@ export function useCanvasInteractions({
     (e) => {
       e.preventDefault();
       const { x, y } = clientToWorld(e.clientX, e.clientY);
-      const hit = hitWireAt(x, y, wires, gateMap);
+      const hit = hitWireAt(x, y, wires, gateMap, 12, snapEnabled);
       if (hit) deleteWire(hit.id);
     },
-    [clientToWorld, wires, gateMap, deleteWire]
+    [clientToWorld, wires, gateMap, deleteWire, snapEnabled]
   );
 
   const stopPortEvent = useCallback((e) => {
@@ -224,7 +235,7 @@ export function useCanvasInteractions({
         }
         const { x: startX, y: startY } = clientToWorld(e.clientX, e.clientY);
         if (e.button === 0) {
-          const hit = hitWireAt(startX, startY, wires, gateMap);
+          const hit = hitWireAt(startX, startY, wires, gateMap, 12, snapEnabled);
           if (hit) {
             setSelectedWireIds([hit.id]);
             setSelectedGateIds([]);
@@ -256,7 +267,21 @@ export function useCanvasInteractions({
         }
       }
     },
-    [canvasRef, connectingFrom, clientToWorld, wires, gateMap, spacePressed, panOffset, selectionToolActive, selectedGateIds, setSelectedWireIds, setSelectedGateIds, setSelectedGate]
+    [
+      canvasRef, 
+      connectingFrom, 
+      clientToWorld, 
+      wires, 
+      gateMap, 
+      spacePressed, 
+      panOffset, 
+      selectionToolActive, 
+      selectedGateIds, 
+      setSelectedWireIds, 
+      setSelectedGateIds, 
+      setSelectedGate, 
+      snapEnabled
+    ]
   );
 
   const handleMouseMove = useCallback(

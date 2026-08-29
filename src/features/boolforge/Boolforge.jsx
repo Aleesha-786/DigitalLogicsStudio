@@ -2,10 +2,10 @@ import React, { useState, useRef, useEffect } from "react";
 import { parseExpressionToCircuit } from "../../shared/utils/expressionParser";
 import RelatedSeoLinks from "../../shared/seo/RelatedSeoLinks";
 import Navbar from "../../shared/components/navbar";
-import Footer from "../../shared/components/Footer";
 import { useTheme } from "../../shared/context/ThemeContext";
 import "./Boolforge.css";
-import { Sidebar, RenameModal, CircuitCanvas, CircuitControls, CreateComponentDialog } from "./components";
+import { Sidebar, RenameModal, CircuitCanvas, ToolbarRibbon, CreateComponentDialog } from "./components";
+
 
 import {
   useKeyboardShortcuts,
@@ -28,8 +28,12 @@ const Boolforge = ({
   const { theme, toggle: toggleTheme } = useTheme();
 
   // ── UI shell state ──────────────────────────────────────────────────────
-  const [navbarVisible, setNavbarVisible] = useState(true);
-  const [footerVisible, setFooterVisible] = useState(true);
+  const [fullScreen, setFullScreen] = useState(false);
+
+  const [showSimulate, setShowSimulate] = useState(false);
+  const [showAIPanel, setShowAIPanel] = useState(false);
+  const [snapEnabled, setSnapEnabled] = useState(true);
+  const [showGridOverlay, setShowGridOverlay] = useState(true);
 
   // ── Refs shared across hooks ─────────────────────────────────────────────
   const canvasRef = useRef(null);
@@ -41,9 +45,8 @@ const Boolforge = ({
   // useSheets manages multiple independent circuit sheets and mirrors the
   // active sheet's circuit into the same live gates/wires/etc state shape
   // that useCircuitState used to provide, so downstream hooks are unchanged.
-   const { components: customComponents, createComponent, deleteComponent } = useCustomComponents();
-  const circuit = useSheets({ portNames, containerRef, customComponents });
- 
+  const { components: customComponents, createComponent, deleteComponent } = useCustomComponents();
+  const circuit = useSheets({ portNames, containerRef, customComponents, snapEnabled });
   const {
     sheets, activeSheetId, setActiveSheetId, addSheet, renameSheet, deleteSheet, loadSheets,
     gates, setGates,
@@ -83,6 +86,7 @@ const Boolforge = ({
     setWireIdCounter,
     saveToHistory,
     snapToGrid,
+    snapEnabled,
     selectedGateIds,
     setSelectedGateIds,
     selectedGate,
@@ -288,74 +292,10 @@ const handleCreateComponent = async (name) => {
       }}
       onTouchEnd={() => { stopDrag(); handleMouseUp(); }}
     >
-      {/* SIDEBAR COMPONENT */}
-      <Sidebar
-        selectionToolActive={selectionToolActive}
-        setSelectionToolActive={setSelectionToolActive}
-        simplifiedExpression={simplifiedExpression}
-        addGate={addGate}
-        customComponents={customComponents}
-        onDeleteComponent={deleteComponent}
-      />
-
-      {/* CANVAS COMPONENT */}
-      <CircuitCanvas
-        gates={gates}
-        wires={wires}
-        gateMap={gateMap}
-        selectedGateIds={selectedGateIds}
-        selectedWireIds={selectedWireIds}
-        setSelectedGateIds={setSelectedGateIds}
-        setSelectedWireIds={setSelectedWireIds}
-        setSelectedGate={setSelectedGate}
-        evaluateGate={evaluateGate}
-        zoom={zoom}
-        panOffset={panOffset}
-        isPanning={isPanning}
-        spacePressed={spacePressed}
-        selectionToolActive={selectionToolActive}
-        setSelectionToolActive={setSelectionToolActive}
-        isSelecting={isSelecting}
-        selectionStart={selectionStart}
-        selectionEnd={selectionEnd}
-        connectingFrom={connectingFrom}
-        setConnectCursor={setConnectCursor}
-        connectCursor={connectCursor}
-        clientToWorld={clientToWorld}
-        startDrag={startDrag}
-        onDrag={onDrag}
-        stopDrag={stopDrag}
-        setIsPanning={setIsPanning}
-        setPanStart={setPanStart}
-        handleOutputPortClick={handleOutputPortClick}
-        handleCanvasContextMenu={handleCanvasContextMenu}
-        handleCanvasMouseDown={handleCanvasMouseDown}
-        handleMouseMove={handleMouseMove}
-        handleMouseUp={handleMouseUp}
-        stopPortEvent={stopPortEvent}
-        fitToView={fitToView}
-        setZoom={setZoom}
-        addInputSlot={addInputSlot}
-        removeInputSlot={removeInputSlot}
-        startRename={startRename}
-        deleteGate={deleteGate}
-        deleteWire={deleteWire}
-        completeConnection={completeConnection}
+       {/* TOOLBAR RIBBON — replaces the old right-hand CircuitControls panel */}
+      <ToolbarRibbon
+        embedded={embedded}
         containerRef={containerRef}
-        canvasRef={canvasRef}
-        sheets={sheets}
-        activeSheetId={activeSheetId}
-        onSwitchSheet={setActiveSheetId}
-        onAddSheet={addSheet}
-        onRenameSheet={renameSheet}
-        onDeleteSheet={deleteSheet}
-        embedded={embedded}
-        customIcMeta={customIcMeta}
-      />
-
-      {/* RIGHT PANEL / CONTROLS COMPONENT */}
-      <CircuitControls
-        embedded={embedded}
         aiPrompt={aiPrompt}
         setAiPrompt={setAiPrompt}
         handleRequestHint={handleRequestHint}
@@ -379,21 +319,120 @@ const handleCreateComponent = async (name) => {
         historyIndex={historyIndex}
         history={history}
         gates={gates}
+        setGates={setGates}
         sheets={sheets}
         loadSheets={loadSheets}
         saveToHistory={saveToHistory}
         clearCircuit={clearCircuit}
-        zoom={zoom}
-        setZoom={setZoom}
-        setPanOffset={setPanOffset}
-        fitToView={fitToView}
+        selectionToolActive={selectionToolActive}
+        setSelectionToolActive={setSelectionToolActive}
+        theme={theme}
+        toggleTheme={toggleTheme}
+        onToggleFullScreen={() => setFullScreen(!fullScreen)} 
+        showSimulate={showSimulate}
+        onToggleSimulate={() => setShowSimulate((v) => !v)}
+        showAI={showAIPanel}
+        onToggleAI={() => setShowAIPanel((v) => !v)}
+        snapEnabled={snapEnabled}
+        setSnapEnabled={setSnapEnabled}
+        showGridOverlay={showGridOverlay}
+        setShowGridOverlay={setShowGridOverlay}
       />
-<CreateComponentDialog
-  open={showCreateComponent}
-  onClose={() => setShowCreateComponent(false)}
-  onCreate={handleCreateComponent}
-  portCount={selectionPortCounts}
-/>
+      {/* WORKSPACE — sidebar + canvas, below the ribbon */}
+      <div className="circuit-workspace">
+        {/* SIDEBAR COMPONENT */}
+        <Sidebar
+          selectionToolActive={selectionToolActive}
+          setSelectionToolActive={setSelectionToolActive}
+          simplifiedExpression={simplifiedExpression}
+          addGate={addGate}
+          customComponents={customComponents}
+          onDeleteComponent={deleteComponent}
+        />
+
+        {/* CANVAS COMPONENT */}
+        <CircuitCanvas
+          gates={gates}
+          wires={wires}
+          gateMap={gateMap}
+          selectedGateIds={selectedGateIds}
+          selectedWireIds={selectedWireIds}
+          setSelectedGateIds={setSelectedGateIds}
+          setSelectedWireIds={setSelectedWireIds}
+          setSelectedGate={setSelectedGate}
+          evaluateGate={evaluateGate}
+          zoom={zoom}
+          panOffset={panOffset}
+          isPanning={isPanning}
+          spacePressed={spacePressed}
+          selectionToolActive={selectionToolActive}
+          setSelectionToolActive={setSelectionToolActive}
+          isSelecting={isSelecting}
+          selectionStart={selectionStart}
+          selectionEnd={selectionEnd}
+          connectingFrom={connectingFrom}
+          setConnectCursor={setConnectCursor}
+          connectCursor={connectCursor}
+          clientToWorld={clientToWorld}
+          startDrag={startDrag}
+          onDrag={onDrag}
+          stopDrag={stopDrag}
+          setIsPanning={setIsPanning}
+          setPanStart={setPanStart}
+          handleOutputPortClick={handleOutputPortClick}
+          handleCanvasContextMenu={handleCanvasContextMenu}
+          handleCanvasMouseDown={handleCanvasMouseDown}
+          handleMouseMove={handleMouseMove}
+          handleMouseUp={handleMouseUp}
+          stopPortEvent={stopPortEvent}
+          fitToView={fitToView}
+          setZoom={setZoom}
+          addInputSlot={addInputSlot}
+          removeInputSlot={removeInputSlot}
+          startRename={startRename}
+          deleteGate={deleteGate}
+          deleteWire={deleteWire}
+          completeConnection={completeConnection}
+          containerRef={containerRef}
+          canvasRef={canvasRef}
+          sheets={sheets}
+          activeSheetId={activeSheetId}
+          onSwitchSheet={setActiveSheetId}
+          onAddSheet={addSheet}
+          onRenameSheet={renameSheet}
+          onDeleteSheet={deleteSheet}
+          embedded={embedded}
+          snapEnabled={snapEnabled}
+          setPanOffset={setPanOffset}
+          inputGates={inputGates}
+          outputGates={outputGates}
+          toggleInput={toggleInput}
+          truthTable={truthTable}
+          showSimulate={showSimulate}
+          onCloseSimulate={() => setShowSimulate(false)}
+          showAIPanel={showAIPanel}
+          onCloseAIPanel={() => setShowAIPanel(false)}
+          aiPrompt={aiPrompt}
+          setAiPrompt={setAiPrompt}
+          handleRequestHint={handleRequestHint}
+          hintLoading={hintLoading}
+          handleGenerateCircuit={handleGenerateCircuit}
+          isGenLoading={isGenLoading}
+          hint={hint}
+          hintError={hintError}
+          setHint={setHint}
+          setHintError={setHintError}
+          showGridOverlay={showGridOverlay}
+          customIcMeta={customIcMeta}
+        />
+      </div>
+
+      <CreateComponentDialog
+        open={showCreateComponent}
+        onClose={() => setShowCreateComponent(false)}
+        onCreate={handleCreateComponent}
+        portCount={selectionPortCounts}
+      />
       {/* RENAME MODAL COMPONENT */}
       <RenameModal
         renamingGate={renamingGate}
@@ -413,21 +452,15 @@ const handleCreateComponent = async (name) => {
   return (
     <div className={`boolforge-page theme-${theme}`}>
       <div className="grid-background" />
-      {navbarVisible && <Navbar toggleTheme={toggleTheme} theme={theme} onToggleNavbar={() => setNavbarVisible(false)} />}
-      {!navbarVisible && (
-        <button className="navbar-restore-btn" onClick={() => setNavbarVisible(true)} aria-label="Show navbar" title="Show navbar">
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="3" width="18" height="18" rx="2" ry="2" /><line x1="3" y1="9" x2="21" y2="9" /></svg>
-        </button>
-      )}
-      <main className={`boolforge-main${navbarVisible ? "" : " boolforge-main--fullscreen"}`}>
+      <Navbar 
+        toggleTheme={toggleTheme} 
+        theme={theme} 
+        isVisible={!fullScreen} 
+      />
+
+      <main className={`boolforge-main${!fullScreen ? "" : " boolforge-main--fullscreen"}`}>
         {circuitTool}
       </main>
-      {footerVisible && <Footer onToggleFooter={() => setFooterVisible(false)} />}
-      {!footerVisible && (
-        <button className="footer-restore-btn" onClick={() => setFooterVisible(true)} aria-label="Show footer" title="Show footer">
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="3" width="18" height="18" rx="2" ry="2" /><line x1="3" y1="15" x2="21" y2="15" /></svg>
-        </button>
-      )}
     </div>
   );
 };

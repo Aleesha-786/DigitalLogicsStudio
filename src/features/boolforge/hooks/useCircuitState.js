@@ -4,7 +4,6 @@ import {
   MAX_GATE_INPUTS,
   MIN_GATE_INPUTS,
   MULTI_INPUT_GATES,
-  SNAP_TO_GRID,
   GRID_SIZE,
   defaultInputCount,
   getICHeight,
@@ -22,7 +21,7 @@ import {
 // copy/paste/duplicate, merge input gates). Canvas interaction (drag,
 // pan, wiring) stays in useCanvasInteractions and calls back into these
 // setters/helpers.
-export function useCircuitState({ portNames = null, containerRef } = {}) {
+export function useCircuitState({ portNames = null, containerRef, snapEnabled = true } = {}) {
   const [gates, setGates] = useState([]);
   const [wires, setWires] = useState([]);
   const [gateIdCounter, setGateIdCounter] = useState(0);
@@ -108,8 +107,8 @@ export function useCircuitState({ portNames = null, containerRef } = {}) {
 
   // ── Gate CRUD ──────────────────────────────────────────────────────────
   const snapToGrid = useCallback(
-    (value) => (SNAP_TO_GRID ? Math.round(value / GRID_SIZE) * GRID_SIZE : value),
-    []
+    (value) => (snapEnabled ? Math.round(value / GRID_SIZE) * GRID_SIZE : value),
+    [snapEnabled]
   );
 
   const deleteGate = useCallback(
