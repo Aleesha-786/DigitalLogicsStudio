@@ -1,5 +1,5 @@
-import React, { useCallback, useEffect, useRef, useState } from "react";
-import { Bot, MessageCircle, Minus, Send, Trash2 } from "lucide-react";
+import React, { useCallback, useEffect, useId, useRef, useState } from "react";
+import { MessageCircle, Minus, Send, Trash2 } from "lucide-react";
 import { useAuth } from "../../../auth/context/AuthContext";
 import { sendChatMessage } from "../../services/aiService";
 import { isPrerendering } from "../../utils/prerender";
@@ -40,20 +40,75 @@ function isTopicValidForCourse(topic, course) {
   return options.some((option) => option.value === topic);
 }
 
-const MENTOR_AVATAR_SRC = null;
-
-const MentorAvatar = React.memo(function MentorAvatar({ className, iconSize = 22 }) {
-  if (MENTOR_AVATAR_SRC) {
-    return <img src={MENTOR_AVATAR_SRC} alt="" className={className} />;
-  }
+/**
+ * Small animated bot face used both on the closed launcher button and as the
+ * panel-header avatar. Eyes blink and the arm gives a little wave on a loop —
+ * all driven by CSS keyframes (see DlsMentorWidget.css) so there's no JS
+ * timer to manage. Pass `small` to use the compact size that fits the
+ * header avatar slot.
+ */
+const BotFaceIcon = React.memo(function BotFaceIcon({ small = false, className = "" }) {
+  const gradientId = useId();
+  const sizeClass = small ? " dls-mentor-bot-face--sm" : "";
 
   return (
-    <span className={className} aria-hidden="true">
-      <MessageCircle size={iconSize} strokeWidth={2} />
+    <span className={`dls-mentor-bot-face${sizeClass}${className ? ` ${className}` : ""}`} aria-hidden="true">
+      <svg viewBox="0 0 64 64" className="dls-mentor-bot-svg">
+        <defs>
+          <linearGradient id={gradientId} x1="0" y1="0" x2="1" y2="1">
+            <stop offset="0%" stopColor="#a78bfa" />
+            <stop offset="100%" stopColor="#6d28d9" />
+          </linearGradient>
+        </defs>
+
+        {/* antenna */}
+        <line
+          x1="32"
+          y1="10"
+          x2="32"
+          y2="4"
+          className="dls-mentor-bot-antenna"
+          strokeWidth="2.5"
+          strokeLinecap="round"
+        />
+        <circle cx="32" cy="4" r="2.6" className="dls-mentor-bot-antenna-dot" />
+
+        {/* head */}
+        <rect
+          x="14"
+          y="12"
+          width="36"
+          height="30"
+          rx="10"
+          className="dls-mentor-bot-head"
+          fill={`url(#${gradientId})`}
+        />
+
+        {/* eyes */}
+        <g className="dls-mentor-bot-eyes">
+          <ellipse cx="25" cy="27" rx="3.2" ry="4" className="dls-mentor-bot-eye" />
+          <ellipse cx="39" cy="27" rx="3.2" ry="4" className="dls-mentor-bot-eye" />
+        </g>
+
+        {/* smile */}
+        <path
+          d="M24 34 Q32 39 40 34"
+          className="dls-mentor-bot-mouth"
+          fill="none"
+          strokeWidth="2.4"
+          strokeLinecap="round"
+        />
+
+        {/* waving arm */}
+        <g className="dls-mentor-bot-arm">
+          <path d="M48 30 Q56 28 58 20" strokeWidth="3" strokeLinecap="round" />
+          <circle cx="58" cy="18" r="3.4" className="dls-mentor-bot-hand" />
+        </g>
+      </svg>
     </span>
   );
 });
-MentorAvatar.displayName = "MentorAvatar";
+BotFaceIcon.displayName = "BotFaceIcon";
 
 const HeaderActions = React.memo(function HeaderActions({ onClear, onMinimize }) {
   return (
@@ -84,7 +139,7 @@ HeaderActions.displayName = "HeaderActions";
 const PanelHeader = React.memo(function PanelHeader({ onClear, onMinimize }) {
   return (
     <header className="dls-mentor-panel__header">
-      <MentorAvatar className="dls-mentor-panel__avatar" iconSize={20} />
+      <BotFaceIcon small className="dls-mentor-panel__avatar" />
       <div className="dls-mentor-panel__title-wrap">
         <h2 className="dls-mentor-panel__title">DLS & COAL Mentor</h2>
         <p className="dls-mentor-panel__subtitle">
@@ -276,7 +331,6 @@ function DlsMentorWidgetInner() {
   const [messages, setMessages] = useState([]);
   const [isSending, setIsSending] = useState(false);
   const [recentTopics, setRecentTopics] = useState([]);
-  const [showIntroIcon, setShowIntroIcon] = useState(true);
   const [level, setLevel] = useState(() => {
     if (typeof window === "undefined") return "intermediate";
     return window.localStorage.getItem(LEVEL_STORAGE_KEY) || "intermediate";
@@ -330,17 +384,6 @@ function DlsMentorWidgetInner() {
       return next.slice(0, 3);
     });
   }, [selectedTopic]);
-
-  useEffect(() => {
-    if (isOpen) return;
-
-    const delay = showIntroIcon ? 3000 : 5000;
-    const timer = setTimeout(() => {
-      setShowIntroIcon((prev) => !prev);
-    }, delay);
-
-    return () => clearTimeout(timer);
-  }, [isOpen, showIntroIcon]);
 
   const handleLevelChange = useCallback((event) => {
     setLevel(event.target.value);
@@ -433,19 +476,7 @@ function DlsMentorWidgetInner() {
         aria-label="Open BoolMentor chat"
         title="BoolMentor"
       >
-        <span className="dls-mentor-launcher__icon" aria-hidden="true">
-          <span
-            className={`bot-icon bot-icon--intro${showIntroIcon ? " is-visible" : ""}`}
-          >
-            Hi
-          </span>
-          <Bot
-            size={22}
-            strokeWidth={2}
-            className={`bot-icon bot-icon--main${showIntroIcon ? "" : " is-visible"}`}
-          />
-        </span>
-        <span className="dls-mentor-launcher__title">BoolMentor</span>
+        <BotFaceIcon />
       </button>
     );
   }
@@ -453,7 +484,7 @@ function DlsMentorWidgetInner() {
   const showWelcome = messages.length === 0;
 
   return (
-    <section className="dls-mentor-panel" aria-label="DLS & COAL Mentor chat">
+    <section className="dls-mentor-panel" aria-label="Bool Mentor Chat">
       <PanelHeader onClear={clearChat} onMinimize={handleMinimize} />
 
       <PanelControls
