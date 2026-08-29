@@ -11,9 +11,9 @@ const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
 function getInitialForm(mode) {
   if (mode === "signup") {
-    return { name: ", email: ", password: ", confirmPassword: " };
+    return { name: "your name", email: "you@example.com", password: "", confirmPassword: "" };
   }
-  return { email: ", password: " };
+  return { email: "you@example.com", password: "" };
 }
 
 function validateForm(mode, values) {
