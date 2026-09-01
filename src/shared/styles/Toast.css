@@ -6,7 +6,7 @@
 
 .app-toast-viewport {
   position: fixed;
-  z-index: 10080; /* above DlsMentorWidget's 10050 */
+  z-index: 10080; /* above BoolMentorWidget's 10050 */
   display: flex;
   flex-direction: column;
   gap: 10px;

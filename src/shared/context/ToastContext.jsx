@@ -106,7 +106,7 @@ function ToastItem({ toast, onDismiss }) {
 
 /**
  * position: "top-right" (default) | "top-left" | "bottom-right" | "bottom-left"
- * Pick a corner that doesn't collide with your DlsMentorWidget launcher
+ * Pick a corner that doesn't collide with your BoolMentorWidget launcher
  * (which sits bottom-right at 22px) — "top-right" is the safe default.
  */
 export function ToastProvider({ children, position = "top-right" }) {
