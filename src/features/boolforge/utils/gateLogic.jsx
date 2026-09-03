@@ -1,3 +1,5 @@
+import { IC_META, IC_TYPES } from "../../../shared/data/gates";
+
 export const computeGateOutput = (gate, inputs, outputIndex = 0) => {
   const ci = inputs.filter((v) => v !== undefined);
   switch (gate.type) {
@@ -163,3 +165,112 @@ export const computeGateOutput = (gate, inputs, outputIndex = 0) => {
       return false;
   }
 };
+  // Runs the fixed-point combinational simulation over an arbitrary
+// gates/wires graph. Used for both the top-level canvas circuit and,
+// recursively, for any CUSTOM_ component's own internal circuit — so a
+// custom component simulates by literally re-running this same
+// algorithm on its stored definition, with its own input values fed
+// into its own INPUT gates.
+//
+// `prevState` is a Map used both to seed multi-output/feedback gates
+// with their last known value (so latches built from gates hold state
+// across renders) and, for CUSTOM_ gates, to stash each instance's own
+// nested state under the key `${gate.id}:inner` so multiple placed
+// instances of the same component don't share state.
+  export function evaluateCircuitGraph(gates, wires, prevState = new Map()) {
+  const gateMap = new Map(gates.map((g) => [g.id, g]));
+  const incomingWires = new Map();
+  gates.forEach((g) => incomingWires.set(g.id, []));
+  wires.forEach((w) => {
+    if (incomingWires.has(w.toId)) incomingWires.get(w.toId).push(w);
+  });
+
+  const isMultiOutput = (g) =>
+    g && (IC_TYPES.has(g.type) || (g.type?.startsWith("CUSTOM_") && g.customDefinition));
+
+  let prev = new Map();
+  gates.forEach((g) => {
+    if (g.type === "INPUT") {
+      prev.set(g.id, g.inputValues?.[0] || false);
+    } else if (isMultiOutput(g)) {
+      const numOut = IC_TYPES.has(g.type)
+        ? IC_META[g.type].outputs
+        : g.customDefinition.outputs.length;
+      const cached = prevState.get(g.id);
+      prev.set(g.id, Array.isArray(cached) ? cached : Array(numOut).fill(false));
+    } else {
+      prev.set(g.id, prevState.get(g.id) ?? false);
+    }
+  });
+
+  const MAX_ITER = 100;
+  for (let iter = 0; iter < MAX_ITER; iter++) {
+    const next = new Map(prev);
+    let changed = false;
+
+    for (const gate of gates) {
+      if (gate.type === "INPUT") {
+        const incoming = incomingWires.get(gate.id) || [];
+        let v = gate.inputValues?.[0] || false;
+        if (incoming.length > 0) {
+          const w = incoming[0];
+          const srcVal = prev.get(w.fromId);
+          v = isMultiOutput(gateMap.get(w.fromId)) && Array.isArray(srcVal)
+            ? srcVal[w.fromOutputIndex ?? 0] ?? false
+            : srcVal ?? false;
+        }
+        if (prev.get(gate.id) !== v) {
+          next.set(gate.id, v);
+          changed = true;
+        }
+        continue;
+      }
+
+      const inputs = [];
+      for (const w of incomingWires.get(gate.id) || []) {
+        const srcVal = prev.get(w.fromId);
+        inputs[w.toIndex] = isMultiOutput(gateMap.get(w.fromId)) && Array.isArray(srcVal)
+          ? srcVal[w.fromOutputIndex ?? 0] ?? false
+          : srcVal ?? false;
+      }
+
+      if (gate.type?.startsWith("CUSTOM_") && gate.customDefinition) {
+        const { gates: innerGates, wires: innerWires } = gate.customDefinition;
+        const innerInputGates = innerGates.filter((g) => g.type === "INPUT");
+        const innerOutputGates = innerGates.filter((g) => g.type === "OUTPUT");
+        const seededInner = innerGates.map((g) =>
+          g.type === "INPUT"
+            ? { ...g, inputValues: [inputs[innerInputGates.indexOf(g)] ?? false] }
+            : g,
+        );
+        const innerPrevState = prevState.get(`${gate.id}:inner`) || new Map();
+        const innerResult = evaluateCircuitGraph(seededInner, innerWires, innerPrevState);
+        prevState.set(`${gate.id}:inner`, innerResult);
+        const newVals = innerOutputGates.map((og) => innerResult.get(og.id) ?? false);
+        const oldVals = prev.get(gate.id);
+        if (!Array.isArray(oldVals) || newVals.some((v, i) => v !== oldVals[i])) {
+          next.set(gate.id, newVals);
+          changed = true;
+        }
+      } else if (IC_TYPES.has(gate.type)) {
+        const numOut = IC_META[gate.type].outputs;
+        const newVals = Array.from({ length: numOut }, (_, i) => computeGateOutput(gate, inputs, i));
+        const oldVals = prev.get(gate.id);
+        if (!Array.isArray(oldVals) || newVals.some((v, i) => v !== oldVals[i])) {
+          next.set(gate.id, newVals);
+          changed = true;
+        }
+      } else {
+        const newVal = computeGateOutput(gate, inputs);
+        next.set(gate.id, newVal);
+        if (prev.get(gate.id) !== newVal) changed = true;
+      }
+    }
+
+    prev = next;
+    if (!changed) break;
+  }
+
+  return prev;
+}
+

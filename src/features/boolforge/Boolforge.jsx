@@ -4,15 +4,19 @@ import RelatedSeoLinks from "../../shared/seo/RelatedSeoLinks";
 import Navbar from "../../shared/components/navbar";
 import { useTheme } from "../../shared/context/ThemeContext";
 import "./Boolforge.css";
+import { Sidebar, RenameModal, CircuitCanvas, ToolbarRibbon, CreateComponentDialog } from "./components";
+import { useToast } from "../../shared/context/ToastContext";
 
-import { Sidebar, RenameModal, CircuitCanvas, ToolbarRibbon } from "./components";
+
 import {
   useKeyboardShortcuts,
   useSheets,
   useCanvasInteractions,
   useSimulation,
   useAI,
+  useCustomComponents,
 } from "./hooks";
+
 
 const Boolforge = ({
   simplifiedExpression = null,
@@ -47,7 +51,8 @@ const Boolforge = ({
   // useSheets manages multiple independent circuit sheets and mirrors the
   // active sheet's circuit into the same live gates/wires/etc state shape
   // that useCircuitState used to provide, so downstream hooks are unchanged.
-  const circuit = useSheets({ portNames, containerRef, snapEnabled });
+  const { components: customComponents, createComponent, deleteComponent } = useCustomComponents();
+  const circuit = useSheets({ portNames, containerRef, customComponents, snapEnabled });
   const {
     sheets, activeSheetId, setActiveSheetId, addSheet, renameSheet, deleteSheet, loadSheets,
     gates, setGates,
@@ -70,10 +75,11 @@ const Boolforge = ({
     mergeInputGates, deleteWire,
     copySelectedGates, pasteGates, duplicateSelectedGates,
     clearCircuit,
+     customIcMeta,
   } = circuit;
 
   // SIMULATION (gate evaluation + truth table)
-  const { evaluateGate, truthTable } = useSimulation({ gates, wires, gateMap });
+  const { evaluateGate, truthTable } = useSimulation({ gates, wires, gateMap, customIcMeta });
 
   // CANVAS INTERACTIONS (pan, zoom, selection, drag, wiring, touch)
   const canvas = useCanvasInteractions({
@@ -97,6 +103,7 @@ const Boolforge = ({
     deleteWire,
     containerRef,
     canvasRef,
+    customIcMeta,
   });
   const {
     zoom, setZoom,
@@ -141,6 +148,35 @@ const Boolforge = ({
     saveToHistory,
   });
 
+const toast = useToast();
+const [showCreateComponent, setShowCreateComponent] = useState(false);
+
+const selectionPortCounts = {
+  inputs: gates.filter((g) => selectedGateIds.includes(g.id) && g.type === "INPUT").length,
+  outputs: gates.filter((g) => selectedGateIds.includes(g.id) && g.type === "OUTPUT").length,
+};
+const canCreateComponent = selectionPortCounts.inputs > 0 && selectionPortCounts.outputs > 0;
+
+const handleCreateComponent = async (name) => {
+  const selected = gates.filter((g) => selectedGateIds.includes(g.id));
+  const innerInputs = selected.filter((g) => g.type === "INPUT");
+  const innerOutputs = selected.filter((g) => g.type === "OUTPUT");
+  const innerWires = wires.filter(
+    (w) => selectedGateIds.includes(w.fromId) && selectedGateIds.includes(w.toId),
+  );
+
+  await createComponent({
+    name,
+    inputs: innerInputs.map((g) => ({ label: g.label })),
+    outputs: innerOutputs.map((g) => ({ label: g.label })),
+    gates: selected,
+    wires: innerWires,
+  });
+};
+const handleDeleteComponent = async (id, name) => {
+  await deleteComponent(id);
+  toast.success(`Deleted "${name}".`);
+};
   // HOOK USAGE FOR KEYBOARD SHORTCUTS
   useKeyboardShortcuts({
     undo,
@@ -279,7 +315,7 @@ const Boolforge = ({
       }}
       onTouchEnd={() => { stopDrag(); handleMouseUp(); }}
     >
-      {/* TOOLBAR RIBBON — replaces the old right-hand CircuitControls panel */}
+       {/* TOOLBAR RIBBON — replaces the old right-hand CircuitControls panel */}
       <ToolbarRibbon
         embedded={embedded}
         containerRef={containerRef}
@@ -295,6 +331,11 @@ const Boolforge = ({
         setHintError={setHintError}
         inputGates={inputGates}
         outputGates={outputGates}
+        canCreateComponent={canCreateComponent}
+        onOpenCreateComponent={() => setShowCreateComponent(true)}
+        customComponents={customComponents}
+        addGate={addGate}
+        onDeleteComponent={handleDeleteComponent}
         wires={wires}
         toggleInput={toggleInput}
         evaluateGate={evaluateGate}
@@ -324,7 +365,6 @@ const Boolforge = ({
         setShowGridOverlay={setShowGridOverlay}
         onToggleSidebar={() => setSidebarOpen((v) => !v)}
       />
-    
       {/* WORKSPACE — sidebar + canvas, below the ribbon */}
       <div className="circuit-workspace">
         {/* Backdrop shown only while the mobile drawer is open (CSS keeps
@@ -420,9 +460,16 @@ const Boolforge = ({
           setHint={setHint}
           setHintError={setHintError}
           showGridOverlay={showGridOverlay}
+          customIcMeta={customIcMeta}
         />
       </div>
 
+      <CreateComponentDialog
+        open={showCreateComponent}
+        onClose={() => setShowCreateComponent(false)}
+        onCreate={handleCreateComponent}
+        portCount={selectionPortCounts}
+      />
       {/* RENAME MODAL COMPONENT */}
       <RenameModal
         renamingGate={renamingGate}

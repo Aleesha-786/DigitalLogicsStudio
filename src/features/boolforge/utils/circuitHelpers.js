@@ -95,6 +95,6 @@ export function deriveExpression(gate, gatesArray, wires, depth = 0, visited = n
     case "NOR": return `(${slots.join("+")})'`;
     case "XOR": return slots.join("⊕");
     case "XNOR": return `(${slots.join("⊕")})'`;
-    default: return `${gate.type}(${slots.join(",")})`;
+   default: return `${gate.label || gate.type}(${slots.join(",")})`;
   }
 }

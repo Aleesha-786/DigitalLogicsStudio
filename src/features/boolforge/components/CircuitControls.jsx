@@ -34,6 +34,9 @@ export const CircuitControls = ({
   loadSheets,
   saveToHistory,
   clearCircuit,
+  // custom components
+  canCreateComponent,
+  onOpenCreateComponent,
   // zoom
   zoom,
   setZoom,
@@ -93,6 +96,14 @@ export const CircuitControls = ({
       <div className="controls">
         <button className="btn" onClick={undo} disabled={historyIndex <= 0}>↶ Undo</button>
         <button className="btn" onClick={redo} disabled={historyIndex >= history.length - 1}>↷ Redo</button>
+        <button
+          className="btn"
+          onClick={onOpenCreateComponent}
+          disabled={!canCreateComponent}
+          title={canCreateComponent ? "Save selection as a reusable custom component" : "Select at least one INPUT and one OUTPUT gate first"}
+        >
+          + Create Component
+        </button>
         <SaveAndLoad sheets={sheets} loadSheets={loadSheets} />
         <button className="btn danger" onClick={clearCircuit}>🗑️ Clear All</button>
       </div>

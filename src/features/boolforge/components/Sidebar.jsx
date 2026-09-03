@@ -126,7 +126,9 @@ export const Sidebar = ({
         />
       </div>
 
-      {filteredSections.length === 0 && <div className="sidebar-empty-state">No components match "{query}"</div>}
+      {filteredSections.length === 0 && (
+        <div className="sidebar-empty-state">No components match "{query}"</div>
+      )}
 
       {filteredSections.map((section) => {
         const SectionIcon = section.icon;

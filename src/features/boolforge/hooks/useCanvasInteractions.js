@@ -26,6 +26,7 @@ export function useCanvasInteractions({
   containerRef,
   canvasRef,
   snapEnabled = false,
+  customIcMeta = {},
 }) {
   const [zoom, setZoom] = useState(1);
   const [panOffset, setPanOffset] = useState({ x: 0, y: 0 });
@@ -139,13 +140,13 @@ export function useCanvasInteractions({
 
   // ── Wire connections ──────────────────────────────────────────────────
   const startConnection = useCallback((gate, outputIndex = 0) => {
-    if (!gate.hasOutput) return;
-    setConnectingFrom({ gateId: gate.id, outputIndex });
-    setConnectCursor({
-      x: gate.x + GATE_WIDTH,
-      y: getOutputY(gate, outputIndex),
-    });
-  }, []);
+  if (!gate.hasOutput) return;
+  setConnectingFrom({ gateId: gate.id, outputIndex });
+  setConnectCursor({
+    x: gate.x + GATE_WIDTH,
+    y: getOutputY(gate, outputIndex, customIcMeta),
+  });
+}, [customIcMeta]);
 
   const endWiring = useCallback(() => {
     setConnectingFrom(null);
@@ -213,10 +214,10 @@ export function useCanvasInteractions({
     (e) => {
       e.preventDefault();
       const { x, y } = clientToWorld(e.clientX, e.clientY);
-      const hit = hitWireAt(x, y, wires, gateMap, 12, snapEnabled);
+      const hit = hitWireAt(x, y, wires, gateMap, 12, snapEnabled, customIcMeta);
       if (hit) deleteWire(hit.id);
     },
-    [clientToWorld, wires, gateMap, deleteWire, snapEnabled]
+    [clientToWorld, wires, gateMap, deleteWire, snapEnabled,customIcMeta]
   );
 
   const stopPortEvent = useCallback((e) => {
@@ -235,7 +236,7 @@ export function useCanvasInteractions({
         }
         const { x: startX, y: startY } = clientToWorld(e.clientX, e.clientY);
         if (e.button === 0) {
-          const hit = hitWireAt(startX, startY, wires, gateMap, 12, snapEnabled);
+          const hit = hitWireAt(startX, startY, wires, gateMap, 12, snapEnabled, customIcMeta);
           if (hit) {
             setSelectedWireIds([hit.id]);
             setSelectedGateIds([]);
@@ -280,7 +281,8 @@ export function useCanvasInteractions({
       setSelectedWireIds, 
       setSelectedGateIds, 
       setSelectedGate, 
-      snapEnabled
+      snapEnabled,
+      customIcMeta
     ]
   );
 
@@ -302,7 +304,10 @@ export function useCanvasInteractions({
 
         const intersectingIds = gates
           .filter((g) => {
-            const gH = IC_TYPES.has(g.type) ? getICHeight(g.type) : 100;
+           const isCustomGate = g.type?.startsWith("CUSTOM_");
+           const gH = isCustomGate && customIcMeta[g.type]
+             ? Math.max(100, Math.max(customIcMeta[g.type].inputs, customIcMeta[g.type].outputs) * 22 + 20)
+             : IC_TYPES.has(g.type) ? getICHeight(g.type) : 100;
             const gateBox = { x1: g.x, y1: g.y, x2: g.x + GATE_WIDTH, y2: g.y + gH };
             return (
               gateBox.x1 < box.x2 &&
@@ -320,7 +325,7 @@ export function useCanvasInteractions({
         }
       }
     },
-    [isPanning, isSelecting, panStart, containerRef, panOffset, zoom, selectionStart, selectionStartIds, gates, setSelectedGateIds]
+    [isPanning, isSelecting, panStart, containerRef, panOffset, zoom, selectionStart, selectionStartIds, gates, setSelectedGateIds, customIcMeta]
   );
 
   const handleMouseUp = useCallback(() => {

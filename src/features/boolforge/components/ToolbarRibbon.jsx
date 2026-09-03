@@ -86,12 +86,18 @@ export const ToolbarRibbon = ({
   setSnapEnabled,
   showGridOverlay,
   setShowGridOverlay,
+  canCreateComponent,
+  onOpenCreateComponent,
+  customComponents = [],
+  addGate,
+  onDeleteComponent,
 
   // mobile sidebar drawer toggle (hamburger button, only visible <=900px)
   onToggleSidebar,
 }) => {
   const toast = useToast();
   const [openMenu, setOpenMenu] = useState(null);
+  const [showCustomLibrary, setShowCustomLibrary] = useState(false);
   const ribbonRef = useRef(null);
   const saveLoad = useSaveAndLoad({ sheets, loadSheets });
 
@@ -220,8 +226,18 @@ export const ToolbarRibbon = ({
             onExportPNG={handleExportPNG} 
             closeMenu={closeMenu} 
           />
+          <RibbonMenuItem
+            icon={Boxes}
+            label="Create Component"
+            description={canCreateComponent ? "Save your selection as a reusable block" : "Select at least one INPUT and one OUTPUT first"}
+            disabled={!canCreateComponent}
+            onClick={() => {
+              onOpenCreateComponent();
+              closeMenu();
+            }}
+          />
         </RibbonMenuSection>
-        <RibbonMenuDivider />
+               <RibbonMenuDivider />
         <RibbonMenuSection title="History">
           <RibbonMenuItem
             icon={History}
@@ -232,7 +248,6 @@ export const ToolbarRibbon = ({
           />
         </RibbonMenuSection>
       </RibbonMenu>
-
 
       {/* ── View ─────────────────────────────────────────────────────── */}
       <RibbonMenu label="View" icon={Settings2} isOpen={openMenu === "view"} onToggle={() => toggleMenu("view")}>
@@ -305,7 +320,50 @@ export const ToolbarRibbon = ({
       )}
 
       {/* ── Tools: visible but not-yet-wired feature previews ───────── */}
-      <RibbonMenu label="Tools" icon={Zap} isOpen={openMenu === "tools"} onToggle={() => toggleMenu("tools")} badge="2">
+            <RibbonMenu label="Tools" icon={Zap} isOpen={openMenu === "tools"} onToggle={() => toggleMenu("tools")} badge="1">
+               <RibbonMenuSection title="Custom Library">
+          <RibbonMenuItem
+            icon={Boxes}
+            label={showCustomLibrary ? "Hide my components" : "My Components"}
+            description={`${customComponents.length} saved component${customComponents.length === 1 ? "" : "s"}`}
+            onClick={() => setShowCustomLibrary((v) => !v)}
+          />
+          {showCustomLibrary && (
+            customComponents.length === 0 ? (
+              <p className="ribbon-help-text">
+                No saved components yet — select a portion of your circuit with at least one INPUT and one OUTPUT, then use File → Create Component.
+              </p>
+            ) : (
+              customComponents.map((c) => (
+                <div key={c.id} style={{ display: "flex", alignItems: "center", gap: "4px" }}>
+                  <div style={{ flex: 1 }}>
+                    <RibbonMenuItem
+                      icon={Boxes}
+                      label={c.name}
+                      description={`${c.inputs.length} input(s), ${c.outputs.length} output(s)`}
+                      onClick={() => {
+                        addGate(`CUSTOM_${c.id}`);
+                        closeMenu();
+                      }}
+                    />
+                  </div>
+                  <button
+                    className="gate-btn"
+                    style={{ width: "26px", height: "26px", padding: 0, flexShrink: 0 }}
+                    title="Delete this component"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      onDeleteComponent(c.id, c.name);
+                    }}
+                  >
+                    🗑
+                  </button>
+                </div>
+              ))
+            )
+          )}
+        </RibbonMenuSection>
+        <RibbonMenuDivider />
         <RibbonMenuSection title="Coming soon">
           <RibbonMenuItem
             icon={MessageSquare}
@@ -313,13 +371,6 @@ export const ToolbarRibbon = ({
             description="Leave notes on the circuit"
             trailing={<SoonBadge />}
             onClick={() => notReady("Comments")}
-          />
-          <RibbonMenuItem
-            icon={Boxes}
-            label="Component Library"
-            description="Save custom reusable blocks"
-            trailing={<SoonBadge />}
-            onClick={() => notReady("Component library")}
           />
         </RibbonMenuSection>
       </RibbonMenu>
