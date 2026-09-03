@@ -1,5 +1,5 @@
 import React from "react";
-import { gateSymbols, IC_META, IC_TYPES } from "../../../shared/data/gates";
+import { gateSymbols, IC_TYPES } from "../../../shared/data/gates";
 import { SheetTabs } from './SheetTabs';
 import {
   MULTI_INPUT_GATES,
@@ -19,10 +19,17 @@ import { SimulatePanel } from "./SimulatePanel";
 import { AIPanel } from "./AIPanel";
 
 function GenericICSymbol({ name, inputCount, outputCount }) {
-  const height = Math.max(60, Math.max(inputCount, outputCount) * 22 + 20);
+  const height = Math.max(100, Math.max(inputCount, outputCount) * 22 + 20);
+  const pinY = (idx, n) => (n === 1 ? 0.5 : 0.1 + (idx / (n - 1)) * 0.8) * height;
   return (
     <svg viewBox={`0 0 80 ${height}`} className="gate-symbol gate-symbol--ic">
       <rect x="8" y="5" width="64" height={height - 10} rx="4" fill="none" stroke="currentColor" strokeWidth="2.5" />
+      {Array.from({ length: inputCount }).map((_, i) => (
+        <line key={`in-${i}`} x1="0" y1={pinY(i, inputCount)} x2="8" y2={pinY(i, inputCount)} stroke="currentColor" strokeWidth="2" />
+      ))}
+      {Array.from({ length: outputCount }).map((_, i) => (
+        <line key={`out-${i}`} x1="72" y1={pinY(i, outputCount)} x2="80" y2={pinY(i, outputCount)} stroke="currentColor" strokeWidth="2" />
+      ))}
       <text x="40" y={height / 2 + 4} textAnchor="middle" fontSize="8" fill="currentColor" fontFamily="monospace" fontWeight="700">
         {name.length > 8 ? name.slice(0, 7) + "…" : name}
       </text>
@@ -129,7 +136,7 @@ export const CircuitCanvas = ({
             const fromGate = gateMap.get(wire.fromId);
             const toGate = gateMap.get(wire.toId);
             if (!fromGate || !toGate) return null;
-            const pts = getWirePoints(fromGate, toGate, wire.fromOutputIndex, wire.toIndex, snapEnabled);
+            const pts = getWirePoints(fromGate, toGate, wire.fromOutputIndex, wire.toIndex, snapEnabled, customIcMeta);
             const isActive = evaluateGate(fromGate, wire.fromOutputIndex ?? 0);
             return (
               <g
@@ -162,8 +169,8 @@ export const CircuitCanvas = ({
             const fromGate = gateMap.get(connectingFrom.gateId ?? connectingFrom.gate?.id);
             if (!fromGate) return null;
             const pts = snapEnabled
-              ? getOrthogonalPoints(fromGate.x + GATE_WIDTH, getOutputY(fromGate, connectingFrom.outputIndex ?? 0), connectCursor.x, connectCursor.y)
-              : getCurvePoints(fromGate.x + GATE_WIDTH, getOutputY(fromGate, connectingFrom.outputIndex ?? 0), connectCursor.x, connectCursor.y);
+              ? getOrthogonalPoints(fromGate.x + GATE_WIDTH, getOutputY(fromGate, connectingFrom.outputIndex ?? 0, customIcMeta), connectCursor.x, connectCursor.y)
+             : getCurvePoints(fromGate.x + GATE_WIDTH, getOutputY(fromGate, connectingFrom.outputIndex ?? 0, customIcMeta), connectCursor.x, connectCursor.y);
             return <path className="wire-preview" d={wirePathD(pts)} fill="none" />;
           })()}
         </svg>
@@ -181,7 +188,7 @@ export const CircuitCanvas = ({
           const isCustom = gate.type.startsWith("CUSTOM_");
           const isIC = IC_TYPES.has(gate.type) || isCustom;
           const icMeta = isIC ? customIcMeta[gate.type] : null;
-          const icH = isIC ? (isCustom ? Math.max(60, Math.max(icMeta.inputs, icMeta.outputs) * 22 + 20) : getICHeight(gate.type)) : 100;
+          const icH = isIC ? (isCustom ? Math.max(100, Math.max(icMeta.inputs, icMeta.outputs) * 22 + 20) : getICHeight(gate.type)) : 100;
           const cfGateId = connectingFrom?.gateId ?? connectingFrom?.gate?.id;
 
           return (

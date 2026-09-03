@@ -1,5 +1,5 @@
 import React, { useState, useMemo } from "react";
-import { Search, Boxes, GitMerge, GitBranch, ArrowRightCircle, ArrowLeftCircle, Plus, Minus, Package } from "lucide-react";
+import { Search, Boxes, GitMerge, GitBranch, ArrowRightCircle, ArrowLeftCircle, Plus, Minus } from "lucide-react";
 
 const PALETTE_SECTIONS = [
   {
@@ -75,8 +75,6 @@ export const Sidebar = ({
   setSelectionToolActive,
   simplifiedExpression,
   addGate,
-  customComponents = [],
-  onDeleteComponent,
 }) => {
   const [query, setQuery] = useState("");
 
@@ -90,12 +88,6 @@ export const Sidebar = ({
       ),
     })).filter((section) => section.items.length > 0);
   }, [query]);
-
-    const filteredCustomComponents = useMemo(() => {
-    const q = query.trim().toLowerCase();
-    if (!q) return customComponents;
-    return customComponents.filter((c) => c.name.toLowerCase().includes(q));
-  }, [customComponents, query]);
 
   return (
     <div className="sidebar sidebar--compact">
@@ -127,7 +119,7 @@ export const Sidebar = ({
         />
       </div>
 
-      {filteredSections.length === 0 && filteredCustomComponents.length === 0 && (
+      {filteredSections.length === 0 && (
         <div className="sidebar-empty-state">No components match "{query}"</div>
       )}
 
@@ -154,44 +146,6 @@ export const Sidebar = ({
           </div>
         );
       })}
-
-      {filteredCustomComponents.length > 0 && (
-        <div className="palette-section">
-          <div className="palette-section-title">
-            <Package size={12} strokeWidth={2.25} />
-            <span>My Components</span>
-          </div>
-          <div className="gate-palette">
-            {filteredCustomComponents.map((c) => (
-              <div key={c.id} style={{ display: "flex", alignItems: "center", gap: "4px" }}>
-                <button
-                  className="gate-btn gate-btn--ic"
-                  style={{ flex: 1 }}
-                  onClick={() => addGate(`CUSTOM_${c.id}`)}
-                  title={`${c.inputs.length} input(s), ${c.outputs.length} output(s)`}
-                >
-                  {c.name}
-                </button>
-                {onDeleteComponent && (
-                  <button
-                    className="gate-btn"
-                    style={{ padding: "4px 8px", flex: "0 0 auto" }}
-                    title="Delete this component"
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      if (window.confirm(`Delete "${c.name}"? This can't be undone.`)) {
-                        onDeleteComponent(c.id);
-                      }
-                    }}
-                  >
-                    🗑
-                  </button>
-                )}
-              </div>
-            ))}
-          </div>
-        </div>
-      )}
 
       <p className="sidebar-help-hint">
         Need controls &amp; shortcuts? Check the <strong>Help</strong> menu in the toolbar above.

@@ -1,8 +1,5 @@
 import { useState } from "react";
 
-// Mirrors SaveAndLoad.jsx's modal pattern exactly (same overlay/card
-// classNames) so it looks and behaves consistently with the rest of
-// Boolforge's UI.
 export function CreateComponentDialog({ open, onClose, onCreate, portCount }) {
   const [name, setName] = useState("");
   const [saving, setSaving] = useState(false);
@@ -26,43 +23,37 @@ export function CreateComponentDialog({ open, onClose, onCreate, portCount }) {
   };
 
   return (
-    <div className="logic-circuit-project-manager-fullscreen-overlay-background-container">
-      <div className="logic-circuit-project-manager-modal-window-card-container">
-        <h3 className="logic-circuit-project-manager-modal-title-text-heading">
-          Create Custom Component
-        </h3>
-
-        <p style={{ fontSize: "0.85rem", opacity: 0.75, marginBottom: "10px" }}>
-          {portCount.inputs} input{portCount.inputs !== 1 ? "s" : ""} · {portCount.outputs} output{portCount.outputs !== 1 ? "s" : ""} detected in your selection.
+    <div className="modal-overlay" onClick={onClose}>
+      <div className="rename-dialog" onClick={(e) => e.stopPropagation()}>
+        <h3 className="rename-title">📦 Create Custom Component</h3>
+        <p className="rename-text">
+          <strong className="gate-type">
+            {portCount.inputs} input{portCount.inputs !== 1 ? "s" : ""}, {portCount.outputs} output{portCount.outputs !== 1 ? "s" : ""}
+          </strong>{" "}
+          detected in your selection.
         </p>
-
         <input
-          className="logic-circuit-project-manager-project-name-text-input-field"
+          autoFocus
+          className="rename-input"
           value={name}
           onChange={(e) => setName(e.target.value)}
-          onKeyDown={(e) => e.key === "Enter" && handleCreate()}
           placeholder="Component name"
-          autoFocus
+          onKeyDown={(e) => {
+            if (e.key === "Enter") handleCreate();
+            if (e.key === "Escape") onClose();
+          }}
         />
-
         {error && (
-          <p className="logic-circuit-project-manager-import-error-message">{error}</p>
+          <p className="rename-text" style={{ color: "var(--accent-danger, #ff3366)" }}>
+            {error}
+          </p>
         )}
-
-        <div className="logic-circuit-project-manager-modal-button-row-layout-wrapper">
-          <button
-            className="logic-circuit-project-manager-confirm-save-button"
-            onClick={handleCreate}
-            disabled={saving || !name.trim()}
-          >
-            {saving ? "Saving…" : "Save Component"}
-          </button>
-          <button
-            className="logic-circuit-project-manager-cancel-close-button"
-            onClick={onClose}
-            disabled={saving}
-          >
+        <div className="rename-actions">
+          <button className="btn cancel-btn" onClick={onClose} disabled={saving}>
             Cancel
+          </button>
+          <button className="btn rename-btn" onClick={handleCreate} disabled={saving || !name.trim()}>
+            {saving ? "Saving…" : "Save"}
           </button>
         </div>
       </div>

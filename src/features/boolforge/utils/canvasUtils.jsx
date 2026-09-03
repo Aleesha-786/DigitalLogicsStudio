@@ -12,12 +12,21 @@ export function getICHeight(type) {
   return IC_HEIGHTS[type] ?? 100;
 }
 
-export function getGateHeight(gate) {
+export function getGateHeight(gate, customIcMeta = {}) {
+  if (gate.type?.startsWith("CUSTOM_") && customIcMeta[gate.type]) {
+    const meta = customIcMeta[gate.type];
+    return Math.max(100, Math.max(meta.inputs, meta.outputs) * 22 + 20);
+  }
   return IC_TYPES.has(gate.type) ? getICHeight(gate.type) : GATE_HEIGHT;
 }
 
-export function getInputY(gate, inputIndex) {
-  const h = getGateHeight(gate);
+export function getInputY(gate, inputIndex, customIcMeta = {}) {
+  const h = getGateHeight(gate, customIcMeta);
+  if (gate.type?.startsWith("CUSTOM_") && customIcMeta[gate.type]) {
+    const n = customIcMeta[gate.type].inputs;
+    if (n === 1) return gate.y + h / 2;
+    return gate.y + 0.1 * h + (inputIndex / (n - 1)) * (0.8 * h);
+  }
   if (IC_TYPES.has(gate.type)) {
     const n = IC_META[gate.type].inputs;
     if (n === 1) return gate.y + h / 2;
@@ -29,8 +38,14 @@ export function getInputY(gate, inputIndex) {
   return gate.y + 0.15 * h + (inputIndex / (n - 1)) * 0.7 * h;
 }
 
-export function getOutputY(gate, outputIndex) {
-  const h = getGateHeight(gate);
+
+export function getOutputY(gate, outputIndex, customIcMeta = {}) {
+  const h = getGateHeight(gate, customIcMeta);
+  if (gate.type?.startsWith("CUSTOM_") && customIcMeta[gate.type]) {
+    const n = customIcMeta[gate.type].outputs;
+    if (n === 1) return gate.y + h / 2;
+    return gate.y + 0.1 * h + (outputIndex / (n - 1)) * (0.8 * h);
+  }
   if (!IC_TYPES.has(gate.type)) return gate.y + h / 2;
   const n = IC_META[gate.type].outputs;
   if (n === 1) return gate.y + h / 2;
@@ -54,11 +69,11 @@ export function getOrthogonalPoints(fromX, fromY, toX, toY, gridSize = GRID_SIZE
   return { orthogonal: true, fromX, fromY, midX, toX, toY };
 }
 
-export function getWirePoints(fromGate, toGate, fromOutputIndex, toIndex, snap = false) {
+export function getWirePoints(fromGate, toGate, fromOutputIndex, toIndex, snap = false, customIcMeta = {}) {
   const fromX = fromGate.x + GATE_WIDTH;
-  const fromY = getOutputY(fromGate, fromOutputIndex ?? 0);
+  const fromY = getOutputY(fromGate, fromOutputIndex ?? 0, customIcMeta);
   const toX = toGate.x;
-  const toY = getInputY(toGate, toIndex);
+  const toY = getInputY(toGate, toIndex, customIcMeta);
   return snap
     ? getOrthogonalPoints(fromX, fromY, toX, toY)
     : getCurvePoints(fromX, fromY, toX, toY);
@@ -71,12 +86,12 @@ export function wirePathD(pts) {
   return `M ${pts.fromX} ${pts.fromY} C ${pts.cp1x} ${pts.cp1y}, ${pts.cp2x} ${pts.cp2y}, ${pts.toX} ${pts.toY}`;
 }
 
-export function hitWireAt(x, y, wires, gateMap, radius = 12, snap = false) {
+export function hitWireAt(x, y, wires, gateMap, radius = 12, snap = false, customIcMeta = {}) {
   for (const wire of wires) {
     const fromGate = gateMap.get(wire.fromId);
     const toGate = gateMap.get(wire.toId);
     if (!fromGate || !toGate) continue;
-    const pts = getWirePoints(fromGate, toGate, wire.fromOutputIndex, wire.toIndex, snap);
+    const pts = getWirePoints(fromGate, toGate, wire.fromOutputIndex, wire.toIndex, snap, customIcMeta);
 
     if (pts.orthogonal) {
       const segments = [

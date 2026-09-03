@@ -5,6 +5,7 @@ import Navbar from "../../shared/components/navbar";
 import { useTheme } from "../../shared/context/ThemeContext";
 import "./Boolforge.css";
 import { Sidebar, RenameModal, CircuitCanvas, ToolbarRibbon, CreateComponentDialog } from "./components";
+import { useToast } from "../../shared/context/ToastContext";
 
 
 import {
@@ -15,6 +16,7 @@ import {
   useAI,
   useCustomComponents,
 } from "./hooks";
+
 
 const Boolforge = ({
   simplifiedExpression = null,
@@ -97,6 +99,7 @@ const Boolforge = ({
     deleteWire,
     containerRef,
     canvasRef,
+    customIcMeta,
   });
   const {
     zoom, setZoom,
@@ -141,7 +144,7 @@ const Boolforge = ({
     saveToHistory,
   });
 
-
+const toast = useToast();
 const [showCreateComponent, setShowCreateComponent] = useState(false);
 
 const selectionPortCounts = {
@@ -165,6 +168,10 @@ const handleCreateComponent = async (name) => {
     gates: selected,
     wires: innerWires,
   });
+};
+const handleDeleteComponent = async (id, name) => {
+  await deleteComponent(id);
+  toast.success(`Deleted "${name}".`);
 };
   // HOOK USAGE FOR KEYBOARD SHORTCUTS
   useKeyboardShortcuts({
@@ -310,6 +317,9 @@ const handleCreateComponent = async (name) => {
         outputGates={outputGates}
         canCreateComponent={canCreateComponent}
         onOpenCreateComponent={() => setShowCreateComponent(true)}
+        customComponents={customComponents}
+        addGate={addGate}
+        onDeleteComponent={handleDeleteComponent}
         wires={wires}
         toggleInput={toggleInput}
         evaluateGate={evaluateGate}
@@ -346,8 +356,6 @@ const handleCreateComponent = async (name) => {
           setSelectionToolActive={setSelectionToolActive}
           simplifiedExpression={simplifiedExpression}
           addGate={addGate}
-          customComponents={customComponents}
-          onDeleteComponent={deleteComponent}
         />
 
         {/* CANVAS COMPONENT */}
