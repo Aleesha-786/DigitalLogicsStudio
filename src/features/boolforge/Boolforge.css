@@ -1519,6 +1519,12 @@ body:has(.boolforge-page) {
   pointer-events: auto;
 }
 
+[data-theme="light"] .canvas-zoom-widget,
+[data-theme="light"] .canvas-overlay-btn {
+  background: rgba(255, 255, 255, 0.85);
+  color: var(--text-primary, #1e293b);
+}
+
 @media (max-width: 900px) {
   .canvas-zoom-widget { display: none; } /* mobile already has canvas-overlay-controls */
 }
