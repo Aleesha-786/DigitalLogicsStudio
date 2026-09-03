@@ -265,6 +265,7 @@ body:has(.boolforge-page) {
   grid-template-columns: 190px 1fr;
   flex: 1;
   min-height: 0;
+  position: relative;
 }
 
 .circuit-workspace .canvas-container {
@@ -307,10 +308,17 @@ body:has(.boolforge-page) {
 }
 
 /* ── Responsive overrides ─────────────────────────────────────────────────── */
+
+/* Mobile hamburger button that opens the Sidebar drawer — hidden on desktop,
+   shown only under the ~900px breakpoint below. */
+.ribbon-mobile-menu-btn {
+  display: none;
+}
+
 @media (max-width: 900px) {
   .boolforge-main .container.circuit-maker {
-    height: auto;
-    min-height: 0;
+    height: calc(100vh - 64px);
+    min-height: 480px;
   }
 
   .toolbar-ribbon {
@@ -324,21 +332,72 @@ body:has(.boolforge-page) {
     display: none;
   }
 
+  .ribbon-mobile-menu-btn {
+    display: inline-flex;
+  }
+
+  /* Canvas now owns the full workspace — the Sidebar becomes a slide-in
+     drawer (position: fixed) instead of a grid column, so it no longer
+     needs a track here. */
   .circuit-workspace {
     grid-template-columns: 1fr;
-    grid-template-rows: auto minmax(380px, 55vh);
+    grid-template-rows: 1fr;
     height: auto;
     min-height: 0;
   }
 
-  .boolforge-main .sidebar {
-    width: auto;
-    border-right: none;
-    border-bottom: 2px solid var(--bg-light);
-    height: auto;
+  .boolforge-main .sidebar.sidebar--compact {
+    position: fixed;
+    top: 0;
+    left: 0;
+    bottom: 0;
+    width: 250px;
+    max-width: 80vw;
+    height: 100%;
     max-height: none;
-    padding: 14px;
-    overflow-y: visible;
+    border-right: 1px solid var(--bg-light, #1e2842);
+    border-bottom: none;
+    padding: 50px 14px 14px;
+    overflow-y: auto;
+    transform: translateX(-105%);
+    transition: transform 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+    z-index: 200;
+    box-shadow: 10px 0 30px rgba(0, 0, 0, 0.45);
+  }
+
+  .boolforge-main .sidebar.sidebar--compact.sidebar--drawer-open {
+    transform: translateX(0);
+  }
+
+  .sidebar-drawer-close {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    width: 30px;
+    height: 30px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: var(--bg-light, #1e2842);
+    border: 1px solid var(--border-color, #2a3550);
+    border-radius: 6px;
+    color: var(--text-color, #e8f0ff);
+    cursor: pointer;
+    padding: 0;
+  }
+
+  .sidebar-drawer-close:hover {
+    border-color: var(--accent-secondary, #00d4ff);
+    color: var(--accent-secondary, #00d4ff);
+  }
+
+  .sidebar-drawer-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(4, 6, 12, 0.55);
+    backdrop-filter: blur(2px);
+    z-index: 150;
+    animation: fadeIn 0.2s ease;
   }
 
   .gate-palette {
@@ -346,7 +405,7 @@ body:has(.boolforge-page) {
   }
 
   .boolforge-main .canvas-container {
-    height: 55vh;
+    height: 100%;
     min-height: 380px;
     width: 100%;
   }
@@ -357,17 +416,56 @@ body:has(.boolforge-page) {
   }
 }
 
+/* Keep drawer-only chrome fully inert above the breakpoint, regardless of
+   React state (belt-and-braces alongside the JS resize handler). */
+@media (min-width: 901px) {
+  .ribbon-mobile-menu-btn,
+  .sidebar-drawer-close,
+  .sidebar-drawer-overlay {
+    display: none !important;
+  }
+
+  .boolforge-main .sidebar.sidebar--compact {
+    position: static;
+    transform: none;
+    box-shadow: none;
+  }
+}
+
 @media (max-width: 600px) {
   .circuit-workspace {
-    grid-template-rows: auto minmax(320px, 50vh);
+    grid-template-rows: 1fr;
   }
 
   .boolforge-main .canvas-container {
     min-height: 320px;
   }
 
+  .boolforge-main .sidebar.sidebar--compact {
+    width: 220px;
+  }
+
   .gate-palette {
     grid-template-columns: repeat(2, 1fr) !important;
+  }
+}
+
+/* Ribbon dropdown menus (File/View/Tools/Help) can overflow very narrow
+   screens at their default min-width — cap them to the viewport. */
+@media (max-width: 480px) {
+  .ribbon-dropdown-content {
+    min-width: 0;
+    width: min(260px, calc(100vw - 32px));
+    max-width: calc(100vw - 32px);
+  }
+
+  .ribbon-dropdown-content--wide {
+    min-width: 0;
+    width: min(300px, calc(100vw - 32px));
+  }
+
+  .floating-panel--ai {
+    right: 12px;
   }
 }
 
@@ -436,6 +534,7 @@ body:has(.boolforge-page) {
 
   display: flex;
   flex-direction: column;
+  position: relative;
 }
 
 .sidebar--compact > * {
@@ -1494,18 +1593,36 @@ body:has(.boolforge-page) {
 }
 
 @media (max-width: 900px) {
+  /* Anchored to .canvas-container (position: relative; overflow: hidden)
+     instead of the viewport. Since the container itself sits below the
+     toolbar/navbar and clips anything that would overflow it, these panels
+     are now physically unable to cover the toolbar or navbar — they stay
+     inside the canvas area no matter how tall their content gets. */
   .floating-panel {
-    position: fixed;
+    position: absolute;
     left: 8px;
     right: 8px;
     top: auto;
     bottom: 8px;
     width: auto;
     max-width: none;
-    max-height: 60vh;
+    max-height: min(45%, calc(100% - 16px));
+    overflow-y: auto;
   }
-  /* stack instead of overlapping when both are open on small screens */
-  .floating-panel--ai { bottom: calc(60vh + 16px); }
+
+  /* Stack AI above Simulate (rather than overlapping) when both are open,
+     each capped to roughly half the canvas height. */
+  .floating-panel--ai {
+    bottom: calc(45% + 16px);
+  }
+
+  /* If only one of the two panels is open, let it use most of the canvas
+     height instead of staying capped at the "both open" 45% split. */
+  .canvas-container:has(.floating-panel--simulate):not(:has(.floating-panel--ai)) .floating-panel--simulate,
+  .canvas-container:has(.floating-panel--ai):not(:has(.floating-panel--simulate)) .floating-panel--ai {
+    max-height: min(75%, calc(100% - 16px));
+    bottom: 8px;
+  }
 }
 
 /* ───────────────────────────────────────────────────────────────
@@ -1984,4 +2101,3 @@ body:has(.boolforge-page) {
 [data-theme="light"] .project-modal-divider {
   background: rgba(37, 99, 235, 0.08);
 }
-

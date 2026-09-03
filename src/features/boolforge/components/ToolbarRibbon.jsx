@@ -11,6 +11,7 @@ import {
   Magnet,
   Grid3x3,
   Bot,
+  Menu,
   // Sparkles,
   // Lightbulb,
   // X,
@@ -85,6 +86,9 @@ export const ToolbarRibbon = ({
   setSnapEnabled,
   showGridOverlay,
   setShowGridOverlay,
+
+  // mobile sidebar drawer toggle (hamburger button, only visible <=900px)
+  onToggleSidebar,
 }) => {
   const toast = useToast();
   const [openMenu, setOpenMenu] = useState(null);
@@ -175,6 +179,19 @@ export const ToolbarRibbon = ({
 
   return (
     <div className="toolbar-ribbon" ref={ribbonRef}>
+      {/* ── Mobile-only: open the components (Sidebar) drawer ─────────── */}
+      {onToggleSidebar && (
+        <button
+          type="button"
+          className="ribbon-button ribbon-button--icon ribbon-mobile-menu-btn"
+          onClick={onToggleSidebar}
+          title="Toggle components panel"
+          aria-label="Toggle components panel"
+        >
+          <Menu size={16} strokeWidth={2} />
+        </button>
+      )}
+
       {/* ── Edit: undo / redo / clear ───────────────────────────────── */}
       <div className="ribbon-group">
         <button className="ribbon-button ribbon-button--icon" onClick={undo} disabled={historyIndex <= 0} title="Undo (Ctrl+Z)">
