@@ -3,8 +3,8 @@ import { useNavigate, Link } from "react-router-dom";
 import Navbar from "../../shared/components/navbar";
 import Footer from "../../shared/components/Footer";
 import { useTheme } from "../../shared/context/ThemeContext";
-import { useAuth } from "../context/AuthContext";
-import "./Auth.css";
+import { useAuth } from "../../auth/context/AuthContext";
+import "../../auth/Auth.css";
 
 function getErrorMessage(error, fallback) {
   const isNetworkError = !error.response && !error.status;

@@ -5,7 +5,7 @@ import Footer from "../../shared/components/Footer";
 import { useTheme } from "../../shared/context/ThemeContext";
 import { useAuth } from "../context/AuthContext";
 import authService from "../../shared/services/authService";
-import "./Auth.css";
+import "../Auth.css";
 
 const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 

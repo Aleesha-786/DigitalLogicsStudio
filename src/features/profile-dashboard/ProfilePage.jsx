@@ -21,11 +21,11 @@ import {
 import Navbar from "../../shared/components/navbar";
 import Footer from "../../shared/components/Footer";
 import { useTheme } from "../../shared/context/ThemeContext";
-import { useAuth } from "../context/AuthContext";
+import { useAuth } from "../../auth/context/AuthContext";
 import progressService from "../../shared/services/progressService";
 import apiClient from "../../shared/services/apiClient";
 import "../../features/home/Home.css";
-import "./Auth.css";
+import "../Auth.css";
 import "./ProfileDashboard.css";
 
 // ─── Colour palette ───────────────────────────────────────────────────────────
@@ -904,9 +904,6 @@ export default function ProfilePage() {
         day: "numeric",
       })
     : "—";
-  const lastLogin = recentEvents[0]?.createdAt
-    ? timeAgo(recentEvents[0].createdAt)
-    : "—";
 
   const TABS = [
     "overview",
@@ -994,9 +991,9 @@ export default function ProfilePage() {
             <button
               type="button"
               className="pd-btn pd-btn--primary"
-              onClick={() => navigate("/profile/edit")}
+              onClick={() => navigate("/settings")}
             >
-              Edit
+              settings
             </button>
           </div>
         </section>
