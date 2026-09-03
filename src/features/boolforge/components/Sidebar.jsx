@@ -1,5 +1,5 @@
 import React, { useState, useMemo } from "react";
-import { Search, Boxes, GitMerge, GitBranch, ArrowRightCircle, ArrowLeftCircle, Plus, Minus } from "lucide-react";
+import { Search, Boxes, GitMerge, GitBranch, ArrowRightCircle, ArrowLeftCircle, Plus, Minus} from "lucide-react";
 
 const PALETTE_SECTIONS = [
   {
@@ -75,6 +75,12 @@ export const Sidebar = ({
   setSelectionToolActive,
   simplifiedExpression,
   addGate,
+  // Drawer mode (small screens): isOpen controls the slide-in state and
+  // onClose is called on backdrop click, the close button, and after a
+  // gate is added (so mobile users land back on the canvas automatically).
+  // Both are safe to omit — on desktop the drawer CSS never activates.
+  isOpen = false,
+  onClose,
 }) => {
   const [query, setQuery] = useState("");
 
@@ -90,7 +96,8 @@ export const Sidebar = ({
   }, [query]);
 
   return (
-    <div className="sidebar sidebar--compact">
+    <div className={`sidebar sidebar--compact${isOpen ? " sidebar--drawer-open" : ""}`}>
+
       <h2>Circuit Forge</h2>
 
       <button
@@ -134,7 +141,10 @@ export const Sidebar = ({
                 <button
                   key={type}
                   className={`gate-btn${section.ic ? " gate-btn--ic" : ""}`}
-                  onClick={() => addGate(type)}
+                  onClick={() => {
+                    addGate(type);
+                    onClose?.();
+                  }}
                   title={label}
                 >
                   {label}
