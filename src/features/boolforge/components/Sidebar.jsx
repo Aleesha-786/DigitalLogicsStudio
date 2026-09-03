@@ -1,5 +1,5 @@
 import React, { useState, useMemo } from "react";
-import { Search, Boxes, GitMerge, GitBranch, ArrowRightCircle, ArrowLeftCircle, Plus, Minus, X } from "lucide-react";
+import { Search, Boxes, GitMerge, GitBranch, ArrowRightCircle, ArrowLeftCircle, Plus, Minus} from "lucide-react";
 
 const PALETTE_SECTIONS = [
   {
@@ -97,15 +97,6 @@ export const Sidebar = ({
 
   return (
     <div className={`sidebar sidebar--compact${isOpen ? " sidebar--drawer-open" : ""}`}>
-      <button
-        type="button"
-        className="sidebar-drawer-close"
-        onClick={onClose}
-        aria-label="Close components panel"
-        title="Close"
-      >
-        <X size={16} strokeWidth={2.5} />
-      </button>
 
       <h2>Circuit Forge</h2>
 
