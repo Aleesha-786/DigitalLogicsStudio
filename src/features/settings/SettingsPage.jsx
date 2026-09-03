@@ -1,10 +1,20 @@
-import React, { useState } from "react";
+import React, { useMemo, useRef, useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
+import {
+  User,
+  Camera,
+  X,
+  Palette,
+  Bell,
+  ShieldCheck,
+  Trash2,
+  ArrowLeft,
+} from "lucide-react";
 import Navbar from "../../shared/components/navbar";
 import Footer from "../../shared/components/Footer";
 import { useTheme } from "../../shared/context/ThemeContext";
 import { useAuth } from "../../auth/context/AuthContext";
-import "../../auth/Auth.css";
+import "./Settings.css";
 
 function getErrorMessage(error, fallback) {
   const isNetworkError = !error.response && !error.status;
@@ -13,6 +23,22 @@ function getErrorMessage(error, fallback) {
   }
   return error.message || fallback;
 }
+
+function getInitials(name) {
+  if (!name) return "?";
+  const parts = name.trim().split(/\s+/).filter(Boolean);
+  if (parts.length === 0) return "?";
+  if (parts.length === 1) return parts[0].slice(0, 2).toUpperCase();
+  return (parts[0][0] + parts[parts.length - 1][0]).toUpperCase();
+}
+
+const SECTIONS = [
+  { id: "profile", label: "Profile", icon: User },
+  { id: "appearance", label: "Appearance", icon: Palette },
+  { id: "notifications", label: "Notifications", icon: Bell },
+  { id: "security", label: "Security", icon: ShieldCheck },
+  { id: "danger", label: "Danger Zone", icon: Trash2, isDanger: true },
+];
 
 export default function SettingsPage() {
   const navigate = useNavigate();
@@ -23,9 +49,335 @@ export default function SettingsPage() {
     updateNotificationPreferences,
     changePassword,
     deleteAccount,
+    updateProfile,
   } = useAuth();
 
-  // ── Email notifications ──
+  const [activeSection, setActiveSection] = useState("profile");
+
+  return (
+    <div className="settings-page-shell">
+      <div className="grid-background" />
+      <Navbar toggleTheme={toggleTheme} theme={theme} />
+
+      <main className="settings-page-main">
+        <div className="settings-page-header">
+          <Link to="/profile" className="settings-back-link">
+            <ArrowLeft size={16} aria-hidden="true" />
+            <span>Back to Profile</span>
+          </Link>
+          <h1>Account Settings</h1>
+          <p>
+            Signed in as <strong>{user?.name || "User"}</strong> ({user?.email})
+          </p>
+        </div>
+
+        <div className="settings-shell">
+          <aside className="settings-sidebar">
+            <nav className="settings-nav" aria-label="Settings sections">
+              {SECTIONS.map((section) => {
+                const Icon = section.icon;
+                const isActive = activeSection === section.id;
+                return (
+                  <button
+                    key={section.id}
+                    type="button"
+                    className={`settings-nav-item${isActive ? " is-active" : ""}${
+                      section.isDanger ? " is-danger" : ""
+                    }`}
+                    onClick={() => setActiveSection(section.id)}
+                    aria-current={isActive ? "page" : undefined}
+                  >
+                    <Icon size={18} aria-hidden="true" />
+                    <span>{section.label}</span>
+                  </button>
+                );
+              })}
+            </nav>
+          </aside>
+
+          <div className="settings-content">
+            {activeSection === "profile" && (
+              <ProfileSection user={user} updateProfile={updateProfile} />
+            )}
+            {activeSection === "appearance" && (
+              <AppearanceSection theme={theme} toggleTheme={toggleTheme} />
+            )}
+            {activeSection === "notifications" && (
+              <NotificationsSection
+                emailNotificationsOptedOut={emailNotificationsOptedOut}
+                updateNotificationPreferences={updateNotificationPreferences}
+              />
+            )}
+            {activeSection === "security" && (
+              <SecuritySection changePassword={changePassword} />
+            )}
+            {activeSection === "danger" && (
+              <DangerSection deleteAccount={deleteAccount} navigate={navigate} />
+            )}
+          </div>
+        </div>
+      </main>
+
+      <Footer />
+    </div>
+  );
+}
+
+/* ── Profile: avatar + display name ─────────────────────────────────────── */
+
+function ProfileSection({ user, updateProfile }) {
+  const fileInputRef = useRef(null);
+
+  const [avatarPreview, setAvatarPreview] = useState(user?.avatarUrl || null);
+  const [pendingAvatar, setPendingAvatar] = useState(false);
+  const [avatarSaving, setAvatarSaving] = useState(false);
+  const [avatarError, setAvatarError] = useState("");
+  const [avatarSuccess, setAvatarSuccess] = useState("");
+
+  const [name, setName] = useState(user?.name || "");
+  const [nameSaving, setNameSaving] = useState(false);
+  const [nameError, setNameError] = useState("");
+  const [nameSuccess, setNameSuccess] = useState("");
+
+  const initials = useMemo(() => getInitials(user?.name), [user?.name]);
+  const nameChanged = name.trim() !== (user?.name || "").trim();
+
+  const handlePickAvatar = () => fileInputRef.current?.click();
+
+  const handleAvatarChange = (event) => {
+    const file = event.target.files?.[0];
+    event.target.value = "";
+    if (!file) return;
+
+    setAvatarError("");
+    setAvatarSuccess("");
+
+    if (!file.type.startsWith("image/")) {
+      setAvatarError("Please choose an image file (PNG, JPG, or GIF).");
+      return;
+    }
+    if (file.size > 5 * 1024 * 1024) {
+      setAvatarError("Image must be smaller than 5MB.");
+      return;
+    }
+
+    const reader = new FileReader();
+    reader.onload = () => {
+      setAvatarPreview(reader.result);
+      setPendingAvatar(true);
+    };
+    reader.onerror = () => setAvatarError("Couldn't read that file. Please try another image.");
+    reader.readAsDataURL(file);
+  };
+
+  const handleSaveAvatar = async () => {
+    setAvatarSaving(true);
+    setAvatarError("");
+    setAvatarSuccess("");
+    try {
+      await updateProfile({ avatarDataUrl: avatarPreview });
+      setPendingAvatar(false);
+      setAvatarSuccess("Profile photo updated.");
+    } catch (err) {
+      setAvatarError(getErrorMessage(err, "Couldn't update your photo. Please try again."));
+    } finally {
+      setAvatarSaving(false);
+    }
+  };
+
+  const handleRemoveAvatar = async () => {
+    setAvatarSaving(true);
+    setAvatarError("");
+    setAvatarSuccess("");
+    try {
+      await updateProfile({ avatarDataUrl: null });
+      setAvatarPreview(null);
+      setPendingAvatar(false);
+      setAvatarSuccess("Profile photo removed.");
+    } catch (err) {
+      setAvatarError(getErrorMessage(err, "Couldn't remove your photo. Please try again."));
+    } finally {
+      setAvatarSaving(false);
+    }
+  };
+
+  const handleSaveName = async (event) => {
+    event.preventDefault();
+    const trimmed = name.trim();
+    setNameError("");
+    setNameSuccess("");
+
+    if (trimmed.length < 2) {
+      setNameError("Name must be at least 2 characters long.");
+      return;
+    }
+    if (!nameChanged) return;
+
+    setNameSaving(true);
+    try {
+      await updateProfile({ name: trimmed });
+      setNameSuccess("Name updated successfully.");
+    } catch (err) {
+      setNameError(getErrorMessage(err, "Couldn't update your name. Please try again."));
+    } finally {
+      setNameSaving(false);
+    }
+  };
+
+  return (
+    <div className="settings-panel">
+      <header className="settings-panel-header">
+        <h2>Profile</h2>
+        <p>Update your photo and how your name appears across the app.</p>
+      </header>
+
+      {/* Avatar */}
+      <section className="settings-block">
+        <h3 className="settings-block-title">Profile Photo</h3>
+        <div className="settings-avatar-row">
+          <div className="settings-avatar" aria-hidden={!avatarPreview}>
+            {avatarPreview ? (
+              <img src={avatarPreview} alt="" className="settings-avatar-img" />
+            ) : (
+              <span className="settings-avatar-initials">{initials}</span>
+            )}
+          </div>
+
+          <div className="settings-avatar-actions">
+            <input
+              ref={fileInputRef}
+              type="file"
+              accept="image/*"
+              onChange={handleAvatarChange}
+              className="settings-file-input"
+              aria-label="Upload profile photo"
+            />
+            <button
+              type="button"
+              className="settings-btn settings-btn-secondary"
+              onClick={handlePickAvatar}
+              disabled={avatarSaving}
+            >
+              <Camera size={16} aria-hidden="true" />
+              <span>Choose Photo</span>
+            </button>
+
+            {avatarPreview && (
+              <button
+                type="button"
+                className="settings-btn settings-btn-ghost"
+                onClick={handleRemoveAvatar}
+                disabled={avatarSaving}
+              >
+                <X size={16} aria-hidden="true" />
+                <span>Remove</span>
+              </button>
+            )}
+
+            {pendingAvatar && (
+              <button
+                type="button"
+                className="settings-btn settings-btn-primary"
+                onClick={handleSaveAvatar}
+                disabled={avatarSaving}
+              >
+                {avatarSaving ? "Saving…" : "Save Photo"}
+              </button>
+            )}
+          </div>
+        </div>
+        <p className="settings-hint-text">PNG, JPG, or GIF. Max 5MB.</p>
+        {avatarError && <p className="settings-error-text">{avatarError}</p>}
+        {avatarSuccess && !avatarError && (
+          <p className="settings-success-text">{avatarSuccess}</p>
+        )}
+      </section>
+
+      {/* Name */}
+      <section className="settings-block">
+        <h3 className="settings-block-title">Display Name</h3>
+        <form className="settings-form" onSubmit={handleSaveName} noValidate>
+          <label className="settings-field">
+            <span>Full Name</span>
+            <input
+              type="text"
+              value={name}
+              onChange={(e) => {
+                setName(e.target.value);
+                if (nameError) setNameError("");
+              }}
+              placeholder="Your name"
+              autoComplete="name"
+            />
+          </label>
+
+          {nameError && <p className="settings-error-text">{nameError}</p>}
+          {nameSuccess && !nameError && (
+            <p className="settings-success-text">{nameSuccess}</p>
+          )}
+
+          <button
+            type="submit"
+            className="settings-btn settings-btn-primary settings-btn-inline"
+            disabled={nameSaving || !nameChanged}
+          >
+            {nameSaving ? "Saving…" : "Save Changes"}
+          </button>
+        </form>
+      </section>
+
+      {/* Email (read-only) */}
+      <section className="settings-block">
+        <h3 className="settings-block-title">Email Address</h3>
+        <div className="settings-readonly-row">
+          <span>{user?.email}</span>
+          <span className="settings-readonly-tag">Contact support to change</span>
+        </div>
+      </section>
+    </div>
+  );
+}
+
+/* ── Appearance ────────────────────────────────────────────────────────── */
+
+function AppearanceSection({ theme, toggleTheme }) {
+  return (
+    <div className="settings-panel">
+      <header className="settings-panel-header">
+        <h2>Appearance</h2>
+        <p>Control how Digital Logics Studio looks on this device.</p>
+      </header>
+
+      <section className="settings-block">
+        <div className="settings-item">
+          <div>
+            <h3>Dark Mode</h3>
+            <p>Switch between light and dark theme across the whole app.</p>
+          </div>
+          <button
+            type="button"
+            className={`settings-toggle${theme === "dark" ? " is-on" : ""}`}
+            role="switch"
+            aria-checked={theme === "dark"}
+            aria-label="Toggle dark mode"
+            onClick={toggleTheme}
+          >
+            <span className="settings-toggle-track">
+              <span className="settings-toggle-thumb" />
+            </span>
+            <span className="settings-toggle-label">
+              {theme === "dark" ? "Dark" : "Light"}
+            </span>
+          </button>
+        </div>
+      </section>
+    </div>
+  );
+}
+
+/* ── Notifications ─────────────────────────────────────────────────────── */
+
+function NotificationsSection({ emailNotificationsOptedOut, updateNotificationPreferences }) {
   const [notificationsEnabled, setNotificationsEnabled] = useState(!emailNotificationsOptedOut);
   const [notifSaving, setNotifSaving] = useState(false);
   const [notifError, setNotifError] = useState("");
@@ -34,7 +386,7 @@ export default function SettingsPage() {
     if (notifSaving) return;
     const nextEnabled = !notificationsEnabled;
     setNotifError("");
-    setNotificationsEnabled(nextEnabled); 
+    setNotificationsEnabled(nextEnabled);
     setNotifSaving(true);
     try {
       await updateNotificationPreferences(!nextEnabled);
@@ -46,7 +398,48 @@ export default function SettingsPage() {
     }
   };
 
-  // ── Change password ──
+  return (
+    <div className="settings-panel">
+      <header className="settings-panel-header">
+        <h2>Notifications</h2>
+        <p>Choose which emails you receive from Digital Logics Studio.</p>
+      </header>
+
+      <section className="settings-block">
+        <div className="settings-item">
+          <div>
+            <h3>Email Notifications</h3>
+            <p>
+              Welcome email, milestone emails (5/10/25+ problems solved), a weekly
+              progress digest, and a reminder if you've been away a while.
+            </p>
+            {notifError && <p className="settings-error-text">{notifError}</p>}
+          </div>
+          <button
+            type="button"
+            className={`settings-toggle${notificationsEnabled ? " is-on" : ""}`}
+            role="switch"
+            aria-checked={notificationsEnabled}
+            aria-label="Toggle email notifications"
+            disabled={notifSaving}
+            onClick={handleToggleNotifications}
+          >
+            <span className="settings-toggle-track">
+              <span className="settings-toggle-thumb" />
+            </span>
+            <span className="settings-toggle-label">
+              {notifSaving ? "Saving…" : notificationsEnabled ? "On" : "Off"}
+            </span>
+          </button>
+        </div>
+      </section>
+    </div>
+  );
+}
+
+/* ── Security ──────────────────────────────────────────────────────────── */
+
+function SecuritySection({ changePassword }) {
   const [currentPassword, setCurrentPassword] = useState("");
   const [newPassword, setNewPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
@@ -86,7 +479,78 @@ export default function SettingsPage() {
     }
   };
 
-  // ── Delete account ──
+  return (
+    <div className="settings-panel">
+      <header className="settings-panel-header">
+        <h2>Security</h2>
+        <p>Change the password used to log in.</p>
+      </header>
+
+      <section className="settings-block">
+        <form className="settings-form" onSubmit={handleChangePassword} noValidate>
+          <label className="settings-field">
+            <span>Current Password</span>
+            <input
+              type="password"
+              value={currentPassword}
+              onChange={(e) => {
+                setCurrentPassword(e.target.value);
+                if (passwordError) setPasswordError("");
+              }}
+              autoComplete="current-password"
+              placeholder="••••••••"
+            />
+          </label>
+
+          <label className="settings-field">
+            <span>New Password</span>
+            <input
+              type="password"
+              value={newPassword}
+              onChange={(e) => {
+                setNewPassword(e.target.value);
+                if (passwordError) setPasswordError("");
+              }}
+              autoComplete="new-password"
+              placeholder="At least 8 characters"
+            />
+          </label>
+
+          <label className="settings-field">
+            <span>Confirm New Password</span>
+            <input
+              type="password"
+              value={confirmPassword}
+              onChange={(e) => {
+                setConfirmPassword(e.target.value);
+                if (passwordError) setPasswordError("");
+              }}
+              autoComplete="new-password"
+              placeholder="Re-enter new password"
+            />
+          </label>
+
+          {passwordError && <p className="settings-error-text">{passwordError}</p>}
+          {passwordSuccess && !passwordError && (
+            <p className="settings-success-text">{passwordSuccess}</p>
+          )}
+
+          <button
+            type="submit"
+            className="settings-btn settings-btn-primary settings-btn-inline"
+            disabled={passwordSaving}
+          >
+            {passwordSaving ? "Updating…" : "Update Password"}
+          </button>
+        </form>
+      </section>
+    </div>
+  );
+}
+
+/* ── Danger Zone ───────────────────────────────────────────────────────── */
+
+function DangerSection({ deleteAccount, navigate }) {
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
   const [deletePassword, setDeletePassword] = useState("");
   const [deleteSaving, setDeleteSaving] = useState(false);
@@ -112,220 +576,69 @@ export default function SettingsPage() {
   };
 
   return (
-    <div className="auth-page-shell">
-      <div className="grid-background" />
-      <Navbar toggleTheme={toggleTheme} theme={theme} />
+    <div className="settings-panel">
+      <header className="settings-panel-header">
+        <h2>Danger Zone</h2>
+        <p>Irreversible actions. Proceed carefully.</p>
+      </header>
 
-      <main className="auth-main profile-main settings-main">
-        <section className="profile-panel">
-          <article className="profile-hero settings-hero">
-            <span className="auth-eyebrow">Settings</span>
-            <h1>Account Settings</h1>
-            <p>
-              Signed in as <strong>{user?.name || "User"}</strong> ({user?.email}).
-            </p>
-          </article>
+      <section className="settings-block settings-block-danger">
+        <h3 className="settings-block-title">Delete Account</h3>
+        <p className="settings-hint-text">
+          Permanently delete your account, including all solved problems, progress, and
+          activity history. This cannot be undone.
+        </p>
 
-          {/* ── Appearance ── */}
-          <article className="profile-card settings-card">
-            <h2>Appearance</h2>
-            <div className="settings-list">
-              <div className="settings-item">
-                <div>
-                  <h3>Dark Mode</h3>
-                  <p>Switch between light and dark theme across the whole app.</p>
-                </div>
-                <button
-                  type="button"
-                  className={`settings-toggle${theme === "dark" ? " is-on" : ""}`}
-                  role="switch"
-                  aria-checked={theme === "dark"}
-                  aria-label="Toggle dark mode"
-                  onClick={toggleTheme}
-                >
-                  <span className="settings-toggle-track">
-                    <span className="settings-toggle-thumb" />
-                  </span>
-                  <span className="settings-toggle-label">
-                    {theme === "dark" ? "Dark" : "Light"}
-                  </span>
-                </button>
-              </div>
-            </div>
-          </article>
+        {!showDeleteConfirm ? (
+          <button
+            type="button"
+            className="settings-btn settings-btn-danger"
+            onClick={() => setShowDeleteConfirm(true)}
+          >
+            Delete My Account
+          </button>
+        ) : (
+          <form className="settings-form" onSubmit={handleDeleteAccount} noValidate>
+            <label className="settings-field">
+              <span>Enter your password to confirm</span>
+              <input
+                type="password"
+                value={deletePassword}
+                onChange={(e) => {
+                  setDeletePassword(e.target.value);
+                  if (deleteError) setDeleteError("");
+                }}
+                autoComplete="current-password"
+                placeholder="••••••••"
+              />
+            </label>
 
-          {/* ── Notifications ── */}
-          <article className="profile-card settings-card">
-            <h2>Notifications</h2>
-            <div className="settings-list">
-              <div className="settings-item">
-                <div>
-                  <h3>Email Notifications</h3>
-                  <p>
-                    Welcome email, milestone emails (5/10/25+ problems solved), a weekly
-                    progress digest, and a reminder if you've been away a while.
-                  </p>
-                  {notifError && <p className="settings-error-text">{notifError}</p>}
-                </div>
-                <button
-                  type="button"
-                  className={`settings-toggle${notificationsEnabled ? " is-on" : ""}`}
-                  role="switch"
-                  aria-checked={notificationsEnabled}
-                  aria-label="Toggle email notifications"
-                  disabled={notifSaving}
-                  onClick={handleToggleNotifications}
-                >
-                  <span className="settings-toggle-track">
-                    <span className="settings-toggle-thumb" />
-                  </span>
-                  <span className="settings-toggle-label">
-                    {notifSaving ? "Saving…" : notificationsEnabled ? "On" : "Off"}
-                  </span>
-                </button>
-              </div>
-            </div>
-          </article>
+            {deleteError && <p className="settings-error-text">{deleteError}</p>}
 
-          {/* ── Security ── */}
-          <article className="profile-card settings-card">
-            <h2>Security</h2>
-            <p className="settings-card-subtext">Change the password used to log in.</p>
-
-            <form className="auth-form settings-form" onSubmit={handleChangePassword} noValidate>
-              <label className="auth-field">
-                <span>Current Password</span>
-                <input
-                  type="password"
-                  value={currentPassword}
-                  onChange={(e) => {
-                    setCurrentPassword(e.target.value);
-                    if (passwordError) setPasswordError("");
-                  }}
-                  autoComplete="current-password"
-                  placeholder="••••••••"
-                />
-              </label>
-
-              <label className="auth-field">
-                <span>New Password</span>
-                <input
-                  type="password"
-                  value={newPassword}
-                  onChange={(e) => {
-                    setNewPassword(e.target.value);
-                    if (passwordError) setPasswordError("");
-                  }}
-                  autoComplete="new-password"
-                  placeholder="At least 8 characters"
-                />
-              </label>
-
-              <label className="auth-field">
-                <span>Confirm New Password</span>
-                <input
-                  type="password"
-                  value={confirmPassword}
-                  onChange={(e) => {
-                    setConfirmPassword(e.target.value);
-                    if (passwordError) setPasswordError("");
-                  }}
-                  autoComplete="new-password"
-                  placeholder="Re-enter new password"
-                />
-              </label>
-
-              {passwordError ? <p className="auth-error">{passwordError}</p> : null}
-              {passwordSuccess ? <p className="settings-success-text">{passwordSuccess}</p> : null}
-
-              <button type="submit" className="auth-submit" disabled={passwordSaving}>
-                {passwordSaving ? "Updating…" : "Update Password"}
-              </button>
-            </form>
-          </article>
-
-          {/* ── Danger zone ── */}
-          <article className="profile-card settings-card settings-danger-card">
-            <h2>Danger Zone</h2>
-            <p className="settings-card-subtext">
-              Permanently delete your account, including all solved problems, progress, and
-              activity history. This cannot be undone.
-            </p>
-
-            {!showDeleteConfirm ? (
+            <div className="settings-danger-actions">
               <button
                 type="button"
-                className="settings-danger-btn"
-                onClick={() => setShowDeleteConfirm(true)}
+                className="settings-btn settings-btn-ghost"
+                disabled={deleteSaving}
+                onClick={() => {
+                  setShowDeleteConfirm(false);
+                  setDeletePassword("");
+                  setDeleteError("");
+                }}
               >
-                Delete My Account
+                Cancel
               </button>
-            ) : (
-              <form className="auth-form settings-form" onSubmit={handleDeleteAccount} noValidate>
-                <label className="auth-field">
-                  <span>Enter your password to confirm</span>
-                  <input
-                    type="password"
-                    value={deletePassword}
-                    onChange={(e) => {
-                      setDeletePassword(e.target.value);
-                      if (deleteError) setDeleteError("");
-                    }}
-                    autoComplete="current-password"
-                    placeholder="••••••••"
-                  />
-                </label>
-
-                {deleteError ? <p className="auth-error">{deleteError}</p> : null}
-
-                <div className="settings-danger-actions">
-                  <button
-                    type="button"
-                    className="auth-secondary-btn"
-                    disabled={deleteSaving}
-                    onClick={() => {
-                      setShowDeleteConfirm(false);
-                      setDeletePassword("");
-                      setDeleteError("");
-                    }}
-                  >
-                    Cancel
-                  </button>
-                  <button type="submit" className="settings-danger-btn" disabled={deleteSaving}>
-                    {deleteSaving ? "Deleting…" : "Permanently Delete Account"}
-                  </button>
-                </div>
-              </form>
-            )}
-          </article>
-
-          <div className="profile-actions settings-actions">
-            <Link to="/profile" className="auth-secondary-btn settings-back-link">
-              <span className="settings-back-icon" aria-hidden="true">
-                <svg
-                  width="14"
-                  height="14"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  stroke="currentColor"
-                  strokeWidth="2"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                >
-                  <line x1="19" y1="12" x2="5" y2="12" />
-                  <polyline points="12 19 5 12 12 5" />
-                </svg>
-              </span>
-              <span>Back to Profile</span>
-            </Link>
-            <Link to="/problems" className="auth-submit settings-primary-link settings-continue-link">
-              Continue Practice
-            </Link>
-          </div>
-        </section>
-      </main>
-
-      <Footer />
+              <button
+                type="submit"
+                className="settings-btn settings-btn-danger"
+                disabled={deleteSaving}
+              >
+                {deleteSaving ? "Deleting…" : "Permanently Delete Account"}
+              </button>
+            </div>
+          </form>
+        )}
+      </section>
     </div>
   );
 }
