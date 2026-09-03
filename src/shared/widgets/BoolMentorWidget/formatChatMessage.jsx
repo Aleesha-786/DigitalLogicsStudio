@@ -24,7 +24,7 @@ export function renderChatMessage(text) {
       nodes.push(<em key={key++}>{match[3]}</em>);
     } else if (match[4] !== undefined) {
       nodes.push(
-        <code key={key++} className="dls-mentor-inline-code">
+        <code key={key++} className="bool-mentor-inline-code">
           {match[4]}
         </code>,
       );

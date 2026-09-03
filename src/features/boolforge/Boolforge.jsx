@@ -36,6 +36,10 @@ const Boolforge = ({
   const [showAIPanel, setShowAIPanel] = useState(false);
   const [snapEnabled, setSnapEnabled] = useState(true);
   const [showGridOverlay, setShowGridOverlay] = useState(true);
+  // Mobile-only: the Sidebar (component palette) renders as a slide-in
+  // drawer under the ~900px breakpoint (see Boolforge.css). On desktop this
+  // stays false and has no visual effect since the drawer CSS never engages.
+  const [sidebarOpen, setSidebarOpen] = useState(false);
 
   // ── Refs shared across hooks ─────────────────────────────────────────────
   const canvasRef = useRef(null);
@@ -280,6 +284,18 @@ const handleDeleteComponent = async (id, name) => {
     };
   }, []);
 
+  // Auto-close the mobile sidebar drawer if the viewport grows back past
+  // the breakpoint (e.g. rotating a tablet, or resizing a desktop window
+  // back up) so it doesn't stay "open" in state once it's no longer a
+  // drawer.
+  useEffect(() => {
+    const handleResize = () => {
+      if (window.innerWidth > 900) setSidebarOpen(false);
+    };
+    window.addEventListener("resize", handleResize);
+    return () => window.removeEventListener("resize", handleResize);
+  }, []);
+
   // ── Render ─────────────────────────────────────────────────────────────
   const circuitTool = (
     <div
@@ -347,15 +363,28 @@ const handleDeleteComponent = async (id, name) => {
         setSnapEnabled={setSnapEnabled}
         showGridOverlay={showGridOverlay}
         setShowGridOverlay={setShowGridOverlay}
+        onToggleSidebar={() => setSidebarOpen((v) => !v)}
       />
       {/* WORKSPACE — sidebar + canvas, below the ribbon */}
       <div className="circuit-workspace">
+        {/* Backdrop shown only while the mobile drawer is open (CSS keeps
+            this invisible/inert above the ~900px breakpoint). */}
+        {sidebarOpen && (
+          <div
+            className="sidebar-drawer-overlay"
+            onClick={() => setSidebarOpen(false)}
+            aria-hidden="true"
+          />
+        )}
+
         {/* SIDEBAR COMPONENT */}
         <Sidebar
           selectionToolActive={selectionToolActive}
           setSelectionToolActive={setSelectionToolActive}
           simplifiedExpression={simplifiedExpression}
           addGate={addGate}
+          isOpen={sidebarOpen}
+          onClose={() => setSidebarOpen(false)}
         />
 
         {/* CANVAS COMPONENT */}

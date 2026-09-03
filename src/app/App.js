@@ -12,7 +12,7 @@ import { useTheme } from "../shared/context/ThemeContext";
 import RouteSeoManager from "../shared/seo/RouteSeoManager";
 import RouteNormalizer from "../shared/seo/RouteNormalizer";
 import AnalyticsTracker from "../shared/seo/AnalyticsTracker";
-import DlsMentorWidget from "../shared/widgets/DlsMentorWidget/DlsMentorWidget";
+import BoolMentorWidget from "../shared/widgets/BoolMentorWidget/BoolMentorWidget";
 
 // UTILS / OTHER TOOLS:
 import ScrollToTop from "../shared/utils/ScrollToTop";
@@ -516,7 +516,7 @@ function App() {
         future={{ v7_startTransition: true, v7_relativeSplatPath: true }}
       >
         <AppContent />
-        <DlsMentorWidget />
+        <BoolMentorWidget />
       </BrowserRouter>
       <Analytics />
     </div>
