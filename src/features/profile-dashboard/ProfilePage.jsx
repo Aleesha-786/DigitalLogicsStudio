@@ -21,11 +21,10 @@ import {
 import Navbar from "../../shared/components/navbar";
 import Footer from "../../shared/components/Footer";
 import { useTheme } from "../../shared/context/ThemeContext";
-import { useAuth } from "../context/AuthContext";
+import { useAuth } from "../../auth/context/AuthContext";
 import progressService from "../../shared/services/progressService";
 import apiClient from "../../shared/services/apiClient";
-import "../../features/home/Home.css";
-import "./Auth.css";
+import "../home/Home.css";
 import "./ProfileDashboard.css";
 
 // ─── Colour palette ───────────────────────────────────────────────────────────
@@ -904,9 +903,6 @@ export default function ProfilePage() {
         day: "numeric",
       })
     : "—";
-  const lastLogin = recentEvents[0]?.createdAt
-    ? timeAgo(recentEvents[0].createdAt)
-    : "—";
 
   const TABS = [
     "overview",
@@ -973,7 +969,6 @@ export default function ProfilePage() {
               <div className="pd-hero-meta">
                 <span>Joined {joinDate}</span>
                 <span className="pd-dot">·</span>
-                <span>Last active {lastLogin}</span>
                 <span className="pd-dot">·</span>
                 <span
                   className={`pd-role-chip pd-role-chip--${backendOk === false ? "warn" : "ok"}`}
@@ -981,7 +976,7 @@ export default function ProfilePage() {
                   {backendOk === null
                     ? "Checking…"
                     : backendOk
-                      ? "● Active"
+                      ? "● Connected"
                       : "⚠ Offline"}
                 </span>
                 <span className="pd-dot">·</span>
@@ -995,9 +990,9 @@ export default function ProfilePage() {
             <button
               type="button"
               className="pd-btn pd-btn--primary"
-              onClick={() => navigate("/boolforge")}
+              onClick={() => navigate("/settings")}
             >
-              Circuit Forge
+              settings
             </button>
           </div>
         </section>
@@ -1305,9 +1300,9 @@ export default function ProfilePage() {
                       <h2 className="pd-card-title">Performance Insights</h2>
                       <p className="pd-card-sub">A deep look at your learning health</p>
                     </div>
-                    <span className={`pd-perf-status ${backendOk ? "pd-perf-status--ok" : "pd-perf-status--warn"}`}>
+                    {/* <span className={`pd-perf-status ${backendOk ? "pd-perf-status--ok" : "pd-perf-status--warn"}`}>
                       {backendOk === null ? "Checking…" : backendOk ? "● Synced" : "⚠ Offline"}
-                    </span>
+                    </span> */}
                   </div>
 
                   {/* ── Metric rows with bar indicators ── */}
@@ -1415,7 +1410,7 @@ export default function ProfilePage() {
             </div>
 
             {/* ── Account & System Status ── */}
-            <div className="pd-card pd-status-card">
+            {/* <div className="pd-card pd-status-card">
               <div className="pd-status-header">
                 <div>
                   <h2 className="pd-card-title">Account & System Status</h2>
@@ -1477,7 +1472,7 @@ export default function ProfilePage() {
                   </div>
                 </div>
               </div>
-            </div>
+            </div> */}
 
           </div>
         )}

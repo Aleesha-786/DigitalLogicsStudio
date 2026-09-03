@@ -187,8 +187,8 @@ const DLDTrainerBoard = lazy(() => import("../features/trainer-board/TrainerBoar
 const LoginPage = lazy(() => import("../auth/pages/LoginPage"));
 const SignupPage = lazy(() => import("../auth/pages/SignupPage"));
 const ForgotPasswordPage = lazy(() => import("../auth/pages/ForgotPasswordPage"));
-const ProfilePage = lazy(() => import("../auth/pages/ProfilePage"));
-const SettingsPage = lazy(() => import("../auth/pages/SettingsPage"));
+const ProfilePage = lazy(() => import("../features/profile-dashboard/ProfilePage"));
+const SettingsPage = lazy(() => import("../features/settings/SettingsPage"));
 const NotFoundPage = lazy(() => import("./pages/NotFoundPage"));
 
 // ScrollToTop and route synchronization

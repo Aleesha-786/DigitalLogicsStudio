@@ -784,7 +784,7 @@
 .pd-sys-val--ok   { color: #10b981; }
 .pd-sys-val--warn { color: #f59e0b; }
 
-/* ── Account & System Status Card (enhanced) ─────────────────── */
+/* ── Account & System Status Card (enhanced) ───────────────────
 .pd-status-card {
   overflow: hidden;
 }
@@ -904,7 +904,7 @@
   .pd-status-grid {
     grid-template-columns: 1fr;
   }
-}
+} */
 
 /* ── Misc ────────────────────────────────────────────────────── */
 .pd-loading {
@@ -2658,6 +2658,7 @@
 .pd-perf-header .pd-card-title { margin: 0; }
 .pd-perf-header .pd-card-sub   { margin: 0.2rem 0 0; }
 
+/* 
 .pd-perf-status {
   display: inline-flex;
   align-items: center;
@@ -2679,7 +2680,7 @@
   background: rgba(245,158,11,0.12);
   border: 1px solid rgba(245,158,11,0.28);
   color: #f59e0b;
-}
+} */
 
 /* ── KPI rings row ── */
 .pd-perf-rings {

@@ -124,6 +124,22 @@ export function AuthProvider({ children }) {
     [applyUserState],
   );
 
+  const updateProfile = useCallback(
+    async (updates) => {
+      if (typeof authService.updateProfile !== "function") {
+        throw new Error(
+          "Profile updates aren't connected to the backend yet — add authService.updateProfile() and a matching API endpoint to enable this.",
+        );
+      }
+      const data = await authService.updateProfile(updates);
+      if (data?.user) {
+        applyUserState(data.user);
+      }
+      return data;
+    },
+    [applyUserState],
+  );
+
   const value = {
     user,
     loading,
@@ -136,8 +152,9 @@ export function AuthProvider({ children }) {
     hasSolvedProblem,
     emailNotificationsOptedOut: !!user?.emailNotificationsOptedOut,
     updateNotificationPreferences,
-    changePassword, 
+    changePassword,
     deleteAccount,
+    updateProfile,
   };
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
