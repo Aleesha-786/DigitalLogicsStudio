@@ -969,7 +969,6 @@ export default function ProfilePage() {
               <div className="pd-hero-meta">
                 <span>Joined {joinDate}</span>
                 <span className="pd-dot">·</span>
-                <span>Last active {lastLogin}</span>
                 <span className="pd-dot">·</span>
                 <span
                   className={`pd-role-chip pd-role-chip--${backendOk === false ? "warn" : "ok"}`}
@@ -1445,7 +1444,6 @@ export default function ProfilePage() {
                   <span className="pd-status-icon pd-status-icon--blue">⏱️</span>
                   <div className="pd-status-body">
                     <span className="pd-status-label">Last Activity</span>
-                    <span className="pd-status-val">{lastLogin}</span>
                   </div>
                 </div>
 
