@@ -969,6 +969,7 @@ export default function ProfilePage() {
               <div className="pd-hero-meta">
                 <span>Joined {joinDate}</span>
                 <span className="pd-dot">·</span>
+                <span>Last active {lastLogin}</span>
                 <span className="pd-dot">·</span>
                 <span
                   className={`pd-role-chip pd-role-chip--${backendOk === false ? "warn" : "ok"}`}
@@ -976,7 +977,7 @@ export default function ProfilePage() {
                   {backendOk === null
                     ? "Checking…"
                     : backendOk
-                      ? "● Connected"
+                      ? "● Active"
                       : "⚠ Offline"}
                 </span>
                 <span className="pd-dot">·</span>
@@ -1300,9 +1301,9 @@ export default function ProfilePage() {
                       <h2 className="pd-card-title">Performance Insights</h2>
                       <p className="pd-card-sub">A deep look at your learning health</p>
                     </div>
-                    {/* <span className={`pd-perf-status ${backendOk ? "pd-perf-status--ok" : "pd-perf-status--warn"}`}>
+                    <span className={`pd-perf-status ${backendOk ? "pd-perf-status--ok" : "pd-perf-status--warn"}`}>
                       {backendOk === null ? "Checking…" : backendOk ? "● Synced" : "⚠ Offline"}
-                    </span> */}
+                    </span>
                   </div>
 
                   {/* ── Metric rows with bar indicators ── */}
@@ -1410,7 +1411,7 @@ export default function ProfilePage() {
             </div>
 
             {/* ── Account & System Status ── */}
-            {/* <div className="pd-card pd-status-card">
+            <div className="pd-card pd-status-card">
               <div className="pd-status-header">
                 <div>
                   <h2 className="pd-card-title">Account & System Status</h2>
@@ -1472,7 +1473,7 @@ export default function ProfilePage() {
                   </div>
                 </div>
               </div>
-            </div> */}
+            </div>
 
           </div>
         )}
