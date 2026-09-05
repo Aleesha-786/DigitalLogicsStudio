@@ -363,7 +363,7 @@
   text-transform: none;
 }
 
-/* ── Toggle item rows (appearance / notifications / privacy / security) ── */
+/* ── Toggle item rows (appearance / notifications) ────────────────────── */
 
 .settings-item {
   border: 1px solid var(--border-color);

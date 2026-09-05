@@ -2,8 +2,8 @@ import React from "react";
 
 /**
  * Shared on/off switch used by every toggle in Settings (dark mode, reduced
- * motion, notifications, public profile, 2FA...). Keeping one implementation
- * means one place to fix accessibility or styling issues.
+ * motion, notifications...). Keeping one implementation means one place to
+ * fix accessibility or styling issues.
  */
 export default function ToggleSwitch({
   isOn,

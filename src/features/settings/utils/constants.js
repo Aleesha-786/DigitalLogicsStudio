@@ -1,4 +1,4 @@
-import { User, Palette, Bell, ShieldCheck, Lock, Trash2 } from "lucide-react";
+import { User, Palette, Bell, ShieldCheck, Trash2 } from "lucide-react";
 
 // Below this width, the sidebar and main panel stop being side-by-side and
 // become two full-screen views (list -> detail) with a back button.
@@ -30,12 +30,6 @@ export const SECTIONS = [
     label: "Security",
     description: "Password and sign-in protection",
     icon: ShieldCheck,
-  },
-  {
-    id: "privacy",
-    label: "Privacy",
-    description: "Profile visibility and your data",
-    icon: Lock,
   },
   {
     id: "danger",

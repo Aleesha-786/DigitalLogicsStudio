@@ -1,5 +1,4 @@
-import React, { useState } from "react";
-import ToggleSwitch from "../ToggleSwitch";
+import React from "react";
 import { usePasswordChange } from "../../hooks";
 
 export default function SecuritySection({ changePassword }) {
@@ -16,39 +15,14 @@ export default function SecuritySection({ changePassword }) {
     handleChangePassword,
   } = usePasswordChange({ changePassword });
 
-  // New: two-factor authentication. Local-only placeholder until the
-  // backend exposes real enroll/verify endpoints.
-  const [twoFactorEnabled, setTwoFactorEnabled] = useState(false);
-
   return (
     <div className="settings-panel">
       <header className="settings-panel-header">
         <h2>Security</h2>
-        <p>Change your password and manage sign-in protection.</p>
+        <p>Change the password used to log in.</p>
       </header>
 
       <section className="settings-block">
-        <div className="settings-item">
-          <div>
-            <h3>Two-Factor Authentication</h3>
-            <p>Require a one-time code from your authenticator app when you sign in.</p>
-          </div>
-          <ToggleSwitch
-            isOn={twoFactorEnabled}
-            onClick={() => setTwoFactorEnabled((prev) => !prev)}
-            ariaLabel="Toggle two-factor authentication"
-          />
-        </div>
-        {twoFactorEnabled && (
-          <p className="settings-hint-text">
-            We'll email you setup instructions shortly — two-factor authentication is
-            rolling out gradually.
-          </p>
-        )}
-      </section>
-
-      <section className="settings-block">
-        <h3 className="settings-block-title">Change Password</h3>
         <form className="settings-form" onSubmit={handleChangePassword} noValidate>
           <label className="settings-field">
             <span>Current Password</span>
