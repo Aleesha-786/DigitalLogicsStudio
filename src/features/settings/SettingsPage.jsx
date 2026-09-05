@@ -10,7 +10,6 @@ import {
   AppearanceSection,
   NotificationsSection,
   SecuritySection,
-  PrivacySection,
   DangerSection,
 } from "./components/sections";
 import { useIsMobile } from "./hooks";
@@ -86,7 +85,6 @@ export default function SettingsPage() {
                 {activeSection === "security" && (
                   <SecuritySection changePassword={changePassword} />
                 )}
-                {activeSection === "privacy" && <PrivacySection user={user} />}
                 {activeSection === "danger" && (
                   <DangerSection deleteAccount={deleteAccount} navigate={navigate} />
                 )}
