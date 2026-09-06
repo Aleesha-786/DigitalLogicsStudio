@@ -3,15 +3,6 @@ import { Link } from "react-router-dom";
 import { Lock, SquarePen } from "lucide-react";
 import { difficultyTone } from "../utils/problemsUtils";
 
-/* Single problems-table row, memoized so unrelated page state changes
-   (search typing, sidebar toggles, navbar, banner autoscroll, etc.) don't
-   force every visible row to re-render — only rows whose own problem,
-   progress, or selection actually changed will re-render.
-
-   The only prop that can break this if it's ever made unstable is
-   `onOpen` — it MUST stay a useCallback'd reference in the parent.
-   There's no onEdit/onDelete callback anymore: "Open in Editor" is a
-   plain <Link>, so it never needs a fresh function identity. */
 const ProblemTableRow = React.memo(function ProblemTableRow({
   problem,
   progress,
