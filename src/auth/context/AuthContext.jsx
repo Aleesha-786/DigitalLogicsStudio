@@ -106,15 +106,10 @@ export function AuthProvider({ children }) {
     [applyUserState],
   );
 
-  // NEW — changes password for the current session. Doesn't touch local
-  // user state (nothing about the sanitized user object changes).
   const changePassword = useCallback(async (currentPassword, newPassword) => {
     return authService.changePassword({ currentPassword, newPassword });
   }, []);
 
-  // NEW — deletes the account and clears local auth state on success,
-  // same as logout. Throws on failure (e.g. wrong password) so the caller
-  // can show an inline error.
   const deleteAccount = useCallback(
     async (password) => {
       const data = await authService.deleteAccount({ password });
@@ -124,13 +119,13 @@ export function AuthProvider({ children }) {
     [applyUserState],
   );
 
+  // `authService.updateProfile` now exists and is wired to
+  // PATCH /api/auth/profile, so the earlier "not connected to the backend
+  // yet" guard has been removed — it was throwing a plain Error (no
+  // `.response`/`.status`), which Settings' getErrorMessage() misread as a
+  // network failure and displayed as "Cannot reach the server."
   const updateProfile = useCallback(
     async (updates) => {
-      if (typeof authService.updateProfile !== "function") {
-        throw new Error(
-          "Profile updates aren't connected to the backend yet — add authService.updateProfile() and a matching API endpoint to enable this.",
-        );
-      }
       const data = await authService.updateProfile(updates);
       if (data?.user) {
         applyUserState(data.user);

@@ -3,27 +3,49 @@
    Does not depend on auth/Auth.css. Reuses the app's shared CSS custom
    properties (--bg-color, --text-color, --card-bg, --border-color,
    --accent-color, --secondary-text) so it stays on-theme in light/dark mode.
+
+   Layout model:
+   - .settings-page-shell is viewport-height and never scrolls itself.
+   - .settings-shell (sidebar + main) is the only region that fills the
+     remaining height; the sidebar and main panel each scroll independently.
+   - The Footer lives inside .settings-main only, so it never appears under
+     the sidebar, and sits at the bottom of the main panel's own scroll area.
+   - <=880px: sidebar and main stop being side-by-side. Only one is rendered
+     at a time (controlled in JS) — sidebar becomes a full-screen list,
+     tapping an item opens the main panel full-screen with a back button.
    ============================================================================ */
 
+.reduced-motion,
+.reduced-motion * {
+  animation-duration: 0.001ms !important;
+  animation-iteration-count: 1 !important;
+  transition-duration: 0.001ms !important;
+  scroll-behavior: auto !important;
+}
+
 .settings-page-shell {
-  min-height: 100vh;
+  height: 100vh;
   display: flex;
   flex-direction: column;
   background: var(--bg-color);
+  overflow: hidden;
 }
 
 .settings-page-main {
-  position: relative;
-  z-index: 1;
-  width: min(1080px, calc(100% - 2rem));
+  flex: 1 1 auto;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  width: min(1160px, calc(100% - 2rem));
   margin: 0 auto;
-  padding: 3rem 0 5rem;
+  padding: 2rem 0 0;
 }
 
 /* ── Page header ───────────────────────────────────────────────────────── */
 
 .settings-page-header {
-  margin-bottom: 2rem;
+  flex-shrink: 0;
+  margin-bottom: 1.5rem;
 }
 
 .settings-page-header h1 {
@@ -56,22 +78,21 @@
   text-decoration: underline;
 }
 
-/* ── Shell: sidebar + content ─────────────────────────────────────────────
-   Desktop: sidebar sits on the left, sticky, with content filling the rest.
-   This is the layout that was missing before — the old version reused a
-   single-column auth-card and looked identical (and cramped) at any width.
-   ─────────────────────────────────────────────────────────────────────── */
+/* ── Shell: sidebar + main, each scrolling independently ─────────────────── */
 
 .settings-shell {
+  flex: 1 1 auto;
+  min-height: 0;
   display: grid;
-  grid-template-columns: 260px minmax(0, 1fr);
+  grid-template-columns: 268px minmax(0, 1fr);
   gap: 1.75rem;
-  align-items: start;
+  align-items: stretch;
 }
 
 .settings-sidebar {
-  position: sticky;
-  top: 1.5rem;
+  height: 100%;
+  overflow-y: auto;
+  overscroll-behavior: contain;
   border: 1px solid var(--border-color);
   background: var(--card-bg);
   border-radius: 1.1rem;
@@ -93,8 +114,6 @@
   background: transparent;
   color: var(--secondary-text);
   font: inherit;
-  font-weight: 600;
-  font-size: 0.92rem;
   text-align: left;
   padding: 0.7rem 0.85rem;
   border-radius: 0.75rem;
@@ -102,8 +121,35 @@
   transition: background 0.15s ease, color 0.15s ease;
 }
 
-.settings-nav-item svg {
+.settings-nav-icon {
   flex-shrink: 0;
+}
+
+.settings-nav-text {
+  display: flex;
+  flex-direction: column;
+  gap: 0.15rem;
+  flex: 1;
+  min-width: 0;
+}
+
+.settings-nav-label {
+  font-weight: 600;
+  font-size: 0.92rem;
+  color: inherit;
+}
+
+.settings-nav-description {
+  display: none;
+  font-size: 0.78rem;
+  font-weight: 500;
+  color: var(--secondary-text);
+}
+
+.settings-nav-chevron {
+  display: none;
+  flex-shrink: 0;
+  color: var(--secondary-text);
 }
 
 .settings-nav-item:hover {
@@ -126,15 +172,74 @@
   color: #f87171;
 }
 
-/* ── Content card ──────────────────────────────────────────────────────── */
+.settings-nav-item:focus-visible {
+  outline: 2px solid var(--accent-color);
+  outline-offset: 2px;
+}
+
+/* ── Main panel (content card + footer), scrolls independently ──────────── */
+
+.settings-main {
+  min-width: 0;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+}
+
+/* Mobile-only "back to list" bar, sticky to the top of the main scroll area */
+.settings-main-header {
+  display: none;
+  align-items: center;
+  gap: 0.75rem;
+  flex-shrink: 0;
+  position: sticky;
+  top: 0;
+  z-index: 2;
+  background: var(--bg-color);
+  padding: 0.15rem 0 1rem;
+}
+
+.settings-mobile-back {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+  border: none;
+  background: none;
+  color: var(--accent-color);
+  font: inherit;
+  font-weight: 700;
+  font-size: 0.9rem;
+  padding: 0.35rem 0.35rem 0.35rem 0;
+  cursor: pointer;
+}
+
+.settings-mobile-back:hover {
+  text-decoration: underline;
+}
+
+.settings-main-header-title {
+  font-weight: 700;
+  color: var(--text-color);
+  font-size: 0.95rem;
+}
 
 .settings-content {
+  flex: 0 0 auto;
   min-width: 0;
   border: 1px solid var(--border-color);
   background: var(--card-bg);
   border-radius: 1.25rem;
   padding: clamp(1.5rem, 2.5vw, 2.25rem);
   box-shadow: 0 16px 40px rgba(2, 6, 23, 0.14);
+}
+
+.settings-footer-wrap {
+  margin-top: auto;
+  flex-shrink: 0;
+  /* Keeps the footer from crowding the card when content is tall. */
+  padding-top: 1.75rem;
 }
 
 .settings-panel {
@@ -345,6 +450,11 @@
   text-align: left;
 }
 
+.settings-toggle:focus-visible .settings-toggle-track {
+  outline: 2px solid var(--accent-color);
+  outline-offset: 2px;
+}
+
 /* ── Forms ─────────────────────────────────────────────────────────────── */
 
 .settings-form {
@@ -422,6 +532,11 @@
   transform: none;
 }
 
+.settings-btn:focus-visible {
+  outline: 2px solid var(--accent-color);
+  outline-offset: 2px;
+}
+
 .settings-btn-primary {
   background: linear-gradient(135deg, #2563eb, #3b82f6);
   color: #fff;
@@ -475,43 +590,77 @@
   flex-wrap: wrap;
 }
 
+/* ── Slim, on-theme scrollbars for the two independent panels ───────────── */
+
+.settings-sidebar::-webkit-scrollbar,
+.settings-main::-webkit-scrollbar {
+  width: 8px;
+}
+
+.settings-sidebar::-webkit-scrollbar-thumb,
+.settings-main::-webkit-scrollbar-thumb {
+  background: var(--border-color);
+  border-radius: 999px;
+}
+
+.settings-sidebar::-webkit-scrollbar-track,
+.settings-main::-webkit-scrollbar-track {
+  background: transparent;
+}
+
 /* ============================================================================
    Responsive
-   Desktop (>960px): sidebar + content, as defined above.
-   Tablet/Mobile (<=960px): sidebar becomes a horizontal, scrollable tab bar
-   pinned above the content instead of a cramped vertical list.
+   Desktop (>880px): sidebar + main, side by side, each scrolling on its own.
+   Mobile (<=880px): only one of sidebar/main is rendered at a time (JS).
+   The sidebar becomes a full-screen, single-column list — the primary
+   screen — and picking an item opens the main panel full-screen with a
+   back button (.settings-main-header) pinned to the top of its scroll area.
    ============================================================================ */
 
-@media (max-width: 960px) {
+@media (max-width: 880px) {
+  .settings-page-main {
+    width: min(100%, calc(100% - 1.25rem));
+    padding: 1.5rem 0 0;
+  }
+
   .settings-shell {
     grid-template-columns: 1fr;
+    gap: 0;
   }
 
   .settings-sidebar {
-    position: static;
-    padding: 0.5rem;
-    overflow-x: auto;
+    box-shadow: none;
+    border-radius: 0;
+    border: none;
+    padding: 0;
+    background: transparent;
   }
 
   .settings-nav {
-    flex-direction: row;
-    gap: 0.4rem;
+    gap: 0.5rem;
   }
 
   .settings-nav-item {
-    flex-shrink: 0;
-    white-space: nowrap;
+    padding: 0.95rem 1rem;
+    border-radius: 1rem;
+    border: 1px solid var(--border-color);
+    background: var(--card-bg);
   }
 
-  .settings-nav-item span {
-    display: inline;
+  .settings-nav-item.is-active {
+    border-color: var(--accent-color);
   }
-}
 
-@media (max-width: 640px) {
-  .settings-page-main {
-    width: min(100%, calc(100% - 1.25rem));
-    padding: 2rem 0 3rem;
+  .settings-nav-description {
+    display: block;
+  }
+
+  .settings-nav-chevron {
+    display: inline-flex;
+  }
+
+  .settings-main-header {
+    display: flex;
   }
 
   .settings-content {
@@ -543,7 +692,11 @@
 }
 
 @media (max-width: 420px) {
-  .settings-nav-item span {
-    font-size: 0.85rem;
+  .settings-nav-label {
+    font-size: 0.88rem;
+  }
+
+  .settings-nav-description {
+    font-size: 0.75rem;
   }
 }
