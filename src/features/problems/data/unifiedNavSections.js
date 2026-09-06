@@ -90,7 +90,6 @@ const unifiedNavSections = [
         label: "Assembly Lab",
         icon: Cpu,
         topicSlug: "assembly",
-        badge: "Interactive",
         panel: {
           description:
             "Step-by-step assembly instruction execution and register visualization.",
