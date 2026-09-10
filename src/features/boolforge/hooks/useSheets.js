@@ -596,6 +596,5 @@ export function useSheets({ portNames = null, containerRef, customComponents = [
     mergeInputGates, deleteWire,
     copySelectedGates, pasteGates, duplicateSelectedGates,
     clearCircuit,
-    customIcMeta, mergedIcTypes,
   };
 }
