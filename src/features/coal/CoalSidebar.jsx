@@ -172,7 +172,7 @@ function CoalSidebar() {
         </div>
 
         <div className="coal-folder-sidebar-footer">
-          <Link to="/resources/coal" className="coal-folder-sidebar-home-btn">
+          <Link to="/coal" className="coal-folder-sidebar-home-btn">
             ← COAL home
           </Link>
         </div>

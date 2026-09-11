@@ -16,16 +16,16 @@ const DLD_NAV_LINKS = [
 const COAL_NAV_LINKS = [
   { to: "/", label: "Home", end: true }, 
   { to: "/problems", label: "Problems" },
-  { to: "/resources/coal", label: "COAL Home", end: true },
-  { to: "/resources/coal/practical", label: "Practical" },
+  { to: "/coal", label: "COAL Home", end: true },
+  { to: "/coal/practical", label: "Practical" },
 ];
 
 function isCoalTheoryRoute(pathname) {
-  return pathname.startsWith("/resources/coal/theory") || pathname.startsWith("/coal/");
+  return pathname.startsWith("/coal/theory") || pathname.startsWith("/coal/");
 }
 
 function isCoalRoute(pathname) {
-  return pathname.startsWith("/resources/coal") || pathname.startsWith("/coal/");
+  return pathname.startsWith("/coal") || pathname.startsWith("/coal/");
 }
 
 function NavbarBase({ 

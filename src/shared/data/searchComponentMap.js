@@ -570,7 +570,7 @@ export const SEARCH_PREVIEW_MAP = [
       "computer organization and assembly language", "coal home", "coal resources",
     ],
     title: "COAL Resources",
-    route: "/resources/coal",
+    route: "/coal",
     Component: React.lazy(() => import("../../features/coal/CoalHomeRoute")),
   },
   {
@@ -579,7 +579,7 @@ export const SEARCH_PREVIEW_MAP = [
       "computer organization theory", "assembly language theory",
     ],
     title: "COAL Theory",
-    route: "/resources/coal/theory",
+    route: "/coal/theory",
     Component: React.lazy(() => import("../../features/coal/CoalTheoryPage")),
   },
   {
@@ -588,7 +588,7 @@ export const SEARCH_PREVIEW_MAP = [
       "hands-on coal", "assembly practicals",
     ],
     title: "COAL Practical Labs",
-    route: "/resources/coal/practical",
+    route: "/coal/practical",
     Component: React.lazy(() => import("../../features/coal/CoalPracticalPage")),
   },
   {
@@ -597,7 +597,7 @@ export const SEARCH_PREVIEW_MAP = [
       "step through program", "cpu explorer",
     ],
     title: "Instruction Trace Lab",
-    route: "/resources/coal/practical/instruction-trace-lab",
+    route: "/coal/practical/instruction-trace-lab",
     Component: React.lazy(() => import("../../features/coal/practical-playgrounds/InstructionTraceLabPage")),
   },
   {
@@ -606,7 +606,7 @@ export const SEARCH_PREVIEW_MAP = [
       "zero flag carry flag overflow flag sign flag",
     ],
     title: "ALU & Flags Simulator",
-    route: "/resources/coal/practical/alu-flags-simulator",
+    route: "/coal/practical/alu-flags-simulator",
     Component: React.lazy(() => import("../../features/coal/practical-playgrounds/AluFlagsSimulatorPage")),
   },
   {
@@ -614,7 +614,7 @@ export const SEARCH_PREVIEW_MAP = [
       "stack memory simulator", "stack simulator", "push pop call ret", "stack diagrams",
     ],
     title: "Stack & Memory Simulator",
-    route: "/resources/coal/practical/stack-memory-simulator",
+    route: "/coal/practical/stack-memory-simulator",
     Component: React.lazy(() => import("../../features/coal/practical-playgrounds/StackMemorySimulatorPage")),
   },
   {
@@ -622,7 +622,7 @@ export const SEARCH_PREVIEW_MAP = [
       "assembly drills", "masm", "assembly programs", "guided assembly exercises",
     ],
     title: "Assembly Drills",
-    route: "/resources/coal/practical/assembly-drills",
+    route: "/coal/practical/assembly-drills",
     Component: React.lazy(() => import("../../features/coal/practical-playgrounds/AssemblyDrillsPage")),
   },
   {
@@ -631,7 +631,7 @@ export const SEARCH_PREVIEW_MAP = [
       "x86 addressing modes",
     ],
     title: "Addressing Mode Playground",
-    route: "/resources/coal/practical/addressing-mode-playground",
+    route: "/coal/practical/addressing-mode-playground",
     Component: React.lazy(() => import("../../features/coal/practical-playgrounds/AddressingModePlaygroundPage")),
   },
   {
@@ -640,7 +640,7 @@ export const SEARCH_PREVIEW_MAP = [
       "live execution sandbox", "x86 architecture reference",
     ],
     title: "Instruction Laboratory",
-    route: "/resources/coal/practical/instruction-laboratory",
+    route: "/coal/practical/instruction-laboratory",
     Component: React.lazy(() => import("../../features/coal/practical-playgrounds/InstructionLaboratoryPage")),
   },
 

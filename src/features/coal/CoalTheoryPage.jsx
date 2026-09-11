@@ -3,7 +3,7 @@ import { useLocation } from "react-router-dom";
 import CoalLayout from "./CoalLayout";
 import CoreTopicsSection from "../../shared/components/topics/CoreTopicsSection";
 import { buildCoalCoreTopics } from "./coalCoreTopics";
-import { coalCourseMeta, coalCourseParts } from "../../shared/data/coalCourseOutline";
+import { coalCourseMeta, coalCourseParts } from "../../shared/data/coalCourseOutline.mjs";
 import { getAllCoalModules } from "../../shared/utils/coalCourseUtils";
 import { useCoalScrollSpy } from "./useCoalScrollSpy";
 import "./styles/CoalLayout.css";

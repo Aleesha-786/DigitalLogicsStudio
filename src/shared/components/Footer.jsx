@@ -47,8 +47,8 @@ const FOOTER_COLS = [
     links: [
       { label: "Book Ch1 Problems", to: "/book" },
       { label: "Book Ch2 Problems", to: "/book/ch2" },
-      { label: "DLD Resources", to: "/resources/dld" },
-      { label: "COAL Resources", to: "/resources/coal" },
+      { label: "DLD Resources", to: "/dld" },
+      { label: "COAL Resources", to: "/coal" },
     ],
   },
 ];

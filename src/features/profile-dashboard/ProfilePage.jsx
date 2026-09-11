@@ -1084,7 +1084,7 @@ export default function ProfilePage() {
                 </div>
                 <div className="pd-course-card-footer">
                   <span>{coalPartsCompleted}/{coalPartsTotal} parts completed</span>
-                  <Link to="/resources/coal/theory" className="pd-course-card-resume" style={{ color: COLORS.purple }}>Resume →</Link>
+                  <Link to="/coal/theory" className="pd-course-card-resume" style={{ color: COLORS.purple }}>Resume →</Link>
                 </div>
               </div>
             </div>
@@ -1254,7 +1254,7 @@ export default function ProfilePage() {
                       saved={0}
                       nextLesson="CPU Components & Register Model"
                       accent={COLORS.purple}
-                      link="/resources/coal/theory"
+                      link="/coal/theory"
                     />
                     <TrackCard
                       trackType="COAL TRACK"
@@ -2448,12 +2448,12 @@ export default function ProfilePage() {
           ];
 
           const COAL_PORTALS = [
-            { icon: "📖", label: "COAL Theory",      desc: "All 7 parts — structured modules",  path: "/resources/coal/theory",         color: COLORS.purple },
-            { icon: "🔬", label: "COAL Practical",   desc: "Lab sessions & hands-on drills",    path: "/resources/coal/practical",      color: COLORS.cyan   },
+            { icon: "📖", label: "COAL Theory",      desc: "All 7 parts — structured modules",  path: "/coal/theory",         color: COLORS.purple },
+            { icon: "🔬", label: "COAL Practical",   desc: "Lab sessions & hands-on drills",    path: "/coal/practical",      color: COLORS.cyan   },
             { icon: "✦", label: "COAL Problems",     desc: "Conceptual practice questions",     path: "/problems?course=coal",       color: COLORS.blue   },
-            { icon: "🖥️", label: "Assembly Drills",  desc: "x86 assembly drill exercises",      path: "/resources/coal/practical/assembly-drills", color: COLORS.amber },
-            { icon: "📍", label: "Addressing Modes", desc: "Interactive mode playground",       path: "/resources/coal/practical/addressing-mode-playground", color: COLORS.green },
-            { icon: "⚙️", label: "Instruction Lab",  desc: "Step through instruction execution",path: "/resources/coal/practical/instruction-laboratory", color: COLORS.indigo },
+            { icon: "🖥️", label: "Assembly Drills",  desc: "x86 assembly drill exercises",      path: "/coal/practical/assembly-drills", color: COLORS.amber },
+            { icon: "📍", label: "Addressing Modes", desc: "Interactive mode playground",       path: "/coal/practical/addressing-mode-playground", color: COLORS.green },
+            { icon: "⚙️", label: "Instruction Lab",  desc: "Step through instruction execution",path: "/coal/practical/instruction-laboratory", color: COLORS.indigo },
           ];
 
           const PORTALS = activeSubject === "COAL" ? COAL_PORTALS : DLD_PORTALS;

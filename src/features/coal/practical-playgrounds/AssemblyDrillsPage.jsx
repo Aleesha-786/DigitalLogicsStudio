@@ -18,7 +18,7 @@ import Navbar from "../../../shared/components/navbar";
 import Footer from "../../../shared/components/Footer";
 import { useTheme } from "../../../shared/context/ThemeContext";
 import usePointerGlow from "../../../shared/hooks/usePointerGlow";
-import { coalCourseMeta } from "../../../shared/data/coalCourseOutline";
+import { coalCourseMeta } from "../../../shared/data/coalCourseOutline.mjs";
 import "../styles/AssemblyDrillsPage.css";
 import "../../home/Home.css";
 import "../../../shared/styles/LearningResourcesPage.css";

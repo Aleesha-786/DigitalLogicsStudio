@@ -1,4 +1,4 @@
-import coalCourseParts from "../shared/data/coalCourseOutline.js";
+import coalCourseParts from "../shared/data/coalCourseOutline.mjs";
 
 export const SITE_NAME = "Boolforge";
 export const SITE_URL = (
@@ -836,7 +836,7 @@ export const SEO_ROUTES = [
     category: "Advanced Logic",
   }),
   buildRoute({
-    path: "/resources",
+    path: "",
     title: "Computer Engineering & Digital Design Learning Resources | Boolforge",
     description:
       "Access interactive simulators, calculators, study guides, and custom practice sets for Digital Logic Design (DLD) and Computer Organization & Assembly Language (COAL).",
@@ -852,14 +852,14 @@ export const SEO_ROUTES = [
     section: "Resources",
     category: "Learning Guides",
     relatedLinks: [
-      { to: "/resources/dld", label: "DLD resources" },
-      { to: "/resources/coal", label: "COAL resources" },
+      { to: "/dld", label: "DLD resources" },
+      { to: "/coal", label: "COAL resources" },
       { to: "/problems", label: "DLD practice" },
       { to: "/problems?course=coal", label: "COAL practice" }
     ]
   }),
   buildRoute({
-    path: "/resources/dld",
+    path: "/dld",
     title: "Digital Logic Design (DLD) Learning Resources | Boolforge",
     description:
       "Master digital logic design with our structured resource hub. Includes Boolean algebra simplifiers, K-map generators, and practice sets.",
@@ -879,7 +879,7 @@ export const SEO_ROUTES = [
     ]
   }),
   buildRoute({
-    path: "/resources/coal",
+    path: "/coal",
     title: "Computer Organization & Assembly Language (COAL) Hub | Boolforge",
     description:
       "Forge mastery in computer organization and assembly language. Learn CPU internals, positional number systems, x86 assembly, and execute instruction cycles visually.",
@@ -894,13 +894,13 @@ export const SEO_ROUTES = [
     section: "COAL",
     category: "Computer Organization",
     relatedLinks: [
-      { to: "/resources/coal/theory", label: "COAL course syllabus" },
-      { to: "/resources/coal/practical", label: "Interactive assembly simulators" },
+      { to: "/coal/theory", label: "COAL course syllabus" },
+      { to: "/coal/practical", label: "Interactive assembly simulators" },
       { to: "/problems?course=coal", label: "COAL practice problems" }
     ]
   }),
   buildRoute({
-    path: "/resources/coal/theory",
+    path: "/coal/theory",
     title: "COAL Theory Syllabus & Learning Path | Boolforge",
     description:
       "Navigate the complete theoretical roadmap of Computer Organization & Assembly Language, from hardware gates up to pipelined instruction execution.",
@@ -914,13 +914,13 @@ export const SEO_ROUTES = [
     section: "COAL",
     category: "Computer Organization",
     relatedLinks: [
-      { to: "/resources/coal", label: "COAL track landing" },
-      { to: "/resources/coal/practical", label: "Interactive labs" },
+      { to: "/coal", label: "COAL track landing" },
+      { to: "/coal/practical", label: "Interactive labs" },
       { to: "/problems?course=coal", label: "COAL practice problems" }
     ]
   }),
   buildRoute({
-    path: "/resources/coal/practical",
+    path: "/coal/practical",
     title: "COAL Practical Labs and x86 Simulators | Boolforge",
     description:
       "Interactive tools for learning assembly language: trace x86 CPU fetch-decode-execute cycle, visualize stack memory frames, and practice coding drills.",
@@ -935,15 +935,15 @@ export const SEO_ROUTES = [
     section: "COAL",
     category: "SoftwareApplication",
     relatedLinks: [
-      { to: "/resources/coal/practical/instruction-trace-lab", label: "Instruction Trace Lab" },
-      { to: "/resources/coal/practical/stack-memory-simulator", label: "Stack Memory Simulator" },
-      { to: "/resources/coal/practical/assembly-drills", label: "Assembly Coding Drills" },
-      { to: "/resources/coal/practical/addressing-mode-playground", label: "Addressing Mode Playground" },
-      { to: "/resources/coal/practical/instruction-laboratory", label: "Instruction Laboratory" }
+      { to: "/coal/practical/instruction-trace-lab", label: "Instruction Trace Lab" },
+      { to: "/coal/practical/stack-memory-simulator", label: "Stack Memory Simulator" },
+      { to: "/coal/practical/assembly-drills", label: "Assembly Coding Drills" },
+      { to: "/coal/practical/addressing-mode-playground", label: "Addressing Mode Playground" },
+      { to: "/coal/practical/instruction-laboratory", label: "Instruction Laboratory" }
     ]
   }),
   buildRoute({
-    path: "/resources/coal/practical/instruction-trace-lab",
+    path: "/coal/practical/instruction-trace-lab",
     title: "Instruction Trace Lab & CPU Datapath Simulator | Boolforge",
     description:
       "Step through the fetch, decode, and execute phases of assembly instructions in our interactive CPU register and bus visualizer.",
@@ -957,13 +957,13 @@ export const SEO_ROUTES = [
     section: "COAL",
     category: "SoftwareApplication",
     relatedLinks: [
-      { to: "/resources/coal/practical", label: "All practical labs" },
-      { to: "/resources/coal/practical/stack-memory-simulator", label: "Stack simulator" },
+      { to: "/coal/practical", label: "All practical labs" },
+      { to: "/coal/practical/stack-memory-simulator", label: "Stack simulator" },
       { to: "/coal/instruction-cycle", label: "Instruction cycle theory" }
     ]
   }),
   buildRoute({
-    path: "/resources/coal/practical/alu-flags-simulator",
+    path: "/coal/practical/alu-flags-simulator",
     title: "ALU & Flags Simulator | Boolforge",
     description:
       "Practice arithmetic operations and see how ZF, CF, OF, and SF change in real time. Interactive x86 ALU simulator with flag visualisation.",
@@ -978,13 +978,13 @@ export const SEO_ROUTES = [
     section: "COAL",
     category: "SoftwareApplication",
     relatedLinks: [
-      { to: "/resources/coal/practical", label: "All practical labs" },
-      { to: "/resources/coal/practical/instruction-laboratory", label: "Instruction laboratory" },
+      { to: "/coal/practical", label: "All practical labs" },
+      { to: "/coal/practical/instruction-laboratory", label: "Instruction laboratory" },
       { to: "/coal/register-flags", label: "Flags & condition codes theory" }
     ]
   }),
   buildRoute({
-    path: "/resources/coal/practical/stack-memory-simulator",
+    path: "/coal/practical/stack-memory-simulator",
     title: "x86 Stack Memory Simulator and Visualizer | Boolforge",
     description:
       "Visualize how the stack grows and shrinks in memory with push, pop, call, and ret instructions. Track ESP, EBP and stack variables dynamically.",
@@ -998,13 +998,13 @@ export const SEO_ROUTES = [
     section: "COAL",
     category: "SoftwareApplication",
     relatedLinks: [
-      { to: "/resources/coal/practical", label: "All practical labs" },
-      { to: "/resources/coal/practical/instruction-laboratory", label: "Instruction laboratory" },
+      { to: "/coal/practical", label: "All practical labs" },
+      { to: "/coal/practical/instruction-laboratory", label: "Instruction laboratory" },
       { to: "/coal/procedures-stack", label: "Stack & procedures theory" }
     ]
   }),
   buildRoute({
-    path: "/resources/coal/practical/assembly-drills",
+    path: "/coal/practical/assembly-drills",
     title: "x86 Assembly Programming Drills & Exercises | Boolforge",
     description:
       "Strengthen your coding skills with interactive assembly drills. Solve registry transfer, arithmetic, loops, and conditional problems in MASM style.",
@@ -1018,13 +1018,13 @@ export const SEO_ROUTES = [
     section: "COAL",
     category: "SoftwareApplication",
     relatedLinks: [
-      { to: "/resources/coal/practical", label: "All practical labs" },
+      { to: "/coal/practical", label: "All practical labs" },
       { to: "/problems?course=coal", label: "COAL exam questions" },
       { to: "/coal/coal-syntax", label: "Assembly syntax guide" }
     ]
   }),
   buildRoute({
-    path: "/resources/coal/practical/addressing-mode-playground",
+    path: "/coal/practical/addressing-mode-playground",
     title: "CPU Addressing Modes Interactive Playground | Boolforge",
     description:
       "Compute effective addresses for immediate, direct, indirect, indexed, and scaled-indexed addressing modes visually.",
@@ -1038,12 +1038,12 @@ export const SEO_ROUTES = [
     section: "COAL",
     category: "SoftwareApplication",
     relatedLinks: [
-      { to: "/resources/coal/practical", label: "All practical labs" },
+      { to: "/coal/practical", label: "All practical labs" },
       { to: "/coal/addressing-modes", label: "Addressing modes theory" }
     ]
   }),
   buildRoute({
-    path: "/resources/coal/practical/instruction-laboratory",
+    path: "/coal/practical/instruction-laboratory",
     title: "Intel x86 Instruction Laboratory | Boolforge",
     description:
       "Write and run assembly code, view memory registers, and study data movement and control flow instruction execution interactively.",
@@ -1057,8 +1057,8 @@ export const SEO_ROUTES = [
     section: "COAL",
     category: "SoftwareApplication",
     relatedLinks: [
-      { to: "/resources/coal/practical", label: "All practical labs" },
-      { to: "/resources/coal/practical/instruction-trace-lab", label: "Instruction trace lab" }
+      { to: "/coal/practical", label: "All practical labs" },
+      { to: "/coal/practical/instruction-trace-lab", label: "Instruction trace lab" }
     ]
   }),
   buildRoute({
@@ -1098,8 +1098,8 @@ export const SEO_ROUTES = [
           ...module.outcomes.map(o => o.toLowerCase().slice(0, 30))
         ],
         relatedLinks: [
-          { to: "/resources/coal/theory", label: "COAL Syllabus & Modules" },
-          { to: "/resources/coal/practical", label: "COAL Assembly Labs" },
+          { to: "/coal/theory", label: "COAL Syllabus & Modules" },
+          { to: "/coal/practical", label: "COAL Assembly Labs" },
           { to: "/problems?course=coal", label: "COAL Practice Problems" }
         ]
       });

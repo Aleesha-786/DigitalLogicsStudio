@@ -5,7 +5,7 @@ import Navbar from "../../../shared/components/navbar";
 import Footer from "../../../shared/components/Footer";
 import { useTheme } from "../../../shared/context/ThemeContext";
 import usePointerGlow from "../../../shared/hooks/usePointerGlow";
-import { coalCourseMeta } from "../../../shared/data/coalCourseOutline";
+import { coalCourseMeta } from "../../../shared/data/coalCourseOutline.mjs";
 import AluFlagsSimulator from "../components/AluFlagsSimulator";
 import "../../home/Home.css";
 import "../../../shared/styles/LearningResourcesPage.css";
@@ -33,7 +33,7 @@ function AluFlagsSimulatorPage() {
 
             <div className="learning-resources-hero-actions">
               <Link
-                to="/resources/coal/practical"
+                to="/coal/practical"
                 className="learning-resources-btn primary"
               >
                 <ArrowLeft size={16} />

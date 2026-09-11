@@ -35,7 +35,7 @@ const RegLayout = ({ children, title, subtitle }) => (
     }}
     nextPartPath={nextPartPath}
     nextPartLabel={nextPartLabel}
-    sidebarFooterLink="/resources/dld"
+    sidebarFooterLink="/dld"
     sidebarFooterLabel="← DLD home"
         prevPartPath={prevPartPath}
     prevPartLabel={prevPartLabel}
