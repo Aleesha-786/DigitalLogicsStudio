@@ -7,7 +7,7 @@ const problemTopicLandingMap = {
     links: [
       { to: "/boolean/overview", label: "Boolean algebra tutorial" },
       { to: "/boolean/minterms-maxterms", label: "Minterms and maxterms" },
-      { to: "/standard-forms", label: "SOP and POS guide" },
+      { to: "/boolean/standard-forms", label: "SOP and POS guide" },
     ],
   },
   "k-map": {
