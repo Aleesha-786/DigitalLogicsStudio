@@ -13,7 +13,7 @@ import Navbar from "../../shared/components/navbar";
 import Footer from "../../shared/components/Footer";
 import { useTheme } from "../../shared/context/ThemeContext";
 import usePointerGlow from "../../shared/hooks/usePointerGlow";
-import { coalCourseMeta } from "../../shared/data/coalCourseOutline";
+import { coalCourseMeta } from "../../shared/data/coalCourseOutline.mjs";
 import "../home/Home.css";
 import "../../shared/styles/LearningResourcesPage.css";
 
@@ -27,7 +27,7 @@ const PRACTICAL_LABS = [
       "Step through fetch–decode–execute for short programs by hand.",
     icon: Terminal,
     ready: true,
-    path: "/resources/coal/practical/instruction-trace-lab",
+    path: "/coal/practical/instruction-trace-lab",
   },
   {
     key: "alu-flags-simulator",
@@ -35,7 +35,7 @@ const PRACTICAL_LABS = [
     description: "Practice arithmetic and see how ZF, CF, OF, and SF change.",
     icon: Cpu,
     ready: true,
-    path: "/resources/coal/practical/alu-flags-simulator",
+    path: "/coal/practical/alu-flags-simulator",
   },
   {
     key: "stack-memory-simulator",
@@ -43,7 +43,7 @@ const PRACTICAL_LABS = [
     description: "Trace PUSH, POP, CALL, and RET with visual stack diagrams.",
     icon: FlaskConical,
     ready: true,
-    path: "/resources/coal/practical/stack-memory-simulator",
+    path: "/coal/practical/stack-memory-simulator",
   },
   {
     key: "assembly-drills",
@@ -51,7 +51,7 @@ const PRACTICAL_LABS = [
     description: "Short COAL/MASM-style programs with guided solutions.",
     icon: Wrench,
     ready: true,
-    path: "/resources/coal/practical/assembly-drills",
+    path: "/coal/practical/assembly-drills",
   },
   {
     key: "addressing-mode-playground",
@@ -60,7 +60,7 @@ const PRACTICAL_LABS = [
       "Build instructions, calculate effective addresses, and quiz yourself on all 8 addressing modes.",
     icon: Cpu,
     ready: true,
-    path: "/resources/coal/practical/addressing-mode-playground",
+    path: "/coal/practical/addressing-mode-playground",
   },
   {
     key: "instruction-laboratory",
@@ -68,7 +68,7 @@ const PRACTICAL_LABS = [
     description: "A complete searchable database for interactive x86 architectures with a live execution sandbox.",
     icon: Terminal, 
     ready: true,
-    path: "/resources/coal/practical/instruction-laboratory", 
+    path: "/coal/practical/instruction-laboratory", 
   },
 ];
 
@@ -93,14 +93,14 @@ function CoalPracticalPage() {
 
             <div className="learning-resources-hero-actions">
               <Link
-                to="/resources/coal"
+                to="/coal"
                 className="learning-resources-btn primary"
               >
                 <ArrowLeft size={16} />
                 COAL home
               </Link>
               <Link
-                to="/resources/coal/theory"
+                to="/coal/theory"
                 className="learning-resources-btn secondary"
               >
                 Open theory

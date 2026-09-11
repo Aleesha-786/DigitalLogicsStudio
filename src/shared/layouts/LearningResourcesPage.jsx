@@ -93,11 +93,11 @@ const LearningResourcesPage = () => {
   }, [location.hash]);
 
   if (track === "coal") {
-    return <Navigate to="/resources/coal" replace />;
+    return <Navigate to="/coal" replace />;
   }
 
   if (track && track !== "dld") {
-    return <Navigate to="/resources/dld" replace />;
+    return <Navigate to="/dld" replace />;
   }
 
   const Icon = content.icon;
@@ -127,7 +127,7 @@ const LearningResourcesPage = () => {
                 <ArrowLeft size={16} />
                 Back to home
               </Link>
-              <Link to="/resources/coal" className="learning-resources-btn secondary">
+              <Link to="/coal" className="learning-resources-btn secondary">
                 Explore COAL
                 <ArrowRight size={16} />
               </Link>

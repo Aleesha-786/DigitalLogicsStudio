@@ -120,7 +120,7 @@ export const problemBannerCards = [
     eyebrow: "x86 Code Drills",
     gradient: "linear-gradient(135deg, #1e3a8a, #3b82f6)",
     filterGroup: "Assembly Programming",
-    path: "/resources/coal/practical/instruction-trace-lab",
+    path: "/coal/practical/instruction-trace-lab",
   },
   {
     title: "CPU & Pipelining",

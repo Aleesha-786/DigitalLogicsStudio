@@ -1,7 +1,7 @@
 import createCourseUtils from "../utils/courseUtils";
 import { dldCourseMeta, dldCourseParts } from "../data/dldCourseOutline";
 import { getDldTopicContent } from "../data/dldTopicContent";
-import { coalCourseMeta, coalCourseParts } from "../data/coalCourseOutline";
+import { coalCourseMeta, coalCourseParts } from "../data/coalCourseOutline.mjs";
 import { getCoalTopicContent } from "../data/coalTopicContent";
 import { BookOpen, Layers3, Sparkles, Wrench, Trophy } from "lucide-react";
 
@@ -17,14 +17,14 @@ const dldUtils = createCourseUtils({
   // rather than a derived "/dld/:slug" scheme — nothing about existing
   // links or bookmarks changes.
   topicPath: (module) => module.path,
-  overviewPath: "/resources/dld",
+  overviewPath: "/dld",
 });
 
 const coalUtils = createCourseUtils({
   courseParts: coalCourseParts,
   getTopicContent: getCoalTopicContent,
   topicPath: (module) => `/coal/${module.slug}`,
-  overviewPath: "/resources/coal",
+  overviewPath: "/coal",
 });
 
 export const TRACKS = {
@@ -34,8 +34,8 @@ export const TRACKS = {
     courseParts: dldCourseParts,
     getTopicContent: getDldTopicContent,
     utils: dldUtils,
-    homePath: "/resources/dld",
-    otherTrackPath: "/resources/coal",
+    homePath: "/dld",
+    otherTrackPath: "/coal",
     otherTrackLabel: "Explore COAL",
     rootClassName: "theory-layout theory-layout--dld",
     heroKicker: "Digital Logic Design",
@@ -69,8 +69,8 @@ export const TRACKS = {
     courseParts: coalCourseParts,
     getTopicContent: getCoalTopicContent,
     utils: coalUtils,
-    homePath: "/resources/coal",
-    otherTrackPath: "/resources/dld",
+    homePath: "/coal",
+    otherTrackPath: "/dld",
     otherTrackLabel: "Explore DLD",
     rootClassName: "theory-layout theory-layout--coal",
     heroKicker: "Computer Organization & Assembly",
@@ -84,7 +84,7 @@ export const TRACKS = {
     homeDescription:
       "A structured path from computer fundamentals to assembly and processor architecture — theory and hands-on practice in one place.",
     quickLinks: [
-      { title: "Practical Labs", description: "Hands-on tracing exercises, assembly drills, and interactive simulators.", to: "/resources/coal/practical", icon: Wrench },
+      { title: "Practical Labs", description: "Hands-on tracing exercises, assembly drills, and interactive simulators.", to: "/coal/practical", icon: Wrench },
       { title: "Problems Arena", description: "Tackle 15 COAL conceptual and code tracing challenges.", to: "/problems?course=coal", icon: Trophy },
     ],
     concepts: [],

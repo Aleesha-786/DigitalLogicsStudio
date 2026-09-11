@@ -246,26 +246,26 @@ const AppContent = () => {
           />
 
           <Route
-            path="/resources/coal/problems"
+            path="/coal/problems"
             element={<Navigate to="/problems?course=coal" replace />}
           />
           <Route
-            path="/resources/coal/problems/:topicSlug"
+            path="/coal/problems/:topicSlug"
             element={<Navigate to="/problems?course=coal" replace />}
           />
 
           <Route
-            path="/resources/coal/theory"
-            element={<Navigate to="/resources/coal" replace />}
+            path="/coal/theory"
+            element={<Navigate to="/coal" replace />}
           />
           <Route
-            path="/resources/coal/practical"
+            path="/coal/practical"
             element={<CoalPracticalPage />}
           />
-          <Route path="/resources/coal" element={<CoalHomeRoute />} />
+          <Route path="/coal" element={<CoalHomeRoute />} />
           <Route path="/coal/:slug" element={<CoalTopicPageRoute />} />
           <Route
-            path="/resources/:track?"
+            path="/:track?"
             element={<DldHomeRoute />}
           />
           <Route path="/boolforge" element={<Boolforge />} />
@@ -474,27 +474,27 @@ const AppContent = () => {
 
           {/* ── COAL Practical Labs ───────────────────────────── */}
           <Route
-            path="/resources/coal/practical/instruction-trace-lab"
+            path="/coal/practical/instruction-trace-lab"
             element={<InstructionTraceLabPage />}
           />
           <Route
-            path="/resources/coal/practical/alu-flags-simulator"
+            path="/coal/practical/alu-flags-simulator"
             element={<AluFlagsSimulatorPage />}
           />
           <Route
-            path="/resources/coal/practical/stack-memory-simulator"
+            path="/coal/practical/stack-memory-simulator"
             element={<StackMemorySimulatorPage />}
           />
           <Route
-            path="/resources/coal/practical/assembly-drills"
+            path="/coal/practical/assembly-drills"
             element={<AssemblyDrillsPage />}
           />
           <Route
-            path="/resources/coal/practical/addressing-mode-playground"
+            path="/coal/practical/addressing-mode-playground"
             element={<AddressingModePlaygroundPage />}
           />
           <Route
-            path="/resources/coal/practical/instruction-laboratory"
+            path="/coal/practical/instruction-laboratory"
             element={<InstructionLaboratoryPage />}
           />
 

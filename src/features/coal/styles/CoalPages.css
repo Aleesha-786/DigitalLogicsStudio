@@ -1376,7 +1376,7 @@
 
 /* =========================================================================
    PATCH — append to: src/features/coal/styles/CoalPages.css
-   Fixes: low-contrast "OPEN" badge on /resources/coal/practical cards
+   Fixes: low-contrast "OPEN" badge on /coal/practical cards
    ========================================================================= */
 
 .coal-site-shell .learning-resources-badge--open {

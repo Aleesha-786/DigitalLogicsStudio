@@ -1,4 +1,4 @@
-import { coalTopicSlugs } from "../data/coalCourseOutline";
+import { coalTopicSlugs } from "../data/coalCourseOutline.mjs";
 
 const DLD_TOPIC_OPTIONS = [
   { value: "boolean-algebra", label: "Boolean Algebra" },
@@ -15,7 +15,7 @@ const COAL_TOPIC_OPTIONS = coalTopicSlugs.map(({ value, label }) => ({
 
 export function courseFromPath(pathname = "") {
   const path = pathname.toLowerCase();
-  if (path.includes("/resources/coal") || path.startsWith("/coal")) {
+  if (path.includes("/coal") || path.startsWith("/coal")) {
     return "coal";
   }
   return "dld";

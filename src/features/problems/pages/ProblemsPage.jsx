@@ -287,7 +287,7 @@ export default function ProblemsPage() {
   // Course filter for the table only — "all" | "dld" | "coal". Everything
   // else on the page (sidebar, banner carousel, right rail stats/progress,
   // daily challenge) always reflects the combined DLD + COAL catalog.
-  // Pre-seeded from ?course=coal so the old /resources/coal/problems
+  // Pre-seeded from ?course=coal so the old /coal/problems
   // redirect still lands users on a COAL-filtered table.
   const [courseFilter, setCourseFilter] = React.useState(
     searchParams.get("course") === "coal" ? "coal" : "all",

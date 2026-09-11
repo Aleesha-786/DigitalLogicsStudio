@@ -45,7 +45,7 @@ function CoalHomePage() {
                 <ArrowLeft size={16} />
                 Back to home
               </Link>
-              <Link to="/resources/dld" className="learning-resources-btn secondary">
+              <Link to="/dld" className="learning-resources-btn secondary">
                 Explore DLD
                 <ArrowRight size={16} />
               </Link>
@@ -81,7 +81,7 @@ function CoalHomePage() {
 
           <div className="learning-resources-grid">
             <Link
-              to="/resources/coal/theory"
+              to="/coal/theory"
               className="learning-resources-card learning-resources-glow-card"
             >
               <div className="learning-resources-card-top">
@@ -107,7 +107,7 @@ function CoalHomePage() {
             </Link>
 
             <Link
-              to="/resources/coal/practical"
+              to="/coal/practical"
               className="learning-resources-card learning-resources-glow-card"
             >
               <div className="learning-resources-card-top">

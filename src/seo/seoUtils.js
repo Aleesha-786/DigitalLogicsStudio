@@ -12,23 +12,23 @@ import {
 const authPaths = new Set(["/login", "/signup", "/profile", "/settings", "/forgot-password"]);
 const sectionRootMatchers = [
   {
-    test: /^\/resources\/coal(\/|$)/,
-    path: "/resources/coal",
+    test: /^\\/coal(\/|$)/,
+    path: "/coal",
     label: "COAL",
   },
   {
     test: /^\/coal\//,
-    path: "/resources/coal/theory",
+    path: "/coal/theory",
     label: "COAL Theory",
   },
   {
-    test: /^\/resources\/dld(\/|$)/,
-    path: "/resources/dld",
+    test: /^\\/dld(\/|$)/,
+    path: "/dld",
     label: "DLD Resources",
   },
   {
-    test: /^\/resources(\/|$)/,
-    path: "/resources",
+    test: /^\(\/|$)/,
+    path: "",
     label: "Resources",
   },
   { test: /^\/problems(\/|$)/, path: "/problems", label: "Practice" },

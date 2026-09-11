@@ -94,7 +94,7 @@ const unifiedNavSections = [
           description:
             "Step-by-step assembly instruction execution and register visualization.",
           links: [
-            { label: "Trace Simulator", action: "navigate", value: "/resources/coal/practical/instruction-trace-lab" },
+            { label: "Trace Simulator", action: "navigate", value: "/coal/practical/instruction-trace-lab" },
             { label: "Assembly Syntax", action: "navigate", value: "/coal/coal-syntax" },
             { label: "Stack & Procedures", action: "navigate", value: "/coal/procedures-stack" },
           ],

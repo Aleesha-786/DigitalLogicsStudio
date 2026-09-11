@@ -19,7 +19,7 @@ const AFHDLLayout = ({ title, subtitle, intro, highlights = [], children }) => (
       topic: AFHDL_TOPIC,
       pathToSubtopicId: AFHDL_PATH_TO_SUBTOPIC_ID,
     }}
-    sidebarFooterLink="/resources/dld"
+    sidebarFooterLink="/dld"
     sidebarFooterLabel="← DLD home"
   >
     {children}

@@ -23,7 +23,7 @@ import "../../home/Home.css";
 import "../../../shared/styles/LearningResourcesPage.css";
 import { useTheme } from "../../../shared/context/ThemeContext";
 import usePointerGlow from "../../../shared/hooks/usePointerGlow";
-import { coalCourseMeta } from "../../../shared/data/coalCourseOutline"; 
+import { coalCourseMeta } from "../../../shared/data/coalCourseOutline.mjs"; 
 // Custom inline Tooltip Component
 const InfoTooltip = ({ text }) => (
   <div className="smp-tooltip">
