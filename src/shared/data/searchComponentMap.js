@@ -99,7 +99,7 @@ export const SEARCH_PREVIEW_MAP = [
       "standard forms", "standard-forms", "canonical forms", "sop pos standard forms",
     ],
     title: "Standard Forms",
-    route: "/standard-forms",
+    route: "/boolean/standard-forms",
     Component: React.lazy(() => import("../../features/dld-theory/boolean-algebra/StandardForms")),
   },
 

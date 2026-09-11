@@ -34,7 +34,6 @@ export function topicFromPath(pathname = "") {
     path.startsWith("/boolean") ||
     path.includes("/kmap") ||
     path.includes("/gates") ||
-    path.includes("/standard-forms") ||
     path.includes("/boolforge")
   ) {
     return "boolean-algebra";

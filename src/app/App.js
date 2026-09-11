@@ -292,7 +292,7 @@ const AppContent = () => {
           />
 
           {/* ── Standard Forms (no boolean/ prefix, standalone) ── */}
-          <Route path="/standard-forms" element={<StandardForms />} />
+          <Route path="/boolean/standard-forms" element={<StandardForms />} />
 
           {/* ── Advanced Logic ────────────────────────────────── */}
           <Route path="/circuit-cost" element={<CircuitCost />} />
