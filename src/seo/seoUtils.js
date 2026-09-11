@@ -17,22 +17,20 @@ const sectionRootMatchers = [
     label: "COAL",
   },
   {
-    test: /^\/coal\//,
-    path: "/coal/theory",
-    label: "COAL Theory",
-  },
-  {
     test: /^\/dld(\/|$)/,
     path: "/dld",
     label: "DLD Resources",
   },
-  {
-    test: /^\(\/|$)/,
-    path: "",
-    label: "Resources",
+  { 
+    test: /^\/problems(\/|$)/, 
+    path: "/problems", 
+    label: "Practice", 
   },
-  { test: /^\/problems(\/|$)/, path: "/problems", label: "Practice" },
-  { test: /^\/boolean\//, path: "/boolean/overview", label: "Boolean Algebra" },
+  { 
+    test: /^\/boolean\//, 
+    path: "/boolean/overview", 
+    label: "Boolean Algebra", 
+  },
   {
     test: /^\/number-systems\//,
     path: "/number-systems/binary-representation",
@@ -43,14 +41,26 @@ const sectionRootMatchers = [
     path: "/arithmetic/binary-adders",
     label: "Arithmetic Functions and HDLs",
   },
-  { test: /^\/sequential\//, path: "/sequential/intro", label: "Sequential Circuits" },
+  { 
+    test: /^\/sequential\//, 
+    path: "/sequential/intro", 
+    label: "Sequential Circuits" 
+  },
   {
     test: /^\/registers\//,
     path: "/registers/intro",
     label: "Registers & Transfers",
   },
-  { test: /^\/memory\//, path: "/memory/basics", label: "Memory Systems" },
-  { test: /^\/book(\/|$)/, path: "/book", label: "Solved Examples" },
+  { 
+    test: /^\/memory\//, 
+    path: "/memory/basics", 
+    label: "Memory Systems" 
+  },
+  { 
+    test: /^\/book(\/|$)/, 
+    path: "/book", 
+    label: "Solved Examples" 
+  },
 ];
 
 const capitalize = (value) =>
