@@ -1,37 +1,101 @@
-import { useState, useRef } from "react";
+import { useState, useRef, useCallback } from "react";
 import {
   Save, FolderOpen, Download, Image as ImageIcon, Upload,
   X, FileText, Database, Clock, Play, Trash2, Info,
 } from "lucide-react";
 import { RibbonMenuItem } from "./RibbonMenu";
-
-const STORAGE_KEY = "logic_editor_saved_projects_v1";
+import apiClient from "../../../shared/services/apiClient";
 
 // ─── State + logic, owned by ToolbarRibbon (never unmounts) ──────────────
+// Projects now save to the server (per-user, /api/boolforge-projects)
+// instead of localStorage, so a saved project follows the user across
+// browsers/devices — same pattern as Custom Components. Export/Import JSON
+// stay pure local file operations, independent of the server: Import loads
+// a file into the current in-memory project, and the user explicitly hits
+// Save Project if they want that persisted to their account.
 export function useSaveAndLoad({ sheets, loadSheets }) {
   const [showSave, setShowSave] = useState(false);
   const [showLoad, setShowLoad] = useState(false);
   const [projectName, setProjectName] = useState("");
   const [importError, setImportError] = useState("");
-  const [projectsList, setProjectsList] = useState({});
+  const [projectsList, setProjectsList] = useState([]);
+  const [loadingList, setLoadingList] = useState(false);
+  const [saving, setSaving] = useState(false);
   const importFileRef = useRef(null);
 
-  const getProjects = () => JSON.parse(localStorage.getItem(STORAGE_KEY) || "{}");
-  const setProjects = (p) => localStorage.setItem(STORAGE_KEY, JSON.stringify(p));
+  const refreshProjects = useCallback(async () => {
+    setLoadingList(true);
+    try {
+      const { data } = await apiClient.get("/boolforge-projects");
+      setProjectsList(data.projects || []);
+    } catch (err) {
+      console.warn("[useSaveAndLoad] failed to load projects:", err?.message);
+    } finally {
+      setLoadingList(false);
+    }
+  }, []);
 
-  const openSave = () => setShowSave(true);
-  const openLoad = () => { setProjectsList(getProjects()); setShowLoad(true); };
+  const openSave = () => {
+    setShowSave(true);
+    refreshProjects();
+  };
+  const openLoad = () => {
+    setShowLoad(true);
+    refreshProjects();
+  };
 
-  const saveProject = () => {
-    if (!projectName.trim()) return;
-    const projects = getProjects();
-    if (projects[projectName] && !window.confirm("Overwrite existing project?")) return;
-    projects[projectName] = {
-      versions: [{ sheets, time: Date.now() }, ...(projects[projectName]?.versions || [])].slice(0, 10),
-    };
-    setProjects(projects);
-    setShowSave(false);
-    setProjectName("");
+  const saveProject = async () => {
+    const trimmed = projectName.trim();
+    if (!trimmed || saving) return;
+
+    const existing = projectsList.find((p) => p.name === trimmed);
+    if (existing && !window.confirm("Overwrite existing project?")) return;
+
+    setSaving(true);
+    try {
+      await apiClient.post("/boolforge-projects", { name: trimmed, sheets });
+      setShowSave(false);
+      setProjectName("");
+    } catch (err) {
+      console.warn("[useSaveAndLoad] save failed:", err?.message);
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  const loadProjectById = async (id) => {
+    try {
+      const { data } = await apiClient.get(`/boolforge-projects/${id}`);
+      const latestVersion = data.project?.versions?.[0];
+      if (latestVersion && Array.isArray(latestVersion.sheets)) {
+        loadSheets(latestVersion.sheets);
+      }
+      setShowLoad(false);
+    } catch (err) {
+      console.warn("[useSaveAndLoad] load failed:", err?.message);
+    }
+  };
+
+  const deleteProject = async (id, name) => {
+    if (!window.confirm(`Are you sure you want to delete "${name}"?`)) return;
+    try {
+      await apiClient.delete(`/boolforge-projects/${id}`);
+      setProjectsList((prev) => prev.filter((p) => p.id !== id));
+    } catch (err) {
+      console.warn("[useSaveAndLoad] delete failed:", err?.message);
+    }
+  };
+
+  // ── Export / Import: local file operations, unrelated to the server ──
+  const exportJSON = () => {
+    const exportData = { sheets, exportedAt: new Date().toISOString() };
+    const blob = new Blob([JSON.stringify(exportData, null, 2)], { type: "application/json" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = `boolforge-project-${Date.now()}.json`;
+    a.click();
+    URL.revokeObjectURL(url);
   };
 
   const loadSnapshot = (snap) => {
@@ -47,29 +111,11 @@ export function useSaveAndLoad({ sheets, loadSheets }) {
           wireIdCounter: snap.wireIdCounter || 0,
           inputCounter: snap.inputCounter || 0,
           outputCounter: snap.outputCounter || 0,
+          comments: snap.comments || [],
+          commentIdCounter: snap.commentIdCounter || 0,
         },
       }]);
     }
-    setShowLoad(false);
-  };
-
-  const deleteProject = (name) => {
-    if (!window.confirm(`Are you sure you want to delete "${name}"?`)) return;
-    const p = getProjects();
-    delete p[name];
-    setProjects(p);
-    setProjectsList(p);
-  };
-
-  const exportJSON = () => {
-    const exportData = { sheets, exportedAt: new Date().toISOString() };
-    const blob = new Blob([JSON.stringify(exportData, null, 2)], { type: "application/json" });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement("a");
-    a.href = url;
-    a.download = `boolforge-project-${Date.now()}.json`;
-    a.click();
-    URL.revokeObjectURL(url);
   };
 
   const handleImportFile = (e) => {
@@ -87,6 +133,7 @@ export function useSaveAndLoad({ sheets, loadSheets }) {
           return;
         }
         loadSnapshot(parsed);
+        setShowLoad(false);
       } catch {
         setImportError("Could not parse file. Make sure it is valid JSON.");
       }
@@ -110,10 +157,9 @@ export function useSaveAndLoad({ sheets, loadSheets }) {
   return {
     showSave, setShowSave, showLoad, setShowLoad,
     projectName, setProjectName, importError, setImportError,
-    projectsList, importFileRef,
-    openSave, openLoad, saveProject, loadSnapshot, deleteProject,
+    projectsList, loadingList, saving, importFileRef,
+    openSave, openLoad, saveProject, loadProjectById, deleteProject,
     exportJSON, handleImportFile, formatTime,
-    names: Object.keys(projectsList),
   };
 }
 
@@ -123,7 +169,7 @@ export function SaveLoadMenuItems({ api, onExportPNG, closeMenu }) {
   const handleOpenLoad = () => { closeMenu?.(); api.openLoad(); };
   return (
     <>
-      <RibbonMenuItem icon={Save} label="Save Project" description="Save current sheets to this browser" onClick={handleOpenSave} />
+      <RibbonMenuItem icon={Save} label="Save Project" description="Save current sheets to your account" onClick={handleOpenSave} />
       <RibbonMenuItem icon={FolderOpen} label="Load Project" description="Restore a saved project" onClick={handleOpenLoad} />
       <RibbonMenuItem icon={Download} label="Export JSON" description="Download all sheets as a file" onClick={api.exportJSON} />
       {onExportPNG && (
@@ -154,7 +200,7 @@ export function SaveLoadDialogs({ api }) {
             </div>
 
             <p className="project-modal-desc">
-              Save your circuit sheets to your browser's local storage. You can restore this workspace at any time.
+              Save your circuit sheets to your account. You can load this workspace again from any browser you're signed in on.
             </p>
 
             <div className="project-modal-input-wrapper">
@@ -166,12 +212,15 @@ export function SaveLoadDialogs({ api }) {
                 onKeyDown={(e) => e.key === "Enter" && api.saveProject()}
                 placeholder="e.g. 8-Bit Arithmetic Logic Unit"
                 autoFocus
+                disabled={api.saving}
               />
             </div>
 
             <div className="project-modal-actions">
-              <button className="project-modal-btn project-modal-btn--ghost" onClick={() => api.setShowSave(false)}>Cancel</button>
-              <button className="project-modal-btn project-modal-btn--primary" onClick={api.saveProject}>Save Project</button>
+              <button className="project-modal-btn project-modal-btn--ghost" onClick={() => api.setShowSave(false)} disabled={api.saving}>Cancel</button>
+              <button className="project-modal-btn project-modal-btn--primary" onClick={api.saveProject} disabled={api.saving || !api.projectName.trim()}>
+                {api.saving ? "Saving…" : "Save Project"}
+              </button>
             </div>
           </div>
         </div>
@@ -215,43 +264,43 @@ export function SaveLoadDialogs({ api }) {
 
             <div className="project-modal-section-title">
               <Database size={12} />
-              <span>Saved in Browser</span>
+              <span>Saved to Your Account</span>
             </div>
 
             <div className="project-modal-list">
-              {api.names.length === 0 ? (
+              {api.loadingList ? (
+                <div className="project-modal-empty">
+                  <span>Loading…</span>
+                </div>
+              ) : api.projectsList.length === 0 ? (
                 <div className="project-modal-empty">
                   <FolderOpen size={28} className="empty-icon" />
                   <p>No saved projects yet</p>
                   <span>Save a project first to see it listed here.</span>
                 </div>
               ) : (
-                api.names.map((name) => {
-                  const project = api.projectsList[name];
-                  const lastModified = project?.versions?.[0]?.time;
-                  return (
-                    <div key={name} className="project-row">
-                      <div className="project-row-info">
-                        <span className="project-row-name" title={name}>{name}</span>
-                        {lastModified && (
-                          <span className="project-row-time">
-                            <Clock size={10} />
-                            {api.formatTime(lastModified)}
-                          </span>
-                        )}
-                      </div>
-                      <div className="project-row-actions">
-                        <button className="project-row-btn project-row-btn--load" onClick={() => api.loadSnapshot(project.versions[0])} title="Load Project">
-                          <Play size={12} strokeWidth={2.5} />
-                          <span>Load</span>
-                        </button>
-                        <button className="project-row-btn project-row-btn--delete" onClick={() => api.deleteProject(name)} title="Delete Project">
-                          <Trash2 size={12} />
-                        </button>
-                      </div>
+                api.projectsList.map((project) => (
+                  <div key={project.id} className="project-row">
+                    <div className="project-row-info">
+                      <span className="project-row-name" title={project.name}>{project.name}</span>
+                      {project.lastSavedAt && (
+                        <span className="project-row-time">
+                          <Clock size={10} />
+                          {api.formatTime(project.lastSavedAt)}
+                        </span>
+                      )}
                     </div>
-                  );
-                })
+                    <div className="project-row-actions">
+                      <button className="project-row-btn project-row-btn--load" onClick={() => api.loadProjectById(project.id)} title="Load Project">
+                        <Play size={12} strokeWidth={2.5} />
+                        <span>Load</span>
+                      </button>
+                      <button className="project-row-btn project-row-btn--delete" onClick={() => api.deleteProject(project.id, project.name)} title="Delete Project">
+                        <Trash2 size={12} />
+                      </button>
+                    </div>
+                  </div>
+                ))
               )}
             </div>
 
