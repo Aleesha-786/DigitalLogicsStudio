@@ -170,7 +170,7 @@ export const CircuitCanvas = ({
             if (!fromGate) return null;
             const pts = snapEnabled
               ? getOrthogonalPoints(fromGate.x + GATE_WIDTH, getOutputY(fromGate, connectingFrom.outputIndex ?? 0, customIcMeta), connectCursor.x, connectCursor.y)
-             : getCurvePoints(fromGate.x + GATE_WIDTH, getOutputY(fromGate, connectingFrom.outputIndex ?? 0, customIcMeta), connectCursor.x, connectCursor.y);
+              : getCurvePoints(fromGate.x + GATE_WIDTH, getOutputY(fromGate, connectingFrom.outputIndex ?? 0, customIcMeta), connectCursor.x, connectCursor.y);
             return <path className="wire-preview" d={wirePathD(pts)} fill="none" />;
           })()}
         </svg>
@@ -188,7 +188,7 @@ export const CircuitCanvas = ({
           const isCustom = gate.type.startsWith("CUSTOM_");
           const isIC = IC_TYPES.has(gate.type) || isCustom;
           const icMeta = isIC ? customIcMeta[gate.type] : null;
-          const icH = isIC ? (isCustom ? Math.max(100, Math.max(icMeta.inputs, icMeta.outputs) * 22 + 20) : getICHeight(gate.type)) : 100;
+          const icH = isIC ? (isCustom && icMeta ? Math.max(100, Math.max(icMeta.inputs, icMeta.outputs) * 22 + 20) : getICHeight(gate.type)) : 100;
           const cfGateId = connectingFrom?.gateId ?? connectingFrom?.gate?.id;
 
           return (
@@ -206,7 +206,7 @@ export const CircuitCanvas = ({
               onContextMenu={(e) => { e.preventDefault(); deleteGate(gate); }}
             >
               <div className="gate-content">
-              {gateSymbols[gate.type] || (isCustom && <GenericICSymbol name={gate.label} inputCount={icMeta.inputs} outputCount={icMeta.outputs} />)}
+                {gateSymbols[gate.type] || (isCustom && icMeta && <GenericICSymbol name={gate.label} inputCount={icMeta.inputs} outputCount={icMeta.outputs} />)}
                 {!isIC && <div className="gate-label">{gate.label || gate.type}</div>}
               </div>
 
@@ -218,12 +218,12 @@ export const CircuitCanvas = ({
                 </div>
               )}
 
-              {isIC && Array.from({ length: icMeta.outputs }).map((_, outIdx) => {
+              {isIC && icMeta && Array.from({ length: icMeta.outputs }).map((_, outIdx) => {
                 const n = icMeta.outputs, topPct = n === 1 ? 50 : 10 + (outIdx / (n - 1)) * 80;
                 const isConnecting = cfGateId === gate.id && connectingFrom?.outputIndex === outIdx;
                 return (
-                  <div key={`out-${outIdx}`} className={`connection-point output-point ic-output-point ${isConnecting ? "active" : ""} ${evaluateGate(gate, outIdx) ? "ic-output-point--high" : ""}`} style={{ top: `${topPct}%` }} title={icMeta.outputLabels[outIdx]} onMouseDown={stopPortEvent} onClick={() => handleOutputPortClick(gate, outIdx)}>
-                    <span className="ic-pin-label">{icMeta.outputLabels[outIdx]}</span>
+                  <div key={`out-${outIdx}`} className={`connection-point output-point ic-output-point ${isConnecting ? "active" : ""} ${evaluateGate(gate, outIdx) ? "ic-output-point--high" : ""}`} style={{ top: `${topPct}%` }} title={icMeta.outputLabels?.[outIdx]} onMouseDown={stopPortEvent} onClick={() => handleOutputPortClick(gate, outIdx)}>
+                    <span className="ic-pin-label">{icMeta.outputLabels?.[outIdx]}</span>
                   </div>
                 );
               })}
@@ -236,11 +236,11 @@ export const CircuitCanvas = ({
                 <div className={`connection-point input-point ${connectingFrom ? "active" : ""}`} style={{ top: "50%" }} title="Drop a wire here to join this input with another" onMouseDown={stopPortEvent} onClick={() => completeConnection(gate, 0)} />
               )}
 
-              {isIC && Array.from({ length: icMeta.inputs }).map((_, idx) => {
+              {isIC && icMeta && Array.from({ length: icMeta.inputs }).map((_, idx) => {
                 const n = icMeta.inputs, topPct = n === 1 ? 50 : 10 + (idx / (n - 1)) * 80;
                 return (
-                  <div key={`in-${idx}`} className={`connection-point input-point ic-input-point ${connectingFrom ? "active" : ""}`} style={{ top: `${topPct}%` }} title={icMeta.inputLabels[idx]} onMouseDown={stopPortEvent} onClick={() => completeConnection(gate, idx)}>
-                    <span className="ic-pin-label ic-pin-label--left">{icMeta.inputLabels[idx]}</span>
+                  <div key={`in-${idx}`} className={`connection-point input-point ic-input-point ${connectingFrom ? "active" : ""}`} style={{ top: `${topPct}%` }} title={icMeta.inputLabels?.[idx]} onMouseDown={stopPortEvent} onClick={() => completeConnection(gate, idx)}>
+                    <span className="ic-pin-label ic-pin-label--left">{icMeta.inputLabels?.[idx]}</span>
                   </div>
                 );
               })}
@@ -294,7 +294,7 @@ export const CircuitCanvas = ({
         />
       )}
 
-    {!embedded && (
+      {!embedded && (
         <div className="canvas-sheet-tabs-wrapper">
           <SheetTabs
             sheets={sheets}
