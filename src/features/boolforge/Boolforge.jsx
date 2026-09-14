@@ -41,6 +41,11 @@ const Boolforge = ({
   // stays false and has no visual effect since the drawer CSS never engages.
   const [sidebarOpen, setSidebarOpen] = useState(false);
 
+  // ── NEW: Comments feature — comment-mode toggle. This is transient UI
+  // state (not persisted), same as showSimulate/showAIPanel above. The
+  // comment DATA itself (comments array) lives in useSheets, per sheet.
+  const [commentMode, setCommentMode] = useState(false);
+
   // ── Refs shared across hooks ─────────────────────────────────────────────
   const canvasRef = useRef(null);
   const containerRef = useRef(null);
@@ -75,7 +80,12 @@ const Boolforge = ({
     mergeInputGates, deleteWire,
     copySelectedGates, pasteGates, duplicateSelectedGates,
     clearCircuit,
-     customIcMeta,
+    customIcMeta,
+    // NEW: comments data + CRUD, from useSheets
+    comments,
+    addComment,
+    updateComment,
+    deleteComment,
   } = circuit;
 
   // SIMULATION (gate evaluation + truth table)
@@ -364,6 +374,10 @@ const handleDeleteComponent = async (id, name) => {
         showGridOverlay={showGridOverlay}
         setShowGridOverlay={setShowGridOverlay}
         onToggleSidebar={() => setSidebarOpen((v) => !v)}
+        /* NEW: comments */
+        comments={comments}
+        commentMode={commentMode}
+        setCommentMode={setCommentMode}
       />
       {/* WORKSPACE — sidebar + canvas, below the ribbon */}
       <div className="circuit-workspace">
@@ -461,6 +475,13 @@ const handleDeleteComponent = async (id, name) => {
           setHintError={setHintError}
           showGridOverlay={showGridOverlay}
           customIcMeta={customIcMeta}
+          /* NEW: comments */
+          comments={comments}
+          commentMode={commentMode}
+          setCommentMode={setCommentMode}   /* NEW — lets the canvas auto-exit comment mode */
+          onAddComment={addComment}
+          onUpdateComment={updateComment}
+          onDeleteComment={deleteComment}
         />
       </div>
 

@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import { gateSymbols, IC_TYPES } from "../../../shared/data/gates";
 import { SheetTabs } from './SheetTabs';
 import {
@@ -34,6 +34,67 @@ function GenericICSymbol({ name, inputCount, outputCount }) {
         {name.length > 8 ? name.slice(0, 7) + "…" : name}
       </text>
     </svg>
+  );
+}
+
+// Small pin + popup UI for a single comment. Rendered in world-space so it
+// pans/zooms together with the circuit.
+function CommentPin({
+  comment,
+  isOpen,
+  isEditing,
+  editText,
+  onToggleOpen,
+  onStartEdit,
+  onChangeText,
+  onSave,
+  onCancel,
+  onDelete,
+}) {
+  return (
+    <div
+      className={`comment-pin${comment.type === "component" ? " comment-pin--component" : " comment-pin--canvas"}`}
+      style={{ position: "absolute", left: comment.x, top: comment.y, zIndex: 500 }}
+      // Prevent clicks on the pin from reaching the canvas/gate handlers
+      // below it (which would otherwise pan, drag, or — while comment mode
+      // is on — create yet another comment).
+      onMouseDown={(e) => e.stopPropagation()}
+    >
+      <div className="comment-pin-icon" onClick={onToggleOpen} title="View comment">
+        💬
+      </div>
+
+      {isOpen && (
+        <div className="comment-popup">
+          {isEditing ? (
+            <>
+              <textarea
+                className="comment-textarea"
+                value={editText}
+                onChange={(e) => onChangeText(e.target.value)}
+                rows={3}
+                autoFocus
+                placeholder="Write a note…"
+              />
+              <div className="comment-popup-actions">
+                <button className="btn btn-small" onClick={onSave}>Save</button>
+                <button className="btn btn-small" onClick={onCancel}>Cancel</button>
+              </div>
+            </>
+          ) : (
+            <>
+              <div className="comment-popup-text">
+                {comment.text ? comment.text : <em>Empty comment</em>}
+              </div>
+              <div className="comment-popup-actions">
+                <button className="btn btn-small" onClick={onStartEdit}>✏️ Edit</button>
+                <button className="btn btn-small danger" onClick={onDelete}>🗑️ Delete</button>
+              </div>
+            </>
+          )}
+        </div>
+      )}
+    </div>
   );
 }
 
@@ -110,16 +171,121 @@ export const CircuitCanvas = ({
   hintError,
   setHint,
   setHintError,
+  // ---- comments ----
+  comments = [],
+  commentMode = false,
+  setCommentMode = () => {},
+  onAddComment = () => null,
+  onUpdateComment = () => {},
+  onDeleteComment = () => {},
 }) => {
+  // Local UI-only state: which comment popup is expanded, and whether it's in edit mode.
+  const [openCommentId, setOpenCommentId] = useState(null);
+  const [editingCommentId, setEditingCommentId] = useState(null);
+  const [editText, setEditText] = useState("");
+
+  const openCommentPopup = (id, text) => {
+    setOpenCommentId(id);
+    setEditingCommentId(id);
+    setEditText(text ?? "");
+  };
+
+  const handleToggleOpen = (comment) => {
+    if (openCommentId === comment.id) {
+      setOpenCommentId(null);
+      setEditingCommentId(null);
+    } else {
+      setOpenCommentId(comment.id);
+      setEditingCommentId(null);
+    }
+  };
+
+  const handleStartEdit = (comment) => {
+    setEditingCommentId(comment.id);
+    setEditText(comment.text || "");
+  };
+
+  const handleSaveEdit = (id) => {
+    onUpdateComment(id, editText);
+    setEditingCommentId(null);
+  };
+
+  const handleCancelEdit = () => {
+    setEditingCommentId(null);
+  };
+
+  const handleDeleteComment = (id) => {
+    onDeleteComment(id);
+    if (openCommentId === id) setOpenCommentId(null);
+    if (editingCommentId === id) setEditingCommentId(null);
+  };
+
+  // Clicking empty canvas space while comment mode is on -> create a
+  // free-floating, canvas-anchored comment at the clicked world position,
+  // then exit comment mode (one-shot: one click = one comment).
+  const handleCanvasBackgroundMouseDown = (e) => {
+    if (commentMode) {
+      e.preventDefault();
+      e.stopPropagation();
+      const world = clientToWorld(e.clientX, e.clientY);
+      const newComment = onAddComment({ type: "canvas", x: world.x, y: world.y, text: "" });
+      if (newComment?.id) openCommentPopup(newComment.id, "");
+      setCommentMode(false);
+      return;
+    }
+    handleCanvasMouseDown(e);
+  };
+
+  // Clicking a gate while comment mode is on -> create a comment attached to
+  // that component, stored as an offset so it travels with the gate when
+  // it's moved. Also one-shot: exits comment mode right after.
+  const handleGateMouseDown = (e, gate) => {
+    if (commentMode) {
+      e.stopPropagation();
+      e.preventDefault();
+      const world = clientToWorld(e.clientX, e.clientY);
+      const newComment = onAddComment({
+        type: "component",
+        targetId: gate.id,
+        offsetX: world.x - gate.x,
+        offsetY: world.y - gate.y,
+        text: "",
+      });
+      if (newComment?.id) openCommentPopup(newComment.id, "");
+      setCommentMode(false);
+      return;
+    }
+    if (connectingFrom && gate.type === "INPUT") {
+      e.stopPropagation();
+      completeConnection(gate, 0);
+      return;
+    }
+    startDrag(e, gate);
+  };
+
+  // Resolve each comment to a world-space (x, y) for rendering. Component-anchored
+  // comments are recomputed from the gate's current position + stored offset, so
+  // they move automatically whenever the gate moves.
+  const renderedComments = comments
+    .map((c) => {
+      if (c.type === "component") {
+        const gate = gateMap.get(c.targetId);
+        if (!gate) return null; // gate was deleted -> comment has no home, skip rendering
+        return { ...c, x: gate.x + (c.offsetX || 0), y: gate.y + (c.offsetY || 0) };
+      }
+      return c;
+    })
+    .filter(Boolean);
+
   return (
     <div
-      className={`canvas-container${connectingFrom ? " is-wiring" : ""}${showGridOverlay ? "" : " canvas-container--no-grid"}`}
+      className={`canvas-container${connectingFrom ? " is-wiring" : ""}${showGridOverlay ? "" : " canvas-container--no-grid"}${commentMode ? " canvas-container--comment-mode" : ""}`}
       ref={containerRef}
     >
       <canvas
         ref={canvasRef}
         onContextMenu={handleCanvasContextMenu}
-        onMouseDown={handleCanvasMouseDown}
+        onMouseDown={handleCanvasBackgroundMouseDown}
         onTouchStart={(e) => {
           if (e.touches.length === 1) {
             const t = e.touches[0];
@@ -127,7 +293,7 @@ export const CircuitCanvas = ({
             setPanStart({ x: t.clientX - panOffset.x, y: t.clientY - panOffset.y });
           }
         }}
-        style={{ cursor: isPanning ? "grabbing" : spacePressed ? "grab" : selectionToolActive ? "crosshair" : "grab" }}
+        style={{ cursor: isPanning ? "grabbing" : spacePressed ? "grab" : selectionToolActive ? "crosshair" : commentMode ? "copy" : "grab" }}
       />
 
       <div className="gates-container" style={{ transform: `translate(${panOffset.x}px, ${panOffset.y}px) scale(${zoom})`, transformOrigin: "0 0" }}>
@@ -197,10 +363,7 @@ export const CircuitCanvas = ({
               data-gate-id={gate.id}
               className={`gate ${gate.type === "OUTPUT" ? "output-gate" : ""} ${isIC ? "gate--ic" : ""} ${selectedGateIds.includes(gate.id) ? "selected" : ""} ${gate.type === "OUTPUT" && evaluateGate(gate) ? "active" : ""}`}
               style={{ left: gate.x, top: gate.y, height: isIC ? icH : undefined }}
-              onMouseDown={(e) => {
-                if (connectingFrom && gate.type === "INPUT") { e.stopPropagation(); completeConnection(gate, 0); return; }
-                startDrag(e, gate);
-              }}
+              onMouseDown={(e) => handleGateMouseDown(e, gate)}
               onTouchStart={(e) => { if (e.touches.length === 1) { e.stopPropagation(); startDrag(e.touches[0], gate); } }}
               onDoubleClick={(e) => startRename(e, gate)}
               onContextMenu={(e) => { e.preventDefault(); deleteGate(gate); }}
@@ -255,6 +418,24 @@ export const CircuitCanvas = ({
             </div>
           );
         })}
+
+        {/* Comment pins render in world-space, inside the same transformed
+            container as gates, so they pan/zoom together with the circuit. */}
+        {renderedComments.map((comment) => (
+          <CommentPin
+            key={comment.id}
+            comment={comment}
+            isOpen={openCommentId === comment.id}
+            isEditing={editingCommentId === comment.id}
+            editText={editText}
+            onToggleOpen={() => handleToggleOpen(comment)}
+            onStartEdit={() => handleStartEdit(comment)}
+            onChangeText={setEditText}
+            onSave={() => handleSaveEdit(comment.id)}
+            onCancel={handleCancelEdit}
+            onDelete={() => handleDeleteComment(comment.id)}
+          />
+        ))}
       </div>
 
       <div className="canvas-overlay-controls">
