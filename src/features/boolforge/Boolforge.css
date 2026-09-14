@@ -2107,3 +2107,98 @@ body:has(.boolforge-page) {
 [data-theme="light"] .project-modal-divider {
   background: rgba(37, 99, 235, 0.08);
 }
+/* ══════════════════════════════════════════════════════════════════════════
+   COMMENTS — sticky-note pins on canvas/components
+   ══════════════════════════════════════════════════════════════════════════ */
+
+.canvas-container--comment-mode {
+  outline: 2px dashed var(--accent-secondary, #00d4ff);
+  outline-offset: -2px;
+}
+
+.comment-pin {
+  cursor: pointer;
+}
+
+.comment-pin-icon {
+  width: 26px;
+  height: 26px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 14px;
+  background: rgba(251, 191, 36, 0.15);
+  border: 1.5px solid #fbbf24;
+  box-shadow: 0 0 8px rgba(251, 191, 36, 0.35);
+  transform: translate(-50%, -50%);
+  transition: transform 0.12s ease, box-shadow 0.12s ease;
+}
+
+.comment-pin-icon:hover {
+  transform: translate(-50%, -50%) scale(1.12);
+  box-shadow: 0 0 14px rgba(251, 191, 36, 0.55);
+}
+
+.comment-pin--component .comment-pin-icon {
+  background: rgba(0, 212, 255, 0.15);
+  border-color: var(--accent-secondary, #00d4ff);
+  box-shadow: 0 0 8px rgba(0, 212, 255, 0.35);
+}
+
+.comment-popup {
+  position: absolute;
+  top: 6px;
+  left: 20px;
+  width: 200px;
+  background: var(--bg-medium, #142d29);
+  border: 1px solid var(--border-color, #1b2131);
+  border-radius: 10px;
+  padding: 10px;
+  box-shadow: 0 12px 32px rgba(0, 0, 0, 0.5);
+  z-index: 600;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.comment-popup-text {
+  font-size: 12.5px;
+  line-height: 1.5;
+  color: var(--text-primary, #e8f0ff);
+  white-space: pre-wrap;
+  word-break: break-word;
+  max-height: 140px;
+  overflow-y: auto;
+}
+
+.comment-popup-text em {
+  color: var(--secondary-text, #8899aa);
+  font-style: italic;
+}
+
+.comment-textarea {
+  width: 100%;
+  box-sizing: border-box;
+  resize: vertical;
+  min-height: 60px;
+  background: var(--bg-light, #1e2842);
+  border: 1px solid var(--accent-secondary, #00d4ff);
+  border-radius: 6px;
+  color: var(--text-color, #e8f0ff);
+  padding: 6px 8px;
+  font-size: 12px;
+  font-family: inherit;
+  outline: none;
+}
+
+.comment-popup-actions {
+  display: flex;
+  gap: 6px;
+  justify-content: flex-end;
+}
+
+.btn-small {
+  padding: 4px 8px;
+  font-size: 11px;
+}

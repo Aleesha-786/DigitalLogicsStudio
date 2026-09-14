@@ -94,6 +94,11 @@ export const ToolbarRibbon = ({
 
   // mobile sidebar drawer toggle (hamburger button, only visible <=900px)
   onToggleSidebar,
+
+  // comments — comment-mode toggle + live count for the Tools menu badge
+  comments = [],
+  commentMode = false,
+  setCommentMode,
 }) => {
   const toast = useToast();
   const [openMenu, setOpenMenu] = useState(null);
@@ -182,6 +187,16 @@ export const ToolbarRibbon = ({
     };
     img.src = url;
   };
+
+  // Comments: toggle comment-placement mode on the canvas, and close the
+  // menu so the user immediately sees the canvas to click on.
+  const handleToggleCommentMode = () => {
+  setCommentMode?.((v) => !v);
+  closeMenu();
+  if (!commentMode) {
+    toast.success?.("Comment mode on — click the canvas or a component once to add a note.");
+  }
+};
 
   return (
     <div className="toolbar-ribbon" ref={ribbonRef}>
@@ -319,6 +334,19 @@ export const ToolbarRibbon = ({
         </button>
       )}
 
+      {/* ── Comments: quick-access toggle, mirrors the Tools → Comments
+          item below so the feature is reachable in one click too ────── */}
+      <button
+        className={`ribbon-button${commentMode ? " ribbon-button--active" : ""}`}
+        onClick={handleToggleCommentMode}
+        title={commentMode ? "Exit comment mode" : "Add notes to the canvas or components"}
+      >
+        <MessageSquare size={15} strokeWidth={2} className="ribbon-btn-icon" />
+        <span>Comments{comments.length > 0 ? ` (${comments.length})` : ""}</span>
+      </button>
+
+      <div className="ribbon-divider" />
+
       {/* ── Tools: visible but not-yet-wired feature previews ───────── */}
             <RibbonMenu label="Tools" icon={Zap} isOpen={openMenu === "tools"} onToggle={() => toggleMenu("tools")} badge="1">
                <RibbonMenuSection title="Custom Library">
@@ -364,13 +392,14 @@ export const ToolbarRibbon = ({
           )}
         </RibbonMenuSection>
         <RibbonMenuDivider />
-        <RibbonMenuSection title="Coming soon">
+        <RibbonMenuSection title="Notes">
           <RibbonMenuItem
             icon={MessageSquare}
-            label="Comments"
-            description="Leave notes on the circuit"
-            trailing={<SoonBadge />}
-            onClick={() => notReady("Comments")}
+            label={commentMode ? "Comments (active)" : "Comments"}
+            description={commentMode ? "Click canvas or a component to place a note" : "Leave notes on the circuit"}
+            active={commentMode}
+            trailing={commentMode ? <Check size={14} /> : null}
+            onClick={handleToggleCommentMode}
           />
         </RibbonMenuSection>
       </RibbonMenu>
@@ -400,6 +429,7 @@ export const ToolbarRibbon = ({
             <li>Double-click a gate to rename it</li>
             <li>Scroll to zoom in or out</li>
             <li>Use + / − on a gate to resize its inputs</li>
+            <li>Toggle Comments, then click the canvas or a component to add a note</li>
           </ul>
         </RibbonMenuSection>
         <RibbonMenuDivider />

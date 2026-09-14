@@ -25,6 +25,8 @@ function makeEmptySheet(name, index) {
       wireIdCounter: 0,
       inputCounter: 0,
       outputCounter: 0,
+      comments: [],
+      commentIdCounter: 0,
       history: [],
       historyIndex: -1,
     },
@@ -48,6 +50,8 @@ export function useSheets({ portNames = null, containerRef, customComponents = [
   const [wireIdCounter, setWireIdCounter] = useState(activeInit?.wireIdCounter ?? 0);
   const [inputCounter, setInputCounter] = useState(activeInit?.inputCounter ?? 0);
   const [outputCounter, setOutputCounter] = useState(activeInit?.outputCounter ?? 0);
+  const [comments, setComments] = useState(activeInit?.comments ?? []);
+  const [commentIdCounter, setCommentIdCounter] = useState(activeInit?.commentIdCounter ?? 0);
   const [history, setHistory] = useState(activeInit?.history ?? []);
   const [historyIndex, setHistoryIndex] = useState(activeInit?.historyIndex ?? -1);
 
@@ -70,6 +74,8 @@ export function useSheets({ portNames = null, containerRef, customComponents = [
     wireIdCounter,
     inputCounter,
     outputCounter,
+    comments,
+    commentIdCounter,
     history,
     historyIndex,
   };
@@ -120,6 +126,8 @@ export function useSheets({ portNames = null, containerRef, customComponents = [
     setWireIdCounter(circuit.wireIdCounter || 0);
     setInputCounter(circuit.inputCounter || 0);
     setOutputCounter(circuit.outputCounter || 0);
+    setComments(circuit.comments || []);
+    setCommentIdCounter(circuit.commentIdCounter || 0);
     setHistory(circuit.history || []);
     setHistoryIndex(circuit.historyIndex ?? -1);
     setSelectedGate(null);
@@ -189,7 +197,7 @@ export function useSheets({ portNames = null, containerRef, customComponents = [
     () =>
       sheets.map((s) => (s.id === activeSheetId ? { ...s, circuit: liveRef.current } : s)),
     // eslint-disable-next-line react-hooks/exhaustive-deps
-    [sheets, activeSheetId, gates, wires, gateIdCounter, wireIdCounter, inputCounter, outputCounter, history, historyIndex]
+    [sheets, activeSheetId, gates, wires, gateIdCounter, wireIdCounter, inputCounter, outputCounter, comments, commentIdCounter, history, historyIndex]
   );
 
   // Load an entirely new sheets array (used by "Load Project" / import).
@@ -206,6 +214,8 @@ export function useSheets({ portNames = null, containerRef, customComponents = [
           wireIdCounter: s.circuit?.wireIdCounter ?? s.wireIdCounter ?? 0,
           inputCounter: s.circuit?.inputCounter ?? s.inputCounter ?? 0,
           outputCounter: s.circuit?.outputCounter ?? s.outputCounter ?? 0,
+          comments: s.circuit?.comments || s.comments || [],
+          commentIdCounter: s.circuit?.commentIdCounter ?? s.commentIdCounter ?? 0,
           history: [],
           historyIndex: -1,
         },
@@ -226,6 +236,8 @@ export function useSheets({ portNames = null, containerRef, customComponents = [
       wireIdCounter,
       inputCounter,
       outputCounter,
+      comments: JSON.parse(JSON.stringify(comments)),
+      commentIdCounter,
     };
     setHistory((prev) => {
       const newHistory = prev.slice(0, historyIndex + 1);
@@ -233,7 +245,7 @@ export function useSheets({ portNames = null, containerRef, customComponents = [
       return newHistory.slice(-50);
     });
     setHistoryIndex((prev) => Math.min(prev + 1, 49));
-  }, [gates, wires, gateIdCounter, wireIdCounter, inputCounter, outputCounter, historyIndex]);
+  }, [gates, wires, gateIdCounter, wireIdCounter, inputCounter, outputCounter, comments, commentIdCounter, historyIndex]);
 
   const undo = useCallback(() => {
     if (historyIndex > 0) {
@@ -245,6 +257,8 @@ export function useSheets({ portNames = null, containerRef, customComponents = [
       setWireIdCounter(state.wireIdCounter);
       setInputCounter(state.inputCounter || 0);
       setOutputCounter(state.outputCounter || 0);
+      setComments(JSON.parse(JSON.stringify(state.comments || [])));
+      setCommentIdCounter(state.commentIdCounter || 0);
       setHistoryIndex(newIndex);
     }
   }, [history, historyIndex]);
@@ -259,6 +273,8 @@ export function useSheets({ portNames = null, containerRef, customComponents = [
       setWireIdCounter(state.wireIdCounter);
       setInputCounter(state.inputCounter || 0);
       setOutputCounter(state.outputCounter || 0);
+      setComments(JSON.parse(JSON.stringify(state.comments || [])));
+      setCommentIdCounter(state.commentIdCounter || 0);
       setHistoryIndex(newIndex);
     }
   }, [history, historyIndex]);
@@ -284,6 +300,9 @@ export function useSheets({ portNames = null, containerRef, customComponents = [
       setWires((prev) =>
         prev.filter((w) => !targets.includes(w.fromId) && !targets.includes(w.toId))
       );
+      // Comments attached to a deleted gate have no home anymore — drop them
+      // too, so we don't accumulate orphaned component-comments over time.
+      setComments((prev) => prev.filter((c) => !(c.type === "component" && targets.includes(c.targetId))));
 
       let inputDec = 0, outputDec = 0;
       gates.forEach((g) => {
@@ -550,9 +569,52 @@ export function useSheets({ portNames = null, containerRef, customComponents = [
     setWireIdCounter(0);
     setInputCounter(0);
     setOutputCounter(0);
+    setComments([]);
+    setCommentIdCounter(0);
     setHistory([]);
     setHistoryIndex(-1);
   }, []);
+
+  // ── Comment CRUD ─────────────────────────────────────────────────────────
+  // `data` is either:
+  //   { type: "canvas", x, y, text }
+  //   { type: "component", targetId, offsetX, offsetY, text }
+  // Uses commentIdCounter for stable numeric IDs, same pattern as gates/wires,
+  // so ids stay consistent across save/export/import round-trips.
+  const addComment = useCallback(
+    (data) => {
+      const newComment = {
+        id: commentIdCounter,
+        text: "",
+        createdAt: Date.now(),
+        updatedAt: Date.now(),
+        ...data,
+      };
+      setComments((prev) => [...prev, newComment]);
+      setCommentIdCounter((prev) => prev + 1);
+      saveToHistory();
+      return newComment;
+    },
+    [commentIdCounter, saveToHistory]
+  );
+
+  const updateComment = useCallback(
+    (id, text) => {
+      setComments((prev) =>
+        prev.map((c) => (c.id === id ? { ...c, text, updatedAt: Date.now() } : c))
+      );
+      saveToHistory();
+    },
+    [saveToHistory]
+  );
+
+  const deleteComment = useCallback(
+    (id) => {
+      setComments((prev) => prev.filter((c) => c.id !== id));
+      saveToHistory();
+    },
+    [saveToHistory]
+  );
 
   const activeSheet = useMemo(
     () => sheetsSnapshot.find((s) => s.id === activeSheetId) || sheetsSnapshot[0],
@@ -577,6 +639,8 @@ export function useSheets({ portNames = null, containerRef, customComponents = [
     wireIdCounter, setWireIdCounter,
     inputCounter, setInputCounter,
     outputCounter, setOutputCounter,
+    comments, setComments,
+    commentIdCounter, setCommentIdCounter,
     selectedGate, setSelectedGate,
     selectedGateIds, setSelectedGateIds,
     selectedWireIds, setSelectedWireIds,
@@ -596,5 +660,7 @@ export function useSheets({ portNames = null, containerRef, customComponents = [
     mergeInputGates, deleteWire,
     copySelectedGates, pasteGates, duplicateSelectedGates,
     clearCircuit,
+    // comments
+    addComment, updateComment, deleteComment,
   };
 }

@@ -42,6 +42,10 @@ export const CircuitControls = ({
   setZoom,
   setPanOffset,
   fitToView,
+  // comments
+  comments = [],
+  commentMode,
+  setCommentMode,
 }) => {
   return (
     <div className="truth-table-panel">
@@ -104,6 +108,14 @@ export const CircuitControls = ({
         >
           + Create Component
         </button>
+        <button
+          className={`btn ${commentMode ? "active" : ""}`}
+          onClick={() => setCommentMode((prev) => !prev)}
+          title={commentMode ? "Click canvas or a component to place a comment. Click again to exit." : "Enable comment mode to add notes on the canvas or on components"}
+          style={commentMode ? { background: "var(--accent-primary)", color: "#fff", borderColor: "var(--accent-primary)" } : undefined}
+        >
+          💬 Comments{comments.length > 0 ? ` (${comments.length})` : ""}
+        </button>
         <SaveAndLoad sheets={sheets} loadSheets={loadSheets} />
         <button className="btn danger" onClick={clearCircuit}>🗑️ Clear All</button>
       </div>
@@ -121,6 +133,7 @@ export const CircuitControls = ({
         <div><span>Wires:</span> <strong>{wires.length}</strong></div>
         <div><span>Inputs:</span> <strong>{inputGates.length}</strong></div>
         <div><span>Outputs:</span> <strong>{outputGates.length}</strong></div>
+        <div><span>Comments:</span> <strong>{comments.length}</strong></div>
       </div>
     </div>
   );
