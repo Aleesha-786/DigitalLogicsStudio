@@ -13,8 +13,8 @@ export function getICHeight(type) {
 }
 
 export function getGateHeight(gate, customIcMeta = {}) {
-  if (gate.type?.startsWith("CUSTOM_") && customIcMeta[gate.type]) {
-    const meta = customIcMeta[gate.type];
+  if (gate.type?.startsWith("CUSTOM_")) {
+    const meta = customIcMeta[gate.type] || { inputs: gate.inputs || 1, outputs: gate.outputs || 1 };
     return Math.max(100, Math.max(meta.inputs, meta.outputs) * 22 + 20);
   }
   return IC_TYPES.has(gate.type) ? getICHeight(gate.type) : GATE_HEIGHT;
@@ -22,8 +22,8 @@ export function getGateHeight(gate, customIcMeta = {}) {
 
 export function getInputY(gate, inputIndex, customIcMeta = {}) {
   const h = getGateHeight(gate, customIcMeta);
-  if (gate.type?.startsWith("CUSTOM_") && customIcMeta[gate.type]) {
-    const n = customIcMeta[gate.type].inputs;
+  if (gate.type?.startsWith("CUSTOM_")) {
+    const n = (customIcMeta[gate.type] || { inputs: gate.inputs || 1 }).inputs;
     if (n === 1) return gate.y + h / 2;
     return gate.y + 0.1 * h + (inputIndex / (n - 1)) * (0.8 * h);
   }
@@ -41,8 +41,8 @@ export function getInputY(gate, inputIndex, customIcMeta = {}) {
 
 export function getOutputY(gate, outputIndex, customIcMeta = {}) {
   const h = getGateHeight(gate, customIcMeta);
-  if (gate.type?.startsWith("CUSTOM_") && customIcMeta[gate.type]) {
-    const n = customIcMeta[gate.type].outputs;
+  if (gate.type?.startsWith("CUSTOM_")) {
+    const n = (customIcMeta[gate.type] || { outputs: gate.outputs || 1 }).outputs;
     if (n === 1) return gate.y + h / 2;
     return gate.y + 0.1 * h + (outputIndex / (n - 1)) * (0.8 * h);
   }

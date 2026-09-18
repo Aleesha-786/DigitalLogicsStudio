@@ -1,6 +1,5 @@
 import React from "react";
-import { gateSymbols, IC_TYPES } from "../../../shared/data/gates";
-import { SheetTabs } from './SheetTabs';
+import { gateSymbols, IC_META, IC_TYPES } from "../../../shared/data/gates";
 import {
   MULTI_INPUT_GATES,
   MAX_GATE_INPUTS,
@@ -187,9 +186,20 @@ export const CircuitCanvas = ({
           const canRemoveInput = canExpand && gate.inputs > MIN_GATE_INPUTS;
           const isCustom = gate.type.startsWith("CUSTOM_");
           const isIC = IC_TYPES.has(gate.type) || isCustom;
-          const icMeta = isIC ? customIcMeta[gate.type] : null;
-          const icH = isIC ? (isCustom ? Math.max(100, Math.max(icMeta.inputs, icMeta.outputs) * 22 + 20) : getICHeight(gate.type)) : 100;
-          const cfGateId = connectingFrom?.gateId ?? connectingFrom?.gate?.id;
+          // Falls back to the gate's own stored inputs/outputs (always present,
+          // even for a custom gate) if customIcMeta hasn't loaded yet — avoids a
+          // crash during the brief window before useCustomComponents' fetch
+          // resolves, and falls back to IC_META for built-in ICs.
+         const icMeta = isIC
+            ? customIcMeta[gate.type] || IC_META[gate.type] || {
+               inputs: gate.inputs || 1,
+               outputs: gate.outputs || 1,
+              inputLabels: [],
+              outputLabels: [],
+         }
+         : null;
+         const icH = isIC ? (isCustom ? Math.max(100, Math.max(icMeta.inputs, icMeta.outputs) * 22 + 20) : getICHeight(gate.type)) : 100;
+        const cfGateId = connectingFrom?.gateId ?? connectingFrom?.gate?.id;
 
           return (
             <div
@@ -296,7 +306,7 @@ export const CircuitCanvas = ({
 
     {!embedded && (
         <div className="canvas-sheet-tabs-wrapper">
-          <SheetTabs
+          <sheets
             sheets={sheets}
             activeSheetId={activeSheetId}
             onSwitchSheet={onSwitchSheet}
