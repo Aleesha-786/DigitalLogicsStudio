@@ -35,5 +35,11 @@ export function useCustomComponents() {
     setComponents((prev) => prev.filter((c) => c.id !== id));
   }, []);
 
-  return { components, loading, refresh, createComponent, deleteComponent };
+  const updateComponent = useCallback(async (id, { name, inputs, outputs, gates, wires }) => {
+  const { data } = await apiClient.put(`/custom-components/${id}`, { name, inputs, outputs, gates, wires });
+  setComponents((prev) => prev.map((c) => (c.id === id ? data.component : c)));
+  return data.component;
+}, []);
+
+return { components, loading, refresh, createComponent, updateComponent, deleteComponent };
 }

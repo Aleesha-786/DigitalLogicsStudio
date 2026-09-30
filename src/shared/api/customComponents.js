@@ -1,21 +1,45 @@
-import api from "./axiosInstance"; // Adjust to your existing Axios instance path
+import { useState, useEffect, useCallback } from "react";
+import apiClient from "../../../shared/services/apiClient";
 
-export const fetchCustomComponents = async () => {
-  const response = await api.get("/api/custom-components");
-  return response.data.components;
-};
+// Loads the current user's saved custom components once, and exposes
+// create/update/delete. Consumers merge `components` into IC_META/IC_TYPES
+// so they render and simulate exactly like built-in ICs.
+export function useCustomComponents() {
+  const [components, setComponents] = useState([]);
+  const [loading, setLoading] = useState(true);
 
-export const createCustomComponent = async (componentData) => {
-  const response = await api.post("/api/custom-components", componentData);
-  return response.data.component;
-};
+  const refresh = useCallback(async () => {
+    setLoading(true);
+    try {
+      const { data } = await apiClient.get("/custom-components");
+      setComponents(data.components || []);
+    } catch (err) {
+      console.warn("[useCustomComponents] failed to load:", err?.message);
+    } finally {
+      setLoading(false);
+    }
+  }, []);
 
-export const updateCustomComponent = async (id, componentData) => {
-  const response = await api.put(`/api/custom-components/${id}`, componentData);
-  return response.data.component;
-};
+  useEffect(() => {
+    refresh();
+  }, [refresh]);
 
-export const deleteCustomComponent = async (id) => {
-  const response = await api.delete(`/api/custom-components/${id}`);
-  return response.data;
-};
+  const createComponent = useCallback(async ({ name, inputs, outputs, gates, wires }) => {
+    const { data } = await apiClient.post("/custom-components", { name, inputs, outputs, gates, wires });
+    setComponents((prev) => [data.component, ...prev]);
+    return data.component;
+  }, []);
+
+  const updateComponent = useCallback(async (id, { name, inputs, outputs, gates, wires }) => {
+    const { data } = await apiClient.put(`/custom-components/${id}`, { name, inputs, outputs, gates, wires });
+    setComponents((prev) => prev.map((c) => (c.id === id ? data.component : c)));
+    return data.component;
+  }, []);
+
+  const deleteComponent = useCallback(async (id) => {
+    await apiClient.delete(`/custom-components/${id}`);
+    setComponents((prev) => prev.filter((c) => c.id !== id));
+  }, []);
+
+  return { components, loading, refresh, createComponent, updateComponent, deleteComponent };
+}

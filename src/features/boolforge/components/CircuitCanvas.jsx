@@ -1,4 +1,4 @@
-import React, { useRef, useState } from "react";
+﻿import React, { useRef, useState } from "react";
 import {
   MessageSquare,
   Pencil,
@@ -290,7 +290,8 @@ export const CircuitCanvas = ({
   wires,
   gateMap,
   customIcMeta = {},
-
+  customComponents = [],
+  onEditComponent,
   selectedGateIds,
   selectedWireIds,
   setSelectedGateIds,
@@ -795,6 +796,9 @@ export const CircuitCanvas = ({
           const isCustom = gate.type.startsWith("CUSTOM_");
           const isIC = IC_TYPES.has(gate.type) || isCustom;
           
+          const customComponentDef = isCustom
+  ? customComponents.find((c) => `CUSTOM_${c.id}` === gate.type)
+  : null;
           // FIX: Standard ICs now correctly pull their metadata from IC_META
           const icMeta = isIC 
             ? (isCustom ? customIcMeta[gate.type] : IC_META[gate.type]) 
@@ -851,7 +855,20 @@ export const CircuitCanvas = ({
                   </div>
                 )}
               </div>
-
+               {isCustom && customComponentDef && (
+  <button
+    type="button"
+    className="custom-gate-edit-btn"
+    title={`Edit ${gate.label || customComponentDef.name}`}
+    onMouseDown={(e) => e.stopPropagation()}
+    onClick={(e) => {
+      e.stopPropagation();
+      onEditComponent?.(customComponentDef);
+    }}
+  >
+    ✎
+  </button>
+)}
               {canExpand && (
                 <div className="gate-input-controls">
                   <button
