@@ -97,201 +97,12 @@ function GenericICSymbol({ name, inputCount, outputCount }) {
   );
 }
 
-function formatCommentTime(ts) {
-  if (!ts) return "";
-  try {
-    return new Date(ts).toLocaleString(undefined, {
-      month: "short",
-      day: "numeric",
-      hour: "numeric",
-      minute: "2-digit",
-      hour12: true,
-    });
-  } catch {
-    return "";
-  }
-}
-
-function CommentPin({
-  comment,
-  isOpen,
-  isEditing,
-  editText,
-  onToggleOpen,
-  onStartEdit,
-  onChangeText,
-  onSave,
-  onCancel,
-  onDelete,
-  onDragStart,
-  onDragEnd,
-  wasDraggedRef,
-  draggingCommentPosition,
-}) {
-  const isBeingDragged = draggingCommentPosition?.id === comment.id;
-
-  const displayX = isBeingDragged ? draggingCommentPosition.x : comment.x;
-  const displayY = isBeingDragged ? draggingCommentPosition.y : comment.y;
-
-  const handlePointerDown = (e) => {
-    e.preventDefault();
-    e.stopPropagation();
-    onDragStart(e, comment);
-  };
-
-  const handlePointerUp = (e) => {
-    e.preventDefault();
-    e.stopPropagation();
-    onDragEnd?.();
-  };
-
-  const handlePointerCancel = (e) => {
-    e.preventDefault();
-    e.stopPropagation();
-    onDragEnd?.();
-  };
-
-  const handleClick = (e) => {
-    e.preventDefault();
-    e.stopPropagation();
-    if (wasDraggedRef?.current) {
-      wasDraggedRef.current = false;
-      return;
-    }
-    onToggleOpen();
-  };
-
-  return (
-    <div
-      className={`comment-pin${
-        comment.type === "component"
-          ? " comment-pin--component"
-          : " comment-pin--canvas"
-      }`}
-      style={{
-        position: "absolute",
-        left: displayX,
-        top: displayY,
-        zIndex: isBeingDragged ? 1500 : 500,
-      }}
-      onMouseDown={(e) => e.stopPropagation()}
-      onPointerDown={(e) => e.stopPropagation()}
-    >
-      <button
-        type="button"
-        className="comment-pin-marker"
-        onPointerDown={handlePointerDown}
-        onPointerMove={(e) => e.stopPropagation()}
-        onPointerUp={handlePointerUp}
-        onPointerCancel={handlePointerCancel}
-        onClick={handleClick}
-        title="Drag to move note / click to view"
-        aria-label="Circuit note"
-      >
-        <MessageSquare size={13} strokeWidth={2.25} />
-      </button>
-
-      {isOpen && (
-        <div
-          className="comment-popup"
-          role="dialog"
-          aria-label="Circuit note"
-          onPointerDown={(e) => e.stopPropagation()}
-          onMouseDown={(e) => e.stopPropagation()}
-        >
-          <div className="comment-popup-header">
-            <span className="comment-popup-header-label">
-              {comment.type === "component" ? "Component note" : "Canvas note"}
-            </span>
-
-            {!isEditing && (
-              <div className="comment-popup-header-actions">
-                <button
-                  type="button"
-                  className="comment-icon-btn"
-                  onClick={onStartEdit}
-                  title="Edit note"
-                  aria-label="Edit note"
-                >
-                  <Pencil size={13} strokeWidth={2} />
-                </button>
-
-                <button
-                  type="button"
-                  className="comment-icon-btn comment-icon-btn--danger"
-                  onClick={onDelete}
-                  title="Delete note"
-                  aria-label="Delete note"
-                >
-                  <Trash2 size={13} strokeWidth={2} />
-                </button>
-              </div>
-            )}
-          </div>
-
-          {isEditing ? (
-            <>
-              <textarea
-                className="comment-textarea"
-                value={editText}
-                onChange={(e) => onChangeText(e.target.value)}
-                rows={3}
-                autoFocus
-                placeholder="Write a note about this circuit…"
-              />
-
-              <div className="comment-popup-footer">
-                <button
-                  type="button"
-                  className="comment-action-btn comment-action-btn--ghost"
-                  onClick={onCancel}
-                >
-                  <X size={13} strokeWidth={2.25} />
-                  <span>Cancel</span>
-                </button>
-
-                <button
-                  type="button"
-                  className="comment-action-btn comment-action-btn--primary"
-                  onClick={onSave}
-                >
-                  <Check size={13} strokeWidth={2.25} />
-                  <span>Save</span>
-                </button>
-              </div>
-            </>
-          ) : (
-            <>
-              <div className="comment-popup-text">
-                {comment.text ? (
-                  comment.text
-                ) : (
-                  <span className="comment-popup-placeholder">
-                    No note added yet
-                  </span>
-                )}
-              </div>
-
-              {comment.updatedAt && (
-                <div className="comment-popup-timestamp">
-                  {formatCommentTime(comment.updatedAt)}
-                </div>
-              )}
-            </>
-          )}
-        </div>
-      )}
-    </div>
-  );
-}
-
 export const CircuitCanvas = ({
   gates,
   wires,
   gateMap,
   customIcMeta = {},
-  customComponents = [],
-  onEditComponent,
+
   selectedGateIds,
   selectedWireIds,
   setSelectedGateIds,
@@ -382,10 +193,17 @@ export const CircuitCanvas = ({
   commentMode = false,
   setCommentMode = () => {},
   onAddComment = () => null,
-  onUpdateComment = () => {},
-  onDeleteComment = () => {},
+  
+  updateComment,
+  onUpdateComment,
+  deleteComment,
+  onDeleteComment,
+  
   onMoveComment = () => {},
 }) => {
+  const finalUpdateComment = updateComment || onUpdateComment || (() => {});
+  const finalDeleteComment = deleteComment || onDeleteComment || (() => {});
+
   const [openCommentId, setOpenCommentId] = useState(null);
   const [editingCommentId, setEditingCommentId] = useState(null);
   const [editText, setEditText] = useState("");
@@ -404,6 +222,7 @@ export const CircuitCanvas = ({
     if (!startWorld) return;
 
     wasCommentDraggedRef.current = false;
+    setOpenCommentId(comment.id);
 
     draggingCommentRef.current = {
       id: comment.id,
@@ -530,22 +349,10 @@ export const CircuitCanvas = ({
     window.addEventListener("pointercancel", handlePointerCancel, { passive: false });
   };
 
-  const handleCommentDragEnd = () => {};
-
   const openCommentPopup = (id, text) => {
     setOpenCommentId(id);
     setEditingCommentId(id);
     setEditText(text ?? "");
-  };
-
-  const handleToggleOpen = (comment) => {
-    if (openCommentId === comment.id) {
-      setOpenCommentId(null);
-      setEditingCommentId(null);
-    } else {
-      setOpenCommentId(comment.id);
-      setEditingCommentId(null);
-    }
   };
 
   const handleStartEdit = (comment) => {
@@ -553,8 +360,13 @@ export const CircuitCanvas = ({
     setEditText(comment.text || "");
   };
 
-  const handleSaveEdit = (id) => {
-    onUpdateComment(id, editText);
+  const handleSaveEdit = (id, newWidth, newHeight) => {
+    finalUpdateComment(id, { 
+      text: editText, 
+      width: newWidth, 
+      height: newHeight, 
+      isEditing: false 
+    });
     setEditingCommentId(null);
   };
 
@@ -563,7 +375,7 @@ export const CircuitCanvas = ({
   };
 
   const handleDeleteComment = (id) => {
-    onDeleteComment(id);
+    finalDeleteComment(id);
     if (openCommentId === id) setOpenCommentId(null);
     if (editingCommentId === id) setEditingCommentId(null);
   };
@@ -591,6 +403,7 @@ export const CircuitCanvas = ({
       return;
     }
 
+    setOpenCommentId(null);
     handleCanvasMouseDown(e);
   };
 
@@ -678,7 +491,7 @@ export const CircuitCanvas = ({
             : selectionToolActive
             ? "crosshair"
             : commentMode
-            ? "copy"
+            ? "crosshair"
             : "grab",
         }}
       />
@@ -796,10 +609,6 @@ export const CircuitCanvas = ({
           const isCustom = gate.type.startsWith("CUSTOM_");
           const isIC = IC_TYPES.has(gate.type) || isCustom;
           
-          const customComponentDef = isCustom
-  ? customComponents.find((c) => `CUSTOM_${c.id}` === gate.type)
-  : null;
-          // FIX: Standard ICs now correctly pull their metadata from IC_META
           const icMeta = isIC 
             ? (isCustom ? customIcMeta[gate.type] : IC_META[gate.type]) 
             : null;
@@ -855,20 +664,7 @@ export const CircuitCanvas = ({
                   </div>
                 )}
               </div>
-               {isCustom && customComponentDef && (
-  <button
-    type="button"
-    className="custom-gate-edit-btn"
-    title={`Edit ${gate.label || customComponentDef.name}`}
-    onMouseDown={(e) => e.stopPropagation()}
-    onClick={(e) => {
-      e.stopPropagation();
-      onEditComponent?.(customComponentDef);
-    }}
-  >
-    ✎
-  </button>
-)}
+
               {canExpand && (
                 <div className="gate-input-controls">
                   <button
@@ -1016,25 +812,105 @@ export const CircuitCanvas = ({
           );
         })}
 
-        {renderedComments.map((comment) => (
-          <CommentPin
-            key={comment.id}
-            comment={comment}
-            isOpen={openCommentId === comment.id}
-            isEditing={editingCommentId === comment.id}
-            editText={editText}
-            onToggleOpen={() => handleToggleOpen(comment)}
-            onStartEdit={() => handleStartEdit(comment)}
-            onChangeText={setEditText}
-            onSave={() => handleSaveEdit(comment.id)}
-            onCancel={handleCancelEdit}
-            onDelete={() => handleDeleteComment(comment.id)}
-            onDragStart={handleCommentDragStart}
-            onDragEnd={handleCommentDragEnd}
-            wasDraggedRef={wasCommentDraggedRef}
-            draggingCommentPosition={draggingCommentPosition}
-          />
-        ))}
+        {renderedComments.map((comment) => {
+          const isBeingDragged = draggingCommentPosition?.id === comment.id;
+          const displayX = isBeingDragged ? draggingCommentPosition.x : comment.x;
+          const displayY = isBeingDragged ? draggingCommentPosition.y : comment.y;
+          const isEditing = editingCommentId === comment.id;
+          const isSelected = openCommentId === comment.id;
+
+          return (
+            <div
+              key={comment.id}
+              data-comment-id={comment.id}
+              className={`canvas-comment ${isSelected ? "selected" : ""}`}
+              style={{
+                position: "absolute",
+                left: displayX,
+                top: displayY,
+                width: comment.width || "auto",
+                height: comment.height || "auto",
+                backgroundColor: "transparent",
+                padding: "4px 8px",
+                cursor: "grab",
+                minWidth: "60px",
+                minHeight: "24px",
+                color: "#ffffff", 
+                textShadow: "1px 1px 3px rgba(0,0,0,0.9)", 
+                zIndex: isBeingDragged ? 1500 : 50,
+                fontFamily: "monospace", 
+                fontSize: "16px",
+                fontWeight: "bold",
+                overflow: "hidden", 
+                wordBreak: "break-word",
+                border: (isEditing || isSelected)
+                  ? "1px dashed var(--accent-primary, #7c3aed)"
+                  : "1px dashed transparent",
+                userSelect: "none",
+              }}
+              onPointerDown={(e) => {
+                e.stopPropagation();
+                handleCommentDragStart(e, comment);
+              }}
+              onContextMenu={(e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                handleDeleteComment(comment.id);
+              }}
+              onDoubleClick={(e) => {
+                e.stopPropagation();
+                handleStartEdit(comment);
+              }}
+            >
+              {isEditing ? (
+                <textarea
+                  autoFocus
+                  value={editText}
+                  onChange={(e) => setEditText(e.target.value)}
+                  placeholder="Type note..."
+                  onPointerDown={(e) => e.stopPropagation()} 
+                  onMouseDown={(e) => e.stopPropagation()}
+                  onBlur={(e) => handleSaveEdit(comment.id, e.target.style.width, e.target.style.height)}
+                  onKeyDown={(e) => {
+                    if (e.key === 'Escape') handleCancelEdit();
+                    // Let 'Enter' insert standard new lines
+                  }}
+                  style={{
+                    width: "100%",
+                    height: "100%",
+                    minWidth: "120px",
+                    minHeight: "40px",
+                    resize: "both",
+                    background: "rgba(0, 0, 0, 0.4)", 
+                    border: "1px solid rgba(255,255,255,0.4)",
+                    outline: "none",
+                    color: "#ffffff",
+                    fontFamily: "monospace",
+                    fontSize: "16px",
+                    fontWeight: "bold",
+                    textShadow: "1px 1px 3px rgba(0,0,0,0.9)",
+                    wordBreak: "break-word",
+                    overflowWrap: "break-word",
+                  }}
+                />
+              ) : (
+                <div
+                  style={{ 
+                    width: "100%", 
+                    height: "100%", 
+                    whiteSpace: "pre-wrap", 
+                    cursor: "text",
+                    wordBreak: "break-word",
+                    overflowWrap: "break-word",
+                    overflow: "hidden"
+                  }}
+                >
+                  {comment.text || ""}
+                </div>
+              )}
+            </div>
+          );
+        })}
       </div>
 
       <div className="canvas-overlay-controls">
