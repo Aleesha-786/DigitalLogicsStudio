@@ -9,7 +9,7 @@ const coreTopics = [
       "Build fluency in identities, duality, minterms, maxterms, and simplification workflows used throughout digital logic design.",
     progressLabel: "Theory + symbolic simplification",
     stats: {
-      modules: 11,
+      modules: 12,
       practice: 14,
       level: "Core",
     },
@@ -24,6 +24,11 @@ const coreTopics = [
       },
       { id: "duality", text: "Duality", to: "/boolean/duality" },
       { id: "consensus", text: "Consensus", to: "/boolean/consensus" },
+      {
+        id: "theorems-assessment",
+        text: "Theorems Assessment",
+        to: "/boolean/theorems-assessment",
+      },
       { id: "complement", text: "Complement", to: "/boolean/complement" },
       { id: "minterms", text: "Minterms", to: "/boolean/minterms" },
       { id: "maxterms", text: "Maxterms", to: "/boolean/maxterms" },

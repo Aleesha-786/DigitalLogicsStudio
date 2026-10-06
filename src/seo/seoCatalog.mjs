@@ -134,6 +134,17 @@ const booleanPages = [
     keywords: ["consensus theorem boolean algebra"],
   },
   {
+    path: "/boolean/theorems-assessment",
+    label: "Boolean Theorems Assessment",
+    description:
+      "Practice the consensus theorem, the duality principle, and complements of Boolean expressions, with every answer checked against the truth table.",
+    keywords: [
+      "consensus theorem practice",
+      "dual of a boolean expression practice",
+      "complement of a boolean expression practice",
+    ],
+  },
+  {
     path: "/boolean/minterms",
     label: "Minterms Explained",
     description:

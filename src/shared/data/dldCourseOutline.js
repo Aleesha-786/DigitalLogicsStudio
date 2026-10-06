@@ -41,6 +41,7 @@ export const dldCourseParts = [
       { id: "ba-complement", slug: "boolean-complement", subtopicId: "complement", title: "Complement", path: "/boolean/complement", description: "Complementing single variables and entire Boolean expressions." },
       { id: "ba-duality", slug: "boolean-duality", subtopicId: "duality", title: "Duality Principle", path: "/boolean/duality", description: "Swap operators and identity values — every identity has a dual." },
       { id: "ba-consensus", slug: "boolean-consensus", subtopicId: "consensus", title: "Consensus Theorem", path: "/boolean/consensus", description: "Eliminate redundant terms using the consensus theorem." },
+      { id: "ba-theorems-assessment", slug: "boolean-theorems-assessment", subtopicId: "theorems-assessment", title: "Theorems Assessment", path: "/boolean/theorems-assessment", description: "Apply consensus, then find a dual and a complement." },
       { id: "ba-minterms", slug: "boolean-minterms", subtopicId: "minterms", title: "Minterms", path: "/boolean/minterms", description: "Sum of products: every row of a truth table as a minterm." },
       { id: "ba-maxterms", slug: "boolean-maxterms", subtopicId: "maxterms", title: "Maxterms", path: "/boolean/maxterms", description: "Product of sums: the dual representation of minterms." },
       { id: "ba-min-max", slug: "boolean-minterms-maxterms", subtopicId: "relation", title: "Minterms & Maxterms", path: "/boolean/minterms-maxterms", description: "How minterms and maxterms relate and complement each other." },

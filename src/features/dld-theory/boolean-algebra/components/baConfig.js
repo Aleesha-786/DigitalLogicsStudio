@@ -48,6 +48,14 @@ export const baPages = [
     description: "Eliminate redundant terms using the consensus theorem.",
   },
   {
+    path: "/boolean/theorems-assessment",
+    label: "Theorems Assessment",
+    short: "Theorems",
+    description: "Apply consensus, then find a dual and a complement.",
+    // Completed by passing the assessment, not by "Mark as Read".
+    assessment: true,
+  },
+  {
     path: "/boolean/minterms",
     label: "Minterms",
     short: "Minterms",
@@ -80,6 +88,7 @@ export const BA_PATH_TO_SUBTOPIC_ID = {
   "/boolean/laws-assessment": "laws-assessment",
   "/boolean/duality": "duality",
   "/boolean/consensus": "consensus",
+  "/boolean/theorems-assessment": "theorems-assessment",
   "/boolean/complement": "complement",
   "/boolean/minterms": "minterms",
   "/boolean/maxterms": "maxterms",
