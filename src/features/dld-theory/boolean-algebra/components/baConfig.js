@@ -20,6 +20,14 @@ export const baPages = [
       "Commutative, associative, distributive, absorption, De Morgan.",
   },
   {
+    path: "/boolean/laws-assessment",
+    label: "Laws Assessment",
+    short: "Assessment",
+    description: "Simplify an expression step by step using the laws.",
+    // Completed by passing the assessment, not by "Mark as Read".
+    assessment: true,
+  },
+  {
     path: "/boolean/complement",
     label: "Complement",
     short: "Complement",
@@ -69,6 +77,7 @@ export const BA_PATH_TO_SUBTOPIC_ID = {
   "/boolean/overview": "overview",
   "/boolean/identities": "identities",
   "/boolean/laws": "laws",
+  "/boolean/laws-assessment": "laws-assessment",
   "/boolean/duality": "duality",
   "/boolean/consensus": "consensus",
   "/boolean/complement": "complement",

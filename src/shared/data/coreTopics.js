@@ -17,6 +17,11 @@ const coreTopics = [
       { id: "overview", text: "Overview", to: "/boolean/overview" },
       { id: "identities", text: "Identities", to: "/boolean/identities" },
       { id: "laws", text: "Laws", to: "/boolean/laws" },
+      {
+        id: "laws-assessment",
+        text: "Laws Assessment",
+        to: "/boolean/laws-assessment",
+      },
       { id: "duality", text: "Duality", to: "/boolean/duality" },
       { id: "consensus", text: "Consensus", to: "/boolean/consensus" },
       { id: "complement", text: "Complement", to: "/boolean/complement" },

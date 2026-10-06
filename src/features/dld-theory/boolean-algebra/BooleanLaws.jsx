@@ -1,7 +1,6 @@
 import React, { useState } from "react";
-import katex from "katex";
-import "katex/dist/katex.min.css";
 import BALayout from "./BALayout";
+import Tex from "./components/Tex";
 import CircuitModal from "../../../shared/components/CircuitModal";
 
 const laws = [
@@ -110,15 +109,6 @@ const INPUT_ROWS = [
   [1, 0],
   [1, 1],
 ];
-
-const Tex = ({ children }) => (
-  <span
-    className="law-tex"
-    dangerouslySetInnerHTML={{
-      __html: katex.renderToString(children, { throwOnError: false }),
-    }}
-  />
-);
 
 const LawExample = ({ example }) => (
   <p className="law-example">
