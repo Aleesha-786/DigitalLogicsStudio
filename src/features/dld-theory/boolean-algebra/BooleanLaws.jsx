@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import BALayout from "./BALayout";
-import Tex from "./components/Tex";
+import Tex from "../../../shared/components/Tex";
 import CircuitModal from "../../../shared/components/CircuitModal";
 
 const laws = [
