@@ -1062,6 +1062,11 @@
   line-height: 1.6;
 }
 
+/* Keep each typeset example expression on one line; wrap between them. */
+.ba-layout .law-example .law-tex {
+  white-space: nowrap;
+}
+
 /* Law cards in two independent columns (Boolean Laws) — a card that grows
    only pushes down its own column, so no blank space opens beside it. */
 .ba-layout .laws-columns {

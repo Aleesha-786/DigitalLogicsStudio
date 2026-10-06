@@ -7,37 +7,37 @@ import CircuitModal from "../../../shared/components/CircuitModal";
 const laws = [
   {
     name: "Commutative",
-    example: "A + B = B + A; AB = BA",
+    example: ["A + B = B + A", "AB = BA"],
     explanation: "Order of operands doesn't affect result",
     application: "Useful for rearranging terms to match patterns",
   },
   {
     name: "Associative",
-    example: "A + (B + C) = (A + B) + C",
+    example: ["A + (B + C) = (A + B) + C"],
     explanation: "Grouping of operands doesn't affect result",
     application: "Allows flexible grouping in complex expressions",
   },
   {
     name: "Distributive",
-    example: "A(B + C) = AB + AC",
+    example: ["A(B + C) = AB + AC"],
     explanation: "AND distributes over OR",
     application: "Key for converting between SOP and POS forms",
   },
   {
     name: "Identity",
-    example: "A + 0 = A; A1 = A",
+    example: ["A + 0 = A", "A \\cdot 1 = A"],
     explanation: "0 is identity for OR, 1 for AND",
     application: "Used for circuit initialization and reset",
   },
   {
     name: "Complement",
-    example: "A + A' = 1; AA' = 0",
+    example: ["A + A' = 1", "AA' = 0"],
     explanation: "Variable and its complement cover all cases",
     application: "Fundamental for logic simplification",
   },
   {
     name: "Absorption",
-    example: "A + AB = A; A(A + B) = A",
+    example: ["A + AB = A", "A(A + B) = A"],
     explanation: "A absorbs redundant combinations",
     application: "Powerful for reducing term count",
     proof: [
@@ -64,7 +64,7 @@ const laws = [
   },
   {
     name: "De Morgan",
-    example: "(AB)' = A' + B'; (A + B)' = A'B'",
+    example: ["(AB)' = A' + B'", "(A + B)' = A'B'"],
     explanation: "Complement of product equals sum of complements",
     application: "Essential for NAND/NOR gate implementations",
     // Proved by perfect induction: evaluate both sides for every input
@@ -118,6 +118,18 @@ const Tex = ({ children }) => (
       __html: katex.renderToString(children, { throwOnError: false }),
     }}
   />
+);
+
+const LawExample = ({ example }) => (
+  <p className="law-example">
+    <strong>Example:</strong>{" "}
+    {example.map((tex, i) => (
+      <React.Fragment key={tex}>
+        {i > 0 && "; "}
+        <Tex>{tex}</Tex>
+      </React.Fragment>
+    ))}
+  </p>
 );
 
 const LawProof = ({ proof }) => (
@@ -202,9 +214,7 @@ const LawCard = ({ law, order }) => {
     return (
       <div className="law-card" style={{ order }}>
         <h4 className="law-name">{law.name}</h4>
-        <p className="law-example">
-          <strong>Example:</strong> {law.example}
-        </p>
+        <LawExample example={law.example} />
         <p className="law-explanation">{law.explanation}</p>
         <p className="law-application">
           <strong>Application:</strong> {law.application}
@@ -232,9 +242,7 @@ const LawCard = ({ law, order }) => {
       }}
     >
       <h4 className="law-name">{law.name}</h4>
-      <p className="law-example">
-        <strong>Example:</strong> {law.example}
-      </p>
+      <LawExample example={law.example} />
       <p className="law-explanation">{law.explanation}</p>
       <p className="law-application">
         <strong>Application:</strong> {law.application}
