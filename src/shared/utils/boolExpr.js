@@ -222,6 +222,27 @@ export const compareExpressions = (expected, actual) => {
   return { equivalent: true, counterexample: null };
 };
 
+/**
+ * The dual of a parsed expression: AND and OR swapped, 0 and 1 swapped,
+ * variables and complements left alone. Working on the tree keeps the
+ * original grouping — the dual of A + BC is A(B + C), not AB + C.
+ */
+export const dualOf = (node) => {
+  switch (node.type) {
+    case "var":
+      return node;
+    case "const":
+      return { type: "const", value: node.value ? 0 : 1 };
+    case "not":
+      return { type: "not", arg: dualOf(node.arg) };
+    default:
+      return {
+        type: node.type === "and" ? "or" : "and",
+        args: node.args.map(dualOf),
+      };
+  }
+};
+
 const flatten = (node) =>
   node.args.flatMap((arg) => (arg.type === node.type ? flatten(arg) : [arg]));
 
