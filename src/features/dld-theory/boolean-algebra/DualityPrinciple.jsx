@@ -3,25 +3,7 @@ import BALayout from "./BALayout";
 import ControlPanel from "../../../shared/components/ControlPanel";
 import ControlGroup from "../../../shared/components/ControlGroup";
 import CircuitModal from "../../../shared/components/CircuitModal";
-import { parseExpression } from "../../../shared/utils/boolExpr";
-
-// The swap is done on the parsed tree, not on the text, so the original
-// grouping survives: the dual of A + B•C is A • (B + C), not A • B + C.
-const dualOf = (node) => {
-  switch (node.type) {
-    case "var":
-      return node;
-    case "const":
-      return { type: "const", value: node.value ? 0 : 1 };
-    case "not":
-      return { type: "not", arg: dualOf(node.arg) };
-    default:
-      return {
-        type: node.type === "and" ? "or" : "and",
-        args: node.args.map(dualOf),
-      };
-  }
-};
+import { dualOf, parseExpression } from "../../../shared/utils/boolExpr";
 
 const formatExpression = (node) => {
   switch (node.type) {

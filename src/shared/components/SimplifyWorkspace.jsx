@@ -3,17 +3,31 @@ import Tex from "./Tex";
 import { gradeStep } from "../utils/simplification";
 import "./SimplifyWorkspace.css";
 
-const FEEDBACK = {
+// Wording for the default task, reducing an expression. A host with a
+// different task (see BooleanTheoremsAssessment) overrides what it needs.
+const DEFAULT_COPY = {
+  label: "Reduce to the simplest form",
+  // What each step is an expression for, as TeX. Empty continues the given
+  // "F = …" chain; a task that derives something else names it, e.g. "F'".
+  stepLhs: "",
+  inputPrefix: "F =",
+  fieldLabel: "Your next step",
+  submitLabel: "Check step",
+  stepNote: "Same truth table",
+  answerNote: "Simplest form",
   valid: "Valid step — same truth table. Keep simplifying.",
   discarded:
     "Not equivalent — that step was discarded. Continue from your last valid step.",
+  // What a discarded step is compared against, in the counterexample.
+  reference: "the original expression",
+  solvedText: "is the simplest form",
 };
 
-const describeCounterexample = ({ assignment, expected, actual }) => {
+const describeCounterexample = ({ assignment, expected, actual }, reference) => {
   const row = Object.entries(assignment)
     .map(([name, value]) => `${name} = ${value}`)
     .join(", ");
-  return `When ${row}, the original expression is ${expected} but this one is ${actual}.`;
+  return `When ${row}, ${reference} is ${expected} but this one is ${actual}.`;
 };
 
 /**
@@ -24,6 +38,11 @@ const describeCounterexample = ({ assignment, expected, actual }) => {
  *
  * `problem` comes from compileSimplification(). The workspace keeps its own
  * progress, so give it a new `key` to start a different problem.
+ *
+ * `grade` and `copy` adapt it to another task: `grade(problem, input)` returns
+ * the same outcome shape as gradeStep(), and `copy` replaces any of the
+ * DEFAULT_COPY wording. A problem without `answerTex` shows the learner's own
+ * final step as the answer.
  */
 const SimplifyWorkspace = ({
   problem,
@@ -33,7 +52,10 @@ const SimplifyWorkspace = ({
   actions = null,
   solvedActions = null,
   autoFocus = false,
+  grade = gradeStep,
+  copy = null,
 }) => {
+  const text = { ...DEFAULT_COPY, ...copy };
   const [steps, setSteps] = useState([]);
   const [discardedCount, setDiscardedCount] = useState(0);
   // Outcome of the most recent check, plus the text that was checked.
@@ -61,7 +83,7 @@ const SimplifyWorkspace = ({
 
   const handleSubmit = (event) => {
     event.preventDefault();
-    const outcome = gradeStep(problem, input);
+    const outcome = grade(problem, input);
     setResult({ ...outcome, input });
     inputRef.current?.focus();
     if (outcome.status === "invalid") return;
@@ -80,10 +102,14 @@ const SimplifyWorkspace = ({
     inputRef.current?.focus();
   };
 
+  const feedback = invalid
+    ? result.message
+    : { valid: text.valid, discarded: text.discarded }[result?.status] || "";
+
   return (
     <div className="simplify-workspace">
       <div className="simplify-head">
-        <span className="simplify-label">Reduce to the simplest form</span>
+        <span className="simplify-label">{text.label}</span>
         {badge}
       </div>
 
@@ -103,10 +129,10 @@ const SimplifyWorkspace = ({
             >
               <span className="simplify-step-tag">Step {i + 1}</span>
               <span className="simplify-step-expr">
-                <Tex>{`= ${tex}`}</Tex>
+                <Tex>{`${text.stepLhs} = ${tex}`}</Tex>
               </span>
               <span className="simplify-step-note">
-                ✓ {isAnswer ? "Simplest form" : "Same truth table"}
+                ✓ {isAnswer ? text.answerNote : text.stepNote}
               </span>
             </li>
           );
@@ -116,7 +142,7 @@ const SimplifyWorkspace = ({
             <span className="simplify-step-tag">Discarded</span>
             <span className="simplify-step-expr">
               <span className="simplify-struck">
-                <Tex>{`= ${result.tex}`}</Tex>
+                <Tex>{`${text.stepLhs} = ${result.tex}`}</Tex>
               </span>
             </span>
             <button
@@ -127,7 +153,7 @@ const SimplifyWorkspace = ({
               Edit and retry
             </button>
             <span className="simplify-step-reason">
-              ✗ {describeCounterexample(result.counterexample)}
+              ✗ {describeCounterexample(result.counterexample, text.reference)}
             </span>
           </li>
         )}
@@ -138,8 +164,11 @@ const SimplifyWorkspace = ({
           {/* Plain divs: hosts style their own headings and paragraphs. */}
           <div className="simplify-result-title">{solvedTitle}</div>
           <div className="simplify-result-text">
-            <Tex>{`F = ${problem.answerTex}`}</Tex> is the simplest form. You
-            reached it in {steps.length} {steps.length === 1 ? "step" : "steps"}
+            <Tex>{`${text.stepLhs || "F"} = ${
+              problem.answerTex ?? steps[steps.length - 1]
+            }`}</Tex>{" "}
+            {text.solvedText}. You reached it in {steps.length}{" "}
+            {steps.length === 1 ? "step" : "steps"}
             {discardedCount > 0 && ` with ${discardedCount} discarded`}.
           </div>
           {solvedActions}
@@ -147,11 +176,11 @@ const SimplifyWorkspace = ({
       ) : (
         <form className="simplify-form" onSubmit={handleSubmit} noValidate>
           <label className="simplify-field-label" htmlFor={inputId}>
-            Your next step
+            {text.fieldLabel}
           </label>
           <div className="simplify-input-row">
             <span className="simplify-input-prefix" aria-hidden="true">
-              F =
+              {text.inputPrefix}
             </span>
             <input
               id={inputId}
@@ -174,7 +203,7 @@ const SimplifyWorkspace = ({
               className="simplify-check-btn"
               disabled={!input.trim()}
             >
-              Check step
+              {text.submitLabel}
             </button>
           </div>
           <div
@@ -182,7 +211,7 @@ const SimplifyWorkspace = ({
             className={`simplify-feedback${result ? ` is-${result.status}` : ""}`}
             role="status"
           >
-            {invalid ? result.message : FEEDBACK[result?.status] || ""}
+            {feedback}
           </div>
           <div className="simplify-actions">
             <button
