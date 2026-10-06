@@ -30,7 +30,6 @@ const SimplifyWorkspace = ({
   badge = null,
   solvedTitle = "Solved",
   onSolved,
-  onDiscarded,
   actions = null,
   solvedActions = null,
   autoFocus = false,
@@ -70,7 +69,6 @@ const SimplifyWorkspace = ({
     setInput("");
     if (outcome.status === "discarded") {
       setDiscardedCount(discardedCount + 1);
-      if (onDiscarded) onDiscarded();
       return;
     }
     const nextSteps = [...steps, outcome.tex];

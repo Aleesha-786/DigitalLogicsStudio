@@ -1309,7 +1309,6 @@ export default function ProblemsPage() {
             problem={activeProblem}
             onClose={() => setActiveProblem(null)}
             onSolved={() => handleSetProblemSolved(activeProblem, true)}
-            onAttempt={() => handleRecordAttempt(activeProblem)}
           />
         )}
 

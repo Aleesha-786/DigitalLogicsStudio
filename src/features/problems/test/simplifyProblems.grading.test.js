@@ -27,16 +27,14 @@ const literalCount = (node) => {
 
 const renderModal = (problem) => {
   const onSolved = jest.fn();
-  const onAttempt = jest.fn();
   const view = render(
     <SimplifyProblemModal
       problem={problem}
       onClose={jest.fn()}
       onSolved={onSolved}
-      onAttempt={onAttempt}
     />,
   );
-  return { onSolved, onAttempt, ...view };
+  return { onSolved, ...view };
 };
 
 const enterStep = (text) => {
@@ -97,18 +95,17 @@ describe("SimplifyProblemModal — step checking", () => {
   const problem = simplifyProblems.find((p) => p.expression === "A + AB + A'B");
 
   test("keeps an equivalent step without solving the problem", () => {
-    const { onSolved, onAttempt } = renderModal(problem);
+    const { onSolved } = renderModal(problem);
 
     enterStep("A + A'B");
 
     expect(screen.getByText("Step 1")).toBeInTheDocument();
     expect(screen.getByText(/valid step/i)).toBeInTheDocument();
     expect(onSolved).not.toHaveBeenCalled();
-    expect(onAttempt).not.toHaveBeenCalled();
   });
 
-  test("discards a step with a different truth table and counts it as an attempt", () => {
-    const { onSolved, onAttempt } = renderModal(problem);
+  test("discards a step with a different truth table and says where it differs", () => {
+    const { onSolved } = renderModal(problem);
 
     enterStep("AB");
 
@@ -119,12 +116,11 @@ describe("SimplifyProblemModal — step checking", () => {
         /When A = 0, B = 1, the original expression is 1 but this one is 0\./,
       ),
     ).toBeInTheDocument();
-    expect(onAttempt).toHaveBeenCalledTimes(1);
     expect(onSolved).not.toHaveBeenCalled();
   });
 
-  test("reports unreadable input without discarding or counting it", () => {
-    const { onAttempt } = renderModal(problem);
+  test("reports unreadable input without discarding it", () => {
+    renderModal(problem);
 
     enterStep("A + (B");
 
@@ -133,11 +129,10 @@ describe("SimplifyProblemModal — step checking", () => {
     ).toBeInTheDocument();
     expect(screen.queryByText("Discarded")).not.toBeInTheDocument();
     expect(screen.getByLabelText(/your next step/i)).toHaveValue("A + (B");
-    expect(onAttempt).not.toHaveBeenCalled();
   });
 
   test("solves on the simplest form after a full derivation, in any operand order", () => {
-    const { onSolved, onAttempt } = renderModal(problem);
+    const { onSolved } = renderModal(problem);
 
     enterStep("A + A'B");
     enterStep("(A + A')(A + B)");
@@ -146,8 +141,7 @@ describe("SimplifyProblemModal — step checking", () => {
     expect(screen.getByText("Problem solved")).toBeInTheDocument();
     expect(screen.getByText(/reached it in 3 steps/)).toBeInTheDocument();
     expect(screen.queryByLabelText(/your next step/i)).not.toBeInTheDocument();
-    expect(onSolved).toHaveBeenCalledTimes(1);
-    expect(onAttempt).toHaveBeenCalledTimes(1);
+    expect(onSolved).toHaveBeenCalledWith(problem);
   });
 
   test("shows the hint and the expression's truth table on request", () => {
