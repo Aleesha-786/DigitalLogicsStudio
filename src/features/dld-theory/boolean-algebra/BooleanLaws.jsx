@@ -130,12 +130,12 @@ const LawProof = ({ proof }) => (
   </div>
 );
 
-const LawCard = ({ law }) => {
+const LawCard = ({ law, order }) => {
   const [showProof, setShowProof] = useState(false);
 
   if (!law.proof) {
     return (
-      <div className="law-card">
+      <div className="law-card" style={{ order }}>
         <h4 className="law-name">{law.name}</h4>
         <p className="law-example">
           <strong>Example:</strong> {law.example}
@@ -153,6 +153,7 @@ const LawCard = ({ law }) => {
   return (
     <div
       className={`law-card law-card-clickable ${showProof ? "is-open" : ""}`}
+      style={{ order }}
       role="button"
       tabIndex={0}
       aria-expanded={showProof}
@@ -223,9 +224,17 @@ const BooleanLaws = () => {
         <div className="ba-section-header">
           <h2 className="ba-section-title">Fundamental Laws</h2>
         </div>
-        <div className="laws-grid">
-          {laws.map((l) => (
-            <LawCard key={l.name} law={l} />
+        {/* Two independent columns so opening a proof only pushes down the
+            cards beneath it, instead of stretching the whole grid row. */}
+        <div className="laws-columns">
+          {[0, 1].map((column) => (
+            <div key={column} className="laws-column">
+              {laws.map((l, i) =>
+                i % 2 === column ? (
+                  <LawCard key={l.name} law={l} order={i} />
+                ) : null,
+              )}
+            </div>
           ))}
         </div>
       </section>
