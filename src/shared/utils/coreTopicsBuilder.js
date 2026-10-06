@@ -29,5 +29,6 @@ export default function buildCoreTopics(track) {
       text: module.title,
       to: utils.getTopicPath(module.slug),
     })),
+    subtopicAliases: part.subtopicAliases,
   }));
 }
