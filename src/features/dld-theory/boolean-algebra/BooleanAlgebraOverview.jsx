@@ -38,6 +38,114 @@ const InfoCards = () => (
   </div>
 );
 
+const TRUTH_TABLES = [
+  {
+    id: "and",
+    label: "AND",
+    headers: ["A", "B", "A • B"],
+    rows: [
+      [0, 0, 0],
+      [0, 1, 0],
+      [1, 0, 0],
+      [1, 1, 1],
+    ],
+    note: "Output is 1 only when every input is 1.",
+  },
+  {
+    id: "or",
+    label: "OR",
+    headers: ["A", "B", "A + B"],
+    rows: [
+      [0, 0, 0],
+      [0, 1, 1],
+      [1, 0, 1],
+      [1, 1, 1],
+    ],
+    note: "Output is 1 when at least one input is 1.",
+  },
+  {
+    id: "not",
+    label: "NOT",
+    headers: ["A", "A'"],
+    rows: [
+      [0, 1],
+      [1, 0],
+    ],
+    note: "Output is the inverse of the input.",
+  },
+  {
+    id: "xor",
+    label: "XOR",
+    headers: ["A", "B", "A ⊕ B"],
+    rows: [
+      [0, 0, 0],
+      [0, 1, 1],
+      [1, 0, 1],
+      [1, 1, 0],
+    ],
+    note: "Output is 1 only when the inputs are different.",
+  },
+];
+
+const TruthTables = () => {
+  const [selectedId, setSelectedId] = React.useState(null);
+  const selected = TRUTH_TABLES.find((table) => table.id === selectedId);
+
+  return (
+    <div className="interactive-example">
+      <h4>Pick an operator to see its truth table:</h4>
+      <div className="example-buttons">
+        {TRUTH_TABLES.map((table) => (
+          <button
+            key={table.id}
+            type="button"
+            className={`kmap-btn kmap-btn-secondary ba-truth-option ${table.id === selectedId ? "is-active" : ""}`}
+            aria-pressed={table.id === selectedId}
+            onClick={() =>
+              setSelectedId((current) =>
+                current === table.id ? null : table.id,
+              )
+            }
+          >
+            {table.label}
+          </button>
+        ))}
+      </div>
+
+      {selected && (
+        <div className="ba-truth-table">
+          <div className="binary-table-container">
+            <table className="binary-table">
+              <thead className="binary-table-header">
+                <tr>
+                  {selected.headers.map((h) => (
+                    <th key={h}>{h}</th>
+                  ))}
+                </tr>
+              </thead>
+              <tbody>
+                {selected.rows.map((row, i) => (
+                  <tr key={i} className="binary-table-row">
+                    {row.map((c, j) => (
+                      <td
+                        key={j}
+                        className={`binary-table-cell ${j === row.length - 1 && c === 1 ? "is-high" : ""}`}
+                      >
+                        {c}
+                      </td>
+                    ))}
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+          <p className="explanation-intro">{selected.note}</p>
+        </div>
+      )}
+    </div>
+  );
+};
+
 const BooleanAlgebraOverview = () => (
   <BALayout
     title="Boolean Algebra"
@@ -63,6 +171,13 @@ const BooleanAlgebraOverview = () => (
         <h2 className="ba-section-title">What is Boolean Algebra?</h2>
       </div>
       <InfoCards />
+    </section>
+
+    <section className="ba-section">
+      <div className="ba-section-header">
+        <h2 className="ba-section-title">Truth Tables</h2>
+      </div>
+      <TruthTables />
     </section>
 
     <section className="ba-section">

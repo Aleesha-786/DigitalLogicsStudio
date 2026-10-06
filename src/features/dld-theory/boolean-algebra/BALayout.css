@@ -959,6 +959,25 @@
   background: var(--ba-table-row-bg);
 }
 
+/* Truth table picker (Boolean Algebra overview) */
+.ba-layout .ba-truth-option.is-active {
+  background: var(--ba-accent-soft);
+  border-color: var(--ba-accent);
+  color: var(--ba-accent);
+}
+.ba-truth-table {
+  max-width: 420px;
+  margin-top: 0.9rem;
+}
+.ba-layout .ba-truth-table .binary-table-header th,
+.ba-layout .ba-truth-table .binary-table-cell {
+  text-align: center;
+}
+.ba-layout .ba-truth-table .binary-table-cell.is-high {
+  color: var(--ba-accent);
+  font-weight: 700;
+}
+
 /* ── Cards from BooleanAlgebra pages (identity-card, law-card etc.) */
 .ba-layout .identity-grid,
 .ba-layout .laws-grid {
