@@ -1148,10 +1148,22 @@
   border-bottom: 0;
 }
 .ba-layout .law-proof-expr {
-  font-family: "Courier New", monospace;
   font-size: 0.9rem;
-  font-weight: 700;
   color: var(--ba-text);
+}
+.ba-layout .law-proof-table {
+  margin: 0.5rem 0;
+}
+.ba-layout .law-proof-table .binary-table-header th,
+.ba-layout .law-proof-table .binary-table-cell {
+  padding: 0.4rem 0.5rem;
+  text-align: center;
+  white-space: nowrap;
+}
+.ba-layout .law-proof-table .is-compare {
+  background: var(--ba-accent-soft);
+  color: var(--ba-accent);
+  font-weight: 700;
 }
 .ba-layout .law-proof-reason {
   font-size: 0.8rem;

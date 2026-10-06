@@ -1,4 +1,6 @@
 import React, { useState } from "react";
+import katex from "katex";
+import "katex/dist/katex.min.css";
 import BALayout from "./BALayout";
 import CircuitModal from "../../../shared/components/CircuitModal";
 
@@ -42,20 +44,20 @@ const laws = [
       {
         title: "A + AB = A",
         steps: [
-          { expr: "A + AB", reason: "Start" },
-          { expr: "= A·1 + AB", reason: "Identity: A = A·1" },
-          { expr: "= A(1 + B)", reason: "Distributive: factor out A" },
-          { expr: "= A·1", reason: "Domination: 1 + B = 1" },
-          { expr: "= A", reason: "Identity: A·1 = A" },
+          { tex: "A + AB", law: "Start" },
+          { tex: "= A \\cdot 1 + AB", law: "Identity", lawTex: "A = A \\cdot 1" },
+          { tex: "= A(1 + B)", law: "Distributive", lawTex: "XY + XZ = X(Y + Z)" },
+          { tex: "= A \\cdot 1", law: "Domination", lawTex: "1 + B = 1" },
+          { tex: "= A", law: "Identity", lawTex: "A \\cdot 1 = A" },
         ],
       },
       {
         title: "A(A + B) = A",
         steps: [
-          { expr: "A(A + B)", reason: "Start" },
-          { expr: "= AA + AB", reason: "Distributive: multiply out" },
-          { expr: "= A + AB", reason: "Idempotent: AA = A" },
-          { expr: "= A", reason: "First form: A + AB = A" },
+          { tex: "A(A + B)", law: "Start" },
+          { tex: "= AA + AB", law: "Distributive", lawTex: "X(Y + Z) = XY + XZ" },
+          { tex: "= A + AB", law: "Idempotent", lawTex: "AA = A" },
+          { tex: "= A", law: "First form", lawTex: "A + AB = A" },
         ],
       },
     ],
@@ -65,64 +67,127 @@ const laws = [
     example: "(AB)' = A' + B'; (A + B)' = A'B'",
     explanation: "Complement of product equals sum of complements",
     application: "Essential for NAND/NOR gate implementations",
+    // Proved by perfect induction: evaluate both sides for every input
+    // combination and compare the two highlighted columns.
     proof: [
       {
         title: "(AB)' = A' + B'",
-        idea: "X' is the only value with X + X' = 1 and X·X' = 0, so show A' + B' does both for AB.",
-        steps: [
-          { expr: "AB + (A' + B')", reason: "OR them: must equal 1" },
-          {
-            expr: "= (A + A' + B')(B + A' + B')",
-            reason: "Distributive: X + YZ = (X + Y)(X + Z)",
-          },
-          { expr: "= (1 + B')(1 + A')", reason: "Complement: A + A' = 1" },
-          { expr: "= 1·1 = 1", reason: "Domination: 1 + X = 1" },
-          { expr: "AB·(A' + B')", reason: "AND them: must equal 0" },
-          { expr: "= ABA' + ABB'", reason: "Distributive: multiply out" },
-          { expr: "= 0·B + A·0", reason: "Complement: AA' = 0" },
-          { expr: "= 0", reason: "Domination: 0·X = 0" },
+        idea: "Truth-table method: work out both sides for every combination of A and B.",
+        columns: [
+          { tex: "A", value: (a) => a },
+          { tex: "B", value: (a, b) => b },
+          { tex: "AB", value: (a, b) => a & b },
+          { tex: "(AB)'", value: (a, b) => 1 - (a & b), compare: true },
+          { tex: "A'", value: (a) => 1 - a },
+          { tex: "B'", value: (a, b) => 1 - b },
+          { tex: "A' + B'", value: (a, b) => (1 - a) | (1 - b), compare: true },
         ],
-        conclusion: "Both checks pass, so A' + B' is the complement of AB.",
+        conclusion: "The two highlighted columns match in every row, so",
+        conclusionTex: "(AB)' = A' + B'",
       },
       {
         title: "(A + B)' = A'B'",
-        idea: "Same method: show A'B' is the complement of A + B.",
-        steps: [
-          { expr: "(A + B) + A'B'", reason: "OR them: must equal 1" },
-          {
-            expr: "= (A + B + A')(A + B + B')",
-            reason: "Distributive: X + YZ = (X + Y)(X + Z)",
-          },
-          { expr: "= (1 + B)(A + 1)", reason: "Complement: A + A' = 1" },
-          { expr: "= 1·1 = 1", reason: "Domination: 1 + X = 1" },
-          { expr: "(A + B)·A'B'", reason: "AND them: must equal 0" },
-          { expr: "= AA'B' + BA'B'", reason: "Distributive: multiply out" },
-          { expr: "= 0·B' + 0·A'", reason: "Complement: AA' = 0" },
-          { expr: "= 0", reason: "Domination: 0·X = 0" },
+        idea: "Same method for the second form.",
+        columns: [
+          { tex: "A", value: (a) => a },
+          { tex: "B", value: (a, b) => b },
+          { tex: "A + B", value: (a, b) => a | b },
+          { tex: "(A + B)'", value: (a, b) => 1 - (a | b), compare: true },
+          { tex: "A'", value: (a) => 1 - a },
+          { tex: "B'", value: (a, b) => 1 - b },
+          { tex: "A'B'", value: (a, b) => (1 - a) & (1 - b), compare: true },
         ],
-        conclusion: "Both checks pass, so A'B' is the complement of A + B.",
+        conclusion: "The two highlighted columns match in every row, so",
+        conclusionTex: "(A + B)' = A'B'",
       },
     ],
   },
 ];
 
+const INPUT_ROWS = [
+  [0, 0],
+  [0, 1],
+  [1, 0],
+  [1, 1],
+];
+
+const Tex = ({ children }) => (
+  <span
+    className="law-tex"
+    dangerouslySetInnerHTML={{
+      __html: katex.renderToString(children, { throwOnError: false }),
+    }}
+  />
+);
+
 const LawProof = ({ proof }) => (
   <div className="law-proof" onClick={(e) => e.stopPropagation()}>
     {proof.map((part) => (
       <div key={part.title} className="law-proof-part">
-        <h5 className="law-proof-title">Proof: {part.title}</h5>
+        <h5 className="law-proof-title">
+          Proof: <Tex>{part.title}</Tex>
+        </h5>
         {part.idea && <p className="law-proof-note">{part.idea}</p>}
-        <ol className="law-proof-steps">
-          {part.steps.map((step, i) => (
-            <li key={i} className="law-proof-step">
-              <span className="law-proof-expr">{step.expr}</span>
-              <span className="law-proof-reason">{step.reason}</span>
-            </li>
-          ))}
-        </ol>
+        {part.steps && (
+          <ol className="law-proof-steps">
+            {part.steps.map((step, i) => (
+              <li key={i} className="law-proof-step">
+                <span className="law-proof-expr">
+                  <Tex>{step.tex}</Tex>
+                </span>
+                <span className="law-proof-reason">
+                  {step.law}
+                  {step.lawTex && (
+                    <>
+                      : <Tex>{step.lawTex}</Tex>
+                    </>
+                  )}
+                </span>
+              </li>
+            ))}
+          </ol>
+        )}
+        {part.columns && (
+          <div className="binary-table-container law-proof-table">
+            <table className="binary-table">
+              <thead className="binary-table-header">
+                <tr>
+                  {part.columns.map((col) => (
+                    <th
+                      key={col.tex}
+                      className={col.compare ? "is-compare" : ""}
+                    >
+                      <Tex>{col.tex}</Tex>
+                    </th>
+                  ))}
+                </tr>
+              </thead>
+              <tbody>
+                {INPUT_ROWS.map(([a, b]) => (
+                  <tr key={`${a}${b}`} className="binary-table-row">
+                    {part.columns.map((col) => (
+                      <td
+                        key={col.tex}
+                        className={`binary-table-cell ${col.compare ? "is-compare" : ""}`}
+                      >
+                        {col.value(a, b)}
+                      </td>
+                    ))}
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        )}
         {part.conclusion && (
           <p className="law-proof-note">
             <strong>{part.conclusion}</strong>
+            {part.conclusionTex && (
+              <>
+                {" "}
+                <Tex>{part.conclusionTex}</Tex>
+              </>
+            )}
           </p>
         )}
       </div>
