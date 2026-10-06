@@ -252,8 +252,12 @@ body:has(.boolforge-page) {
    — without it, fitToView() and the gate auto-layout in useSheets.addGate
    (both read containerRef.current.clientHeight) can get a wrong, over-tall
    height from the browser defaulting to content-based min-height.
+
+   Keyed off the editor's own root (not .boolforge-main) so the embedded editor
+   inside CircuitModal gets the same shell on every host page — otherwise the
+   legacy 3-column `.container` grid from public/css/styles.css takes over.
    ────────────────────────────────────────────────────────────────────────── */
-.boolforge-main .container.circuit-maker {
+.container.circuit-maker {
   display: flex;
   flex-direction: column;
   height: calc(100vh - 64px);
@@ -316,7 +320,7 @@ body:has(.boolforge-page) {
 }
 
 @media (max-width: 900px) {
-  .boolforge-main .container.circuit-maker {
+  .container.circuit-maker {
     height: calc(100vh - 64px);
     min-height: 480px;
   }
@@ -346,7 +350,7 @@ body:has(.boolforge-page) {
     min-height: 0;
   }
 
-  .boolforge-main .sidebar.sidebar--compact {
+  .circuit-maker .sidebar.sidebar--compact {
     position: fixed;
     top: 0;
     left: 0;
@@ -365,7 +369,7 @@ body:has(.boolforge-page) {
     box-shadow: 10px 0 30px rgba(0, 0, 0, 0.45);
   }
 
-  .boolforge-main .sidebar.sidebar--compact.sidebar--drawer-open {
+  .circuit-maker .sidebar.sidebar--compact.sidebar--drawer-open {
     transform: translateX(0);
   }
 
@@ -404,13 +408,13 @@ body:has(.boolforge-page) {
     grid-template-columns: repeat(3, 1fr) !important;
   }
 
-  .boolforge-main .canvas-container {
+  .circuit-maker .canvas-container {
     height: 100%;
     min-height: 380px;
     width: 100%;
   }
 
-  .boolforge-main .canvas-container canvas {
+  .circuit-maker .canvas-container canvas {
     width: 100% !important;
     height: 100% !important;
   }
@@ -425,7 +429,7 @@ body:has(.boolforge-page) {
     display: none !important;
   }
 
-  .boolforge-main .sidebar.sidebar--compact {
+  .circuit-maker .sidebar.sidebar--compact {
     position: static;
     transform: none;
     box-shadow: none;
@@ -437,11 +441,11 @@ body:has(.boolforge-page) {
     grid-template-rows: 1fr;
   }
 
-  .boolforge-main .canvas-container {
+  .circuit-maker .canvas-container {
     min-height: 320px;
   }
 
-  .boolforge-main .sidebar.sidebar--compact {
+  .circuit-maker .sidebar.sidebar--compact {
     width: 220px;
   }
 
@@ -570,7 +574,10 @@ body:has(.boolforge-page) {
   pointer-events: none;
 }
 
-.sidebar-search input {
+/* Extra specificity so host-page form styles (e.g. `.ba-layout
+   input[type="text"]`) can't restyle the search box when the editor is
+   embedded in a modal on that page. */
+.circuit-maker .sidebar-search input[type="text"] {
   width: 100%;
   box-sizing: border-box;
   padding: 6px 8px 6px 26px;
@@ -583,8 +590,9 @@ body:has(.boolforge-page) {
   outline: none;
 }
 
-.sidebar-search input:focus {
+.circuit-maker .sidebar-search input[type="text"]:focus {
   border-color: var(--accent-secondary, #00d4ff);
+  box-shadow: none;
 }
 
 .sidebar-empty-state {
@@ -756,7 +764,8 @@ body:has(.boolforge-page) {
 }
 
 /* ── Embedded mode (inside CircuitModal) — fill the flex body, not 100vh ── */
-.circuit-modal-canvas .container.circuit-maker {
+.circuit-modal-canvas .container.circuit-maker,
+.circuit-modal-container .container.circuit-maker {
   height: 100% !important;
   min-height: 0 !important;
 }
