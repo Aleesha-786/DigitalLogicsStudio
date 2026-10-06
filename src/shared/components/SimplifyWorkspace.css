@@ -1,0 +1,309 @@
+/* SimplifyWorkspace — a derivation built one checked step at a time: valid
+   steps stay (green), a non-equivalent step is shown struck through in red
+   and never joins the derivation.
+
+   The colors are tokens so each host can match its own palette: override the
+   --sw-* values on `.simplify-workspace` from the host's stylesheet (see
+   BALayout.css and Problems.css). The defaults follow the site's standard
+   dark / light palette. */
+.simplify-workspace {
+  --sw-text: #e5edf8;
+  --sw-muted: #88a0bf;
+  --sw-muted-strong: #c8d5e6;
+  --sw-border: rgba(148, 163, 184, 0.18);
+  --sw-surface: rgba(16, 25, 45, 0.58);
+  --sw-field: rgba(11, 19, 36, 0.8);
+  --sw-accent: #5b8cff;
+  --sw-accent-soft: rgba(91, 140, 255, 0.12);
+  --sw-ok: #4ade80;
+  --sw-ok-soft: rgba(74, 222, 128, 0.1);
+  --sw-ok-border: rgba(74, 222, 128, 0.35);
+  --sw-bad: #f87171;
+  --sw-bad-soft: rgba(248, 113, 113, 0.1);
+  --sw-bad-border: rgba(248, 113, 113, 0.45);
+
+  background: var(--sw-surface);
+  border: 1px solid var(--sw-border);
+  border-radius: 1rem;
+  padding: 1rem 1.1rem;
+  color: var(--sw-text);
+  text-align: left;
+}
+[data-theme="light"] .simplify-workspace {
+  --sw-text: #0f172a;
+  --sw-muted: #64748b;
+  --sw-muted-strong: #334155;
+  --sw-border: rgba(15, 23, 42, 0.12);
+  --sw-surface: rgba(241, 245, 249, 0.88);
+  --sw-field: #ffffff;
+  --sw-accent: #2563eb;
+  --sw-accent-soft: rgba(37, 99, 235, 0.1);
+  --sw-ok: #15803d;
+  --sw-ok-soft: rgba(22, 163, 74, 0.08);
+  --sw-ok-border: rgba(22, 163, 74, 0.3);
+  --sw-bad: #b91c1c;
+  --sw-bad-soft: rgba(220, 38, 38, 0.07);
+  --sw-bad-border: rgba(220, 38, 38, 0.4);
+}
+
+.simplify-workspace .simplify-head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+  margin-bottom: 0.6rem;
+}
+.simplify-workspace .simplify-label,
+.simplify-workspace .simplify-field-label {
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--sw-muted);
+}
+
+/* ── Derivation ─────────────────────────────────────────────── */
+.simplify-workspace .simplify-steps {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+.simplify-workspace .simplify-step {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 0.2rem 0.85rem;
+  margin: 0;
+  padding: 0.6rem 0.75rem;
+  border-left: 3px solid transparent;
+  border-bottom: 1px dashed var(--sw-border);
+  line-height: 1.5;
+}
+.simplify-workspace .simplify-step-tag {
+  flex: 0 0 5.5rem;
+  font-size: 0.7rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--sw-muted);
+}
+.simplify-workspace .simplify-step-expr {
+  flex: 1 1 12rem;
+  min-width: 0;
+  overflow-x: auto;
+  font-size: 1rem;
+  color: var(--sw-text);
+}
+.simplify-workspace .simplify-step.is-given .simplify-step-expr {
+  font-size: 1.12rem;
+}
+.simplify-workspace .simplify-step-note,
+.simplify-workspace .simplify-step-reason {
+  font-size: 0.8rem;
+  font-weight: 600;
+}
+.simplify-workspace .simplify-step.is-valid {
+  border-left-color: var(--sw-ok-border);
+}
+.simplify-workspace .simplify-step.is-valid .simplify-step-note {
+  color: var(--sw-ok);
+}
+.simplify-workspace .simplify-step.is-answer {
+  background: var(--sw-ok-soft);
+  border-left-color: var(--sw-ok);
+}
+.simplify-workspace .simplify-step.is-discarded {
+  background: var(--sw-bad-soft);
+  border-left-color: var(--sw-bad);
+}
+.simplify-workspace .simplify-step.is-discarded .simplify-step-tag,
+.simplify-workspace .simplify-step.is-discarded .simplify-step-expr,
+.simplify-workspace .simplify-step.is-discarded .simplify-step-reason {
+  color: var(--sw-bad);
+}
+/* KaTeX lays glyphs out as inline-blocks, which text-decoration skips — so
+   the strike-through is drawn across the whole expression instead. */
+.simplify-workspace .simplify-struck {
+  position: relative;
+  display: inline-block;
+}
+.simplify-workspace .simplify-struck::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 52%;
+  border-top: 1.5px solid currentColor;
+}
+.simplify-workspace .simplify-step-reason {
+  flex-basis: 100%;
+  padding-left: 6.35rem;
+}
+
+/* ── Text buttons ───────────────────────────────────────────── */
+.simplify-workspace .simplify-link-btn {
+  padding: 0;
+  border: 0;
+  background: none;
+  font: inherit;
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: var(--sw-accent);
+  text-decoration: underline;
+  text-underline-offset: 0.2em;
+  cursor: pointer;
+}
+.simplify-workspace .simplify-link-btn.simplify-retry {
+  color: var(--sw-bad);
+}
+.simplify-workspace .simplify-link-btn:disabled {
+  color: var(--sw-muted);
+  text-decoration: none;
+  cursor: default;
+  opacity: 0.6;
+}
+.simplify-workspace .simplify-link-btn:focus-visible {
+  outline: 2px solid currentColor;
+  outline-offset: 3px;
+  border-radius: 0.2rem;
+}
+
+/* ── Step entry ─────────────────────────────────────────────── */
+.simplify-workspace .simplify-form {
+  display: grid;
+  gap: 0.45rem;
+  margin-top: 1rem;
+}
+.simplify-workspace .simplify-input-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.6rem;
+}
+.simplify-workspace .simplify-input-prefix {
+  font-weight: 700;
+  color: var(--sw-muted-strong);
+  white-space: nowrap;
+}
+/* Three classes deep so a host's own `input[type="text"]` rules don't win. */
+.simplify-workspace .simplify-input-row .simplify-input {
+  flex: 1 1 12rem;
+  width: auto;
+  min-width: 0;
+  padding: 0.75rem 0.9rem;
+  border: 1px solid var(--sw-border);
+  border-radius: 0.8rem;
+  background: var(--sw-field);
+  color: var(--sw-text);
+  font-family: "JetBrains Mono", "Fira Code", Consolas, monospace;
+  font-size: 0.94rem;
+  letter-spacing: 0.02em;
+  transition:
+    border-color 0.16s ease,
+    box-shadow 0.16s ease;
+}
+.simplify-workspace .simplify-input-row .simplify-input::placeholder {
+  color: var(--sw-muted);
+  opacity: 0.75;
+}
+.simplify-workspace .simplify-input-row .simplify-input:focus {
+  outline: none;
+  border-color: var(--sw-accent);
+  box-shadow: 0 0 0 3px var(--sw-accent-soft);
+}
+.simplify-workspace .simplify-input-row .simplify-input.is-invalid,
+.simplify-workspace .simplify-input-row .simplify-input.is-invalid:focus {
+  border-color: var(--sw-bad);
+  box-shadow: 0 0 0 3px var(--sw-bad-soft);
+}
+.simplify-workspace .simplify-check-btn {
+  padding: 0.7rem 1.1rem;
+  border: 1px solid var(--sw-accent);
+  border-radius: 0.8rem;
+  background: var(--sw-accent-soft);
+  color: var(--sw-text);
+  font: inherit;
+  font-size: 0.88rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition:
+    transform 0.16s ease,
+    opacity 0.16s ease;
+}
+.simplify-workspace .simplify-check-btn:hover:not(:disabled) {
+  transform: translateY(-1px);
+}
+.simplify-workspace .simplify-check-btn:focus-visible {
+  outline: 2px solid var(--sw-accent);
+  outline-offset: 2px;
+}
+.simplify-workspace .simplify-check-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+.simplify-workspace .simplify-feedback {
+  min-height: 1.35rem;
+  margin: 0;
+  font-size: 0.85rem;
+  font-weight: 600;
+  line-height: 1.5;
+  color: var(--sw-muted);
+}
+.simplify-workspace .simplify-feedback.is-valid {
+  color: var(--sw-ok);
+}
+.simplify-workspace .simplify-feedback.is-invalid,
+.simplify-workspace .simplify-feedback.is-discarded {
+  color: var(--sw-bad);
+}
+.simplify-workspace .simplify-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem 1.25rem;
+}
+
+/* ── Solved ─────────────────────────────────────────────────── */
+.simplify-workspace .simplify-result {
+  margin-top: 1rem;
+  padding: 1rem 1.1rem;
+  border: 1px solid var(--sw-ok-border);
+  border-radius: 0.9rem;
+  background: var(--sw-ok-soft);
+}
+.simplify-workspace .simplify-result h4 {
+  margin: 0 0 0.35rem;
+  font-size: 1rem;
+  font-weight: 700;
+  letter-spacing: normal;
+  text-transform: none;
+  color: var(--sw-ok);
+}
+.simplify-workspace .simplify-result p {
+  margin: 0;
+  font-size: 0.92rem;
+  line-height: 1.6;
+  color: var(--sw-muted-strong);
+}
+.simplify-workspace .simplify-result p + * {
+  margin-top: 0.85rem;
+}
+
+@media (max-width: 720px) {
+  .simplify-workspace .simplify-step-tag {
+    flex-basis: 100%;
+  }
+  .simplify-workspace .simplify-step-reason {
+    padding-left: 0;
+  }
+  .simplify-workspace .simplify-check-btn {
+    flex: 1 1 100%;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .simplify-workspace .simplify-input-row .simplify-input,
+  .simplify-workspace .simplify-check-btn {
+    transition: none;
+  }
+}

@@ -38,6 +38,7 @@ import { useProblemsCatalog } from "../hooks";
 import {
   ProblemModal,
   CoalProblemModal,
+  SimplifyProblemModal,
   ProblemTableRow,
   SelectedProblemCard,
   SidebarAccordion,
@@ -1301,13 +1302,26 @@ export default function ProblemsPage() {
         />
       )}
 
-      {activeProblem && activeProblem.course !== "coal" && (
-        <ProblemModal
-          problem={activeProblem}
-          onClose={() => setActiveProblem(null)}
-          onSolved={() => handleSetProblemSolved(activeProblem, true)}
-        />
-      )}
+      {activeProblem &&
+        activeProblem.course !== "coal" &&
+        activeProblem.type === "simplify" && (
+          <SimplifyProblemModal
+            problem={activeProblem}
+            onClose={() => setActiveProblem(null)}
+            onSolved={() => handleSetProblemSolved(activeProblem, true)}
+            onAttempt={() => handleRecordAttempt(activeProblem)}
+          />
+        )}
+
+      {activeProblem &&
+        activeProblem.course !== "coal" &&
+        activeProblem.type !== "simplify" && (
+          <ProblemModal
+            problem={activeProblem}
+            onClose={() => setActiveProblem(null)}
+            onSolved={() => handleSetProblemSolved(activeProblem, true)}
+          />
+        )}
 
     </div>
   );

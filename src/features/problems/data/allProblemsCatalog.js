@@ -5,7 +5,8 @@
 // Progress is keyed by raw problem.id (see progressService.js ->
 // state.problems[id]) and is NOT scoped per catalog, so merging is safe as
 // long as ids are never reassigned:
-//   DLD catalog ids:  1-40, 2001-2007 (synthetic)
+//   DLD catalog ids:  1-40, 41-49 (step-by-step simplification),
+//                     2001-2007 (synthetic)
 //   COAL catalog ids: 3001-3015
 // These ranges are currently disjoint. The dev-time check below will warn
 // loudly if a future edit to either catalog ever introduces a collision.

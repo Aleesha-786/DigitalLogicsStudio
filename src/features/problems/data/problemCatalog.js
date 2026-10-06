@@ -1,4 +1,5 @@
 import rawProblems from "./ProblemsData";
+import simplifyProblems from "./simplifyProblemsData";
 
 const syntheticProblems = [
   {
@@ -295,7 +296,11 @@ const enrichProblem = (problem) => {
   };
 };
 
-const baseCatalog = [...rawProblems, ...syntheticProblems].map(enrichProblem);
+const baseCatalog = [
+  ...rawProblems,
+  ...simplifyProblems,
+  ...syntheticProblems,
+].map(enrichProblem);
 
 const uniqueByTitle = [];
 const seenTitles = new Set();
