@@ -525,8 +525,12 @@ export default function ProblemsPage() {
 
   const dailyProblem = React.useMemo(() => {
     if (!problemsCatalog || !problemsCatalog.length) return null;
-    const day = new Date().getDate();
-    return problemsCatalog[day % problemsCatalog.length];
+    // Count of local calendar days, so the pick changes at local midnight and
+    // walks the whole catalog instead of repeating every month.
+    const now = new Date();
+    const dayNumber =
+      Date.UTC(now.getFullYear(), now.getMonth(), now.getDate()) / 86400000;
+    return problemsCatalog[dayNumber % problemsCatalog.length];
   }, [problemsCatalog]);
 
   const handleSolveDaily = React.useCallback(() => {
