@@ -244,7 +244,6 @@
 }
 .simplify-workspace .simplify-feedback {
   min-height: 1.35rem;
-  margin: 0;
   font-size: 0.85rem;
   font-weight: 600;
   line-height: 1.5;
@@ -271,21 +270,18 @@
   border-radius: 0.9rem;
   background: var(--sw-ok-soft);
 }
-.simplify-workspace .simplify-result h4 {
-  margin: 0 0 0.35rem;
+.simplify-workspace .simplify-result-title {
+  margin-bottom: 0.35rem;
   font-size: 1rem;
   font-weight: 700;
-  letter-spacing: normal;
-  text-transform: none;
   color: var(--sw-ok);
 }
-.simplify-workspace .simplify-result p {
-  margin: 0;
+.simplify-workspace .simplify-result-text {
   font-size: 0.92rem;
   line-height: 1.6;
   color: var(--sw-muted-strong);
 }
-.simplify-workspace .simplify-result p + * {
+.simplify-workspace .simplify-result-text + * {
   margin-top: 0.85rem;
 }
 

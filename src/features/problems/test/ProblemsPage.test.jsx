@@ -58,6 +58,27 @@ test("renders the local problems catalog without calling the backend", async () 
   expect(fetchProblems).not.toHaveBeenCalled();
 });
 
+test("opens a simplification problem in the step-by-step modal and marks it solved", async () => {
+  renderProblemsPage();
+
+  const rows = await screen.findAllByRole("row");
+  const row = rows.find((r) =>
+    within(r).queryByText("Simplify: Redundant Literal"),
+  );
+  expect(row).toBeTruthy();
+
+  fireEvent.click(row);
+
+  const stepInput = await screen.findByLabelText(/your next step/i);
+  expect(screen.queryByText(/open circuit builder/i)).not.toBeInTheDocument();
+
+  fireEvent.change(stepInput, { target: { value: "A + B" } });
+  fireEvent.click(screen.getByRole("button", { name: /check step/i }));
+
+  expect(await screen.findByText("Problem solved")).toBeInTheDocument();
+  expect(await within(row).findByText("Solved")).toBeInTheDocument();
+});
+
 test("marks a problem as attempted when its row is opened", async () => {
   renderProblemsPage();
 
