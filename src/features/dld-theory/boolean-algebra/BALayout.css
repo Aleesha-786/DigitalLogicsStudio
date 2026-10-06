@@ -1062,6 +1062,76 @@
   line-height: 1.6;
 }
 
+/* Law cards with a click-to-reveal proof (Boolean Laws) */
+.ba-layout .law-card-clickable {
+  cursor: pointer;
+  transition:
+    border-color 0.16s ease,
+    box-shadow 0.16s ease;
+}
+.ba-layout .law-card-clickable:hover,
+.ba-layout .law-card-clickable:focus-visible,
+.ba-layout .law-card-clickable.is-open {
+  border-color: var(--ba-accent);
+}
+.ba-layout .law-card-clickable:focus-visible {
+  outline: none;
+  box-shadow: 0 0 0 3px var(--ba-accent-soft);
+}
+.ba-layout .law-proof-hint {
+  margin: 0.5rem 0 0;
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: var(--ba-accent);
+}
+.ba-layout .law-proof {
+  margin-top: 0.75rem;
+  padding-top: 0.75rem;
+  border-top: 1px solid var(--ba-border);
+  cursor: auto;
+}
+.ba-layout .law-proof-part + .law-proof-part {
+  margin-top: 1rem;
+}
+.ba-layout .law-proof-title {
+  margin: 0 0 0.35rem;
+  font-size: 0.9rem;
+  font-weight: 700;
+  color: var(--ba-text);
+}
+.ba-layout .law-proof-note {
+  margin: 0.35rem 0;
+  font-size: 0.84rem;
+  line-height: 1.6;
+  color: var(--ba-muted);
+}
+.ba-layout .law-proof-steps {
+  list-style: none;
+  margin: 0.4rem 0;
+  padding: 0;
+}
+.ba-layout .law-proof-step {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  gap: 0.15rem 1rem;
+  padding: 0.35rem 0;
+  border-bottom: 1px dashed var(--ba-border);
+}
+.ba-layout .law-proof-step:last-child {
+  border-bottom: 0;
+}
+.ba-layout .law-proof-expr {
+  font-family: "Courier New", monospace;
+  font-size: 0.9rem;
+  font-weight: 700;
+  color: var(--ba-text);
+}
+.ba-layout .law-proof-reason {
+  font-size: 0.8rem;
+  color: var(--ba-muted);
+}
+
 /* Minterm / Maxterm page specifics */
 .ba-layout .minterm-grid,
 .ba-layout .maxterm-grid {

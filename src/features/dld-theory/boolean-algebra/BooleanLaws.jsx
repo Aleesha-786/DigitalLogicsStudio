@@ -38,14 +38,148 @@ const laws = [
     example: "A + AB = A; A(A + B) = A",
     explanation: "A absorbs redundant combinations",
     application: "Powerful for reducing term count",
+    proof: [
+      {
+        title: "A + AB = A",
+        steps: [
+          { expr: "A + AB", reason: "Start" },
+          { expr: "= A·1 + AB", reason: "Identity: A = A·1" },
+          { expr: "= A(1 + B)", reason: "Distributive: factor out A" },
+          { expr: "= A·1", reason: "Domination: 1 + B = 1" },
+          { expr: "= A", reason: "Identity: A·1 = A" },
+        ],
+      },
+      {
+        title: "A(A + B) = A",
+        steps: [
+          { expr: "A(A + B)", reason: "Start" },
+          { expr: "= AA + AB", reason: "Distributive: multiply out" },
+          { expr: "= A + AB", reason: "Idempotent: AA = A" },
+          { expr: "= A", reason: "First form: A + AB = A" },
+        ],
+      },
+    ],
   },
   {
     name: "De Morgan",
     example: "(AB)' = A' + B'; (A + B)' = A'B'",
     explanation: "Complement of product equals sum of complements",
     application: "Essential for NAND/NOR gate implementations",
+    proof: [
+      {
+        title: "(AB)' = A' + B'",
+        idea: "X' is the only value with X + X' = 1 and X·X' = 0, so show A' + B' does both for AB.",
+        steps: [
+          { expr: "AB + (A' + B')", reason: "OR them: must equal 1" },
+          {
+            expr: "= (A + A' + B')(B + A' + B')",
+            reason: "Distributive: X + YZ = (X + Y)(X + Z)",
+          },
+          { expr: "= (1 + B')(1 + A')", reason: "Complement: A + A' = 1" },
+          { expr: "= 1·1 = 1", reason: "Domination: 1 + X = 1" },
+          { expr: "AB·(A' + B')", reason: "AND them: must equal 0" },
+          { expr: "= ABA' + ABB'", reason: "Distributive: multiply out" },
+          { expr: "= 0·B + A·0", reason: "Complement: AA' = 0" },
+          { expr: "= 0", reason: "Domination: 0·X = 0" },
+        ],
+        conclusion: "Both checks pass, so A' + B' is the complement of AB.",
+      },
+      {
+        title: "(A + B)' = A'B'",
+        idea: "Same method: show A'B' is the complement of A + B.",
+        steps: [
+          { expr: "(A + B) + A'B'", reason: "OR them: must equal 1" },
+          {
+            expr: "= (A + B + A')(A + B + B')",
+            reason: "Distributive: X + YZ = (X + Y)(X + Z)",
+          },
+          { expr: "= (1 + B)(A + 1)", reason: "Complement: A + A' = 1" },
+          { expr: "= 1·1 = 1", reason: "Domination: 1 + X = 1" },
+          { expr: "(A + B)·A'B'", reason: "AND them: must equal 0" },
+          { expr: "= AA'B' + BA'B'", reason: "Distributive: multiply out" },
+          { expr: "= 0·B' + 0·A'", reason: "Complement: AA' = 0" },
+          { expr: "= 0", reason: "Domination: 0·X = 0" },
+        ],
+        conclusion: "Both checks pass, so A'B' is the complement of A + B.",
+      },
+    ],
   },
 ];
+
+const LawProof = ({ proof }) => (
+  <div className="law-proof" onClick={(e) => e.stopPropagation()}>
+    {proof.map((part) => (
+      <div key={part.title} className="law-proof-part">
+        <h5 className="law-proof-title">Proof: {part.title}</h5>
+        {part.idea && <p className="law-proof-note">{part.idea}</p>}
+        <ol className="law-proof-steps">
+          {part.steps.map((step, i) => (
+            <li key={i} className="law-proof-step">
+              <span className="law-proof-expr">{step.expr}</span>
+              <span className="law-proof-reason">{step.reason}</span>
+            </li>
+          ))}
+        </ol>
+        {part.conclusion && (
+          <p className="law-proof-note">
+            <strong>{part.conclusion}</strong>
+          </p>
+        )}
+      </div>
+    ))}
+  </div>
+);
+
+const LawCard = ({ law }) => {
+  const [showProof, setShowProof] = useState(false);
+
+  if (!law.proof) {
+    return (
+      <div className="law-card">
+        <h4 className="law-name">{law.name}</h4>
+        <p className="law-example">
+          <strong>Example:</strong> {law.example}
+        </p>
+        <p className="law-explanation">{law.explanation}</p>
+        <p className="law-application">
+          <strong>Application:</strong> {law.application}
+        </p>
+      </div>
+    );
+  }
+
+  const toggle = () => setShowProof((v) => !v);
+
+  return (
+    <div
+      className={`law-card law-card-clickable ${showProof ? "is-open" : ""}`}
+      role="button"
+      tabIndex={0}
+      aria-expanded={showProof}
+      onClick={toggle}
+      onKeyDown={(e) => {
+        if (e.target !== e.currentTarget) return;
+        if (e.key === "Enter" || e.key === " ") {
+          e.preventDefault();
+          toggle();
+        }
+      }}
+    >
+      <h4 className="law-name">{law.name}</h4>
+      <p className="law-example">
+        <strong>Example:</strong> {law.example}
+      </p>
+      <p className="law-explanation">{law.explanation}</p>
+      <p className="law-application">
+        <strong>Application:</strong> {law.application}
+      </p>
+      <p className="law-proof-hint">
+        {showProof ? "Click to hide proof" : "Click to see the proof"}
+      </p>
+      {showProof && <LawProof proof={law.proof} />}
+    </div>
+  );
+};
 
 const BooleanLaws = () => {
   const [open, setOpen] = useState(false);
@@ -91,16 +225,7 @@ const BooleanLaws = () => {
         </div>
         <div className="laws-grid">
           {laws.map((l) => (
-            <div key={l.name} className="law-card">
-              <h4 className="law-name">{l.name}</h4>
-              <p className="law-example">
-                <strong>Example:</strong> {l.example}
-              </p>
-              <p className="law-explanation">{l.explanation}</p>
-              <p className="law-application">
-                <strong>Application:</strong> {l.application}
-              </p>
-            </div>
+            <LawCard key={l.name} law={l} />
           ))}
         </div>
       </section>
