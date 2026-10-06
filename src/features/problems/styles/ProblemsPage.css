@@ -1362,6 +1362,12 @@
   gap: 1rem;
 }
 
+/* The rail scrolls, so widgets must keep their natural height. Without this,
+   any widget with overflow: hidden (e.g. the daily challenge) collapses. */
+.problems-right-rail > * {
+  flex-shrink: 0;
+}
+
 .problems-widget {
   padding: 1rem;
 }
