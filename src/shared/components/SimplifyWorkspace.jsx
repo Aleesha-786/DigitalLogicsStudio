@@ -71,11 +71,8 @@ const SimplifyWorkspace = ({
       setDiscardedCount(discardedCount + 1);
       return;
     }
-    const nextSteps = [...steps, outcome.tex];
-    setSteps(nextSteps);
-    if (outcome.status === "solved" && onSolved) {
-      onSolved({ steps: nextSteps.length, discarded: discardedCount });
-    }
+    setSteps([...steps, outcome.tex]);
+    if (outcome.status === "solved" && onSolved) onSolved();
   };
 
   const retryDiscarded = () => {
