@@ -1,5 +1,5 @@
 import React, { useMemo, useState } from "react";
-import "./AddressingModePlayground.css";
+import "../styles/AddressingModePlayground.css";
 
 /* ── Data: all 8 addressing modes ── */
 const MODES = [

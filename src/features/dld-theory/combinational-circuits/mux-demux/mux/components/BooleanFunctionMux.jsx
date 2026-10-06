@@ -44,7 +44,7 @@ const BooleanFunctionMux = () => {
             <thead>
               <tr>
                 {["A (S1)", "B (S0)", "D input", "Output F"].map((h, i) => (
-                  <th key={i} style={{ padding: "9px 10px", background: "rgba(15,23,42,0.9)", color: i < 2 ? COLORS.warn : i === 2 ? COLORS.blue : COLORS.high, textAlign: "center", borderBottom: "2px solid rgba(99,102,241,0.3)", fontSize: "0.75rem" }}>
+                  <th key={i} style={{ padding: "9px 10px", background: COLORS.darkBg, color: i < 2 ? COLORS.warn : i === 2 ? COLORS.blue : COLORS.high, textAlign: "center", borderBottom: "2px solid rgba(99,102,241,0.3)", fontSize: "0.75rem" }}>
                     {h}
                   </th>
                 ))}
@@ -52,7 +52,7 @@ const BooleanFunctionMux = () => {
             </thead>
             <tbody>
               {ROWS.map(({ a, b, label }, i) => (
-                <tr key={i} style={{ background: i % 2 === 0 ? "rgba(15,23,42,0.4)" : "transparent" }}>
+                <tr key={i} style={{ background: i % 2 === 0 ? COLORS.darkBg : "transparent" }}>
                   <td style={{ padding: "9px 10px", textAlign: "center", color: COLORS.warn }}>{a}</td>
                   <td style={{ padding: "9px 10px", textAlign: "center", color: COLORS.warn }}>{b}</td>
                   <td style={{ padding: "9px 10px", textAlign: "center", color: COLORS.blue, fontSize: "0.8rem" }}>{label}</td>

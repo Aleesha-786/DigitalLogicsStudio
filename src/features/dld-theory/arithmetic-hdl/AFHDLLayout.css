@@ -1202,4 +1202,12 @@
     width: 100%;
   }
 }
+/* ── Light theme: darken hardcoded indigo accent (was unthemed) ── */
+[data-theme="light"] .afhdl-category-pill {
+  color: #4f46e5;
+}
+[data-theme="light"] .afhdl-pill-dot {
+  background: #4f46e5;
+}
+
 

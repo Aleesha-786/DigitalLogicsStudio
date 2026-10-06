@@ -183,8 +183,8 @@ const homeData = [
     section: "resources",
     sortOrder: 1,
     links: [
-      { text: "DLD Resources", to: "/resources/dld" },
-      { text: "COAL Resources", to: "/resources/coal" },
+      { text: "DLD Resources", to: "/dld" },
+      { text: "COAL Resources", to: "/coal" },
       { text: "Timing Diagrams", to: "/timing-diagrams" },
     ],
   },

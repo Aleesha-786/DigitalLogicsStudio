@@ -10,7 +10,7 @@ import {
   isCoalPartSidebarActive,
   isCoalPartSidebarDone,
 } from "../../shared/utils/coalCourseUtils";
-import "./CoalLayout.css";
+import "./styles/CoalLayout.css";
 
 const coalTopicPages = buildCoalTopicPages();
 const coalPartSidebarPages = buildCoalPartSidebarPages();
@@ -46,7 +46,7 @@ function CoalLayout({
         heroKicker="Computer Organization & Assembly"
         progressVerb="explored"
         rootClassName="coal-layout"
-        sidebarFooterLink="/resources/coal"
+        sidebarFooterLink="/coal"
         sidebarFooterLabel="← COAL home"
         tracking={{
           topic: COAL_TOPIC,

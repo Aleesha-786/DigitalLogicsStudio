@@ -212,7 +212,7 @@ const Quiz = ({ questions, feedbackText }) => {
         {q.opts.map((opt, i) => {
           // Compute styles based on whether this is the correct / selected option
           let border = "rgba(148,163,184,0.2)";
-          let bg = "rgba(15,23,42,0.6)";
+         let bg = COLORS.darkBg;
           let color = COLORS.textSecondary;
 
           if (sel !== null) {

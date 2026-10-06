@@ -1,5 +1,5 @@
 import { validateCircuit } from "./circuitProblemValidator";
-import problemsData from "../../features/problems/ProblemsData";
+import problemsData from "../../features/problems/data/ProblemsData";
 
 const halfAdderProblem = {
   inputs: ["A", "B"],

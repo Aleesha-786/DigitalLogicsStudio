@@ -1,4 +1,4 @@
-import { coalCourseParts } from "../../shared/data/coalCourseOutline";
+import { coalCourseParts } from "../../shared/data/coalCourseOutline.mjs";
 import { getCoalTopicPath } from "../../shared/utils/coalCourseUtils";
 
 const PART_ACCENTS = ["violet", "cyan", "amber", "blue", "emerald", "rose", "indigo"];

@@ -15,6 +15,7 @@ html[data-theme='dark'],
   --card-border: rgba(148, 163, 184, 0.2);
   --border-color: rgba(148, 163, 184, 0.1);
   --secondary-text: #94a3b8;
+  --indigo-accent-text: #a5b4fc;
   --accent-color: #3b82f6;
   --nav-bg: rgba(2, 6, 23, 0.8);
   --brand-gradient: linear-gradient(to right, #ffffff, #94a3b8);
@@ -55,6 +56,7 @@ html[data-theme='dark'],
   --card-border-width: 1px;
   --border-color: rgba(59, 130, 246, 0.16);
   --secondary-text: #334155;
+  --indigo-accent-text: #4338ca;
   --accent-color: #2563eb;
   --nav-bg: rgba(248, 250, 255, 0.88);
   --brand-gradient: linear-gradient(to right, #0f172a, #334155);

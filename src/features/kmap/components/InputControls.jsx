@@ -1,47 +1,84 @@
-import '../../../shared/styles/KMapGenerator.css';
-import React from 'react';
-import {
-    Cpu, 
-    FileCode, 
-    RotateCcw, 
-} from 'lucide-react';
+import '../KMapGenerator.css';
+import React, { memo, useState } from 'react';
+import { Cpu, FileCode, RotateCcw } from 'lucide-react';
 
-export const InputControls = ({
-    numVariables,
-    variables,
-    inputValue,
-    dontCares,
-    optimizationType,
-    onVariablesChange,
-    onVariablesUpdate,
-    onInputValueChange,
-    onDontCaresChange,
-    onOptimizationTypeChange,
+export const InputControls = memo(({
+    initialConfig,
+    isPending = false,
     onGenerate,
     onExample,
     onReset,
 }) => {
+    const [numVariables, setNumVariables] = useState(initialConfig?.numVariables || 3);
+    const [variables, setVariables] = useState(initialConfig?.variables || ['A', 'B', 'C']);
+    const [inputValue, setInputValue] = useState(initialConfig?.inputValue || '');
+    const [dontCares, setDontCares] = useState(initialConfig?.dontCares || '');
+    const [optimizationType, setOptimizationType] = useState(initialConfig?.optimizationType || 'SOP');
+
+    const handleNumVariablesChange = (value) => {
+        const num = parseInt(value, 10);
+        setNumVariables(num);
+        const defaultVars = ['A', 'B', 'C', 'D'];
+        setVariables(defaultVars.slice(0, num));
+    };
+
     const handleVariableNameChange = (index, value) => {
-    const newVars = [...variables];
-    newVars[index] = value.toUpperCase().charAt(0) || '';
-    onVariablesUpdate(newVars);
-};
+        const newVars = [...variables];
+        newVars[index] = value.toUpperCase().charAt(0) || '';
+        setVariables(newVars);
+    };
 
-const maxTermValue = Math.pow(2, numVariables) - 1;
+    const maxTermValue = Math.pow(2, numVariables) - 1;
 
-const sanitizeTermInput = (value) => {
-    return value
-        .split(',')
-        .map((token) => {
-            const trimmed = token.trim();
-            if (trimmed === '') return trimmed;
-            const num = parseInt(trimmed, 10);
-            if (isNaN(num) || num < 0 || num > maxTermValue) return null;
-            return trimmed;
-        })
-        .filter((token) => token !== null)
-        .join(',');
-};
+    const sanitizeTermInput = (value) => {
+        let cleaned = value.replace(/,+/g, ',').replace(/^,/, '');
+        const hasTrailingComma = cleaned.endsWith(',');
+        const validTokens = cleaned
+            .split(',')
+            .map((token) => token.trim())
+            .filter((token) => {
+                if (token === '') return false;
+                const num = parseInt(token, 10);
+                return !isNaN(num) && num >= 0 && num <= maxTermValue;
+            });
+        return validTokens.join(',') + (hasTrailingComma && validTokens.length > 0 ? ',' : '');
+    };
+
+    const handleLocalGenerate = () => {
+        onGenerate({ numVariables, variables, inputValue, dontCares, optimizationType });
+    };
+
+    const handleLocalExample = () => {
+        let exampleInput, exampleDontCares;
+        if (numVariables === 3) {
+            exampleInput = '0,1,2,5,6,7';
+            exampleDontCares = '3,4';
+        } else if (numVariables === 4) {
+            exampleInput = '0,1,2,5,6,7,8,9,10,14';
+            exampleDontCares = '3,11,12,13,15';
+        } else {
+            exampleInput = '0,2,3';
+            exampleDontCares = '1';
+        }
+        
+        setInputValue(exampleInput);
+        setDontCares(exampleDontCares);
+        
+        onExample({
+            numVariables,
+            variables,
+            inputValue: exampleInput,
+            dontCares: exampleDontCares,
+            optimizationType
+        });
+    };
+
+    const handleLocalReset = () => {
+        setInputValue('');
+        setDontCares('');
+        onReset();
+    };
+
     const isSOP = optimizationType === "SOP";
     const termLabel = isSOP ? "Minterms" : "Maxterms";
     const examplePlaceholder = isSOP ? "e.g., 0,1,2,5,6,7" : "e.g., 3,4,8,11";
@@ -56,7 +93,7 @@ const sanitizeTermInput = (value) => {
                     <select
                         className="kmap-input"
                         value={numVariables}
-                        onChange={(e) => onVariablesChange(e.target.value)}
+                        onChange={(e) => handleNumVariablesChange(e.target.value)}
                     >
                         <option value="2">2 Variables</option>
                         <option value="3">3 Variables</option>
@@ -71,7 +108,7 @@ const sanitizeTermInput = (value) => {
                     <select
                         className="kmap-input"
                         value={optimizationType}
-                        onChange={(e) => onOptimizationTypeChange(e.target.value)}
+                        onChange={(e) => setOptimizationType(e.target.value)}
                     >
                         <option value="SOP">Sum of Products (SOP)</option>
                         <option value="POS">Product of Sums (POS)</option>
@@ -99,14 +136,14 @@ const sanitizeTermInput = (value) => {
                         {termLabel}
                     </label>
                     <input
-                         type="text"
-                         className="kmap-input"
-                         value={inputValue}
-                          onChange={(e) => onInputValueChange(sanitizeTermInput(e.target.value))}
+                        type="text"
+                        className="kmap-input"
+                        value={inputValue}
+                        onChange={(e) => setInputValue(sanitizeTermInput(e.target.value))}
                         placeholder={examplePlaceholder}
                     />
                     <p className="kmap-helper-text">
-                        Decimal numbers 0–{Math.pow(2, numVariables) - 1}
+                        Decimal numbers 0–{maxTermValue}
                     </p>
                 </div>
 
@@ -118,39 +155,42 @@ const sanitizeTermInput = (value) => {
                         type="text"
                         className="kmap-input"
                         value={dontCares}
-                        onChange={(e) => onDontCaresChange(sanitizeTermInput(e.target.value))}
-                    placeholder="e.g., 3,4,12"
-                />
+                        onChange={(e) => setDontCares(sanitizeTermInput(e.target.value))}
+                        placeholder="e.g., 3,4,12"
+                    />
                 </div>
 
                 {/* Core Action Button Row */}
                 <div className="kmap-btn-row">
                     <button
-                    className="kmap-btn kmap-btn-primary"
-                    onClick={onGenerate}
-                    title="Solve the KMap"
+                        className="kmap-btn kmap-btn-primary"
+                        onClick={handleLocalGenerate}
+                        disabled={isPending}
+                        title="Solve the KMap"
                     >
-                    <Cpu className="h-5 w-5" /> 
-                    GENERATE
+                        <Cpu className="h-5 w-5" /> 
+                        {isPending ? 'GENERATING...' : 'GENERATE'}
                     </button>
                     <button
-                    className="kmap-btn kmap-btn-secondary"
-                    onClick={onExample}
-                    title="Load a prefilled example"
+                        className="kmap-btn kmap-btn-secondary"
+                        onClick={handleLocalExample}
+                        disabled={isPending}
+                        title="Load a prefilled example"
                     >
-                    <FileCode className="h-5 w-5" /> 
-                    EXAMPLE
+                        <FileCode className="h-5 w-5" /> 
+                        EXAMPLE
                     </button>
                     <button
-                    className="kmap-btn kmap-btn-outline"
-                    onClick={onReset}
-                    title="Clear all inputs"
+                        className="kmap-btn kmap-btn-outline"
+                        onClick={handleLocalReset}
+                        disabled={isPending}
+                        title="Clear all inputs"
                     >
-                    <RotateCcw className="h-5 w-5" /> 
-                    RESET
+                        <RotateCcw className="h-5 w-5" /> 
+                        RESET
                     </button>
                 </div>
             </div>
         </div>
     );
-};
+});

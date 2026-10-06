@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import { useTheme } from "../../../shared/context/ThemeContext";
 import { 
   Target, 
   SearchCode, 
@@ -81,6 +82,9 @@ const analysisSteps = [
 
 const SeqAnalysis = () => {
   const [currentStep, setCurrentStep] = useState(0);
+
+  const { theme } = useTheme();
+const axisLabelColor = theme === "light" ? "#475569" : "#94a3b8";
 
   const goToPrevious = () => {
     setCurrentStep((prev) => (prev === 0 ? analysisSteps.length - 1 : prev - 1));
@@ -319,7 +323,7 @@ const SeqAnalysis = () => {
           style={{ fontFamily: "'JetBrains Mono',monospace" }}
         >
           {/* CLK */}
-          <text x="10" y="42" fontSize="11" fill="#94a3b8" fontWeight="600">
+          <text x="10" y="42" fontSize="11" fill={axisLabelColor} fontWeight="600">
             CLK
           </text>
           <polyline
@@ -329,7 +333,7 @@ const SeqAnalysis = () => {
             strokeWidth="2.5"
           />
           {/* Q0 */}
-          <text x="10" y="105" fontSize="11" fill="#94a3b8" fontWeight="600">
+          <text x="10" y="105" fontSize="11" fill={axisLabelColor} fontWeight="600">
             Q₀
           </text>
           <polyline
@@ -339,7 +343,7 @@ const SeqAnalysis = () => {
             strokeWidth="2.5"
           />
           {/* Q1 */}
-          <text x="10" y="165" fontSize="11" fill="#94a3b8" fontWeight="600">
+          <text x="10" y="165" fontSize="11" fill={axisLabelColor} fontWeight="600">
             Q₁
           </text>
           <polyline

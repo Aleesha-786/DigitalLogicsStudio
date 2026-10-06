@@ -61,7 +61,7 @@ const PriorityConflictSim = () => {
                 border: `2px solid ${isActive ? (isWinner ? COLORS.high : "#f97316") : "rgba(99,102,241,0.25)"}`,
                 background: isActive
                   ? isWinner ? "rgba(0,255,136,0.15)" : "rgba(249,115,22,0.15)"
-                  : "rgba(15,23,42,0.6)",
+                 : COLORS.darkBg,
                 color: isActive ? (isWinner ? COLORS.high : "#f97316") : COLORS.textDim,
                 fontFamily: "monospace",
                 fontWeight: "700",

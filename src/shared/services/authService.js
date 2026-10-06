@@ -49,6 +49,14 @@ const authService = {
     return data;
   },
 
+  // NEW — updates display name and/or avatar. `updates` is passed straight
+  // through as the request body: { name?, avatarDataUrl? }. Backend:
+  // PATCH /api/auth/profile (see DigitalLogicsStudio-Backend/src/routes/authRoutes.js).
+  updateProfile: async (updates = {}) => {
+    const { data } = await apiClient.patch("/auth/profile", updates);
+    return data;
+  },
+
   changePassword: async ({ currentPassword, newPassword }) => {
     const { data } = await apiClient.post("/auth/change-password", {
       currentPassword,

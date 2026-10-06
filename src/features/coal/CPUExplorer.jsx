@@ -16,7 +16,7 @@ import {
   StepForward,
   Waypoints,
 } from "lucide-react";
-import "./CPUExplorer.css";
+import "./styles/CPUExplorer.css";
 
 /* ────────────────────────────────────────────────────────────────────────
    Static reference data

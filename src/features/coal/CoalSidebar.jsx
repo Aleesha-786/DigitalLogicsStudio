@@ -9,7 +9,7 @@ import {
   COAL_THEORY_OVERVIEW_PATH,
   getCoalPartForPath,
 } from "../../shared/utils/coalCourseUtils";
-import "./CoalSidebar.css";
+import "./styles/CoalSidebar.css";
 
 const COAL_TOPIC = {
   id: "coal-theory",
@@ -172,7 +172,7 @@ function CoalSidebar() {
         </div>
 
         <div className="coal-folder-sidebar-footer">
-          <Link to="/resources/coal" className="coal-folder-sidebar-home-btn">
+          <Link to="/coal" className="coal-folder-sidebar-home-btn">
             ← COAL home
           </Link>
         </div>

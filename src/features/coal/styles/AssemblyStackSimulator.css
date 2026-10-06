@@ -1,0 +1,254 @@
+.assembly-simulator {
+  margin-top: 1.5rem;
+  border-radius: 1.25rem;
+  border: 1px solid #e2e8f0;
+  background: linear-gradient(135deg, #ffffff, #f8fafc);
+  padding: 1.25rem;
+  box-shadow: 0 10px 30px -15px rgba(15, 23, 42, 0.08);
+}
+
+.assembly-simulator__header {
+  margin-bottom: 1rem;
+}
+
+.assembly-simulator__badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  margin-bottom: 0.55rem;
+  padding: 0.35rem 0.7rem;
+  border-radius: 999px;
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  background: #f1f5f9;
+  color: #6366f1;
+}
+
+.assembly-simulator__title {
+  margin: 0;
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: #0f172a;
+}
+
+.assembly-simulator__description {
+  margin: 0.45rem 0 0;
+  max-width: 48rem;
+  line-height: 1.55;
+  color: #475569;
+}
+
+.assembly-simulator__panel {
+  margin-bottom: 1rem;
+  border-radius: 1rem;
+  border: 1px solid #e2e8f0;
+  background: #f8fafc;
+  padding: 1rem;
+}
+
+.assembly-simulator__controls {
+  display: grid;
+  gap: 0.85rem;
+  grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+  align-items: end;
+}
+
+.assembly-simulator__field {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+  font-size: 0.84rem;
+  font-weight: 600;
+  color: #334155;
+}
+
+.assembly-simulator__field span {
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  font-size: 0.72rem;
+  color: #64748b;
+}
+
+.assembly-simulator__field select,
+.assembly-simulator__field input {
+  width: 100%;
+  padding: 0.7rem 0.8rem;
+  border: 1px solid #cbd5e1;
+  border-radius: 0.75rem;
+  background: #ffffff;
+  color: #0f172a;
+  font-size: 0.95rem;
+}
+
+.assembly-simulator__field select:focus,
+.assembly-simulator__field input:focus {
+  outline: 2px solid #6366f1;
+  border-color: transparent;
+}
+
+.assembly-simulator__field--disabled {
+  opacity: 0.5;
+  background-color: #f1f5f9;
+}
+
+.assembly-simulator__button {
+  border: none;
+  border-radius: 0.8rem;
+  padding: 0.78rem 1rem;
+  background: linear-gradient(135deg, #7c3aed, #2563eb);
+  color: #ffffff;
+  font-weight: 700;
+  cursor: pointer;
+  transition: transform 0.16s ease, box-shadow 0.16s ease;
+  box-shadow: 0 6px 16px -6px rgba(37, 99, 235, 0.4);
+}
+
+.assembly-simulator__button:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 10px 20px -6px rgba(37, 99, 235, 0.5);
+}
+
+.assembly-simulator__error {
+  margin: 0.8rem 0 0;
+  color: #dc2626;
+  font-weight: 600;
+}
+
+.assembly-simulator__grid {
+  display: grid;
+  gap: 1rem;
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+}
+
+.assembly-simulator__section {
+  border-radius: 1rem;
+  border: 1px solid #e2e8f0;
+  background: #ffffff;
+  padding: 1rem;
+}
+
+.assembly-simulator__section--log {
+  margin-top: 1rem;
+}
+
+.assembly-simulator__section-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 0.5rem;
+  margin-bottom: 0.8rem;
+}
+
+.assembly-simulator__section-header h4 {
+  margin: 0;
+  color: #0f172a;
+  font-size: 1rem;
+}
+
+.assembly-simulator__section-header span {
+  font-size: 0.75rem;
+  color: #64748b;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+}
+
+.assembly-simulator__registers {
+  display: grid;
+  gap: 0.7rem;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
+.assembly-simulator__register {
+  border-radius: 0.9rem;
+  border: 1px solid #e2e8f0;
+  background: #f8fafc;
+  padding: 0.8rem;
+  text-align: center;
+  transition: transform 0.18s ease, background 0.18s ease, border-color 0.18s ease;
+}
+
+/* Active Highlight for Light Theme */
+.assembly-simulator__register.is-active {
+  border-color: #f59e0b;
+  background: #fef3c7;
+  transform: translateY(-2px);
+}
+
+.assembly-simulator__register-name {
+  display: block;
+  margin-bottom: 0.35rem;
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: #64748b;
+}
+
+.assembly-simulator__register strong {
+  font-size: 1.2rem;
+  color: #0f172a;
+}
+
+.assembly-simulator__stack {
+  display: flex;
+  flex-direction: column-reverse;
+  gap: 0.5rem;
+  min-height: 180px;
+  padding: 0.75rem;
+  border-radius: 0.9rem;
+  border: 1px dashed #93c5fd;
+  background: #f0f9ff;
+  transition: background 0.18s ease, border-color 0.18s ease;
+}
+
+/* Active Highlight for Stack */
+.assembly-simulator__stack.is-active {
+  border-color: #2563eb;
+  background: #dbeafe;
+}
+
+.assembly-simulator__stack-empty {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+  min-height: 140px;
+  color: #94a3b8;
+  font-style: italic;
+}
+
+.assembly-simulator__stack-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0.6rem 0.75rem;
+  border-radius: 0.75rem;
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
+  color: #0f172a;
+}
+
+.assembly-simulator__log {
+  display: flex;
+  flex-direction: column;
+  gap: 0.45rem;
+  max-height: 190px;
+  overflow: auto;
+  padding-right: 0.2rem;
+}
+
+.assembly-simulator__log-line {
+  border-radius: 0.7rem;
+  padding: 0.6rem 0.75rem;
+  background: #f1f5f9;
+  color: #334155;
+  font-family: "SFMono-Regular", Consolas, monospace;
+  font-size: 0.9rem;
+}
+
+@media (max-width: 640px) {
+  .assembly-simulator__registers {
+    grid-template-columns: 1fr;
+  }
+}

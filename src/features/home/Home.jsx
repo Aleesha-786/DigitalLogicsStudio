@@ -260,7 +260,7 @@ const Home = () => {
                 </div>
 
                 <div className="recommended-courses-grid">
-                  <Link to="/resources/coal" className="recommended-course-card recommended-course-card--coal recommended-course-card--link">
+                  <Link to="/coal" className="recommended-course-card recommended-course-card--coal recommended-course-card--link">
                     <div className="recommended-course-card__top">
                       <span className="recommended-course-chip">COAL</span>
                       <span className="recommended-course-badge">Resources</span>
@@ -272,7 +272,7 @@ const Home = () => {
                     {renderRecommendedResources(coalResources)}
                   </Link>
 
-                  <Link to="/resources/dld" className="recommended-course-card recommended-course-card--dld recommended-course-card--link">
+                  <Link to="/dld" className="recommended-course-card recommended-course-card--dld recommended-course-card--link">
                     <div className="recommended-course-card__top">
                       <span className="recommended-course-chip">DLD</span>
                       <span className="recommended-course-badge">Resources</span>
@@ -320,7 +320,7 @@ const Home = () => {
                         label: "Track",
                         title: "DLD Resources",
                         desc: "A structured study path for digital logic design with beginner-friendly practice and concept guides.",
-                        to: "/resources/dld",
+                        to: "/dld",
                         accent: "#3b82f6",
                         tag: "DLD",
                       },
@@ -329,7 +329,7 @@ const Home = () => {
                         label: "Track",
                         title: "COAL Resources",
                         desc: "A fresh beginner collection for COAL language concepts, basic instructions, and guided practice.",
-                        to: "/resources/coal",
+                        to: "/coal",
                         accent: "#8b5cf6",
                         tag: "COAL",
                       },

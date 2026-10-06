@@ -22,7 +22,7 @@ const TruthTable = ({ headers, rows, activeRow = -1, inputCount = 1 }) => (
         borderCollapse: "collapse",
         fontFamily: "monospace",
         fontSize: "0.85rem",
-        background: "rgba(15, 23, 42, 0.3)",
+       background: COLORS.darkBg,
       }}
     >
       {/* ── Header row ── */}
@@ -33,7 +33,7 @@ const TruthTable = ({ headers, rows, activeRow = -1, inputCount = 1 }) => (
               key={i}
               style={{
                 padding: "12px 16px",
-                background: "rgba(15,23,42,0.6)",
+                background: COLORS.darkBg,
                 color: i < inputCount ? COLORS.blue : COLORS.warn,
                 textAlign: "center",
                 borderBottom: "2px solid rgba(99,102,241,0.2)",

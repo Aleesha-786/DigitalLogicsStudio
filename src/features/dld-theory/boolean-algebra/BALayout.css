@@ -1281,3 +1281,16 @@
   }
 }
 
+/* ── Light theme: darken hardcoded purple accents (were unthemed) ── */
+[data-theme="light"] .ba-category-pill,
+[data-theme="light"] .ba-hero-badge-num,
+[data-theme="light"] .ba-hero-highlight h3,
+[data-theme="light"] .ba-nav-check,
+[data-theme="light"] .ba-layout .highlight,
+[data-theme="light"] .ba-layout .law-name {
+  color: #6d28d9;
+}
+[data-theme="light"] .ba-pill-dot {
+  background: #6d28d9;
+}
+

@@ -115,7 +115,7 @@ const SignalFlowDiagram = ({ result }) => {
                   width: "44px",
                   height: "44px",
                   borderRadius: "50%",
-                  background: step >= i ? `${s.color}22` : "rgba(20,30,50,0.5)",
+                  background: step >= i ? `${s.color}22` : COLORS.darkBg,
                   border: `2px solid ${step >= i ? s.color : "rgba(99,102,241,0.2)"}`,
                   display: "flex",
                   alignItems: "center",
@@ -150,7 +150,7 @@ const SignalFlowDiagram = ({ result }) => {
                     fontSize: "0.72rem",
                     lineHeight: "1.5",
                     padding: "8px",
-                    background: "rgba(0,0,0,0.3)",
+                   background: COLORS.darkBg,
                     borderRadius: "8px",
                     animation: "fadeInUp 0.4s ease",
                   }}

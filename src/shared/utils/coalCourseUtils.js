@@ -1,4 +1,4 @@
-import { coalCourseParts } from "../data/coalCourseOutline";
+import { coalCourseParts } from "../data/coalCourseOutline.mjs";
 import { getCoalTopicContent } from "../data/coalTopicContent";
 import {
   Binary,
@@ -83,7 +83,7 @@ function buildCoalTopicPages() {
 
 function buildCoalPartSidebarPages() {
   return coalCourseParts.map((part) => ({
-    path: `/resources/coal/theory#coal-part-${part.id}`,
+    path: `/coal/theory#coal-part-${part.id}`,
     label: `Part ${part.part}`,
     description: part.title,
     partId: part.id,
@@ -95,7 +95,7 @@ function buildCoalPartSidebarPages() {
 function buildCoalPages() {
   return [
     {
-      path: "/resources/coal/theory",
+      path: "/coal/theory",
       label: "Course overview",
       description: "Browse all COAL parts and open theory modules.",
     },
@@ -116,7 +116,7 @@ const COAL_TOPIC = {
   links: Object.values(COAL_PATH_TO_SUBTOPIC_ID).map((id) => ({ id })),
 };
 
-const COAL_THEORY_OVERVIEW_PATH = "/resources/coal/theory";
+const COAL_THEORY_OVERVIEW_PATH = "/coal/theory";
 
 function getCoalPartForPath(pathname) {
   if (!pathname.startsWith("/coal/")) return null;

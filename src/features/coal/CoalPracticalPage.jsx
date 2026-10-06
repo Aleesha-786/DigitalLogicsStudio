@@ -13,13 +13,13 @@ import Navbar from "../../shared/components/navbar";
 import Footer from "../../shared/components/Footer";
 import { useTheme } from "../../shared/context/ThemeContext";
 import usePointerGlow from "../../shared/hooks/usePointerGlow";
-import { coalCourseMeta } from "../../shared/data/coalCourseOutline";
+import { coalCourseMeta } from "../../shared/data/coalCourseOutline.mjs";
 import "../home/Home.css";
 import "../../shared/styles/LearningResourcesPage.css";
 
 const COAL_ACCENT = coalCourseMeta.accent;
 
-const PLANNED_PRACTICALS = [
+const PRACTICAL_LABS = [
   {
     key: "instruction-trace-lab",
     title: "Instruction trace lab",
@@ -27,7 +27,7 @@ const PLANNED_PRACTICALS = [
       "Step through fetch–decode–execute for short programs by hand.",
     icon: Terminal,
     ready: true,
-    path: "/resources/coal/practical/instruction-trace-lab",
+    path: "/coal/practical/instruction-trace-lab",
   },
   {
     key: "alu-flags-simulator",
@@ -35,7 +35,7 @@ const PLANNED_PRACTICALS = [
     description: "Practice arithmetic and see how ZF, CF, OF, and SF change.",
     icon: Cpu,
     ready: true,
-    path: "/resources/coal/practical/alu-flags-simulator",
+    path: "/coal/practical/alu-flags-simulator",
   },
   {
     key: "stack-memory-simulator",
@@ -43,7 +43,7 @@ const PLANNED_PRACTICALS = [
     description: "Trace PUSH, POP, CALL, and RET with visual stack diagrams.",
     icon: FlaskConical,
     ready: true,
-    path: "/resources/coal/practical/stack-memory-simulator",
+    path: "/coal/practical/stack-memory-simulator",
   },
   {
     key: "assembly-drills",
@@ -51,7 +51,7 @@ const PLANNED_PRACTICALS = [
     description: "Short COAL/MASM-style programs with guided solutions.",
     icon: Wrench,
     ready: true,
-    path: "/resources/coal/practical/assembly-drills",
+    path: "/coal/practical/assembly-drills",
   },
   {
     key: "addressing-mode-playground",
@@ -60,7 +60,7 @@ const PLANNED_PRACTICALS = [
       "Build instructions, calculate effective addresses, and quiz yourself on all 8 addressing modes.",
     icon: Cpu,
     ready: true,
-    path: "/resources/coal/practical/addressing-mode-playground",
+    path: "/coal/practical/addressing-mode-playground",
   },
   {
     key: "instruction-laboratory",
@@ -68,7 +68,7 @@ const PLANNED_PRACTICALS = [
     description: "A complete searchable database for interactive x86 architectures with a live execution sandbox.",
     icon: Terminal, 
     ready: true,
-    path: "/resources/coal/practical/instruction-laboratory", 
+    path: "/coal/practical/instruction-laboratory", 
   },
 ];
 
@@ -93,14 +93,14 @@ function CoalPracticalPage() {
 
             <div className="learning-resources-hero-actions">
               <Link
-                to="/resources/coal"
+                to="/coal"
                 className="learning-resources-btn primary"
               >
                 <ArrowLeft size={16} />
                 COAL home
               </Link>
               <Link
-                to="/resources/coal/theory"
+                to="/coal/theory"
                 className="learning-resources-btn secondary"
               >
                 Open theory
@@ -112,14 +112,15 @@ function CoalPracticalPage() {
 
         <section className="learning-resources-section">
           <div className="learning-resources-section-header">
-            <h2>Planned modules</h2>
+            <h2>Labs & simulators</h2>
             <p>
-              Content will be added here as practical exercises are published.
+              Open a lab to trace instructions, practice assembly, and run the
+              simulators.
             </p>
           </div>
 
           <div className="learning-resources-concepts-grid">
-            {PLANNED_PRACTICALS.map((item) => {
+            {PRACTICAL_LABS.map((item) => {
               const Icon = item.icon;
               return (
                 <article

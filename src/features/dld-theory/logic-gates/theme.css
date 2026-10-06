@@ -1,0 +1,60 @@
+/*
+ * Theme contract for the logic-gates feature (and anything else that reuses
+ * these tokens). Import this once at the app root (e.g. index.css) — do NOT
+ * import it per-component.
+ */
+
+/* Light Theme (Default) */
+:root {
+  --bg-surface: #ffffff;
+  --bg-elevated: #f8fafc;
+  --bg-card-accent: rgba(15, 23, 42, 0.04);
+
+  --text-primary: #0f172a;     /* Dark slate for readability */
+  --text-secondary: #475569;   /* Medium gray for descriptions */
+  --text-inverse: #ffffff;     /* White for dark buttons */
+  --border-color: #e2e8f0;     /* Light gray borders */
+
+  --accent-purple-bg: #f3e8ff;
+  --accent-purple-border: #d8b4fe;
+  --accent-purple-text: #6b21a8;
+
+  --accent-orange-bg: #fff7ed;
+  --accent-orange-border: #fdba74;
+  --accent-orange-text: #9a3412;
+
+  --accent-green-bg: #f0fdf4;
+  --accent-green-border: #86efac;
+  --accent-green-text: #166534;
+
+  --toggle-bg-off: #cbd5e1;
+  --toggle-bg-on: #6366f1;
+}
+
+/* Dark Theme */
+[data-theme='dark'] {
+  --bg-surface: rgba(15, 23, 42, 0.6);
+  --bg-elevated: rgba(30, 41, 59, 0.8);
+  --bg-card-accent: rgba(148, 163, 184, 0.05);
+
+  --text-primary: #e2e8f0;
+  --text-secondary: #9ca3af;
+  --text-inverse: #0f172a;
+
+  --border-color: rgba(148, 163, 184, 0.25);
+
+  --accent-purple-bg: rgba(168, 85, 247, 0.15);
+  --accent-purple-border: rgba(168, 85, 247, 0.4);
+  --accent-purple-text: #c4b5fd;
+
+  --accent-orange-bg: rgba(251, 146, 60, 0.15);
+  --accent-orange-border: rgba(251, 146, 60, 0.4);
+  --accent-orange-text: #fdba74;
+
+  --accent-green-bg: rgba(34, 197, 94, 0.15);
+  --accent-green-border: rgba(34, 197, 94, 0.4);
+  --accent-green-text: #86efac;
+
+  --toggle-bg-off: #475569;
+  --toggle-bg-on: #6366f1;
+}

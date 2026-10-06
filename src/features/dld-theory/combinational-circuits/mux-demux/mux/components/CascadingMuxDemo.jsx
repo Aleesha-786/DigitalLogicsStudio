@@ -38,7 +38,7 @@ const CascadingMuxDemo = () => {
               style={{
                 display: "block", width: "100%", padding: "9px 16px", marginBottom: "6px",
                 borderRadius: "8px", border: `1.5px solid ${s2 === v ? COLORS.warn : "rgba(99,102,241,0.2)"}`,
-                background: s2 === v ? "rgba(251,191,36,0.15)" : "rgba(12,18,35,0.7)",
+                background: s2 === v ? "rgba(251,191,36,0.15)" : COLORS.darkBg,
                 color: s2 === v ? COLORS.warn : COLORS.textMuted,
                 cursor: "pointer", fontFamily: "monospace", fontSize: "0.82rem",
               }}
@@ -64,7 +64,7 @@ const CascadingMuxDemo = () => {
                   style={{
                     padding: "9px", borderRadius: "8px",
                     border: `1.5px solid ${val ? COLORS.high : "rgba(99,102,241,0.2)"}`,
-                    background: val ? "rgba(0,255,136,0.12)" : "rgba(12,18,35,0.7)",
+                    background: val ? "rgba(0,255,136,0.12)" : COLORS.darkBg,
                     color: val ? COLORS.high : COLORS.textMuted,
                     cursor: "pointer", fontFamily: "monospace", fontSize: "0.85rem",
                   }}

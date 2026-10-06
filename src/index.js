@@ -6,6 +6,7 @@ import "./shared/styles/light-theme-overrides.css";
 import App from "./app/App";
 import { ThemeProvider } from "./shared/context/ThemeContext";
 import { AuthProvider } from "./auth/context/AuthContext";
+import { ToastProvider } from "./shared/context/ToastContext";
 import reportWebVitals from "./app/reportWebVitals";
 
 const rootElement = document.getElementById("root");
@@ -15,7 +16,9 @@ const app = (
     <HelmetProvider>
       <ThemeProvider>
         <AuthProvider>
-          <App />
+          <ToastProvider position="top-right" autoDismiss={5000}>
+            <App />
+          </ToastProvider>
         </AuthProvider>
       </ThemeProvider>
     </HelmetProvider>

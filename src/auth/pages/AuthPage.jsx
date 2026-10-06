@@ -1,19 +1,32 @@
 import React from "react";
 import { Link, Navigate, useLocation, useNavigate } from "react-router-dom";
-import { Mail, Lock, User, Eye, EyeOff, AlertCircle, Loader2 } from "lucide-react";
+import {
+  Mail,
+  Lock,
+  User,
+  Eye,
+  EyeOff,
+  AlertCircle,
+  Loader2,
+} from "lucide-react";
 import Navbar from "../../shared/components/navbar";
 import Footer from "../../shared/components/Footer";
 import { useTheme } from "../../shared/context/ThemeContext";
 import { useAuth } from "../context/AuthContext";
-import "./Auth.css";
+import "../Auth.css";
 
 const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
 function getInitialForm(mode) {
   if (mode === "signup") {
-    return { name: "", email: "", password: "", confirmPassword: "" };
+    return {
+      name: "your name",
+      email: "you@example.com",
+      password: "",
+      confirmPassword: "",
+    };
   }
-  return { email: "", password: "" };
+  return { email: "you@example.com", password: "" };
 }
 
 function validateForm(mode, values) {
@@ -38,7 +51,16 @@ function validateForm(mode, values) {
 }
 
 /* ── Text input with a leading icon ───────────────────────────────────────── */
-function TextField({ icon: Icon, label, name, type = "text", value, onChange, autoComplete, placeholder }) {
+function TextField({
+  icon: Icon,
+  label,
+  name,
+  type = "text",
+  value,
+  onChange,
+  autoComplete,
+  placeholder,
+}) {
   return (
     <label className="auth-field">
       <span>{label}</span>
@@ -58,7 +80,14 @@ function TextField({ icon: Icon, label, name, type = "text", value, onChange, au
 }
 
 /* ── Password input with leading icon + visibility toggle ────────────────── */
-function PasswordField({ name, value, onChange, autoComplete, placeholder, label }) {
+function PasswordField({
+  name,
+  value,
+  onChange,
+  autoComplete,
+  placeholder,
+  label,
+}) {
   const [visible, setVisible] = React.useState(false);
 
   return (
@@ -80,7 +109,11 @@ function PasswordField({ name, value, onChange, autoComplete, placeholder, label
           onClick={() => setVisible((v) => !v)}
           aria-label={visible ? "Hide password" : "Show password"}
         >
-          {visible ? <EyeOff size={18} aria-hidden="true" /> : <Eye size={18} aria-hidden="true" />}
+          {visible ? (
+            <EyeOff size={18} aria-hidden="true" />
+          ) : (
+            <Eye size={18} aria-hidden="true" />
+          )}
         </button>
       </div>
     </label>
@@ -139,7 +172,9 @@ export default function AuthPage({ mode }) {
         // FIX 3: register/login return the full API response object { success, message, user }.
         // The user is nested under data.user, not at the top level.
         if (!data?.user) {
-          throw new Error("Account was created but the server did not return your profile.");
+          throw new Error(
+            "Account was created but the server did not return your profile.",
+          );
         }
 
         navigate(redirectTo, {
@@ -270,7 +305,11 @@ export default function AuthPage({ mode }) {
                 disabled={isSubmitting || isLoading}
               >
                 {isSubmitting && (
-                  <Loader2 className="auth-spinner" size={18} aria-hidden="true" />
+                  <Loader2
+                    className="auth-spinner"
+                    size={18}
+                    aria-hidden="true"
+                  />
                 )}
                 {isSubmitting
                   ? isSignup

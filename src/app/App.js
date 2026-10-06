@@ -12,33 +12,37 @@ import { useTheme } from "../shared/context/ThemeContext";
 import RouteSeoManager from "../shared/seo/RouteSeoManager";
 import RouteNormalizer from "../shared/seo/RouteNormalizer";
 import AnalyticsTracker from "../shared/seo/AnalyticsTracker";
-import DlsMentorWidget from "../shared/widgets/DlsMentorWidget/DlsMentorWidget";
+import BoolMentorWidget from "../shared/widgets/BoolMentorWidget/BoolMentorWidget";
 
 // UTILS / OTHER TOOLS:
 import ScrollToTop from "../shared/utils/ScrollToTop";
 import ProtectedRoute from "../auth/ProtectedRoute";
+import RoleProtectedRoute from "../auth/RoleProtectedRoute";
 
 const Home = lazy(() => import("../features/home/Home"));
 const Boolforge = lazy(() => import("../features/boolforge/Boolforge"));
-const ProblemsPage = lazy(() => import("../features/problems/ProblemsPage"));
+const ProblemsPage = lazy(() => import("../features/problems/pages/ProblemsPage"));
+const ProblemEditorPage = lazy(
+  () => import("../features/problems/pages/ProblemEditorPage"),
+);
 // ── COAL Practical Labs (now lazy-loaded, previously eager imports) ──
 const InstructionTraceLabPage = lazy(
-  () => import("../features/coal/InstructionTraceLabPage"),
+  () => import("../features/coal/practical-playgrounds/InstructionTraceLabPage"),
 );
 const AluFlagsSimulatorPage = lazy(
-  () => import("../features/coal/AluFlagsSimulatorPage"),
+  () => import("../features/coal/practical-playgrounds/AluFlagsSimulatorPage"),
 );
 const StackMemorySimulatorPage = lazy(
-  () => import("../features/coal/StackMemorySimulatorPage"),
+  () => import("../features/coal/practical-playgrounds/StackMemorySimulatorPage"),
 );
 const AssemblyDrillsPage = lazy(
-  () => import("../features/coal/AssemblyDrillsPage"),
+  () => import("../features/coal/practical-playgrounds/AssemblyDrillsPage"),
 );
 const AddressingModePlaygroundPage = lazy(
-  () => import("../features/coal/AddressingModePlaygroundPage"),
+  () => import("../features/coal/practical-playgrounds/AddressingModePlaygroundPage"),
 );
 const InstructionLaboratoryPage = lazy(
-  () => import("../features/coal/InstructionLaboratoryPage"),
+  () => import("../features/coal/practical-playgrounds/InstructionLaboratoryPage"),
 );
 const RegCounters = lazy(
   () => import("../features/dld-theory/registers-transfers/RegCounters"),
@@ -74,15 +78,15 @@ const CoalTopicPageRoute = lazy(() => import("../features/coal/CoalTopicPageRout
 const DldMemoryTopicPage = lazy(() => import("../shared/layouts/DldMemoryTopicRoute"));
 const ParityBitCalculator = lazy(() => import("../features/dld-theory/arithmetic-hdl/ParityBitCalculator"));
 const KMapGenerator = lazy(() => import("../features/kmap/KmapGenerator"));
-const GateExplanation = lazy(() => import("../features/dld-theory/logic-gates/GateExplanation"));
+const GateExplanation = lazy(() => import("../features/dld-theory/logic-gates/pages/GateExplanation"));
 const TimeDiagrams = lazy(() => import("../features/TimeDiagrams/TimeDiagrams"));
 const BooleanAlgebraOverview = lazy(
   () => import("../features/dld-theory/boolean-algebra/BooleanAlgebraOverview"),
 );
 const StandardForms = lazy(() => import("../features/dld-theory/boolean-algebra/StandardForms"));
 const CircuitCost = lazy(() => import("../features/dld-theory/boolean-algebra/CircuitCost"));
-const UniversalGates = lazy(() => import("../features/dld-theory/logic-gates/UniversalGates"));
-const OddFunction = lazy(() => import("../features/dld-theory/logic-gates/OddFunction"));
+const UniversalGates = lazy(() => import("../features/dld-theory/logic-gates/pages/UniversalGates"));
+const OddFunction = lazy(() => import("../features/dld-theory/logic-gates/pages/OddFunction"));
 const BooleanLaws = lazy(() => import("../features/dld-theory/boolean-algebra/BooleanLaws"));
 const BooleanIdentities = lazy(
   () => import("../features/dld-theory/boolean-algebra/BooleanIdentities"),
@@ -183,8 +187,8 @@ const DLDTrainerBoard = lazy(() => import("../features/trainer-board/TrainerBoar
 const LoginPage = lazy(() => import("../auth/pages/LoginPage"));
 const SignupPage = lazy(() => import("../auth/pages/SignupPage"));
 const ForgotPasswordPage = lazy(() => import("../auth/pages/ForgotPasswordPage"));
-const ProfilePage = lazy(() => import("../auth/pages/ProfilePage"));
-const SettingsPage = lazy(() => import("../auth/pages/SettingsPage"));
+const ProfilePage = lazy(() => import("../features/profile-dashboard/ProfilePage"));
+const SettingsPage = lazy(() => import("../features/settings/SettingsPage"));
 const NotFoundPage = lazy(() => import("./pages/NotFoundPage"));
 
 // ScrollToTop and route synchronization
@@ -225,26 +229,43 @@ const AppContent = () => {
           <Route path="/problems/:topicSlug" element={<ProblemsPage />} />
 
           <Route
-            path="/resources/coal/problems"
+            path="/problems/editor/new"
+            element={
+              <RoleProtectedRoute roles={["instructor", "admin"]}>
+                <ProblemEditorPage />
+              </RoleProtectedRoute>
+            }
+          />
+          <Route
+            path="/problems/editor/:problemId"
+            element={
+              <RoleProtectedRoute roles={["instructor", "admin"]}>
+                <ProblemEditorPage />
+              </RoleProtectedRoute>
+            }
+          />
+
+          <Route
+            path="/coal/problems"
             element={<Navigate to="/problems?course=coal" replace />}
           />
           <Route
-            path="/resources/coal/problems/:topicSlug"
+            path="/coal/problems/:topicSlug"
             element={<Navigate to="/problems?course=coal" replace />}
           />
 
           <Route
-            path="/resources/coal/theory"
-            element={<Navigate to="/resources/coal" replace />}
+            path="/coal/theory"
+            element={<Navigate to="/coal" replace />}
           />
           <Route
-            path="/resources/coal/practical"
+            path="/coal/practical"
             element={<CoalPracticalPage />}
           />
-          <Route path="/resources/coal" element={<CoalHomeRoute />} />
+          <Route path="/coal" element={<CoalHomeRoute />} />
           <Route path="/coal/:slug" element={<CoalTopicPageRoute />} />
           <Route
-            path="/resources/:track?"
+            path="/:track?"
             element={<DldHomeRoute />}
           />
           <Route path="/boolforge" element={<Boolforge />} />
@@ -271,7 +292,7 @@ const AppContent = () => {
           />
 
           {/* ── Standard Forms (no boolean/ prefix, standalone) ── */}
-          <Route path="/standard-forms" element={<StandardForms />} />
+          <Route path="/boolean/standard-forms" element={<StandardForms />} />
 
           {/* ── Advanced Logic ────────────────────────────────── */}
           <Route path="/circuit-cost" element={<CircuitCost />} />
@@ -453,27 +474,27 @@ const AppContent = () => {
 
           {/* ── COAL Practical Labs ───────────────────────────── */}
           <Route
-            path="/resources/coal/practical/instruction-trace-lab"
+            path="/coal/practical/instruction-trace-lab"
             element={<InstructionTraceLabPage />}
           />
           <Route
-            path="/resources/coal/practical/alu-flags-simulator"
+            path="/coal/practical/alu-flags-simulator"
             element={<AluFlagsSimulatorPage />}
           />
           <Route
-            path="/resources/coal/practical/stack-memory-simulator"
+            path="/coal/practical/stack-memory-simulator"
             element={<StackMemorySimulatorPage />}
           />
           <Route
-            path="/resources/coal/practical/assembly-drills"
+            path="/coal/practical/assembly-drills"
             element={<AssemblyDrillsPage />}
           />
           <Route
-            path="/resources/coal/practical/addressing-mode-playground"
+            path="/coal/practical/addressing-mode-playground"
             element={<AddressingModePlaygroundPage />}
           />
           <Route
-            path="/resources/coal/practical/instruction-laboratory"
+            path="/coal/practical/instruction-laboratory"
             element={<InstructionLaboratoryPage />}
           />
 
@@ -495,7 +516,7 @@ function App() {
         future={{ v7_startTransition: true, v7_relativeSplatPath: true }}
       >
         <AppContent />
-        <DlsMentorWidget />
+        <BoolMentorWidget />
       </BrowserRouter>
       <Analytics />
     </div>

@@ -1,13 +1,13 @@
 import React, { useState } from 'react';
 
-const InteractiveDemo = ({ 
-  title, 
-  description, 
-  inputs, 
-  outputs, 
+const InteractiveDemo = ({
+  title,
+  description,
+  inputs,
+  outputs,
   onInputChange,
   showTruthTable = false,
-  truthTableData = null
+  truthTableData = null,
 }) => {
   const [inputValues, setInputValues] = useState(
     inputs.reduce((acc, input) => ({ ...acc, [input.name]: false }), {})
@@ -25,7 +25,7 @@ const InteractiveDemo = ({
     <div className="interactive-demo">
       <h3 className="demo-title">{title}</h3>
       {description && <p className="demo-description">{description}</p>}
-      
+
       <div className="demo-content">
         <div className="input-section">
           <h4>Inputs</h4>
@@ -72,10 +72,10 @@ const InteractiveDemo = ({
               <table>
                 <thead>
                   <tr>
-                    {inputs.map(input => (
+                    {inputs.map((input) => (
                       <th key={input.name}>{input.label || input.name}</th>
                     ))}
-                    {outputs.map(output => (
+                    {outputs.map((output) => (
                       <th key={output.name}>{output.label || output.name}</th>
                     ))}
                   </tr>
@@ -83,10 +83,10 @@ const InteractiveDemo = ({
                 <tbody>
                   {truthTableData.map((row, index) => (
                     <tr key={index}>
-                      {inputs.map(input => (
+                      {inputs.map((input) => (
                         <td key={input.name}>{row.inputs[input.name] ? '1' : '0'}</td>
                       ))}
-                      {outputs.map(output => (
+                      {outputs.map((output) => (
                         <td key={output.name}>{row.outputs[output.name] ? '1' : '0'}</td>
                       ))}
                     </tr>
@@ -100,78 +100,78 @@ const InteractiveDemo = ({
 
       <style jsx>{`
         .interactive-demo {
-          background: rgba(15, 23, 42, 0.6);
-          border: 1px solid rgba(148, 163, 184, 0.25);
+          background: var(--bg-surface);
+          border: 1px solid var(--border-color);
           border-radius: 12px;
           padding: 20px;
           margin-bottom: 20px;
         }
-        
+
         .demo-title {
-          color: #e2e8f0;
+          color: var(--text-primary);
           margin-bottom: 12px;
         }
-        
+
         .demo-description {
-          color: #9ca3af;
+          color: var(--text-secondary);
           margin-bottom: 20px;
           font-size: 0.95rem;
         }
-        
+
         .demo-content {
           display: grid;
           gap: 20px;
         }
-        
+
         .input-section h4,
         .output-section h4,
         .truth-table-section h4 {
           color: #93c5fd;
           margin-bottom: 12px;
         }
-        
+
         .input-grid,
         .output-grid {
           display: grid;
           grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
           gap: 16px;
         }
-        
+
         .input-control {
           display: flex;
           flex-direction: column;
           align-items: center;
           gap: 8px;
         }
-        
+
         .input-label {
-          color: #cbd5e1;
+          color: var(--text-primary);
           font-weight: 500;
         }
-        
+
         .toggle-switch {
           position: relative;
           display: flex;
           align-items: center;
           gap: 12px;
         }
-        
-        .toggle-switch input[type="checkbox"] {
+
+        .toggle-switch input[type='checkbox'] {
           width: 50px;
           height: 24px;
           appearance: none;
-          background: #475569;
+          background: var(--toggle-bg-off);
           border-radius: 12px;
           position: relative;
           cursor: pointer;
           transition: background 0.3s ease;
         }
-        
-        .toggle-switch input[type="checkbox"]:checked {
-          background: #6366f1;
+
+        .toggle-switch input[type='checkbox']:checked {
+          background: var(--toggle-bg-on);
         }
-        
-        .toggle-switch input[type="checkbox"]::before {
+
+        .toggle-switch input[type='checkbox']::before {
           content: '';
           position: absolute;
           width: 18px;
@@ -182,18 +182,18 @@ const InteractiveDemo = ({
           left: 3px;
           transition: transform 0.3s ease;
         }
-        
-        .toggle-switch input[type="checkbox"]:checked::before {
+
+        .toggle-switch input[type='checkbox']:checked::before {
           transform: translateX(26px);
         }
-        
+
         .toggle-value {
-          color: #e2e8f0;
+          color: var(--text-primary);
           font-weight: bold;
           font-family: 'Courier New', monospace;
           font-size: 1.1rem;
         }
-        
+
         .output-display {
           display: flex;
           flex-direction: column;
@@ -204,45 +204,45 @@ const InteractiveDemo = ({
           border: 1px solid rgba(99, 102, 241, 0.3);
           border-radius: 8px;
         }
-        
+
         .output-label {
-          color: #cbd5e1;
+          color: var(--text-primary);
           font-weight: 500;
         }
-        
+
         .output-value {
-          color: #e2e8f0;
+          color: var(--text-primary);
           font-weight: bold;
           font-family: 'Courier New', monospace;
           font-size: 1.2rem;
         }
-        
+
         .truth-table {
           overflow-x: auto;
         }
-        
+
         .truth-table table {
           width: 100%;
           border-collapse: collapse;
-          background: rgba(15, 23, 42, 0.4);
+          background: var(--bg-elevated);
           border-radius: 8px;
           overflow: hidden;
         }
-        
+
         .truth-table th,
         .truth-table td {
           padding: 12px;
           text-align: center;
-          border: 1px solid rgba(148, 163, 184, 0.2);
-          color: #e2e8f0;
+          border: 1px solid var(--border-color);
+          color: var(--text-primary);
         }
-        
+
         .truth-table th {
-          background: rgba(99, 102, 241, 0.2);
-          color: #93c5fd;
+          background: var(--accent-purple-bg);
+          color: var(--accent-purple-text);
           font-weight: 600;
         }
-        
+
         .truth-table tr:hover {
           background: rgba(99, 102, 241, 0.05);
         }

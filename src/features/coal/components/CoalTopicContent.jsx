@@ -1,11 +1,11 @@
 import React from "react";
 import { Link } from "react-router-dom";
 import { BookOpen, Lightbulb } from "lucide-react";
-import { CoalDiagram } from "./CoalDiagrams";
+import { CoalDiagram } from "../data/CoalDiagrams";
 import AluFlagsSimulator from "./AluFlagsSimulator";
 import AssemblyStackSimulator from "./AssemblyStackSimulator";
-import "./CoalTopicCard.css";
-import "./CoalTopicContent.css";
+import "../styles/CoalTopicCard.css";
+import "../styles/CoalTopicContent.css";
 
 function CoalBody({ body }) {
   if (!body?.length) return null;

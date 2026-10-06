@@ -16,7 +16,7 @@ export const COLORS = {
 
   // Brand / accent
   indigo: "#6366f1",
-  indigoLight: "#a5b4fc",
+  indigoLight: "var(--indigo-accent-text)",
   indigoMuted: "rgba(99,102,241,0.2)",
 
   // Signal states

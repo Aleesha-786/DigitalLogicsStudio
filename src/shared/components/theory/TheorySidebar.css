@@ -176,3 +176,11 @@
   opacity: 0.75;
 }
 .theory-folder-sidebar-home-btn:hover { opacity: 1; }
+
+[data-theme="light"] .theory-folder-sidebar-folder-index,
+[data-theme="light"] .theory-folder-sidebar-folder-label {
+  color: #6d28d9;
+}
+[data-theme="light"] .theory-folder-sidebar-subitem.is-active {
+  color: #6d28d9;
+}

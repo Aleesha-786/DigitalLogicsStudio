@@ -5,8 +5,8 @@ import CoalLayout from "./CoalLayout";
 import CoalTopicContent from "./components/CoalTopicContent";
 import { getCoalTopicContent } from "../../shared/data/coalTopicContent";
 import { getCoalModuleBySlug } from "../../shared/utils/coalCourseUtils";
-import "./CoalPages.css";
-import "./CoalLayout.css";
+import "./styles/CoalPages.css";
+import "./styles/CoalLayout.css";
 
 function CoalTopicPage() {
   const { slug } = useParams();
@@ -17,7 +17,7 @@ function CoalTopicPage() {
     return (
       <CoalLayout title="Topic not found" subtitle="COAL theory">
         <p>This topic is not in the course outline yet.</p>
-        <Link to="/resources/coal/theory" className="coal-btn coal-btn--ghost">
+        <Link to="/coal/theory" className="coal-btn coal-btn--ghost">
           Back to theory
         </Link>
       </CoalLayout>

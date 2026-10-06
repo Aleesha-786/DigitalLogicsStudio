@@ -1,7 +1,7 @@
-import '../../../shared/styles/KMapGenerator.css';
+import '../KMapGenerator.css';
 import { memo } from 'react';
 
-const KMapDisplayBase = ({
+const KMapDisplayBase = memo(({
     grid,
     groups,
     numVariables,
@@ -21,7 +21,6 @@ const KMapDisplayBase = ({
         const cellGroups = getCellGroups(rowIdx, colIdx);
         const isGrouped = cellGroups.length > 0;
         
-        // Determine cell class based on value and optimization type
         let cellClass = 'kmap-cell';
         const isPOS = optimizationType === 'POS';
         if (cell === 1 && !isPOS) {
@@ -81,8 +80,8 @@ const KMapDisplayBase = ({
                                             {numVariables === 4
                                                 ? variables.slice(0, 2).join('')
                                                 : variables[0]}
-                                                {' \\ '}
-                                                {numVariables === 2
+                                            {' \\ '}
+                                            {numVariables === 2
                                                 ? variables[1]
                                                 : numVariables === 4
                                                 ? variables.slice(2).join('')
@@ -128,25 +127,8 @@ const KMapDisplayBase = ({
                     </div>
                 )}
             </div>
-        <style jsx>{`
-                .kmap-cell-dontcare {
-                    background: rgba(251, 191, 36, 0.2) !important;
-                    color: #fbbf24 !important;
-                    border: 1px solid rgba(251, 191, 36, 0.5) !important;
-                }
-                
-                .kmap-cell-dontcare.kmap-cell-grouped {
-                    background: rgba(251, 191, 36, 0.4) !important;
-                    border-color: rgba(251, 191, 36, 0.8) !important;
-                }
-                
-                .kmap-cell-pos {
-                    background: rgba(99, 102, 241, 0.25) !important;
-                    border-color: rgba(99, 102, 241, 0.7) !important;
-                }
-            `}</style>
-    </div>
+        </div>
     );
-};
+});
 
 export const KMapDisplay = memo(KMapDisplayBase);

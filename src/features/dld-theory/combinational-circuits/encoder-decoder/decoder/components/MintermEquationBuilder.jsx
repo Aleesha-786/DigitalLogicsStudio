@@ -13,6 +13,7 @@
  */
 import React, { useState } from "react";
 import { COLORS } from "../../shared/theme.js";
+import { useToast } from "../../../../../../shared/context/ToastContext";
 
 // Generate input names for n bits: A, B, C... or A0, A1, A2...
 const makeInputNames = (n) => {
@@ -21,6 +22,7 @@ const makeInputNames = (n) => {
 };
 
 const MintermEquationBuilder = () => {
+  const toast = useToast();
   const [numBits, setNumBits] = useState(2); // number of address bits
   const [selectedMinterm, setSelectedMinterm] = useState(0); // which output Di to explore
 
@@ -88,7 +90,7 @@ const MintermEquationBuilder = () => {
                 padding: "9px 14px",
                 borderRadius: "9px",
                 border: `2px solid ${selectedMinterm === i ? COLORS.warn : "rgba(99,102,241,0.2)"}`,
-                background: selectedMinterm === i ? "rgba(251,191,36,0.15)" : "rgba(12,18,35,0.6)",
+                background: selectedMinterm === i ? "rgba(251,191,36,0.15)" : COLORS.darkBg,
                 color: selectedMinterm === i ? COLORS.warn : COLORS.textMuted,
                 cursor: "pointer",
                 fontFamily: "monospace",
@@ -105,7 +107,7 @@ const MintermEquationBuilder = () => {
       {/* ── Binary address + rule display ── */}
       <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "14px", marginBottom: "18px" }}>
         {/* Binary address card */}
-        <div style={{ padding: "16px", background: "rgba(12,18,35,0.8)", borderRadius: "10px", border: "1px solid rgba(99,102,241,0.2)" }}>
+        <div style={{ padding: "16px",background: COLORS.darkBg, borderRadius: "10px", border: "1px solid rgba(99,102,241,0.2)" }}>
           <div style={{ color: COLORS.textSecondary, fontSize: "0.75rem", marginBottom: "8px" }}>ADDRESS IN BINARY</div>
           <div style={{ fontFamily: "monospace", fontSize: "1.3rem", color: COLORS.blue, fontWeight: "700", letterSpacing: "6px" }}>
             {binary}₂
@@ -116,7 +118,7 @@ const MintermEquationBuilder = () => {
         </div>
 
         {/* Complement / direct rule card */}
-        <div style={{ padding: "16px", background: "rgba(12,18,35,0.8)", borderRadius: "10px", border: "1px solid rgba(251,191,36,0.3)" }}>
+        <div style={{ padding: "16px", background: COLORS.darkBg, borderRadius: "10px", border: "1px solid rgba(251,191,36,0.3)" }}>
           <div style={{ color: COLORS.textSecondary, fontSize: "0.75rem", marginBottom: "8px" }}>RULE</div>
           <div style={{ display: "flex", gap: "8px", flexWrap: "wrap" }}>
             {inputs.map((inp, i) => {
@@ -146,7 +148,7 @@ const MintermEquationBuilder = () => {
           <button
             onClick={() => {
               navigator.clipboard.writeText(`D${selectedMinterm} = ${equation}`);
-              alert("Equation copied to clipboard!");
+              toast.success("Equation copied to clipboard!");
             }}
             style={{
               padding: "4px 10px",
