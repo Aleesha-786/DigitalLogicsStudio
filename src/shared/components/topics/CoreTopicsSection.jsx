@@ -178,12 +178,16 @@ export default function CoreTopicsSection({ topics, parentTopicId = null }) {
     : null;
 
   function getProgress(topic) {
-    if (!parentProgress) return snapshot.state.topics[topic.id];
-
-    // The parent topic stores completed subtopic slugs. A card's links[].id are
-    // the slugs that belong to this card. Calculate completion from that subset.
+    // Completed subtopic slugs live on the parent topic when one is supplied,
+    // otherwise on the card's own topic. Either way, count only the slugs this
+    // card actually shows (its links[].id) so the number, the bar, and the
+    // ticked pills always agree — saved IDs the card doesn't list are ignored.
+    const source = parentProgress || snapshot.state.topics[topic.id];
+    const aliases = topic.subtopicAliases || {};
     const cardSlugs = topic.links.map((l) => l.id);
-    const completedSlugs = parentProgress.completedSubtopics || [];
+    const completedSlugs = (source?.completedSubtopics || []).map(
+      (slug) => aliases[slug] || slug,
+    );
     const completedInCard = cardSlugs.filter((slug) => completedSlugs.includes(slug));
     const total = cardSlugs.length;
     const done = completedInCard.length;
