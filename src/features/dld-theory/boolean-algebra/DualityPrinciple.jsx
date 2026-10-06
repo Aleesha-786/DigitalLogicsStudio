@@ -3,22 +3,54 @@ import BALayout from "./BALayout";
 import ControlPanel from "../../../shared/components/ControlPanel";
 import ControlGroup from "../../../shared/components/ControlGroup";
 import CircuitModal from "../../../shared/components/CircuitModal";
+import { parseExpression } from "../../../shared/utils/boolExpr";
 
-const applyDuality = (s) => {
-  if (!s) return "";
-  const expr = s.replace(/^F\s*=\s*/, "").trim();
-  return expr
-    .replace(/\+/g, "TEMP")
-    .replace(/•/g, "+")
-    .replace(/TEMP/g, "•")
-    .replace(/\b1\b/g, "0")
-    .replace(/\b0\b/g, "1");
+// The swap is done on the parsed tree, not on the text, so the original
+// grouping survives: the dual of A + B•C is A • (B + C), not A • B + C.
+const dualOf = (node) => {
+  switch (node.type) {
+    case "var":
+      return node;
+    case "const":
+      return { type: "const", value: node.value ? 0 : 1 };
+    case "not":
+      return { type: "not", arg: dualOf(node.arg) };
+    default:
+      return {
+        type: node.type === "and" ? "or" : "and",
+        args: node.args.map(dualOf),
+      };
+  }
+};
+
+const formatExpression = (node) => {
+  switch (node.type) {
+    case "var":
+      return node.name;
+    case "const":
+      return String(node.value);
+    case "not": {
+      const inner = formatExpression(node.arg);
+      return node.arg.args ? `(${inner})'` : `${inner}'`;
+    }
+    case "and":
+      return node.args
+        .map((arg) =>
+          arg.type === "or"
+            ? `(${formatExpression(arg)})`
+            : formatExpression(arg),
+        )
+        .join(" • ");
+    default:
+      return node.args.map(formatExpression).join(" + ");
+  }
 };
 
 const DualityPrinciple = () => {
   const [expr, setExpr] = useState("F = A + B");
-  const [dual, setDual] = useState(applyDuality("F = A + B"));
   const [open, setOpen] = useState(false);
+  const parsed = parseExpression(expr);
+  const dual = parsed.ok ? formatExpression(dualOf(parsed.ast)) : "—";
 
   return (
     <BALayout
@@ -79,11 +111,7 @@ const DualityPrinciple = () => {
               type="text"
               className="control-input"
               value={expr}
-              onChange={(e) => {
-                const v = e.target.value;
-                setExpr(v);
-                setDual(applyDuality(v));
-              }}
+              onChange={(e) => setExpr(e.target.value)}
             />
           </ControlGroup>
         </ControlPanel>
@@ -98,6 +126,7 @@ const DualityPrinciple = () => {
           <p className="explanation-intro">
             Dual: <span className="highlight">{dual}</span>
           </p>
+          {!parsed.ok && <p className="explanation-intro">{parsed.error}</p>}
           <div className="example-box">
             <h4>Verification:</h4>
             <p>
@@ -112,31 +141,19 @@ const DualityPrinciple = () => {
           <div className="example-buttons">
             <button
               className="kmap-btn kmap-btn-secondary"
-              onClick={() => {
-                const e = "F = A + 1";
-                setExpr(e);
-                setDual(applyDuality(e));
-              }}
+              onClick={() => setExpr("F = A + 1")}
             >
               A + 1
             </button>
             <button
               className="kmap-btn kmap-btn-secondary"
-              onClick={() => {
-                const e = "F = A • B + C";
-                setExpr(e);
-                setDual(applyDuality(e));
-              }}
+              onClick={() => setExpr("F = A • B + C")}
             >
               A • B + C
             </button>
             <button
               className="kmap-btn kmap-btn-secondary"
-              onClick={() => {
-                const e = "F = (A + B) • (A' + C)";
-                setExpr(e);
-                setDual(applyDuality(e));
-              }}
+              onClick={() => setExpr("F = (A + B) • (A' + C)")}
             >
               (A + B) • (A' + C)
             </button>
@@ -157,7 +174,7 @@ const DualityPrinciple = () => {
         open={open}
         onClose={() => setOpen(false)}
         expression={expr}
-        variables={["A", "B"]}
+        variables={parsed.ok ? parsed.variables : ["A", "B"]}
       />
     </BALayout>
   );

@@ -25,6 +25,7 @@ const SYMBOLS = {
   "*": "AND",
   "&": "AND",
   "·": "AND",
+  "•": "AND",
   "!": "NOT",
   "~": "NOT",
   "¬": "NOT",
