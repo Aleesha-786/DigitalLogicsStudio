@@ -650,6 +650,91 @@
   color: #64748b !important;
 }
 
+/* ============================================================
+   Step-by-step simplification modal (SimplifyProblemModal)
+   ============================================================ */
+
+/* The derivation is the shared SimplifyWorkspace; here it only takes on the
+   modal's palette (see shared/components/SimplifyWorkspace.css). */
+.prob-modal .simplify-workspace {
+  --sw-text: var(--text-color, #e8f0ff);
+  --sw-muted: var(--secondary-text, #8899aa);
+  --sw-muted-strong: var(--text-color, #e8f0ff);
+  --sw-border: var(--border-color, #2a3550);
+  --sw-surface: var(--card-bg, #1e2842);
+  --sw-field: rgba(8, 13, 26, 0.6);
+  --sw-accent: var(--accent-secondary, #00d4ff);
+  --sw-accent-soft: rgba(0, 212, 255, 0.1);
+}
+.problems-page.theme-light .prob-modal .simplify-workspace {
+  --sw-text: #0f172a;
+  --sw-muted: #475569;
+  --sw-muted-strong: #334155;
+  --sw-border: rgba(15, 23, 42, 0.12);
+  --sw-surface: #f8fafc;
+  --sw-field: #ffffff;
+  --sw-accent: #2563eb;
+  --sw-accent-soft: rgba(37, 99, 235, 0.1);
+}
+
+.prob-simplify-table {
+  margin-top: 0.75rem;
+}
+
+.prob-simplify-rules {
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+}
+
+.prob-simplify-rule {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.6rem;
+  font-size: 0.82rem;
+  color: var(--secondary-text, #8899aa);
+  line-height: 1.5;
+}
+
+.prob-simplify-num {
+  flex-shrink: 0;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  background: rgba(99, 102, 241, 0.2);
+  border: 1px solid rgba(99, 102, 241, 0.4);
+  color: #a5b4fc;
+  font-size: 0.72rem;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-top: 1px;
+}
+
+.prob-forge-panel > .prob-simplify-syntax {
+  text-align: left;
+}
+
+.prob-simplify-syntax code {
+  padding: 0.1rem 0.35rem;
+  border-radius: 4px;
+  background: rgba(0, 212, 255, 0.08);
+  color: var(--text-color, #e8f0ff);
+  font-size: 0.8rem;
+}
+
+.problems-page.theme-light .prob-simplify-rule {
+  color: #475569;
+}
+.problems-page.theme-light .prob-simplify-num {
+  color: #4f46e5;
+}
+.problems-page.theme-light .prob-simplify-syntax code {
+  background: rgba(37, 99, 235, 0.08);
+  color: #0f172a;
+}
+
 /* ---- Responsive ---- */
 @media (max-width: 720px) {
   .prob-modal-body {

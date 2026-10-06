@@ -25,7 +25,7 @@
 import problemsCatalog from "../data/problemCatalog";
 
 const VALID_DIFFICULTIES = ["Easy", "Medium", "Hard"];
-const VALID_TYPES = ["fill_in", "mcq"];
+const VALID_TYPES = ["fill_in", "mcq", "simplify"];
 
 // Mirrors ProblemModal.jsx's own reading of a truth-table cell:
 //   const val = row[g.label];
@@ -38,8 +38,8 @@ const isGradableBit = (value) =>
   value === 0 || value === 1 || value === true || value === false;
 
 describe("DLD problems — data shape + grading readiness", () => {
-  test("catalog has exactly 46 problems", () => {
-    expect(problemsCatalog).toHaveLength(46);
+  test("catalog has exactly 54 problems", () => {
+    expect(problemsCatalog).toHaveLength(54);
   });
 
   test("no duplicate problem ids in the DLD catalog", () => {
@@ -83,11 +83,13 @@ describe("DLD problems — data shape + grading readiness", () => {
       expect(problem.filterGroup).toEqual(expect.any(String));
 
       if (problem.type) {
-        // ── Answer-graded problem (fill_in / mcq) ─────────────────────
+        // ── Answer-graded problem (fill_in / mcq / simplify) ──────────
         // Graded via CoalProblemModal-style logic against `correctAnswer`,
         // not the circuit builder — `truthTable` here is reference/display
         // content only, so it's intentionally NOT checked against
-        // outputs/inputs the way circuit problems are below.
+        // outputs/inputs the way circuit problems are below. ("simplify"
+        // problems get their own grading tests in
+        // simplifyProblems.grading.test.js.)
         expect(VALID_TYPES).toContain(problem.type);
         expect(problem.correctAnswer).toEqual(expect.any(String));
         expect(problem.correctAnswer.length).toBeGreaterThan(0);

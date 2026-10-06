@@ -140,12 +140,13 @@ const SimplifyWorkspace = ({
 
       {solved ? (
         <div className="simplify-result" role="status">
-          <h4>{solvedTitle}</h4>
-          <p>
+          {/* Plain divs: hosts style their own headings and paragraphs. */}
+          <div className="simplify-result-title">{solvedTitle}</div>
+          <div className="simplify-result-text">
             <Tex>{`F = ${problem.answerTex}`}</Tex> is the simplest form. You
             reached it in {steps.length} {steps.length === 1 ? "step" : "steps"}
             {discardedCount > 0 && ` with ${discardedCount} discarded`}.
-          </p>
+          </div>
           {solvedActions}
         </div>
       ) : (
@@ -181,13 +182,13 @@ const SimplifyWorkspace = ({
               Check step
             </button>
           </div>
-          <p
+          <div
             id={feedbackId}
             className={`simplify-feedback${result ? ` is-${result.status}` : ""}`}
             role="status"
           >
             {invalid ? result.message : FEEDBACK[result?.status] || ""}
-          </p>
+          </div>
           <div className="simplify-actions">
             <button
               type="button"
