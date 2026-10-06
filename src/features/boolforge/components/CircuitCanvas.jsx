@@ -1,11 +1,5 @@
-﻿import React, { useRef, useState } from "react";
-import {
-  MessageSquare,
-  Pencil,
-  Trash2,
-  Check,
-  X,
-} from "lucide-react";
+import React, { useRef, useState } from "react";
+import { MessageSquare } from "lucide-react";
 import {
   gateSymbols,
   IC_TYPES,

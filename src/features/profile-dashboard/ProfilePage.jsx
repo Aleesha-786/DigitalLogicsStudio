@@ -1579,7 +1579,8 @@ export default function ProfilePage() {
                     <PolarRadiusAxis
                       angle={30}
                       domain={[0, 100]}
-                      tick={{ fontSize: 10, fill: "var(--secondary-text)" }}
+                      tick={false}
+                      axisLine={false}
                     />
                     <Radar
                       name="Completion %"
