@@ -71,6 +71,15 @@ export const SEARCH_PREVIEW_MAP = [
   },
   {
     keywords: [
+      "theorems assessment", "consensus assessment", "duality assessment",
+      "complement assessment", "find the dual", "find the complement",
+    ],
+    title: "Theorems Assessment",
+    route: "/boolean/theorems-assessment",
+    Component: React.lazy(() => import("../../features/dld-theory/boolean-algebra/BooleanTheoremsAssessment")),
+  },
+  {
+    keywords: [
       "minterms", "minterms page", "sum of products", "sop", "minterm expansion",
     ],
     title: "Minterms",

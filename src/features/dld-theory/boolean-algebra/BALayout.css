@@ -1191,11 +1191,13 @@
   --sw-accent-soft: var(--ba-accent-soft);
 }
 .ba-layout .assess-syntax,
-.ba-layout .assess-done-note {
+.ba-layout .assess-done-note,
+.ba-layout .assess-part-intro {
   margin: 0.85rem 0 0;
   font-size: 0.88rem;
 }
-.ba-layout .assess-done-note {
+.ba-layout .assess-done-note,
+.ba-layout .assess-part-intro {
   margin: 0 0 0.85rem;
   color: var(--ba-muted-strong);
 }
