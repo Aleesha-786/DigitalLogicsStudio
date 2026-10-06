@@ -1192,6 +1192,20 @@
   );
 }
 
+/* Assessment pages show their status here instead of a toggle. */
+.afhdl-mark-read-btn.is-assessment,
+.afhdl-mark-read-btn.is-assessment:hover {
+  cursor: default;
+  transform: none;
+}
+
+.afhdl-mark-read-btn.is-assessment:not(.is-read),
+.afhdl-mark-read-btn.is-assessment:not(.is-read):hover {
+  background: transparent;
+  border-color: var(--afhdl-border);
+  color: var(--afhdl-muted);
+}
+
 @media (max-width: 720px) {
   .afhdl-footer-right {
     width: 100%;

@@ -4,6 +4,7 @@ import { Home } from "lucide-react";
 import { useTheme } from "../../context/ThemeContext";
 import { useAuth } from "../../../auth/context/AuthContext";
 import progressService from "../../services/progressService";
+import LessonCompletionContext from "./lessonCompletion";
 import "../../../features/dld-theory/arithmetic-hdl/AFHDLLayout.css";
 import "./PremiumLearningShell.css";
 import RelatedSeoLinks from "../../seo/RelatedSeoLinks";
@@ -112,6 +113,9 @@ const PremiumLearningShell = ({
   const currentIndex = chapterPages.findIndex((page) => page.path === currentPath);
   const safeIndex = currentIndex >= 0 ? currentIndex : 0;
   const dotActiveIndex = currentIndex;
+  // Assessment pages complete only by passing the assessment (the page calls
+  // markComplete via useLessonCompletion) — never by scrolling or a button.
+  const isAssessment = Boolean(chapterPages[currentIndex]?.assessment);
   const prev = isOverview
     ? null
     : currentIndex > 0
@@ -152,12 +156,13 @@ const PremiumLearningShell = ({
   // e.g. /boolean/laws would always show "Mark as Read" as unchecked
   // because the cache starts empty.
   const dbLoadedRef = useRef(null);
+  const hydrationRef = useRef(Promise.resolve());
   useEffect(() => {
     if (!trackedTopic || !user || userKey === "guest") return;
     if (dbLoadedRef.current === userKey) return;
     dbLoadedRef.current = userKey;
 
-    progressService.loadFromDB(userKey).then(() => {
+    hydrationRef.current = progressService.loadFromDB(userKey).then(() => {
       setCompletedSubtopics(getCompletedSubtopics());
     });
   }, [user, userKey, trackedTopic, getCompletedSubtopics]);
@@ -202,6 +207,16 @@ const PremiumLearningShell = ({
     setCompletedSubtopics(getCompletedSubtopics());
   }, [catalog, getCompletedSubtopics, subtopicId, trackedTopic, userKey]);
 
+  // One-way version of toggleCompletion. The backend call is a toggle, so
+  // wait for the saved progress to load first — acting on a stale "not
+  // completed" would un-complete a page the server already has as done.
+  const markComplete = useCallback(async () => {
+    if (!trackedTopic || !subtopicId || !catalog) return;
+    await hydrationRef.current;
+    if (getCompletedSubtopics().includes(subtopicId)) return;
+    await toggleCompletion();
+  }, [catalog, getCompletedSubtopics, subtopicId, toggleCompletion, trackedTopic]);
+
   const readCount = trackedTopic
     ? completedSubtopics.filter((id) =>
         Object.values(pathToSubtopicId).includes(id),
@@ -214,6 +229,10 @@ const PremiumLearningShell = ({
   );
   const progressDash = progress * 0.879;
   const isRead = subtopicId ? completedSubtopics.includes(subtopicId) : false;
+  const lessonCompletion = useMemo(
+    () => ({ isComplete: isRead, markComplete }),
+    [isRead, markComplete],
+  );
 
   // Auto-mark as read once the user has scrolled through ~90% of the
 // page. Only fires once per page visit, and only if not already read
@@ -228,7 +247,7 @@ useEffect(() => {
 }, [currentPath]);
 
 useEffect(() => {
-  if (!trackedTopic || !subtopicId || !catalog) return;
+  if (!trackedTopic || !subtopicId || !catalog || isAssessment) return;
 
   const checkScrollProgress = () => {
     if (autoMarkedRef.current || isRead) return;
@@ -255,7 +274,7 @@ useEffect(() => {
 
   window.addEventListener("scroll", checkScrollProgress, { passive: true });
   return () => window.removeEventListener("scroll", checkScrollProgress);
-}, [trackedTopic, subtopicId, catalog, isRead, toggleCompletion]);
+}, [trackedTopic, subtopicId, catalog, isAssessment, isRead, toggleCompletion]);
 
 
   const pageDone = (pageIndex, page) => {
@@ -477,7 +496,11 @@ useEffect(() => {
             </div>
           </section>
 
-          <div className="afhdl-content premium-topic-content">{children}</div>
+          <div className="afhdl-content premium-topic-content">
+            <LessonCompletionContext.Provider value={lessonCompletion}>
+              {children}
+            </LessonCompletionContext.Provider>
+          </div>
 
           <RelatedSeoLinks />
 
@@ -511,7 +534,17 @@ useEffect(() => {
 )}
 
             <div className="afhdl-footer-right">
-              {tracking && subtopicId ? (
+              {tracking && subtopicId && isAssessment ? (
+                <span
+                  className={`afhdl-mark-read-btn is-assessment${isRead ? " is-read" : ""}`}
+                  role="status"
+                >
+                  <CheckCircleIcon />
+                  <span>
+                    {isRead ? "Assessment Complete" : "Assessment Pending"}
+                  </span>
+                </span>
+              ) : tracking && subtopicId ? (
                 <button
                   className={`afhdl-mark-read-btn${isRead ? " is-read" : ""}`}
                   onClick={toggleCompletion}

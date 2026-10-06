@@ -37,6 +37,15 @@ export const SEARCH_PREVIEW_MAP = [
   },
   {
     keywords: [
+      "laws assessment", "boolean laws assessment", "boolean assessment",
+      "simplify boolean expression", "boolean simplification practice",
+    ],
+    title: "Laws Assessment",
+    route: "/boolean/laws-assessment",
+    Component: React.lazy(() => import("../../features/dld-theory/boolean-algebra/BooleanLawsAssessment")),
+  },
+  {
+    keywords: [
       "complement", "boolean complement", "complementing expressions",
       "complement of a variable", "complement of a function",
     ],

@@ -88,6 +88,9 @@ const CircuitCost = lazy(() => import("../features/dld-theory/boolean-algebra/Ci
 const UniversalGates = lazy(() => import("../features/dld-theory/logic-gates/pages/UniversalGates"));
 const OddFunction = lazy(() => import("../features/dld-theory/logic-gates/pages/OddFunction"));
 const BooleanLaws = lazy(() => import("../features/dld-theory/boolean-algebra/BooleanLaws"));
+const BooleanLawsAssessment = lazy(
+  () => import("../features/dld-theory/boolean-algebra/BooleanLawsAssessment"),
+);
 const BooleanIdentities = lazy(
   () => import("../features/dld-theory/boolean-algebra/BooleanIdentities"),
 );
@@ -277,6 +280,10 @@ const AppContent = () => {
           />
           <Route path="/boolean/identities" element={<BooleanIdentities />} />
           <Route path="/boolean/laws" element={<BooleanLaws />} />
+          <Route
+            path="/boolean/laws-assessment"
+            element={<BooleanLawsAssessment />}
+          />
           <Route path="/boolean/complement" element={<ComplementPage />} />
           <Route path="/boolean/duality" element={<DualityPrinciple />} />
           <Route path="/boolean/consensus" element={<ConsensusTheorem />} />

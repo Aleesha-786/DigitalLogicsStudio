@@ -37,6 +37,7 @@ export const dldCourseParts = [
       { id: "ba-overview", slug: "boolean-overview", subtopicId: "overview", title: "Boolean Algebra", path: "/boolean/overview", description: "What Boolean algebra is and why it powers every digital circuit." },
       { id: "ba-identities", slug: "boolean-identities", subtopicId: "identities", title: "Boolean Identities", path: "/boolean/identities", description: "Idempotent, identity, domination, complementarity, and more." },
       { id: "ba-laws", slug: "boolean-laws", subtopicId: "laws", title: "Boolean Laws", path: "/boolean/laws", description: "Commutative, associative, distributive, absorption, De Morgan." },
+      { id: "ba-laws-assessment", slug: "boolean-laws-assessment", subtopicId: "laws-assessment", title: "Laws Assessment", path: "/boolean/laws-assessment", description: "Simplify an expression step by step using the laws." },
       { id: "ba-complement", slug: "boolean-complement", subtopicId: "complement", title: "Complement", path: "/boolean/complement", description: "Complementing single variables and entire Boolean expressions." },
       { id: "ba-duality", slug: "boolean-duality", subtopicId: "duality", title: "Duality Principle", path: "/boolean/duality", description: "Swap operators and identity values — every identity has a dual." },
       { id: "ba-consensus", slug: "boolean-consensus", subtopicId: "consensus", title: "Consensus Theorem", path: "/boolean/consensus", description: "Eliminate redundant terms using the consensus theorem." },

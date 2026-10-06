@@ -1175,6 +1175,245 @@
   color: var(--ba-muted);
 }
 
+/* Laws Assessment — a derivation the learner builds one checked step at a
+   time: valid steps stay (green), a non-equivalent step is shown struck
+   through in red and never joins the derivation. */
+.ba-layout .assess-card {
+  --assess-ok: #4ade80;
+  --assess-ok-soft: rgba(74, 222, 128, 0.1);
+  --assess-ok-border: rgba(74, 222, 128, 0.35);
+  --assess-bad: #f87171;
+  --assess-bad-soft: rgba(248, 113, 113, 0.1);
+  --assess-bad-border: rgba(248, 113, 113, 0.45);
+
+  background: var(--ba-surface-soft);
+  border: 1px solid var(--ba-border);
+  border-radius: 1rem;
+  padding: 1rem 1.1rem;
+}
+[data-theme="light"] .ba-layout .assess-card {
+  --assess-ok: #15803d;
+  --assess-ok-soft: rgba(22, 163, 74, 0.08);
+  --assess-ok-border: rgba(22, 163, 74, 0.3);
+  --assess-bad: #b91c1c;
+  --assess-bad-soft: rgba(220, 38, 38, 0.07);
+  --assess-bad-border: rgba(220, 38, 38, 0.4);
+}
+.ba-layout .assess-syntax,
+.ba-layout .assess-done-note {
+  margin: 0.85rem 0 0;
+  font-size: 0.88rem;
+}
+.ba-layout .assess-done-note {
+  margin: 0 0 0.85rem;
+  color: var(--ba-muted-strong);
+}
+.ba-layout .assess-syntax code {
+  padding: 0.1rem 0.4rem;
+  border-radius: 0.35rem;
+  background: var(--ba-accent-soft);
+  color: var(--ba-text);
+  font-size: 0.85rem;
+}
+.ba-layout .assess-card-head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+  margin-bottom: 0.6rem;
+}
+.ba-layout .assess-card-label {
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--ba-muted);
+}
+.ba-layout .assess-steps {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+.ba-layout .assess-step {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 0.2rem 0.85rem;
+  padding: 0.6rem 0.75rem;
+  border-left: 3px solid transparent;
+  border-bottom: 1px dashed var(--ba-border);
+  line-height: 1.5;
+}
+.ba-layout .assess-step-tag {
+  flex: 0 0 5.5rem;
+  font-size: 0.7rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--ba-muted);
+}
+.ba-layout .assess-step-expr {
+  flex: 1 1 12rem;
+  min-width: 0;
+  overflow-x: auto;
+  font-size: 1rem;
+  color: var(--ba-text);
+}
+.ba-layout .assess-step.is-given .assess-step-expr {
+  font-size: 1.12rem;
+}
+.ba-layout .assess-step-note,
+.ba-layout .assess-step-reason {
+  font-size: 0.8rem;
+  font-weight: 600;
+}
+.ba-layout .assess-step.is-valid {
+  border-left-color: var(--assess-ok-border);
+}
+.ba-layout .assess-step.is-valid .assess-step-note {
+  color: var(--assess-ok);
+}
+.ba-layout .assess-step.is-answer {
+  background: var(--assess-ok-soft);
+  border-left-color: var(--assess-ok);
+}
+.ba-layout .assess-step.is-discarded {
+  background: var(--assess-bad-soft);
+  border-left-color: var(--assess-bad);
+}
+.ba-layout .assess-step.is-discarded .assess-step-tag,
+.ba-layout .assess-step.is-discarded .assess-step-expr,
+.ba-layout .assess-step.is-discarded .assess-step-reason {
+  color: var(--assess-bad);
+}
+/* KaTeX lays glyphs out as inline-blocks, which text-decoration skips — so
+   the strike-through is drawn across the whole expression instead. */
+.ba-layout .assess-step.is-discarded .law-tex {
+  position: relative;
+  display: inline-block;
+}
+.ba-layout .assess-step.is-discarded .law-tex::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 52%;
+  border-top: 1.5px solid currentColor;
+}
+.ba-layout .assess-step-reason {
+  flex-basis: 100%;
+  padding-left: 6.35rem;
+}
+.ba-layout .assess-retry,
+.ba-layout .assess-link-btn {
+  padding: 0;
+  border: 0;
+  background: none;
+  font: inherit;
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: var(--ba-accent);
+  text-decoration: underline;
+  text-underline-offset: 0.2em;
+  cursor: pointer;
+}
+.ba-layout .assess-retry {
+  color: var(--assess-bad);
+}
+.ba-layout .assess-link-btn:disabled {
+  color: var(--ba-muted);
+  text-decoration: none;
+  cursor: default;
+  opacity: 0.6;
+}
+.ba-layout .assess-retry:focus-visible,
+.ba-layout .assess-link-btn:focus-visible {
+  outline: 2px solid currentColor;
+  outline-offset: 3px;
+  border-radius: 0.2rem;
+}
+.ba-layout .assess-form {
+  display: grid;
+  gap: 0.45rem;
+  margin-top: 1rem;
+}
+.ba-layout .assess-input-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.6rem;
+}
+.ba-layout .assess-input-prefix {
+  font-weight: 700;
+  color: var(--ba-muted-strong);
+  white-space: nowrap;
+}
+.ba-layout .assess-input {
+  flex: 1 1 12rem;
+  width: auto;
+  min-width: 0;
+  font-family: "JetBrains Mono", "Fira Code", Consolas, monospace;
+  letter-spacing: 0.02em;
+}
+.ba-layout .assess-input.is-invalid,
+.ba-layout .assess-input.is-invalid:focus {
+  border-color: var(--assess-bad);
+  box-shadow: 0 0 0 3px var(--assess-bad-soft);
+}
+.ba-layout .assess-input-row .kmap-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  transform: none;
+  box-shadow: none;
+}
+.ba-layout .assess-feedback {
+  min-height: 1.35rem;
+  margin: 0;
+  font-size: 0.85rem;
+  font-weight: 600;
+  line-height: 1.5;
+}
+.ba-layout .assess-feedback.is-valid {
+  color: var(--assess-ok);
+}
+.ba-layout .assess-feedback.is-invalid,
+.ba-layout .assess-feedback.is-discarded {
+  color: var(--assess-bad);
+}
+.ba-layout .assess-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem 1.25rem;
+}
+.ba-layout .assess-result {
+  margin-top: 1rem;
+  padding: 1rem 1.1rem;
+  border: 1px solid var(--assess-ok-border);
+  border-radius: 0.9rem;
+  background: var(--assess-ok-soft);
+}
+.ba-layout .assess-result h4 {
+  margin: 0 0 0.35rem;
+  font-size: 1rem;
+  color: var(--assess-ok);
+}
+.ba-layout .assess-result p {
+  margin: 0 0 0.85rem;
+  color: var(--ba-muted-strong);
+}
+@media (max-width: 720px) {
+  .ba-layout .assess-step-tag {
+    flex-basis: 100%;
+  }
+  .ba-layout .assess-step-reason {
+    padding-left: 0;
+  }
+  .ba-layout .assess-input-row .kmap-btn {
+    flex: 1 1 100%;
+  }
+}
+
 /* Minterm / Maxterm page specifics */
 .ba-layout .minterm-grid,
 .ba-layout .maxterm-grid {

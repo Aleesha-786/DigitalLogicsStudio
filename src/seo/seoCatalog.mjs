@@ -103,6 +103,16 @@ const booleanPages = [
     keywords: ["boolean laws", "de morgan laws boolean algebra"],
   },
   {
+    path: "/boolean/laws-assessment",
+    label: "Boolean Laws Assessment",
+    description:
+      "Practice simplifying Boolean expressions step by step, with every step checked against the original truth table.",
+    keywords: [
+      "boolean simplification practice",
+      "boolean laws assessment",
+    ],
+  },
+  {
     path: "/boolean/complement",
     label: "Boolean Complement",
     description:
