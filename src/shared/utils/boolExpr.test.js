@@ -24,6 +24,7 @@ describe("parseExpression", () => {
   test("accepts the alternative operator spellings", () => {
     expect(equivalent("!A & B | C", "A'B + C")).toBe(true);
     expect(equivalent("~(A*B)", "(A·B)’")).toBe(true);
+    expect(equivalent("A • B", "AB")).toBe(true);
     expect(equivalent("F = A + 0", "A.1")).toBe(true);
   });
 
