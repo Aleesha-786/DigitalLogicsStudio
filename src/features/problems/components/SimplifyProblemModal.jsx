@@ -11,7 +11,7 @@ const difficultyColor = {
 
 // Modal for `type: "simplify"` problems (see data/simplifyProblemsData.js):
 // the learner reduces problem.expression to its simplest form step by step.
-const SimplifyProblemModal = ({ problem, onClose, onSolved, onAttempt }) => {
+const SimplifyProblemModal = ({ problem, onClose, onSolved }) => {
   const [showHint, setShowHint] = useState(false);
 
   const exercise = useMemo(
@@ -26,17 +26,6 @@ const SimplifyProblemModal = ({ problem, onClose, onSolved, onAttempt }) => {
   );
 
   if (!problem) return null;
-
-  // A discarded step and the final answer each count as an attempt, the same
-  // way every submitted answer does for the other answer-graded problems.
-  const handleDiscarded = () => {
-    if (onAttempt) onAttempt(problem);
-  };
-
-  const handleSolved = () => {
-    if (onAttempt) onAttempt(problem);
-    if (onSolved) onSolved(problem);
-  };
 
   const columns = Object.keys(problem.truthTable[0]);
 
@@ -81,8 +70,7 @@ const SimplifyProblemModal = ({ problem, onClose, onSolved, onAttempt }) => {
                 key={problem.id}
                 problem={exercise}
                 solvedTitle="Problem solved"
-                onSolved={handleSolved}
-                onDiscarded={handleDiscarded}
+                onSolved={() => onSolved && onSolved(problem)}
                 autoFocus
               />
             </section>
