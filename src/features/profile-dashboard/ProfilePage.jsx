@@ -22,7 +22,7 @@ import Navbar from "../../shared/components/navbar";
 import Footer from "../../shared/components/Footer";
 import { useTheme } from "../../shared/context/ThemeContext";
 import { useAuth } from "../../auth/context/AuthContext";
-import progressService from "../../shared/services/progressService";
+import progressService, { toDateKey } from "../../shared/services/progressService";
 import apiClient from "../../shared/services/apiClient";
 import "../home/Home.css";
 import "./ProfileDashboard.css";
@@ -111,15 +111,13 @@ function buildYearGrid(activityMap) {
   // Roll back to Sunday
   start.setDate(start.getDate() - start.getDay());
 
-  const toKey = (d) => d.toISOString().slice(0, 10);
-
   // Build flat list of all days from start → today
   const days = [];
   const cursor = new Date(start);
   while (cursor <= today) {
-    const key = toKey(cursor);
-    const data = activityMap[key] || { solved: 0, attempts: 0, topicsCompleted: 0, topicsOpened: 0 };
-    const total = (data.solved || 0) + (data.attempts || 0) + (data.topicsCompleted || 0);
+    const key = toDateKey(cursor);
+    const data = activityMap[key] || { solved: 0, attempts: 0, topicsCompleted: 0, topicsOpened: 0, subtopicsCompleted: 0 };
+    const total = (data.solved || 0) + (data.attempts || 0) + (data.topicsCompleted || 0) + (data.subtopicsCompleted || 0);
     const intensity = total === 0 ? 0 : total === 1 ? 1 : total <= 3 ? 2 : total <= 6 ? 3 : 4;
     days.push({ date: key, intensity, ...data, total, isFuture: false });
     cursor.setDate(cursor.getDate() + 1);
@@ -128,7 +126,7 @@ function buildYearGrid(activityMap) {
   // Pad to fill last week (so grid is always full columns)
   while (days.length % 7 !== 0) {
     const padDate = new Date(cursor);
-    days.push({ date: toKey(padDate), intensity: -1, total: 0, isFuture: true });
+    days.push({ date: toDateKey(padDate), intensity: -1, total: 0, isFuture: true });
     cursor.setDate(cursor.getDate() + 1);
   }
 
@@ -144,11 +142,12 @@ function buildYearGrid(activityMap) {
   weeks.forEach((week, wi) => {
     const firstReal = week.find((d) => !d.isFuture);
     if (!firstReal) return;
-    const m = new Date(firstReal.date).getMonth();
+    const firstDate = new Date(`${firstReal.date}T00:00`);
+    const m = firstDate.getMonth();
     if (m !== lastMonth) {
       monthLabels.push({
         col: wi,
-        label: new Date(firstReal.date).toLocaleDateString("en-US", { month: "short" }),
+        label: firstDate.toLocaleDateString("en-US", { month: "short" }),
       });
       lastMonth = m;
     }
@@ -284,6 +283,7 @@ function GithubCalendar({ activityMap, streakCurrent, streakLongest, activeDays,
             <>
               {tooltip.day.solved > 0 && <span>✅ {tooltip.day.solved} solved</span>}
               {tooltip.day.attempts > 0 && <span>⚡ {tooltip.day.attempts} attempts</span>}
+              {tooltip.day.subtopicsCompleted > 0 && <span>📄 {tooltip.day.subtopicsCompleted} {tooltip.day.subtopicsCompleted === 1 ? "article" : "articles"} read</span>}
               {tooltip.day.topicsCompleted > 0 && <span>📚 {tooltip.day.topicsCompleted} topics done</span>}
               {tooltip.day.topicsOpened > 0 && <span>📖 {tooltip.day.topicsOpened} topics opened</span>}
             </>
@@ -455,12 +455,12 @@ function buildSubjectDayBuckets(problems, topics, activity) {
   Object.values(problems || {}).forEach((p) => {
     const subj = isCoalProblem(p) ? "coal" : "dld";
     if (p.solvedAt) {
-      const key = p.solvedAt.slice(0, 10);
+      const key = toDateKey(p.solvedAt);
       getOrCreate(key)[subj].solved += 1;
     }
     // count each attempt day from lastAttemptAt (best proxy we have)
     if (p.attempts > 0 && p.lastAttemptAt) {
-      const key = p.lastAttemptAt.slice(0, 10);
+      const key = toDateKey(p.lastAttemptAt);
       getOrCreate(key)[subj].attempts += p.attempts;
     }
   });
@@ -469,7 +469,7 @@ function buildSubjectDayBuckets(problems, topics, activity) {
   Object.entries(topics || {}).forEach(([id, t]) => {
     const subj = isCoalTopic(id) ? "coal" : "dld";
     if (t.completedAt) {
-      const key = t.completedAt.slice(0, 10);
+      const key = toDateKey(t.completedAt);
       getOrCreate(key)[subj].topics += 1;
     }
   });
@@ -504,7 +504,6 @@ function buildWeeklyTrend(problems, topics, subject, activity) {
 
   const today = new Date();
   today.setHours(0, 0, 0, 0);
-  const toKey = (d) => d.toISOString().slice(0, 10);
 
   const weekStart = new Date(today);
   weekStart.setDate(weekStart.getDate() - weekStart.getDay()); // roll to Sunday
@@ -518,7 +517,7 @@ function buildWeeklyTrend(problems, topics, subject, activity) {
       const day = new Date(start);
       day.setDate(day.getDate() + d);
       if (day > today) break;
-      const b = (buckets[toKey(day)] || {})[subj] || {};
+      const b = (buckets[toDateKey(day)] || {})[subj] || {};
       solved   += b.solved   || 0;
       attempts += b.attempts || 0;
       topics   += b.topics   || 0;
@@ -537,12 +536,11 @@ function buildDailyActivity(problems, topics, subject, activity) {
 
   const today = new Date();
   today.setHours(0, 0, 0, 0);
-  const toKey = (d) => d.toISOString().slice(0, 10);
 
   return Array.from({ length: 7 }, (_, i) => {
     const day = new Date(today);
     day.setDate(day.getDate() - (6 - i));
-    const b = (buckets[toKey(day)] || {})[subj] || {};
+    const b = (buckets[toDateKey(day)] || {})[subj] || {};
     return {
       day:      day.toLocaleDateString("en-US", { weekday: "short" }),
       solved:   b.solved   || 0,
@@ -603,17 +601,16 @@ function getWeekComparison(problems, topics, subject, activity) {
 
   const today = new Date();
   today.setHours(0, 0, 0, 0);
-  const toKey = (d) => d.toISOString().slice(0, 10);
 
   let thisWeek = 0, lastWeek = 0;
   for (let i = 0; i < 7; i++) {
     const d = new Date(today); d.setDate(d.getDate() - i);
-    const b = (buckets[toKey(d)] || {})[subj] || {};
+    const b = (buckets[toDateKey(d)] || {})[subj] || {};
     thisWeek += (b.solved || 0) + (b.attempts || 0) + (b.topics || 0);
   }
   for (let i = 7; i < 14; i++) {
     const d = new Date(today); d.setDate(d.getDate() - i);
-    const b = (buckets[toKey(d)] || {})[subj] || {};
+    const b = (buckets[toDateKey(d)] || {})[subj] || {};
     lastWeek += (b.solved || 0) + (b.attempts || 0) + (b.topics || 0);
   }
   const delta = lastWeek === 0 ? 0 : Math.round(((thisWeek - lastWeek) / lastWeek) * 100);
@@ -1910,7 +1907,7 @@ export default function ProfilePage() {
                 streakLongest={streakLongest}
                 activeDays={activeDays}
                 totalContributions={Object.values(state.activity || {}).reduce(
-                  (sum, d) => sum + (d.solved || 0) + (d.attempts || 0) + (d.topicsCompleted || 0),
+                  (sum, d) => sum + (d.solved || 0) + (d.attempts || 0) + (d.topicsCompleted || 0) + (d.subtopicsCompleted || 0),
                   0,
                 )}
               />

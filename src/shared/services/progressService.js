@@ -51,7 +51,7 @@ const normalizeUserKey = (userOrKey) => {
 
 // ─── Date helpers ─────────────────────────────────────────────────────────────
 
-const toDateKey = (value = new Date()) => {
+export const toDateKey = (value = new Date()) => {
   const d = new Date(value);
   const year = d.getFullYear();
   const month = String(d.getMonth() + 1).padStart(2, "0");
@@ -78,6 +78,8 @@ const mergeTopicState = (topic, currentState) => {
     completedSubtopics: Array.isArray(existing.completedSubtopics)
       ? existing.completedSubtopics
       : [],
+    // subtopicId -> "YYYY-MM-DD" the article was marked as read
+    subtopicReadDays: existing.subtopicReadDays || {},
     totalSubtopics: topic?.links?.length || existing.totalSubtopics || 0,
     title: topic?.title || existing.title || "",
     subject: existing.subject || derivedSubject,
@@ -107,9 +109,16 @@ const calculateTopicCompletion = (topic, topicState) => {
   };
 };
 
+const isActiveDay = (day) =>
+  Boolean(day) &&
+  (day.solved > 0 ||
+    day.attempts > 0 ||
+    day.topicsCompleted > 0 ||
+    day.subtopicsCompleted > 0);
+
 const calculateStreaks = (activity) => {
   const activeDays = Object.entries(activity)
-    .filter(([, v]) => v.solved > 0 || v.attempts > 0 || v.topicsCompleted > 0)
+    .filter(([, v]) => isActiveDay(v))
     .map(([k]) => k)
     .sort();
 
@@ -131,11 +140,7 @@ const calculateStreaks = (activity) => {
   let cursor = new Date();
   while (true) {
     const key = toDateKey(cursor);
-    const day = activity[key];
-    if (
-      day &&
-      (day.solved > 0 || day.attempts > 0 || day.topicsCompleted > 0)
-    ) {
+    if (isActiveDay(activity[key])) {
       current++;
       cursor = new Date(cursor.getTime() - 86_400_000);
     } else break;
@@ -182,12 +187,13 @@ const getMonthMatrix = (activity, monthInput = new Date()) => {
       solved: 0,
       topicsCompleted: 0,
       topicsOpened: 0,
+      subtopicsCompleted: 0,
     };
     const intensity = Math.min(
       4,
       day.solved > 0
         ? day.solved
-        : day.attempts > 0 || day.topicsCompleted > 0 || day.topicsOpened > 0
+        : isActiveDay(day) || day.topicsOpened > 0
           ? 1
           : 0,
     );
@@ -241,6 +247,7 @@ const ensureActivityDay = (state, dateKey) => {
       solved: 0,
       topicsCompleted: 0,
       topicsOpened: 0,
+      subtopicsCompleted: 0,
     };
   }
   return state.activity[dateKey];
@@ -482,10 +489,25 @@ const progressService = {
     ];
     const isCompleted = equivalentIds.some((id) => completedSet.has(id));
 
-    if (isCompleted) equivalentIds.forEach((id) => completedSet.delete(id));
-    else completedSet.add(subtopicId);
+    // Each article read counts on the day it was read; un-marking takes it
+    // back off that same day.
+    const readDays = { ...current.subtopicReadDays };
+    if (isCompleted) {
+      equivalentIds.forEach((id) => {
+        completedSet.delete(id);
+        const readDay = state.activity[readDays[id]];
+        if (readDay?.subtopicsCompleted > 0) readDay.subtopicsCompleted -= 1;
+        delete readDays[id];
+      });
+    } else {
+      completedSet.add(subtopicId);
+      readDays[subtopicId] = dateKey;
+      const readDay = ensureActivityDay(state, dateKey);
+      readDay.subtopicsCompleted = (readDay.subtopicsCompleted || 0) + 1;
+    }
 
     current.completedSubtopics = Array.from(completedSet);
+    current.subtopicReadDays = readDays;
     current.openedAt = current.openedAt || new Date().toISOString();
 
     const derived = calculateTopicCompletion(topic, current);

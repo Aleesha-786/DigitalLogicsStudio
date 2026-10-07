@@ -1,4 +1,4 @@
-import progressService, { progressTestUtils } from "./progressService";
+import progressService, { progressTestUtils, toDateKey } from "./progressService";
 
 const userKey = "student@example.com";
 
@@ -73,4 +73,24 @@ test("builds a calendar matrix with intensity values from activity", async () =>
   expect(today).toBeTruthy();
   expect(today.solved).toBeGreaterThan(0);
   expect(today.intensity).toBeGreaterThan(0);
+});
+
+test("counts each article read as activity on the day it was read", async () => {
+  progressTestUtils._resetCache(userKey);
+  const catalog = { topics: [sampleTopic] };
+  const todayKey = toDateKey();
+
+  await progressService.toggleSubtopicCompleted(userKey, sampleTopic, "overview", catalog);
+  let snapshot = progressService.getSnapshot(userKey, catalog);
+
+  expect(snapshot.state.activity[todayKey].subtopicsCompleted).toBe(1);
+  expect(snapshot.state.topics[sampleTopic.id].subtopicReadDays).toEqual({ overview: todayKey });
+  expect(snapshot.summary.streaks).toMatchObject({ current: 1, activeDays: 1 });
+
+  // Un-marking the article takes it back off the calendar.
+  await progressService.toggleSubtopicCompleted(userKey, sampleTopic, "overview", catalog);
+  snapshot = progressService.getSnapshot(userKey, catalog);
+
+  expect(snapshot.state.activity[todayKey].subtopicsCompleted).toBe(0);
+  expect(snapshot.summary.streaks.activeDays).toBe(0);
 });
