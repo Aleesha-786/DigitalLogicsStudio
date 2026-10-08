@@ -958,6 +958,33 @@
   color: var(--ba-muted);
   background: var(--ba-table-row-bg);
 }
+.ba-layout .binary-table-cell-primary {
+  color: var(--ba-accent);
+  font-weight: 800;
+}
+.ba-layout .minterm-truth-table {
+  margin: 0.8rem 0 1rem;
+}
+.ba-layout .minterm-truth-table .binary-table-header th,
+.ba-layout .minterm-truth-table .binary-table-cell {
+  text-align: center;
+}
+.ba-layout .minterm-index-cell {
+  font-weight: 700;
+  color: var(--ba-muted-strong);
+  font-variant-numeric: tabular-nums;
+}
+.ba-layout .binary-table-row.is-minterm-row .binary-table-cell {
+  background: linear-gradient(
+    90deg,
+    color-mix(in srgb, var(--ba-accent) 20%, var(--ba-table-row-bg)),
+    color-mix(in srgb, var(--ba-accent) 12%, var(--ba-table-row-bg))
+  );
+  color: var(--ba-text);
+}
+.ba-layout .binary-table-row.is-minterm-row .minterm-index-cell {
+  color: var(--ba-accent);
+}
 
 /* Truth table picker (Boolean Algebra overview) */
 .ba-layout .ba-truth-option.is-active {
@@ -1459,4 +1486,3 @@
 [data-theme="light"] .ba-pill-dot {
   background: #6d28d9;
 }
-
