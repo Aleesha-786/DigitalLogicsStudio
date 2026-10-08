@@ -12,7 +12,7 @@ export const parseExpressionToCircuit = (expression, variables) => {
   // Normalize XOR: replace "XOR" keyword (case-insensitive) and ⊕ with §
   // We use § as a safe internal XOR separator token
   expr = expr.replace(/\s+XOR\s+/gi, "§");
-  expr = expr.replace(/⊕/g, "§");
+  expr = expr.replace(/[⊕^]/g, "§");
 
   // Normalize explicit AND operators and remove remaining spaces
   expr = expr.replace(/[•.*]/g, "•").replace(/\s+/g, "");
@@ -100,8 +100,14 @@ export const parseExpressionToCircuit = (expression, variables) => {
 
   // ── X offsets ─────────────────────────────────────────────────────────────
   const hasNotGates = complementedVars.size > 0;
-  const andX = hasNotGates ? 430 : 270;
-  const orX = hasNotGates ? 620 : 460;
+  // Parenthesised groups (product of sums) need a column for the group OR
+  // gates before the AND, so the AND and final OR shift right.
+  const hasGroups = expr.includes("(");
+  const groupShift = hasGroups ? 200 : 0;
+  const groupSpacing = 100;
+  const andBaseX = hasNotGates ? 430 : 270;
+  const andX = andBaseX + groupShift;
+  const orX = (hasNotGates ? 620 : 460) + groupShift;
   const xorBaseX = hasNotGates ? 300 : 230;
 
   // ── Helper: resolve a literal token to a gate id ──────────────────────────
@@ -222,6 +228,7 @@ export const parseExpressionToCircuit = (expression, variables) => {
   const parseProduct = (term, termIndex) => {
     const termY = termStartY + termIndex * termSpacing;
     const factors = [];
+    let groupIdx = 0;
 
     for (let i = 0; i < term.length; i++) {
       const ch = term[i];
@@ -235,14 +242,19 @@ export const parseExpressionToCircuit = (expression, variables) => {
         }
         const inner = term.slice(i + 1, j - 1);
         const hasNot = j < term.length && term[j] === "'";
-        let subId = buildSubExpression(inner, termIndex);
+        let subId = buildSubExpression(
+          inner,
+          termIndex,
+          termY + groupIdx * groupSpacing,
+        );
+        groupIdx++;
         if (hasNot) {
           const ng = {
             id: gateId++,
             type: "NOT",
             label: `(${inner})'`,
             x: andX - 80,
-            y: termY,
+            y: termY + (groupIdx - 1) * groupSpacing,
             inputs: 1,
             hasOutput: true,
             inputValues: [],
@@ -280,7 +292,7 @@ export const parseExpressionToCircuit = (expression, variables) => {
       type: "AND",
       label: `AND${termIndex}`,
       x: andX,
-      y: termY,
+      y: termY + (Math.max(groupIdx - 1, 0) * groupSpacing) / 2,
       inputs: factors.length,
       hasOutput: true,
       inputValues: [],
@@ -300,8 +312,7 @@ export const parseExpressionToCircuit = (expression, variables) => {
     return andGate.id;
   };
 
-  const buildSubExpression = (inner, termIndex) => {
-    const termY = termStartY + termIndex * termSpacing;
+  const buildSubExpression = (inner, termIndex, termY) => {
     const innerTerms = splitTopLevel(inner, "+");
     const ids = innerTerms
       .map((t) => parseProduct(t, termIndex))
@@ -313,7 +324,7 @@ export const parseExpressionToCircuit = (expression, variables) => {
       id: gateId++,
       type: "OR",
       label: `OR${termIndex}_sub`,
-      x: andX + 120,
+      x: andBaseX,
       y: termY,
       inputs: ids.length,
       hasOutput: true,
@@ -501,8 +512,10 @@ export const parseExpressionToCircuit = (expression, variables) => {
       outputSourceId = finalOrGate.id;
     }
 
-    const finalCenterY =
-      termStartY + ((termGateIds.length - 1) * termSpacing) / 2;
+    const outputSource = gates.find((g) => g.id === outputSourceId);
+    const finalCenterY = outputSource
+      ? outputSource.y
+      : termStartY + ((termGateIds.length - 1) * termSpacing) / 2;
     const outputGate = {
       id: gateId++,
       type: "OUTPUT",

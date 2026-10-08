@@ -1,12 +1,25 @@
 import React, { useState, useMemo } from "react";
 import BALayout from "./BALayout";
 import CircuitModal from "../../../shared/components/CircuitModal";
-import { generateTruthTable } from "../../../shared/utils/boolMath";
+import {
+  generateTruthTable,
+  getCanonicalForms,
+} from "../../../shared/utils/boolMath";
 
 const MintermsMaxtermsRelation = () => {
-  const variables = useMemo(() => ["A", "B", "C"], []);
-  const [expr, setExpr] = useState("F = AB' + C");
+  const [input, setInput] = useState("F = AB' + C");
   const [open, setOpen] = useState(false);
+  const [circuitForm, setCircuitForm] = useState("SOP");
+  // Drop the "F =" label so it isn't parsed as an input variable
+  const expr = useMemo(
+    () => input.replace(/^\s*[A-Za-z]\w*\s*=/, "").replace(/⊕/g, "^"),
+    [input],
+  );
+  // Inputs come from the expression itself (A-Z, max 6 to keep the table small)
+  const variables = useMemo(() => {
+    const found = [...new Set(expr.toUpperCase().match(/[A-Z]/g) || [])].sort();
+    return found.length ? found.slice(0, 6) : ["A", "B", "C"];
+  }, [expr]);
   const tt = useMemo(
     () => generateTruthTable(variables, expr),
     [variables, expr],
@@ -18,6 +31,14 @@ const MintermsMaxtermsRelation = () => {
   const maxs = tt.rows
     .map((row, i) => (row[row.length - 1] === 0 ? i : null))
     .filter((x) => x !== null);
+  const canonical = useMemo(
+    () => getCanonicalForms(variables, tt.rows),
+    [variables, tt],
+  );
+  const openCircuit = (form) => {
+    setCircuitForm(form);
+    setOpen(true);
+  };
 
   return (
     <BALayout
@@ -76,8 +97,8 @@ const MintermsMaxtermsRelation = () => {
           <input
             type="text"
             className="ba-input"
-            value={expr}
-            onChange={(e) => setExpr(e.target.value)}
+            value={input}
+            onChange={(e) => setInput(e.target.value)}
           />
         </div>
 
@@ -94,7 +115,8 @@ const MintermsMaxtermsRelation = () => {
             </p>
             <p>
               <strong>Total combinations:</strong> {mins.length + maxs.length}{" "}
-              (should be 2³ = 8 for 3 variables)
+              (should be 2^{variables.length} ={" "}
+              {2 ** variables.length} for {variables.length} variables)
             </p>
           </div>
         </div>
@@ -134,25 +156,25 @@ const MintermsMaxtermsRelation = () => {
         <div className="ba-actions">
           <button
             className="kmap-btn kmap-btn-secondary"
-            onClick={() => setExpr("F = A + B")}
+            onClick={() => setInput("F = A + B")}
           >
             A + B
           </button>
           <button
             className="kmap-btn kmap-btn-secondary"
-            onClick={() => setExpr("F = AB + C")}
+            onClick={() => setInput("F = AB + C")}
           >
             AB + C
           </button>
           <button
             className="kmap-btn kmap-btn-secondary"
-            onClick={() => setExpr("F = A ⊕ B")}
+            onClick={() => setInput("F = A ⊕ B")}
           >
             A ⊕ B
           </button>
           <button
             className="kmap-btn kmap-btn-secondary"
-            onClick={() => setExpr("F = A • B + C'")}
+            onClick={() => setInput("F = A • B + C'")}
           >
             A • B + C'
           </button>
@@ -174,14 +196,14 @@ const MintermsMaxtermsRelation = () => {
                 B=1 AND C=1)
               </p>
               <p>
-                <strong>Minterms:</strong> [1,2,3,4,5,6,7] (7 terms)
+                <strong>Minterms:</strong> [3,4,5,6,7] (5 terms)
               </p>
               <p>
-                <strong>Maxterms:</strong> [0] (1 term)
+                <strong>Maxterms:</strong> [0,1,2] (3 terms)
               </p>
               <p>
-                <strong>Conclusion:</strong> POS form is much more efficient: F
-                = (A + B + C)
+                <strong>Conclusion:</strong> POS needs fewer terms here: with
+                maxterms [0,1,2], F = (A + B)(A + C)
               </p>
             </details>
           </div>
@@ -249,19 +271,27 @@ const MintermsMaxtermsRelation = () => {
           </p>
         </div>
         <div className="kmap-card" style={{ marginTop: "1rem" }}>
-          <button
-            className="kmap-btn kmap-btn-primary kmap-btn-full"
-            onClick={() => setOpen(true)}
-          >
-            🔌 Visualize SOP vs POS circuit
-          </button>
+          <div className="ba-actions">
+            <button
+              className="kmap-btn kmap-btn-primary"
+              onClick={() => openCircuit("SOP")}
+            >
+              🔌 Visualize SOP circuit
+            </button>
+            <button
+              className="kmap-btn kmap-btn-primary"
+              onClick={() => openCircuit("POS")}
+            >
+              🔌 Visualize POS circuit
+            </button>
+          </div>
         </div>
       </section>
 
       <CircuitModal
         open={open}
         onClose={() => setOpen(false)}
-        expression={expr}
+        expression={circuitForm === "POS" ? canonical.pos : expr}
         variables={variables}
       />
     </BALayout>

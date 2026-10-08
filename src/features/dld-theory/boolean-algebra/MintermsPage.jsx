@@ -222,37 +222,6 @@ const MintermsPage = () => {
 
       <section className="ba-section">
         <div className="ba-section-header">
-          <h2 className="ba-section-title">Truth Table</h2>
-        </div>
-        <div className="binary-table-container">
-          <table className="binary-table">
-            <thead className="binary-table-header">
-              <tr>
-                {tt.headers.map((h) => (
-                  <th key={h}>{h}</th>
-                ))}
-              </tr>
-            </thead>
-            <tbody>
-              {tt.rows.map((row, i) => (
-                <tr key={i} className="binary-table-row">
-                  {row.map((c, j) => (
-                    <td
-                      key={j}
-                      className={`binary-table-cell ${j === tt.headers.length - 1 && c === 1 ? "binary-table-cell-primary" : ""}`}
-                    >
-                      {c}
-                    </td>
-                  ))}
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
-      </section>
-
-      <section className="ba-section">
-        <div className="ba-section-header">
           <h2 className="ba-section-title">Minterm Applications</h2>
         </div>
         <div className="comparison-grid">
