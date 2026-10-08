@@ -3,7 +3,13 @@ import BALayout from "./BALayout";
 import ControlPanel from "../../../shared/components/ControlPanel";
 import ControlGroup from "../../../shared/components/ControlGroup";
 import CircuitModal from "../../../shared/components/CircuitModal";
-import { generateTruthTable } from "../../../shared/utils/boolMath";
+import {
+  generateTruthTable,
+  getCanonicalForms,
+} from "../../../shared/utils/boolMath";
+
+const toSub = (n) =>
+  String(n).replace(/\d/g, (d) => "₀₁₂₃₄₅₆₇₈₉"[d]);
 
 const listMinterms = (variables, expression) => {
   const tt = generateTruthTable(variables, expression);
@@ -29,6 +35,10 @@ const MintermsPage = () => {
     [variables, expr],
   );
   const mins = useMemo(() => listMinterms(variables, expr), [variables, expr]);
+  const canonical = useMemo(
+    () => getCanonicalForms(variables, tt.rows),
+    [variables, tt],
+  );
 
   return (
     <BALayout
@@ -153,8 +163,14 @@ const MintermsPage = () => {
           </div>
           <div className="info-card">
             <h4>From Minterms to Expression:</h4>
-            <p>If minterms are [1, 3, 7], the canonical SOP is:</p>
-            <p>F = m₁ + m₃ + m₇ = A'B'C + A'BC + ABC</p>
+            <p>For your expression, the minterms are [{mins.join(", ")}], so the canonical SOP is:</p>
+            <p>
+              F ={" "}
+              {mins.length
+                ? mins.map((m) => `m${toSub(m)}`).join(" + ")
+                : "0"}
+              {mins.length ? ` = ${canonical.sop}` : ""}
+            </p>
             <p>This can often be simplified using Boolean algebra!</p>
           </div>
         </div>
@@ -195,10 +211,10 @@ const MintermsPage = () => {
           <details>
             <summary>Show Solution</summary>
             <p>
-              <strong>Minterms:</strong> [1, 2, 3, 4, 5, 6, 7]
+              <strong>Minterms:</strong> [3, 4, 5, 6, 7]
             </p>
             <p>
-              <strong>Canonical SOP:</strong> F = Σm(1,2,3,4,5,6,7)
+              <strong>Canonical SOP:</strong> F = Σm(3,4,5,6,7)
             </p>
           </details>
         </div>
