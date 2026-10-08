@@ -102,6 +102,49 @@ const MintermsPage = () => {
             Current minterm indexes:{" "}
             <span className="highlight">{mins.join(", ") || "—"}</span>
           </p>
+          <div
+            className="binary-table-container minterm-truth-table"
+            aria-label="Truth table with highlighted minterms"
+          >
+            <table className="binary-table">
+              <thead className="binary-table-header">
+                <tr>
+                  <th>Minterm</th>
+                  {tt.headers.map((h) => (
+                    <th key={h}>{h}</th>
+                  ))}
+                </tr>
+              </thead>
+              <tbody>
+                {tt.rows.map((row, i) => {
+                  const isMinterm = row[row.length - 1] === 1;
+
+                  return (
+                    <tr
+                      key={i}
+                      className={`binary-table-row ${isMinterm ? "is-minterm-row" : ""}`}
+                    >
+                      <td className="binary-table-cell minterm-index-cell">
+                        m{i}
+                      </td>
+                      {row.map((c, j) => (
+                        <td
+                          key={j}
+                          className={`binary-table-cell ${
+                            j === tt.headers.length - 1 && isMinterm
+                              ? "binary-table-cell-primary"
+                              : ""
+                          }`}
+                        >
+                          {c}
+                        </td>
+                      ))}
+                    </tr>
+                  );
+                })}
+              </tbody>
+            </table>
+          </div>
           <div className="info-card">
             <h4>From Minterms to Expression:</h4>
             <p>If minterms are [1, 3, 7], the canonical SOP is:</p>
