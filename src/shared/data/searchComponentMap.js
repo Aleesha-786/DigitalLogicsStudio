@@ -80,6 +80,15 @@ export const SEARCH_PREVIEW_MAP = [
   },
   {
     keywords: [
+      "minterms assessment", "maxterms assessment", "minterms and maxterms assessment",
+      "truth table assessment", "sum of minterms", "product of maxterms",
+    ],
+    title: "Minterms & Maxterms Assessment",
+    route: "/boolean/minterms-maxterms-assessment",
+    Component: React.lazy(() => import("../../features/dld-theory/boolean-algebra/BooleanMintermsAssessment")),
+  },
+  {
+    keywords: [
       "minterms", "minterms page", "sum of products", "sop", "minterm expansion",
     ],
     title: "Minterms",
