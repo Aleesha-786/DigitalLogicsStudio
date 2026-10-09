@@ -45,6 +45,7 @@ export const dldCourseParts = [
       { id: "ba-minterms", slug: "boolean-minterms", subtopicId: "minterms", title: "Minterms", path: "/boolean/minterms", description: "Sum of products: every row of a truth table as a minterm." },
       { id: "ba-maxterms", slug: "boolean-maxterms", subtopicId: "maxterms", title: "Maxterms", path: "/boolean/maxterms", description: "Product of sums: the dual representation of minterms." },
       { id: "ba-min-max", slug: "boolean-minterms-maxterms", subtopicId: "relation", title: "Minterms & Maxterms", path: "/boolean/minterms-maxterms", description: "How minterms and maxterms relate and complement each other." },
+      { id: "ba-min-max-assessment", slug: "boolean-minterms-maxterms-assessment", subtopicId: "minterms-maxterms-assessment", title: "Minterms & Maxterms Assessment", path: "/boolean/minterms-maxterms-assessment", description: "Build a truth table, then find its minterms and maxterms." },
       { id: "ba-sig-digits", slug: "boolean-significant-digits", subtopicId: "significant-digits", title: "Significant Digits", path: "/boolean/significant-digits", description: "Count significant figures, MSD, and LSD for any number." },
       { id: "ba-standard", slug: "boolean-standard-forms", title: "Standard Forms", path: "/boolean/standard-forms", description: "Standardize expressions as sum-of-products or product-of-sums." },
     ],
