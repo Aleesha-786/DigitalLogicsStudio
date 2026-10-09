@@ -107,6 +107,7 @@ export const BA_PATH_TO_SUBTOPIC_ID = {
   "/boolean/minterms": "minterms",
   "/boolean/maxterms": "maxterms",
   "/boolean/minterms-maxterms": "relation",
+  "/boolean/minterms-maxterms-assessment": "minterms-maxterms-assessment",
   "/boolean/significant-digits": "significant-digits",
 };
 
