@@ -6,6 +6,8 @@ import CircuitModal from "../../../shared/components/CircuitModal";
 import {
   generateTruthTable,
   getCanonicalForms,
+  extractVariables,
+  stripLabel,
 } from "../../../shared/utils/boolMath";
 
 const toSub = (n) =>
@@ -23,11 +25,10 @@ const listMinterms = (variables, expression) => {
 const MintermsPage = () => {
   const [input, setInput] = useState("F = AB' + C");
   const [open, setOpen] = useState(false);
-  // Drop the "F =" label so it isn't parsed as an input variable
-  const expr = useMemo(() => input.replace(/^\s*[A-Za-z]\w*\s*=/, "").replace(/⊕/g, "^"), [input]);
-  // Inputs come from the expression itself (A-Z, max 6 to keep the table small)
+  const expr = useMemo(() => stripLabel(input), [input]);
+  // Inputs come from the expression itself (max 6 to keep the table small)
   const variables = useMemo(() => {
-    const found = [...new Set(expr.toUpperCase().match(/[A-Z]/g) || [])].sort();
+    const found = extractVariables(expr);
     return found.length ? found.slice(0, 6) : ["A", "B", "C"];
   }, [expr]);
   const tt = useMemo(
@@ -126,8 +127,8 @@ const MintermsPage = () => {
               <thead className="binary-table-header">
                 <tr>
                   <th>Minterm</th>
-                  {tt.headers.map((h) => (
-                    <th key={h}>{h}</th>
+                  {tt.headers.map((h, hi) => (
+                    <th key={`${h}-${hi}`}>{h}</th>
                   ))}
                 </tr>
               </thead>

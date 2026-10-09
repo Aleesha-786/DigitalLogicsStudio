@@ -98,7 +98,7 @@ const InteractiveDemo = ({
         )}
       </div>
 
-      <style jsx>{`
+      <style>{`
         .interactive-demo {
           background: var(--bg-surface);
           border: 1px solid var(--border-color);

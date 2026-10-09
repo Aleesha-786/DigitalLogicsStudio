@@ -3,7 +3,7 @@ export default function SeqBoxInfo() {
     <>
       <div className="seq-box info">
         <span className="seq-box-title">Key Terminology</span>
-        <p>
+        <div>
           <ul>
             <li>
               <strong>State</strong> — The binary values stored in flip-flops at
@@ -22,7 +22,7 @@ export default function SeqBoxInfo() {
               current circuit state.
             </li>
           </ul>
-        </p>
+        </div>
       </div>
     </>
   );

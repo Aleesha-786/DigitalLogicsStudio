@@ -18,7 +18,7 @@ const InfoCards = () => (
         </li>
       </ul>
     </div>
-    <div className="key-insight">
+    <div className="info-card">
       <h4>Standard Operators</h4>
       <ul>
         <li>

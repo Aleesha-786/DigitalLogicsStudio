@@ -3,118 +3,108 @@ import AdvancedLogicLayout from '../../../shared/layouts/AdvancedLogicLayout';
 import ExplanationBlock from '../../../shared/components/ExplanationBlock';
 import InteractiveCalculator from './components/InteractiveCalculator';
 import CircuitModal from '../../../shared/components/CircuitModal';
+import { parseExpression } from '../../../shared/utils/boolExpr';
+
+const countLiterals = (node) => {
+  if (node.type === 'var') return 1;
+  if (node.type === 'not') return countLiterals(node.arg);
+  if (node.args) return node.args.reduce((sum, arg) => sum + countLiterals(arg), 0);
+  return 0;
+};
+
+// Walks the expression tree: AND/OR gates take one input per operand and
+// each complemented variable gets a single shared inverter.
+const gateInputCost = (ast) => {
+  const cost = { and: 0, or: 0, not: 0, inputs: 0 };
+  const inverted = new Set();
+  const walk = (node) => {
+    if (node.type === 'not') {
+      if (node.arg.type === 'var') {
+        inverted.add(node.arg.name);
+      } else {
+        cost.not += 1;
+        cost.inputs += 1;
+        walk(node.arg);
+      }
+    } else if (node.type === 'and' || node.type === 'or') {
+      cost[node.type] += 1;
+      cost.inputs += node.args.length;
+      node.args.forEach(walk);
+    }
+  };
+  walk(ast);
+  cost.not += inverted.size;
+  cost.inputs += inverted.size;
+  return cost;
+};
 
 const CircuitCost = () => {
   const [open, setOpen] = useState(false);
   const [literalCostResult, setLiteralCostResult] = useState('');
   const [gateInputCostResult, setGateInputCostResult] = useState('');
 
-  // Parse boolean expression and calculate literal cost
+  // Literal cost: every variable occurrence (complemented or not) counts once.
   const calculateLiteralCost = (expression) => {
-    try {
-      // Remove spaces and convert to uppercase
-      const expr = expression.replace(/\s+/g, '').toUpperCase();
-
-      // Count literals (variables and their complements)
-      let literalCount = 0;
-      const variables = new Set();
-
-      for (let i = 0; i < expr.length; i++) {
-        const char = expr[i];
-        if (/[A-Z]/.test(char)) {
-          variables.add(char);
-          if (i > 0 && expr[i - 1] === "'") {
-            // Complemented variable
-            literalCount++;
-          } else if (i < expr.length - 1 && expr[i + 1] === "'") {
-            // Variable that will be complemented
-            literalCount++;
-          } else {
-            // Non-complemented variable
-            literalCount++;
-          }
-        }
-      }
-
-      const result = {
-        expression: expression,
-        literalCount: literalCount,
-        uniqueVariables: variables.size,
-        variables: Array.from(variables).sort().join(', ')
-      };
-
-      setLiteralCostResult(
-        `Expression: ${result.expression}\n` +
-        `Literal Cost: ${result.literalCount}\n` +
-        `Unique Variables: ${result.uniqueVariables} (${result.variables})\n\n` +
-        `Explanation:\n` +
-        `• Each variable occurrence (complemented or not) counts as 1 literal\n` +
-        `• Total literals: ${result.literalCount}\n` +
-        `• This represents the number of literal inputs needed`
-      );
-    } catch (error) {
-      setLiteralCostResult('Error: Invalid expression format');
+    if (!expression.trim()) {
+      setLiteralCostResult('');
+      return;
     }
+    const parsed = parseExpression(expression);
+    if (!parsed.ok) {
+      setLiteralCostResult(`Error: ${parsed.error}`);
+      return;
+    }
+    const literalCount = countLiterals(parsed.ast);
+    setLiteralCostResult(
+      `Expression: ${expression}
+` +
+        `Literal Cost: ${literalCount}
+` +
+        `Unique Variables: ${parsed.variables.length} (${parsed.variables.join(', ')})
+
+` +
+        `Explanation:
+` +
+        `• Each variable occurrence (complemented or not) counts as 1 literal
+` +
+        `• Total literals: ${literalCount}
+` +
+        `• This represents the number of literal inputs needed`,
+    );
   };
 
-  // Parse boolean expression and calculate gate input cost
+  // Gate input cost: inputs to every AND/OR gate, plus one input per inverter.
   const calculateGateInputCost = (expression) => {
-    try {
-      const expr = expression.replace(/\s+/g, '').toUpperCase();
-
-      // Count operators and their inputs
-      let gateInputCount = 0;
-      let currentGateInputs = 0;
-
-      for (let i = 0; i < expr.length; i++) {
-        const char = expr[i];
-
-        if (char === '(') {
-          // Opening parenthesis
-        } else if (char === ')') {
-          if (currentGateInputs > 0) {
-            gateInputCount += currentGateInputs;
-            currentGateInputs = 0;
-          }
-        } else if (/[A-Z]/.test(char)) {
-          currentGateInputs++;
-          // Skip complement if present
-          if (i < expr.length - 1 && expr[i + 1] === "'") {
-            i++;
-          }
-        } else if (char === '+' || char === '·' || char === '*') {
-          if (currentGateInputs > 0) {
-            gateInputCount += currentGateInputs;
-            currentGateInputs = 0;
-          }
-        }
-      }
-
-      // Add remaining inputs
-      if (currentGateInputs > 0) {
-        gateInputCount += currentGateInputs;
-      }
-
-      // Count gates
-      const andGates = (expr.match(/[+]/g) || []).length;
-      const orGates = (expr.match(/[·*]/g) || []).length;
-      const notGates = (expr.match(/'/g) || []).length;
-      const totalGates = andGates + orGates + notGates;
-
-      setGateInputCostResult(
-        `Expression: ${expression}\n` +
-        `Gate Input Cost: ${gateInputCount}\n` +
-        `Total Gates: ${totalGates}\n` +
-        `AND Gates: ${andGates}, OR Gates: ${orGates}, NOT Gates: ${notGates}\n\n` +
-        `Explanation:\n` +
-        `• Gate input cost = sum of inputs to all gates\n` +
-        `• Each gate input counts as 1 toward the cost\n` +
-        `• This represents the total number of gate inputs required\n` +
-        `• Lower cost generally means simpler implementation`
-      );
-    } catch (error) {
-      setGateInputCostResult('Error: Invalid expression format');
+    if (!expression.trim()) {
+      setGateInputCostResult('');
+      return;
     }
+    const parsed = parseExpression(expression);
+    if (!parsed.ok) {
+      setGateInputCostResult(`Error: ${parsed.error}`);
+      return;
+    }
+    const cost = gateInputCost(parsed.ast);
+    setGateInputCostResult(
+      `Expression: ${expression}
+` +
+        `Gate Input Cost: ${cost.inputs}
+` +
+        `Total Gates: ${cost.and + cost.or + cost.not}
+` +
+        `AND Gates: ${cost.and}, OR Gates: ${cost.or}, NOT Gates: ${cost.not}
+
+` +
+        `Explanation:
+` +
+        `• Gate input cost = sum of inputs to all gates
+` +
+        `• Each gate input counts as 1 toward the cost
+` +
+        `• A complemented variable shares one NOT gate, wherever it appears
+` +
+        `• Lower cost generally means simpler implementation`,
+    );
   };
 
   const literalExample = "F = A'B + AB' + C";
@@ -291,7 +281,7 @@ const CircuitCost = () => {
         variables={['A', 'B', 'C']}
       />
 
-      <style jsx>{`
+      <style>{`
         .cost-types {
           display: grid;
           grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));

@@ -79,6 +79,12 @@ export const baPages = [
     short: "Sig. Digits",
     description: "Count significant figures, MSD, and LSD for any number.",
   },
+  {
+    path: "/boolean/standard-forms",
+    label: "Standard Forms",
+    short: "SOP & POS",
+    description: "Write any function as sum-of-products or product-of-sums.",
+  },
 ];
 
 export const BA_PATH_TO_SUBTOPIC_ID = {

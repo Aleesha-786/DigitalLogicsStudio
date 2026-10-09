@@ -1,67 +1,44 @@
 import React, { useState } from "react";
 import BALayout from "./BALayout";
 
+const EMPTY_RESULT = { count: 0, msd: null, lsd: null, cleaned: "" };
+
+const describe = (digits) =>
+  digits
+    ? {
+        count: digits.length,
+        msd: digits[0],
+        lsd: digits[digits.length - 1],
+        cleaned: digits,
+      }
+    : EMPTY_RESULT;
+
+// Standard rules: leading zeros never count; zeros between digits always
+// count; trailing zeros count only when there is a decimal point (or the
+// number is written in scientific notation). In a plain integer such as 1500
+// the trailing zeros are treated as placeholders.
 const countSignificantDigits = (value) => {
-  if (!value || /^\s*$/.test(value))
-    return { count: 0, msd: null, lsd: null, cleaned: "" };
+  if (!value || /^\s*$/.test(value)) return EMPTY_RESULT;
 
-  let str = value.trim();
+  const str = value.trim();
 
-  // Handle scientific notation by normalizing the significand
-  const sciMatch = str.match(/^([+-]?\d*\.?\d+)[eE]([+-]?\d+)$/);
+  // Scientific notation: every digit of the significand is significant.
+  const sciMatch = str.match(/^[+-]?(\d*\.?\d+|\d+\.)[eE][+-]?\d+$/);
   if (sciMatch) {
-    const significand = sciMatch[1].replace(/[+-]/g, "");
-    const digitsOnly = significand.replace(".", "");
-    const stripped = digitsOnly.replace(/^0+/, ").replace(/0+$/, ");
-    if (!stripped) return { count: 0, msd: null, lsd: null, cleaned: "" };
-    return {
-      count: stripped.length,
-      msd: stripped[0],
-      lsd: stripped[stripped.length - 1],
-      cleaned: stripped,
-    };
+    const significand = str.split(/[eE]/)[0].replace(/[+-]/g, "");
+    return describe(significand.replace(".", "").replace(/^0+/, ""));
   }
 
-  // Regular decimal representation
-  const signless = str.replace(/[+-]/g, "");
-  if (!/^\d*\.?\d*$/.test(signless)) {
-    return { count: 0, msd: null, lsd: null, cleaned: "" };
-  }
+  const signless = str.replace(/^[+-]/, "");
+  if (!/^(\d+\.?\d*|\.\d+)$/.test(signless)) return EMPTY_RESULT;
 
   if (!signless.includes(".")) {
-    // Integer: trailing zeros are not significant unless explicitly specified by a decimal point
-    const withoutLeading = signless.replace(/^0+/, "");
-    const core = withoutLeading.replace(/0+$/, "");
-    if (!core) return { count: 0, msd: null, lsd: null, cleaned: "" };
-    return {
-      count: core.length,
-      msd: core[0],
-      lsd: core[core.length - 1],
-      cleaned: core,
-    };
+    return describe(signless.replace(/^0+/, "").replace(/0+$/, ""));
   }
 
-  // Number with decimal point
+  // With a decimal point, drop only the leading zeros.
   const [intPart, fracPart] = signless.split(".");
-  const intNoLeading = intPart.replace(/^0+/, "");
-  let combined;
-
-  if (intNoLeading) {
-    combined = intNoLeading + fracPart;
-    combined = combined.replace(/0+$/, "");
-  } else {
-    const fracNoLeading = fracPart.replace(/^0+/, "");
-    combined = fracNoLeading;
-  }
-
-  if (!combined) return { count: 0, msd: null, lsd: null, cleaned: "" };
-
-  return {
-    count: combined.length,
-    msd: combined[0],
-    lsd: combined[combined.length - 1],
-    cleaned: combined,
-  };
+  return describe((intPart + fracPart).replace(/^0+/, ""));
 };
 
 const SignificantDigits = () => {
@@ -128,8 +105,8 @@ const SignificantDigits = () => {
                     </span>
                   </div>
                   <p style={{ marginTop: "0.75rem" }}>
-                    Non-significant leading and trailing zeros are stripped,
-                    leaving only the{" "}
+                    Leading zeros (and placeholder zeros at the end of a whole
+                    number) are ignored, leaving only the{" "}
                     <span className="highlight">meaningful digits</span> that
                     affect measured precision.
                   </p>

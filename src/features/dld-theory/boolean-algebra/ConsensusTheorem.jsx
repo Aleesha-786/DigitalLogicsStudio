@@ -104,6 +104,7 @@ const analyse = (expr) => {
 const ConsensusTheorem = () => {
   const [expr, setExpr] = useState("F = XY + X'Z + YZ");
   const [open, setOpen] = useState(false);
+  const [showSimplified, setShowSimplified] = useState(false);
   const { error, variables, terms, match, tt } = useMemo(
     () => analyse(expr),
     [expr],
@@ -318,19 +319,41 @@ const ConsensusTheorem = () => {
           </p>
         </div>
         <div className="kmap-card" style={{ marginTop: "1rem" }}>
-          <button
-            className="kmap-btn kmap-btn-primary kmap-btn-full"
-            onClick={() => setOpen(true)}
-          >
-            🔌 Show simplified vs unsimplified circuit
-          </button>
+          <div className="ba-actions">
+            <button
+              className="kmap-btn kmap-btn-primary"
+              onClick={() => {
+                setShowSimplified(false);
+                setOpen(true);
+              }}
+            >
+              🔌 Original circuit
+            </button>
+            <button
+              className="kmap-btn kmap-btn-primary"
+              disabled={!simplified}
+              title={
+                simplified
+                  ? undefined
+                  : "No consensus term found in this expression"
+              }
+              onClick={() => {
+                setShowSimplified(true);
+                setOpen(true);
+              }}
+            >
+              🔌 Simplified circuit
+            </button>
+          </div>
         </div>
       </section>
 
       <CircuitModal
         open={open}
         onClose={() => setOpen(false)}
-        expression={expr}
+        expression={
+          showSimplified && simplified ? formatSop(simplified) : expr
+        }
         variables={variables || DEFAULT_VARIABLES}
       />
     </BALayout>
