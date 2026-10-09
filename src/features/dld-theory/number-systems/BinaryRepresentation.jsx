@@ -1,12 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import NSLayout from './components/NSLayout';
-
-const Power = ({ base = "2", exponent }) => (
-    <span className="math-inline">
-        {base}
-        <sup>{exponent}</sup>
-    </span>
-);
+import Tex from '../../../shared/components/Tex';
 
 export default function BinaryRepresentation() {
     const [smInput, setSmInput] = useState('');
@@ -277,10 +271,10 @@ export default function BinaryRepresentation() {
                         </p>
                         <div className="binary-example-box">
                             <p className="binary-formula">
-                                Range: -( <Power exponent="n - 1" /> - 1 ) to +( <Power exponent="n - 1" /> - 1 )
+                                Range: <Tex>{"-(2^{n-1} - 1) \\text{ to } +(2^{n-1} - 1)"}</Tex>
                             </p>
                             <p className="binary-formula-note">
-                                Distinct bit patterns: <Power exponent="n" />, but +0 and -0 both represent zero.
+                                Distinct bit patterns: <Tex>{"2^{n}"}</Tex>, but +0 and -0 both represent zero.
                             </p>
                         </div>
                         <div className="binary-input-group">
@@ -317,7 +311,7 @@ export default function BinaryRepresentation() {
                         </p>
                         <p className="binary-text">
                             Two's complement is the standard way computers store signed integers. For positive values, write normal binary.
-                            {" "}For negative values, use the fixed bit width and wrap around from <Power exponent="n" />.
+                            {" "}For negative values, use the fixed bit width and wrap around from <Tex>{"2^{n}"}</Tex>.
                         </p>
 
                         <button className="binary-toggle-btn" onClick={() => setShowTcChart(!showTcChart)}>
@@ -377,7 +371,7 @@ export default function BinaryRepresentation() {
                         </div>
 
                         <div className="binary-callout">
-                            Shortcut: in n bits, a negative number can also be found with <Power exponent="n" /> - value.
+                            Shortcut: in n bits, a negative number can also be found with <Tex>{"2^{n} - \\text{value}"}</Tex>.
                             For -13 in 8 bits: 256 - 13 = 243, and 243 is 11110011.
                         </div>
                     </div>
@@ -424,10 +418,10 @@ export default function BinaryRepresentation() {
                         </p>
                         <div className="binary-example-box">
                             <p className="binary-formula">
-                                Range: -<Power exponent="n - 1" /> to +( <Power exponent="n - 1" /> - 1 )
+                                Range: <Tex>{"-2^{n-1} \\text{ to } +(2^{n-1} - 1)"}</Tex>
                             </p>
                             <p className="binary-formula-note">
-                                Distinct values: <Power exponent="n" />.
+                                Distinct values: <Tex>{"2^{n}"}</Tex>.
                             </p>
                         </div>
                         <div className="binary-input-group">
@@ -488,7 +482,7 @@ export default function BinaryRepresentation() {
                         </div>
 
                         <div className="binary-callout">
-                            With n bits, unsigned range is 0 to <Power exponent="n" /> - 1.
+                            With n bits, unsigned range is <Tex>{"0 \\text{ to } 2^{n} - 1"}</Tex>.
                             With 8 bits, that is 0 to 255.
                         </div>
                     </div>
@@ -500,10 +494,10 @@ export default function BinaryRepresentation() {
                         </p>
                         <div className="binary-example-box">
                             <p className="binary-formula">
-                                Range: 0 to <Power exponent="n" /> - 1
+                                Range: <Tex>{"0 \\text{ to } 2^{n} - 1"}</Tex>
                             </p>
                             <p className="binary-formula-note">
-                                Distinct values: <Power exponent="n" />.
+                                Distinct values: <Tex>{"2^{n}"}</Tex>.
                             </p>
                         </div>
                         <div className="binary-input-group">
