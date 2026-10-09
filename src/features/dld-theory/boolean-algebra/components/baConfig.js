@@ -74,6 +74,14 @@ export const baPages = [
     description: "How minterms and maxterms relate and complement each other.",
   },
   {
+    path: "/boolean/minterms-maxterms-assessment",
+    label: "Minterms & Maxterms Assessment",
+    short: "Assessment",
+    description: "Build a truth table, then find its minterms and maxterms.",
+    // Completed by passing the assessment, not by "Mark as Read".
+    assessment: true,
+  },
+  {
     path: "/boolean/significant-digits",
     label: "Significant Digits",
     short: "Sig. Digits",
