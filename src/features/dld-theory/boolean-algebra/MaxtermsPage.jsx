@@ -3,7 +3,11 @@ import BALayout from "./BALayout";
 import ControlPanel from "../../../shared/components/ControlPanel";
 import ControlGroup from "../../../shared/components/ControlGroup";
 import CircuitModal from "../../../shared/components/CircuitModal";
-import { generateTruthTable } from "../../../shared/utils/boolMath";
+import {
+  generateTruthTable,
+  extractVariables,
+  stripLabel,
+} from "../../../shared/utils/boolMath";
 
 const listMaxterms = (variables, expression) => {
   const tt = generateTruthTable(variables, expression);
@@ -15,9 +19,14 @@ const listMaxterms = (variables, expression) => {
 };
 
 const MaxtermsPage = () => {
-  const variables = useMemo(() => ["A", "B", "C"], []);
-  const [expr, setExpr] = useState("F = AB' + C");
+  const [input, setInput] = useState("F = AB' + C");
   const [open, setOpen] = useState(false);
+  const expr = useMemo(() => stripLabel(input), [input]);
+  // Inputs come from the expression itself (max 6 to keep the table small)
+  const variables = useMemo(() => {
+    const found = extractVariables(expr);
+    return found.length ? found.slice(0, 6) : ["A", "B", "C"];
+  }, [expr]);
   const tt = useMemo(
     () => generateTruthTable(variables, expr),
     [variables, expr],
@@ -91,8 +100,8 @@ const MaxtermsPage = () => {
             <input
               type="text"
               className="control-input"
-              value={expr}
-              onChange={(e) => setExpr(e.target.value)}
+              value={input}
+              onChange={(e) => setInput(e.target.value)}
             />
           </ControlGroup>
         </ControlPanel>
@@ -114,25 +123,25 @@ const MaxtermsPage = () => {
           <div className="example-buttons">
             <button
               className="kmap-btn kmap-btn-secondary"
-              onClick={() => setExpr("F = A • B")}
+              onClick={() => setInput("F = A • B")}
             >
               A • B
             </button>
             <button
               className="kmap-btn kmap-btn-secondary"
-              onClick={() => setExpr("F = (A + C)(B + C)")}
+              onClick={() => setInput("F = (A + C)(B + C)")}
             >
               (A + C)(B + C)
             </button>
             <button
               className="kmap-btn kmap-btn-secondary"
-              onClick={() => setExpr("F = A' + B")}
+              onClick={() => setInput("F = A' + B")}
             >
               A' + B
             </button>
             <button
               className="kmap-btn kmap-btn-secondary"
-              onClick={() => setExpr("F = A ⊙ B")}
+              onClick={() => setInput("F = A ⊙ B")}
             >
               A ⊙ B (XNOR)
             </button>
@@ -162,8 +171,8 @@ const MaxtermsPage = () => {
           <table className="binary-table">
             <thead className="binary-table-header">
               <tr>
-                {tt.headers.map((h) => (
-                  <th key={h}>{h}</th>
+                {tt.headers.map((h, hi) => (
+                  <th key={`${h}-${hi}`}>{h}</th>
                 ))}
               </tr>
             </thead>

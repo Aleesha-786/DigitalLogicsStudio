@@ -12,6 +12,10 @@ export const parseExpressionToCircuit = (expression, variables) => {
   // Normalize XOR: replace "XOR" keyword (case-insensitive) and ⊕ with §
   // We use § as a safe internal XOR separator token
   expr = expr.replace(/\s+XOR\s+/gi, "§");
+  // XNOR (⊙ or the XNOR keyword) reuses the XOR chain builder with an XNOR gate
+  const isXnor = /⊙|\sXNOR\s/i.test(expr);
+  expr = expr.replace(/\s+XNOR\s+/gi, "§").replace(/⊙/g, "§");
+  const chainGateType = isXnor ? "XNOR" : "XOR";
   expr = expr.replace(/[⊕^]/g, "§");
 
   // Normalize explicit AND operators and remove remaining spaces
@@ -158,7 +162,7 @@ export const parseExpressionToCircuit = (expression, variables) => {
       const xorX = xorBaseX + (i - 1) * 200;
       const xorGate = {
         id: gateId++,
-        type: "XOR",
+        type: chainGateType,
         label: `XOR${i - 1}`,
         x: xorX,
         y: xorY,
@@ -316,7 +320,7 @@ export const parseExpressionToCircuit = (expression, variables) => {
     const innerTerms = splitTopLevel(inner, "+");
     const ids = innerTerms
       .map((t) => parseProduct(t, termIndex))
-      .filter(Boolean);
+      .filter((id) => id !== null && id !== undefined);
     if (ids.length === 0) return null;
     if (ids.length === 1) return ids[0];
 
@@ -399,7 +403,7 @@ export const parseExpressionToCircuit = (expression, variables) => {
     for (let i = 1; i < resolvedIds.length; i++) {
       const xorGate = {
         id: gateId++,
-        type: "XOR",
+        type: chainGateType,
         label: `XOR${i - 1}`,
         x: xorBaseX + (i - 1) * 220,
         y: centerY + (i - 1) * 60,

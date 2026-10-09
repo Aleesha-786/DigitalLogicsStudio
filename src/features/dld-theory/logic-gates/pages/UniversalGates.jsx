@@ -221,7 +221,7 @@ const UniversalGates = () => {
         variables={['A', 'B']}
       />
 
-      <style jsx>{`
+      <style>{`
         .universal-intro {
           display: grid;
           grid-template-columns: 1fr 1fr;

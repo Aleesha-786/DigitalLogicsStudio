@@ -41,6 +41,9 @@ const InteractiveCalculator = ({
           type="text"
           value={input}
           onChange={(e) => setInput(e.target.value)}
+          onKeyDown={(e) => {
+            if (e.key === 'Enter') handleCalculate();
+          }}
           placeholder={inputPlaceholder}
           className="calculator-input"
         />
@@ -81,7 +84,7 @@ const InteractiveCalculator = ({
         </div>
       )}
 
-      <style jsx>{`
+      <style>{`
         .calculator-title {
           color: #e2e8f0;
           margin-bottom: 12px;
@@ -145,6 +148,8 @@ const InteractiveCalculator = ({
           font-family: 'Courier New', monospace;
           font-size: 0.95rem;
           line-height: 1.5;
+          white-space: pre-wrap;
+          overflow-wrap: anywhere;
         }
       `}</style>
     </div>

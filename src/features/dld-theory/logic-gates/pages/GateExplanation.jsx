@@ -63,7 +63,7 @@ const GateExplanation = () => {
         variables={gateExplanationVariables}
       />
 
-      <style jsx>{`
+      <style>{`
         .gate-grid {
           display: grid;
           grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));

@@ -10,14 +10,15 @@
 
 export const parseSOP = (expression) => {
   if (!expression) return [];
-  const expr = expression.replace(/^F\s*=\s*/, '').trim();
-  return expr.split('+').map(t => {
+  const expr = stripLabel(expression);
+  return expr.split(/\+|\|/).map(t => {
     const trimmed = t.trim();
     const lits = [];
     let i = 0;
     while (i < trimmed.length) {
       const ch = trimmed[i];
-      if (ch === ' ') { i++; continue; }
+      // Only letters are variables; skip spaces, AND symbols, constants, etc.
+      if (!/[A-Za-z]/.test(ch)) { i++; continue; }
       const neg = (i + 1 < trimmed.length && trimmed[i + 1] === "'");
       lits.push({ v: ch.toUpperCase(), n: neg });
       i += neg ? 2 : 1;
@@ -32,117 +33,103 @@ export const evaluateSOP = (terms, assign) => {
   return evaluateExpression(expr, assign);
 };
 
+/** Strips a leading "F =" style label (any single identifier before "="). */
+export const stripLabel = (expression) =>
+  String(expression || '').replace(/^\s*[A-Za-z]\w*\s*=(?!=)/, '').trim();
+
+/** Sorted unique variable names (A-Z) used by an expression, ignoring the label. */
+export const extractVariables = (expression) => {
+  const body = stripLabel(expression).replace(/\bXN?OR\b/gi, ' ');
+  return [...new Set(body.toUpperCase().match(/[A-Z]/g) || [])].sort();
+};
+
+// ── Tokenizer ───────────────────────────────────────────────────────────────
 const tokenize = (str) => {
   const tokens = [];
   let i = 0;
   while (i < str.length) {
     const ch = str[i];
     if (/\s/.test(ch)) { i++; continue; }
+    const word = str.slice(i).match(/^(XNOR|XOR)(?![A-Z])/);
+    if (word) { tokens.push({ type: word[1] }); i += word[1].length; continue; }
     if (/[A-Z]/.test(ch)) { tokens.push({ type: 'VAR', val: ch }); i++; continue; }
-    if (ch === '!') { tokens.push({ type: 'NOT' }); i++; continue; }
-    if (ch === '~') { tokens.push({ type: 'NOT' }); i++; continue; }
-    if (ch === '&' || ch === '.' || ch === '*') { tokens.push({ type: 'AND' }); i++; continue; }
-    if (ch === '|') { tokens.push({ type: 'OR' }); i++; continue; }
-    if (ch === '+') { tokens.push({ type: 'OR' }); i++; continue; }
-    if (ch === '^') { tokens.push({ type: 'XOR' }); i++; continue; }
+    if (ch === '0' || ch === '1') { tokens.push({ type: 'CONST', val: ch === '1' }); i++; continue; }
+    if (ch === '!' || ch === '~' || ch === '¬') { tokens.push({ type: 'NOT' }); i++; continue; }
+    if ('&.*•·∧'.includes(ch)) { tokens.push({ type: 'AND' }); i++; continue; }
+    if ('|+∨'.includes(ch)) { tokens.push({ type: 'OR' }); i++; continue; }
+    if (ch === '^' || ch === '⊕') { tokens.push({ type: 'XOR' }); i++; continue; }
+    if (ch === '⊙') { tokens.push({ type: 'XNOR' }); i++; continue; }
     if (ch === '(') { tokens.push({ type: 'LPAREN' }); i++; continue; }
     if (ch === ')') { tokens.push({ type: 'RPAREN' }); i++; continue; }
-    if (ch === "'") { tokens.push({ type: 'POST_NOT' }); i++; continue; }
-    // Handle implicit AND (e.g., AB)
-    if (tokens.length > 0) {
-      const prev = tokens[tokens.length - 1];
-      if ((prev.type === 'VAR' || prev.type === 'RPAREN' || prev.type === 'POST_NOT') && (ch === 'A' || ch === '(')) {
-        // This is simplified, real implicit AND is harder but this covers AB, (A)B
-      }
-    }
-    i++;
+    if (ch === "'" || ch === '’') { tokens.push({ type: 'POST_NOT' }); i++; continue; }
+    throw new Error(`Unexpected character "${ch}"`);
   }
   return tokens;
 };
 
-// Simplified parser for demonstration - converts to postfix for evaluation
-const getPrecedence = (type) => {
-  if (type === 'POST_NOT' || type === 'NOT') return 4;
-  if (type === 'AND') return 3;
-  if (type === 'XOR') return 2;
-  if (type === 'OR') return 1;
-  return 0;
-};
+// ── Recursive-descent parser → evaluator ────────────────────────────────────
+// Precedence (low → high): OR, XOR/XNOR, AND (explicit or implicit), NOT.
+const parseAndEvaluate = (tokens, assign) => {
+  let pos = 0;
+  const peek = () => tokens[pos];
+  const take = () => tokens[pos++];
 
-const toPostfix = (tokens) => {
-  const output = [];
-  const stack = [];
-  tokens.forEach((token, idx) => {
-    if (token.type === 'VAR') {
-      output.push(token);
-      // Check for implicit AND: if next is VAR or LPAREN
-      const next = tokens[idx + 1];
-      if (next && (next.type === 'VAR' || next.type === 'LPAREN' || next.type === 'NOT')) {
-        stack.push({ type: 'AND' });
-      }
-    } else if (token.type === 'LPAREN') {
-      stack.push(token);
-    } else if (token.type === 'RPAREN') {
-      while (stack.length && stack[stack.length - 1].type !== 'LPAREN') {
-        output.push(stack.pop());
-      }
-      stack.pop();
-      // Check for implicit AND after RPAREN
-      const next = tokens[idx + 1];
-      if (next && (next.type === 'VAR' || next.type === 'LPAREN' || next.type === 'NOT')) {
-        while (stack.length && getPrecedence(stack[stack.length - 1].type) >= getPrecedence('AND')) {
-          output.push(stack.pop());
-        }
-        stack.push({ type: 'AND' });
-      }
-    } else if (token.type === 'POST_NOT') {
-      output.push(token);
-      // Check for implicit AND after POST_NOT
-      const next = tokens[idx + 1];
-      if (next && (next.type === 'VAR' || next.type === 'LPAREN' || next.type === 'NOT')) {
-        stack.push({ type: 'AND' });
-      }
-    } else {
-      while (stack.length && getPrecedence(stack[stack.length - 1].type) >= getPrecedence(token.type)) {
-        output.push(stack.pop());
-      }
-      stack.push(token);
+  const startsFactor = (t) =>
+    t && (t.type === 'VAR' || t.type === 'CONST' || t.type === 'LPAREN' || t.type === 'NOT');
+
+  const parseOr = () => {
+    let v = parseXor();
+    while (peek() && peek().type === 'OR') { take(); const r = parseXor(); v = v || r; }
+    return v;
+  };
+  const parseXor = () => {
+    let v = parseAnd();
+    while (peek() && (peek().type === 'XOR' || peek().type === 'XNOR')) {
+      const op = take().type;
+      const r = parseAnd();
+      v = op === 'XOR' ? v !== r : v === r;
     }
-  });
-  while (stack.length) output.push(stack.pop());
-  return output;
+    return v;
+  };
+  const parseAnd = () => {
+    let v = parseUnary();
+    while (peek() && (peek().type === 'AND' || startsFactor(peek()))) {
+      if (peek().type === 'AND') take();
+      const r = parseUnary();
+      v = v && r;
+    }
+    return v;
+  };
+  const parseUnary = () => {
+    if (peek() && peek().type === 'NOT') { take(); return !parseUnary(); }
+    let v = parseAtom();
+    while (peek() && peek().type === 'POST_NOT') { take(); v = !v; }
+    return v;
+  };
+  const parseAtom = () => {
+    const t = take();
+    if (!t) throw new Error('Unexpected end of expression');
+    if (t.type === 'VAR') return !!assign[t.val];
+    if (t.type === 'CONST') return t.val;
+    if (t.type === 'LPAREN') {
+      const v = parseOr();
+      if (!peek() || take().type !== 'RPAREN') throw new Error('Missing )');
+      return v;
+    }
+    throw new Error(`Unexpected token ${t.type}`);
+  };
+
+  const result = parseOr();
+  if (pos < tokens.length) throw new Error('Unexpected trailing input');
+  return result;
 };
 
 export const evaluateExpression = (expression, assign) => {
   if (!expression) return 0;
   try {
-    const tokens = tokenize(expression.toUpperCase());
-    const postfix = toPostfix(tokens);
-    const stack = [];
-    postfix.forEach(token => {
-      if (token.type === 'VAR') {
-        stack.push(!!assign[token.val]);
-      } else if (token.type === 'NOT') {
-        const a = stack.pop();
-        stack.push(!a);
-      } else if (token.type === 'POST_NOT') {
-        const a = stack.pop();
-        stack.push(!a);
-      } else if (token.type === 'AND') {
-        const b = stack.pop();
-        const a = stack.pop();
-        stack.push(a && b);
-      } else if (token.type === 'OR') {
-        const b = stack.pop();
-        const a = stack.pop();
-        stack.push(a || b);
-      } else if (token.type === 'XOR') {
-        const b = stack.pop();
-        const a = stack.pop();
-        stack.push(a !== b);
-      }
-    });
-    return stack[0] ? 1 : 0;
+    const tokens = tokenize(stripLabel(expression).toUpperCase());
+    if (tokens.length === 0) return 0;
+    return parseAndEvaluate(tokens, assign) ? 1 : 0;
   } catch (e) {
     return 0;
   }

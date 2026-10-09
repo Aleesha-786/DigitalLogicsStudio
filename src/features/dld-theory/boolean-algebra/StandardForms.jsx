@@ -1,13 +1,18 @@
 import React, { useState, useMemo } from 'react';
-import ToolLayout from '../../../shared/components/ToolLayout';
-import ExplanationBlock from '../../../shared/components/ExplanationBlock';
+import BALayout from './BALayout';
 import ControlPanel from '../../../shared/components/ControlPanel';
 import ControlGroup from '../../../shared/components/ControlGroup';
 import CircuitModal from '../../../shared/components/CircuitModal';
-import { parseSOP, generateTruthTable } from '../../../shared/utils/boolMath';
-import Navbar from '../../../shared/components/navbar';
-import Footer from '../../../shared/components/Footer';
-import { useTheme } from '../../../shared/context/ThemeContext';
+import { parseSOP, generateTruthTable, extractVariables, stripLabel } from '../../../shared/utils/boolMath';
+
+const Block = ({ title, children }) => (
+  <section className="ba-section">
+    <div className="ba-section-header">
+      <h2 className="ba-section-title">{title}</h2>
+    </div>
+    {children}
+  </section>
+);
 
 const toPOS = (variables, expression) => {
   const tt = generateTruthTable(variables, expression);
@@ -23,26 +28,30 @@ const toPOS = (variables, expression) => {
 };
 
 const StandardForms = () => {
-  const { theme, toggle: toggleTheme } = useTheme();
-  const variables = useMemo(() => ['A', 'B', 'C'], []);
-  const [expr, setExpr] = useState("F = AB' + C");
+  const [input, setInput] = useState("F = AB' + C");
   const [open, setOpen] = useState(false);
+  const expr = useMemo(() => stripLabel(input), [input]);
+  // Inputs come from the expression itself (max 6 to keep the table small)
+  const variables = useMemo(() => {
+    const found = extractVariables(expr);
+    return found.length ? found.slice(0, 6) : ['A', 'B', 'C'];
+  }, [expr]);
   const tt = useMemo(() => generateTruthTable(variables, expr), [variables, expr]);
   const sopTerms = useMemo(() => parseSOP(expr), [expr]);
   const pos = useMemo(() => toPOS(variables, expr), [variables, expr]);
 
   return (
-    <div className={`boolforge-page theme-${theme}`}>
-      <div className="grid-background" />
-      <Navbar toggleTheme={toggleTheme} theme={theme} />
-      <main className="boolforge-main">
-    <ToolLayout title="Standard Forms (SOP & POS)" subtitle="Convert expressions and verify with truth tables">
-      <ExplanationBlock title="Understanding Standard Forms">
+    <BALayout
+      title="Standard Forms (SOP & POS)"
+      subtitle="Convert expressions and verify with truth tables"
+      intro="Sum of Products and Product of Sums are the two canonical ways to write a logic function. Enter an expression to see both forms and check them against its truth table."
+    >
+      <Block title="Understanding Standard Forms">
         <p className="explanation-intro">
           Standard forms in Boolean algebra provide systematic ways to represent logic functions. Sum of Products (SOP) and Product of Sums (POS) are the two canonical forms that are essential for circuit design, simplification, and implementation.
         </p>
         <div className="comparison-grid">
-          <div className="comparison-card">
+          <div className="info-card">
             <h5>Sum of Products (SOP)</h5>
             <ul>
               <li>OR of AND terms</li>
@@ -52,7 +61,7 @@ const StandardForms = () => {
               <li>Example: F = AB + A'C + BC</li>
             </ul>
           </div>
-          <div className="comparison-card">
+          <div className="info-card">
             <h5>Product of Sums (POS)</h5>
             <ul>
               <li>AND of OR terms</li>
@@ -67,19 +76,19 @@ const StandardForms = () => {
           <h4>Why Standard Forms Matter:</h4>
           <p>Standard forms provide a systematic approach to logic design, enable automated optimization algorithms, and serve as the foundation for techniques like Karnaugh maps and Quine-McCluskey method.</p>
         </div>
-      </ExplanationBlock>
+      </Block>
       <ControlPanel>
         <ControlGroup label="Expression (SOP)">
           <input
             type="text"
             className="control-input"
-            value={expr}
-            onChange={(e) => setExpr(e.target.value)}
+            value={input}
+            onChange={(e) => setInput(e.target.value)}
           />
         </ControlGroup>
       </ControlPanel>
 
-      <ExplanationBlock title="SOP Analysis">
+      <Block title="SOP Analysis">
         <p className="explanation-intro">Current SOP terms: {sopTerms.map(t => t.map(l => l.v + (l.n ? "'" : '')).join('')).join(' + ') || '—'}</p>
         <div className="info-card">
           <h4>SOP Properties:</h4>
@@ -99,9 +108,9 @@ const StandardForms = () => {
           </ul>
           <p>All AND outputs feed into a final OR gate.</p>
         </div>
-      </ExplanationBlock>
+      </Block>
 
-      <ExplanationBlock title="POS Analysis">
+      <Block title="POS Analysis">
         <p className="explanation-intro">Equivalent POS: <span className="highlight">{pos}</span></p>
         <div className="info-card">
           <h4>POS Properties:</h4>
@@ -120,22 +129,22 @@ const StandardForms = () => {
             <li>Multiply all sum terms together</li>
           </ol>
         </div>
-      </ExplanationBlock>
+      </Block>
 
-      <ExplanationBlock title="Interactive Examples">
+      <Block title="Interactive Examples">
         <div className="interactive-example">
           <h4>Try These Expressions:</h4>
           <div className="example-buttons">
-            <button className="kmap-btn kmap-btn-secondary" onClick={() => setExpr("F = A + B")}>
+            <button className="kmap-btn kmap-btn-secondary" onClick={() => setInput("F = A + B")}>
               A + B
             </button>
-            <button className="kmap-btn kmap-btn-secondary" onClick={() => setExpr("F = AB + C")}>
+            <button className="kmap-btn kmap-btn-secondary" onClick={() => setInput("F = AB + C")}>
               AB + C
             </button>
-            <button className="kmap-btn kmap-btn-secondary" onClick={() => setExpr("F = A'BC + AB'")}>
+            <button className="kmap-btn kmap-btn-secondary" onClick={() => setInput("F = A'BC + AB'")}>
               A'BC + AB'
             </button>
-            <button className="kmap-btn kmap-btn-secondary" onClick={() => setExpr("F = A + B'C")}>
+            <button className="kmap-btn kmap-btn-secondary" onClick={() => setInput("F = A + B'C")}>
               A + B'C
             </button>
           </div>
@@ -146,17 +155,18 @@ const StandardForms = () => {
           <details>
             <summary>Show Solution</summary>
             <p><strong>Truth Table Analysis:</strong></p>
-            <p>Rows where F=0: (A=0, B=1, C=0) and (A=0, B=1, C=1)</p>
-            <p><strong>Maxterms:</strong> M(2, 3)</p>
-            <p><strong>POS:</strong> (A + B' + C)(A + B' + C') = (A + B')(A + B' + C')</p>
+            <p>Rows where F=0: (A=0, B=0, C=0), (A=0, B=1, C=0) and (A=0, B=1, C=1)</p>
+            <p><strong>Maxterms:</strong> M(0, 2, 3)</p>
+            <p><strong>POS:</strong> (A + B + C)(A + B' + C)(A + B' + C') = (A + B')(A + C)</p>
           </details>
         </div>
-      </ExplanationBlock>
+      </Block>
 
+      <Block title="Truth Table">
       <div className="binary-table-container">
         <table className="binary-table">
           <thead className="binary-table-header">
-            <tr>{tt.headers.map(h => <th key={h}>{h}</th>)}</tr>
+            <tr>{tt.headers.map((h, i) => <th key={`${h}-${i}`}>{h}</th>)}</tr>
           </thead>
           <tbody>
             {tt.rows.map((row, i) => (
@@ -167,10 +177,11 @@ const StandardForms = () => {
           </tbody>
         </table>
       </div>
+      </Block>
 
-      <ExplanationBlock title="Form Selection Guidelines">
+      <Block title="Form Selection Guidelines">
         <div className="comparison-grid">
-          <div className="comparison-card">
+          <div className="info-card">
             <h5>When to Use SOP</h5>
             <ul>
               <li>Fewer 0s than 1s in truth table</li>
@@ -179,7 +190,7 @@ const StandardForms = () => {
               <li>PLA/PAL programming</li>
             </ul>
           </div>
-          <div className="comparison-card">
+          <div className="info-card">
             <h5>When to Use POS</h5>
             <ul>
               <li>Fewer 1s than 0s in truth table</li>
@@ -189,7 +200,7 @@ const StandardForms = () => {
             </ul>
           </div>
         </div>
-      </ExplanationBlock>
+      </Block>
 
       <div className="kmap-card">
         <button className="kmap-btn kmap-btn-primary kmap-btn-full" onClick={() => setOpen(true)}>
@@ -198,10 +209,7 @@ const StandardForms = () => {
       </div>
 
       <CircuitModal open={open} onClose={() => setOpen(false)} expression={expr} variables={variables} />
-    </ToolLayout>
-      </main>
-      <Footer />
-    </div>
+    </BALayout>
   );
 };
 

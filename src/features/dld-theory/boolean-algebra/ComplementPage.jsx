@@ -26,7 +26,7 @@ const ComplementPage = () => {
         t.map((l) => l.v),
       ),
     ),
-  );
+  ).sort();
   const posComplement = toPOSComplement(expr);
 
   return (

@@ -130,7 +130,7 @@ const unifiedNavSections = [
         icon: FolderHeart,
         path: "/universal-gates",
       },
-      { label: "Standard Forms", icon: GraduationCap, path: "/standard-forms" },
+      { label: "Standard Forms", icon: GraduationCap, path: "/boolean/standard-forms" },
     ],
   },
   {

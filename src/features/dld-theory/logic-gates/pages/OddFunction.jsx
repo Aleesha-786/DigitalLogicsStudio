@@ -320,7 +320,7 @@ const OddFunction = () => {
         variables={['A', 'B', 'C']}
       />
 
-      <style jsx>{`
+      <style>{`
         .odd-function-intro {
           display: grid;
           grid-template-columns: 1fr 1fr;
