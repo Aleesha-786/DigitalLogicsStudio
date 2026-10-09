@@ -105,6 +105,10 @@ const ConsensusTheorem = lazy(
 const DualityPrinciple = lazy(
   () => import("../features/dld-theory/boolean-algebra/DualityPrinciple"),
 );
+const BooleanMintermsAssessment = lazy(
+  () =>
+    import("../features/dld-theory/boolean-algebra/BooleanMintermsAssessment"),
+);
 const BooleanTheoremsAssessment = lazy(
   () =>
     import("../features/dld-theory/boolean-algebra/BooleanTheoremsAssessment"),
@@ -300,6 +304,10 @@ const AppContent = () => {
           <Route
             path="/boolean/minterms-maxterms"
             element={<MintermsMaxtermsRelation />}
+          />
+          <Route
+            path="/boolean/minterms-maxterms-assessment"
+            element={<BooleanMintermsAssessment />}
           />
           <Route
             path="/boolean/significant-digits"
