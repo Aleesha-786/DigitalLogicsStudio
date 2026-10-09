@@ -1488,6 +1488,18 @@
 }
 
 /* ── Minterms & Maxterms assessment ─────────────────────────────────────── */
+.ba-layout .mm-round-header {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem 1rem;
+}
+
+.ba-layout .mm-round-header .ba-section-title {
+  margin: 0;
+}
+
 .ba-layout .mm-given {
   margin-bottom: 1rem;
 }
