@@ -105,7 +105,7 @@ const Round = ({ round, number, passed, onPassed }) => {
 
   return (
     <section className="ba-section">
-      <div className="ba-section-header">
+      <div className="ba-section-header mm-round-header">
         <h2 className="ba-section-title">
           Round {number}: {round.title}
         </h2>
