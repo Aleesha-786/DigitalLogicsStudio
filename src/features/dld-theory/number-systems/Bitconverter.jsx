@@ -1,12 +1,6 @@
 import React, { useState } from "react";
 import NSLayout from "./components/NSLayout";
-
-const Power = ({ base, exponent }) => (
-  <span className="math-inline">
-    {base}
-    <sup>{exponent}</sup>
-  </span>
-);
+import Tex from '../../../shared/components/Tex';
 
 export default function BitConverter() {
   const [inputValue, setInputValue] = useState("1");
@@ -84,8 +78,8 @@ export default function BitConverter() {
               <div className="binary-example-box">
                 <ul className="binary-list">
                   <li><strong>1 Byte</strong> = 8 bits</li>
-                  <li><strong>Binary units</strong> use 1024 (<Power base="2" exponent="10" />) as base</li>
-                  <li><strong>Decimal units</strong> use 1000 (<Power base="10" exponent="3" />) as base</li>
+                  <li><strong>Binary units</strong> use 1024 (<Tex>{"2^{10}"}</Tex>) as base</li>
+                  <li><strong>Decimal units</strong> use 1000 (<Tex>{"10^{3}"}</Tex>) as base</li>
                   <li><strong>IEC standard:</strong> KB/MB/GB (binary) vs kB/mB/gB (decimal)</li>
                 </ul>
               </div>
@@ -173,7 +167,7 @@ export default function BitConverter() {
             <h3 className="binary-info-heading">Understanding Digital Storage Units</h3>
             <p className="binary-text">
               Digital storage uses <span className="binary-highlight-secondary">binary prefixes</span>{" "}
-              based on powers of 2. Each step up multiplies by 1024 (<Power base="2" exponent="10" />).
+              based on powers of 2. Each step up multiplies by 1024 (<Tex>{"2^{10}"}</Tex>).
             </p>
 
             <button className="binary-toggle-btn binary-toggle-btn-secondary" onClick={() => setShowTable(!showTable)}>
@@ -187,7 +181,7 @@ export default function BitConverter() {
                     <tr>
                       <th>Unit</th>
                       <th className="binary-table-cell-center">Symbol</th>
-                      <th className="binary-table-cell-center"><Power base="2" exponent="n" /> Bits</th>
+                      <th className="binary-table-cell-center"><Tex>{"2^{n}"}</Tex> Bits</th>
                       <th className="binary-table-cell-right">Total Bits</th>
                     </tr>
                   </thead>
@@ -202,7 +196,7 @@ export default function BitConverter() {
                             <td className="binary-table-cell">{row.unit}</td>
                             <td className="binary-table-cell binary-table-cell-center binary-table-cell-mono binary-table-cell-secondary">{row.symbol}</td>
                             <td className="binary-table-cell binary-table-cell-center binary-table-cell-mono binary-table-cell-amber">
-                              <Power base="2" exponent={row.power} />
+                              <Tex>{`2^{${row.power}}`}</Tex>
                             </td>
                             <td className="binary-table-cell binary-table-cell-right binary-table-cell-mono binary-table-cell-primary">{formatNumber(row.bits)}</td>
                           </tr>
@@ -223,7 +217,7 @@ export default function BitConverter() {
                   <li><strong>1 MB</strong> = 1024 KB</li>
                   <li><strong>1 MB</strong> = 1,048,576 Bytes</li>
                   <li><strong>1 MB</strong> = <span className="binary-highlight-secondary">8,388,608 bits</span></li>
-                  <li><strong>Power:</strong> <Power base="2" exponent="23" /> bits</li>
+                  <li><strong>Power:</strong> <Tex>{"2^{23}"}</Tex> bits</li>
                 </ol>
               </div>
             </div>
