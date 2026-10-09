@@ -111,10 +111,17 @@ export default function TheoryHomePage({ track }) {
 
             <div className="learning-resources-concepts-grid">
               {track.concepts.map((concept) => (
-                <article key={concept.title} className="learning-resources-concept-card">
-                  <h3>{concept.title}</h3>
-                  <p>{concept.description}</p>
-                </article>
+                concept.to ? (
+                  <Link key={concept.title} to={concept.to} className="learning-resources-concept-card is-link">
+                    <h3>{concept.title}</h3>
+                    <p>{concept.description}</p>
+                  </Link>
+                ) : (
+                  <article key={concept.title} className="learning-resources-concept-card">
+                    <h3>{concept.title}</h3>
+                    <p>{concept.description}</p>
+                  </article>
+                )
               ))}
             </div>
           </section>

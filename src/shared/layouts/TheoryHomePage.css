@@ -320,6 +320,22 @@
   box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.03);
 }
 
+.learning-resources-concept-card.is-link {
+  display: block;
+  color: inherit;
+  text-decoration: none;
+  cursor: pointer;
+  transition: transform 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.learning-resources-concept-card.is-link:hover,
+.learning-resources-concept-card.is-link:focus-visible {
+  transform: translateY(-2px);
+  border-color: rgba(99, 102, 241, 0.55);
+  box-shadow: 0 8px 24px rgba(99, 102, 241, 0.18);
+  outline: none;
+}
+
 .learning-resources-concept-card h3 {
   margin: 0 0 0.45rem;
 }

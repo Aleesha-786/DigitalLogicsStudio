@@ -51,20 +51,24 @@ const trackConfig = {
         title: "Logic Gates",
         description:
           "Understand AND, OR, NOT, NAND, NOR, XOR, and XNOR behavior.",
+        to: "/gates",
       },
       {
         title: "Boolean Algebra",
         description:
           "Practice simplification, duality, and algebraic identities.",
+        to: "/boolean/overview",
       },
       {
         title: "Karnaugh Maps",
         description: "Reduce complex expressions into simpler circuits.",
+        to: "/kmapgenerator",
       },
       {
         title: "Sequential Logic",
         description:
           "Explore latches, flip-flops, counters, and memory basics.",
+        to: "/sequential/intro",
       },
     ],
     studyPlan: [
@@ -206,13 +210,24 @@ const LearningResourcesPage = () => {
 
           <div className="learning-resources-concepts-grid">
             {content.concepts.map((concept) => (
-              <article
-                key={concept.title}
-                className="learning-resources-concept-card"
-              >
-                <h3>{concept.title}</h3>
-                <p>{concept.description}</p>
-              </article>
+              concept.to ? (
+                <Link
+                  key={concept.title}
+                  to={concept.to}
+                  className="learning-resources-concept-card is-link"
+                >
+                  <h3>{concept.title}</h3>
+                  <p>{concept.description}</p>
+                </Link>
+              ) : (
+                <article
+                  key={concept.title}
+                  className="learning-resources-concept-card"
+                >
+                  <h3>{concept.title}</h3>
+                  <p>{concept.description}</p>
+                </article>
+              )
             ))}
           </div>
         </section>

@@ -57,10 +57,10 @@ export const TRACKS = {
       { title: "Timing Diagrams", description: "Visualize how digital signals evolve over time.", to: "/timing-diagrams", icon: Sparkles },
     ],
     concepts: [
-      { title: "Logic Gates", description: "Understand AND, OR, NOT, NAND, NOR, XOR, and XNOR behavior." },
-      { title: "Boolean Algebra", description: "Practice simplification, duality, and algebraic identities." },
-      { title: "Karnaugh Maps", description: "Reduce complex expressions into simpler circuits." },
-      { title: "Sequential Logic", description: "Explore latches, flip-flops, counters, and memory basics." },
+      { title: "Logic Gates", description: "Understand AND, OR, NOT, NAND, NOR, XOR, and XNOR behavior.", to: "/gates" },
+      { title: "Boolean Algebra", description: "Practice simplification, duality, and algebraic identities.", to: "/boolean/overview" },
+      { title: "Karnaugh Maps", description: "Reduce complex expressions into simpler circuits.", to: "/kmapgenerator" },
+      { title: "Sequential Logic", description: "Explore latches, flip-flops, counters, and memory basics.", to: "/sequential/intro" },
     ],
   },
   coal: {
