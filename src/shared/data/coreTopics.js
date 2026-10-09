@@ -38,6 +38,11 @@ const coreTopics = [
         to: "/boolean/minterms-maxterms",
       },
       {
+        id: "minterms-maxterms-assessment",
+        text: "Minterms & Maxterms Assessment",
+        to: "/boolean/minterms-maxterms-assessment",
+      },
+      {
         id: "significant-digits",
         text: "Significant Digits",
         to: "/boolean/significant-digits",
