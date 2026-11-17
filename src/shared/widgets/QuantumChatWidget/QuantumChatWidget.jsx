@@ -44,6 +44,14 @@ import {
 import { resolveQuantumChatUrl } from "../../config/apiConfig";
 import "./QuantumChatWidget.css";
 
+const getErrorMessage = (err, fallback = "Request failed.") => {
+  const apiError = err?.response?.data?.error;
+  if (typeof apiError === "string") return apiError;
+  if (apiError && typeof apiError.message === "string") return apiError.message;
+  if (typeof err?.message === "string" && err.message) return err.message;
+  return fallback;
+};
+
 function getInitials(name) {
   const trimmed = name?.trim();
   if (!trimmed) return "Q";
@@ -141,7 +149,7 @@ function AuthPanel({ mode, onSwitchMode }) {
       setError(
         isNetwork
           ? "Cannot reach QuantumChat (network/CORS). Restart the DLS dev server, or push the QuantumChat-Backend CORS change."
-          : err.response?.data?.error || err.message || "Request failed.",
+          : getErrorMessage(err, "Request failed."),
       );
     } finally {
       setLoading(false);
@@ -319,7 +327,7 @@ function KeyGatePanel() {
       });
       downloadKeyFile(content);
     } catch (err) {
-      setError(err.response?.data?.error || err.message || "Could not regenerate keys.");
+      setError(getErrorMessage(err, "Could not regenerate keys."));
     } finally {
       setBusy(false);
     }
@@ -400,7 +408,7 @@ function ChatReadyPanel({
       setFriends(Array.isArray(friendRows) ? friendRows : []);
       setDiscover(Array.isArray(discoverRows) ? discoverRows : []);
     } catch (err) {
-      setListError(err.response?.data?.error || err.message || "Could not load contacts.");
+      setListError(getErrorMessage(err, "Could not load contacts."));
     } finally {
       setLoadingList(false);
     }
@@ -621,7 +629,7 @@ function ChatReadyPanel({
           bumpInbox();
         }
       } catch (err) {
-        setListError(err.response?.data?.error || err.message || "Could not load chat.");
+        setListError(getErrorMessage(err, "Could not load chat."));
       }
     },
     [user.id, bumpInbox],
@@ -712,7 +720,7 @@ function ChatReadyPanel({
         bumpInbox();
       }
     } catch (err) {
-      setListError(err.response?.data?.error || err.message || "Send failed.");
+      setListError(getErrorMessage(err, "Send failed."));
     } finally {
       setSending(false);
     }
